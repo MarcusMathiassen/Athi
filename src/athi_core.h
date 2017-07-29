@@ -41,5 +41,5 @@ public:
   void update_settings();
 
   template <typename T>
-  void add_text_dynamic(T* str, f32 x, f32 y, std::string id);
+  void add_text_dynamic(string static_str, T* str, f32 x, f32 y, string id);
 };

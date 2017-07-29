@@ -28,8 +28,8 @@
 struct Athi_Text
 {
   std::string id;
-  s32*   int_dynamic_part;
-  f32*   float_dynamic_part;
+  s32*   int_dynamic_part{nullptr};
+  f32*   float_dynamic_part{nullptr};
   vec2 pos {0.0f, 0.0f};
   std::string str{"default text"};
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
@@ -66,7 +66,8 @@ struct Athi_Text_Manager : public Athi_UI
     for (const auto &text: text_buffer)
     {
       std::string temp = text->str;
-      temp += std::to_string(*text->float_dynamic_part);
+      if (text->float_dynamic_part != nullptr) temp += std::to_string(*text->float_dynamic_part);
+      if (text->int_dynamic_part != nullptr)temp += std::to_string(*text->int_dynamic_part);
 
       glUniform4f(uniform[COLOR], text->color.r, text->color.g, text->color.g, text->color.a);
       const size_t num_chars{temp.length()};

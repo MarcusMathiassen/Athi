@@ -23,7 +23,7 @@ void Athi_Core::init()
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(0,0,0,1);
+  glClearColor(0.1f,0.1f,0.1f,1);
 
   framerate_limit = 30;
 
@@ -54,7 +54,9 @@ void Athi_Core::draw_loop()
 {
   glfwMakeContextCurrent(window->get_window_context());
 
-  add_text_dynamic(&frametime, LEFT, BOTTOM, "frametime");
+  add_text_dynamic("framerate limit: ", &framerate_limit, LEFT, BOTTOM+ROW, "framerate_limit");
+  add_text_dynamic("frametime: ", &frametime, LEFT, BOTTOM, "frametime");
+
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
@@ -72,14 +74,16 @@ void Athi_Core::draw_loop()
 }
 
 template <typename T>
-void Athi_Core::add_text_dynamic(T* str, f32 x, f32 y, std::string id)
+void Athi_Core::add_text_dynamic(string static_str, T* dynamic_str, f32 x, f32 y, string id)
 {
   Athi_Text text;
   text.id = id;
   text.pos.x = x;
   text.pos.y = y;
-  text.str = "frametime: ";
-  if (std::is_floating_point<T>::value) text.float_dynamic_part = str;
+  text.str = static_str;
+  //text.dynamic_str = dynamic_str;
+  if constexpr (std::is_floating_point<T>::value) text.float_dynamic_part = dynamic_str;
+  if constexpr (std::is_integral<T>::value) text.int_dynamic_part = dynamic_str;
   text_manager->text_buffer.emplace_back(std::make_unique<Athi_Text>(text));
 }
 
