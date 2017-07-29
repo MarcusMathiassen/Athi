@@ -26,7 +26,7 @@ private:
 
   std::unique_ptr<Athi_UI_Manager>      ui_manager;
   std::unique_ptr<Athi_Window>          window;
-  std::unique_ptr<Athi_Text_Manager>     text_manager;
+  std::unique_ptr<Athi_Text_Manager>    text_manager;
 
 public:
 

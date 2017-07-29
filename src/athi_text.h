@@ -3,6 +3,8 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <iostream>
+
 #include "athi_typedefs.h"
 #include "athi_texture.h"
 #include "athi_utility.h"
@@ -63,14 +65,16 @@ struct Athi_Text_Manager : public Athi_UI
     texture.bind(0);
     for (const auto &text: text_buffer)
     {
-      text->str += std::to_string(*text->float_dynamic_part);
+      std::string temp = text->str;
+      temp += std::to_string(*text->float_dynamic_part);
+
       glUniform4f(uniform[COLOR], text->color.r, text->color.g, text->color.g, text->color.a);
-      const size_t num_chars{text->str.length()};
+      const size_t num_chars{temp.length()};
       for (size_t i = 0; i < num_chars; ++i)
       {
-        if (text->str[i] == ' ') continue;
+        if (temp[i] == ' ') continue;
         glUniform2f(uniform[POSITION_OFFSET], text->pos.x + i * DIST_BETW_CHAR, text->pos.y);
-        glUniform1i(uniform[TEXTCOORD_INDEX], text->str[i]);
+        glUniform1i(uniform[TEXTCOORD_INDEX], temp[i]);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
       }
     }

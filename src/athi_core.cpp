@@ -19,6 +19,7 @@ void Athi_Core::init()
 
   text_manager = std::make_unique<Athi_Text_Manager>();
   text_manager->font_atlas_path = "./res/font_custom.png";
+  text_manager->init();
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -77,12 +78,8 @@ void Athi_Core::add_text_dynamic(T* str, f32 x, f32 y, std::string id)
   text.id = id;
   text.pos.x = x;
   text.pos.y = y;
-  text.str = "hello";
-  if (std::is_floating_point<T>::value)
-    {
-      std::cout << *str << std::endl;
-      text.float_dynamic_part = str;
-    }
+  text.str = "frametime: ";
+  if (std::is_floating_point<T>::value) text.float_dynamic_part = str;
   text_manager->text_buffer.emplace_back(std::make_unique<Athi_Text>(text));
 }
 
