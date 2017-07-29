@@ -5,10 +5,9 @@
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
-
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void Athi_Window::init()
 {
-  // Setup GLFW
   if (!glfwInit())
   {
     std::cerr << "Error initializing GLFW!\n";
@@ -24,6 +23,7 @@ void Athi_Window::init()
 
   glfwSetKeyCallback(context, key_callback);
   glfwSetCursorPosCallback(context, cursor_position_callback);
+  glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 
   // Gather monitor info
   s32  count;
@@ -32,7 +32,7 @@ void Athi_Window::init()
 
   // Setup GLEW
   glewExperimental = true;
-  if (!glewInit())
+  if (glewInit() != GLEW_OK)
   {
     std::cerr << "Error initializing GLEW!\n";
   }
@@ -64,4 +64,9 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+}
+
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+  std::cout << "viewport not changed: screen: " << width << "x" << height << std::endl;
 }
