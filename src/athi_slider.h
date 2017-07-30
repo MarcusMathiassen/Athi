@@ -10,6 +10,9 @@
 
 #include <iostream>
 
+
+// @Not working: ranges are showing wildy different numbers
+
 template <typename T>
 class Athi_Slider : public Athi_UI
 {
@@ -17,7 +20,7 @@ private:
   f32 box_max_pos;
   f32 box_min_pos;
 
-  enum { HOVER, ACTIVE, PRESSED, NOTHING};
+  enum { HOVER, PRESSED, NOTHING};
   u16 last_state{NOTHING};
 
   T* var;
@@ -32,7 +35,6 @@ public:
   f32 height{0.05f};
 
   f32 knob_width{0.05f};
-  f32 knob_height{0.05f};
 
   vec4 hover_color{1.0f, 0.5f, 0.5f,1.0f};
   vec4 pressed_color{0.5f, 0.3f, 0.3f,1.0f};
@@ -58,7 +60,7 @@ public:
     slider_input_box.pos = pos;
     slider_input_box.color = idle_color;
     slider_input_box.width  = knob_width;
-    slider_input_box.height = knob_height;
+    slider_input_box.height = height;
     slider_input_box.pos.x = slider_border.pos.x + slider_border.width * 0.5f;
     slider_input_box.init();
 
@@ -71,10 +73,9 @@ public:
     last_state = get_status();
     switch(last_state)
     {
-      case HOVER: slider_input_box.color = hover_color; break;
-      case ACTIVE: slider_input_box.color = vec4(1,0,1,1); break;
+      case HOVER:   slider_input_box.color = hover_color;   break;
       case PRESSED: slider_input_box.color = pressed_color; break;
-      case NOTHING: slider_input_box.color = idle_color; break;
+      case NOTHING: slider_input_box.color = idle_color;    break;
     }
   }
 
@@ -95,7 +96,10 @@ public:
 
     // Get the percentage of box position.
     const f32 box_at_perc = ((slider_input_box.pos.x - box_min_pos) / (box_max_pos - box_min_pos)) * (max-min) + min;
-    *var = box_at_perc * ((max-min)/100.0f);
+    std::cout << min << std::endl;
+    std::cout << max << std::endl;
+    std::cout << (max-min)/(100.0f) << std::endl;
+    *var = box_at_perc * ((max-min)/(100.0f));
   }
 
   u32 get_status()

@@ -10,12 +10,12 @@ int main()
   athi.vsync = 0;
 
   auto slider = create_slider<s32>(&athi.framerate_limit);
-  slider->pos = vec2(LEFT, BOTTOM+ROW*3);
-  slider->width = 0.8f;
-  slider->height = 0.05f;
-  slider->knob_width = 0.05f;
+  slider->pos = vec2(LEFT+ROW, BOTTOM+ROW*3);
+  slider->width = 0.5f;
+  slider->height = 0.03f;
+  slider->knob_width = 0.03f;
   slider->min = 30;
-  slider->max = 144;
+  slider->max = 300;
   slider->init();
   athi.ui_manager->ui_buffer.emplace_back(std::move(slider));
 
