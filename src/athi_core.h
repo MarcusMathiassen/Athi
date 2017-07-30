@@ -15,7 +15,7 @@ private:
   f32 frametime;
   u32 framerate;
   s32 framerate_limit;
-  bool vsync;
+  u8 vsync{0};
 
   u32    cpu_cores;
   u32    cpu_threads;

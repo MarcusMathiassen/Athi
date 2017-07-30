@@ -60,8 +60,8 @@ void Athi_Core::draw_loop()
   add_text_dynamic("frametime: ", &frametime, LEFT, BOTTOM, "frametime");
 
   Athi_Slider<s32> slider(&framerate_limit);
-  slider.pos = vec2(0,0);
-  slider.step_per_tick = 1.0f;
+  slider.pos = vec2(LEFT+ROW,TOP);
+  slider.width = 1.0f;
   slider.range_min = 0;
   slider.range_max = 60;
   slider.init();
