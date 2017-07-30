@@ -17,8 +17,6 @@ struct Athi_UI_Manager
 {
   f32 scale{1.0f};
 
-  Athi_Text_Manager text_manager;
-
   std::vector<std::unique_ptr<Athi_UI>>  ui_buffer;
 
   void update()
@@ -30,7 +28,6 @@ struct Athi_UI_Manager
   {
     //glViewport(0.0f, 0.0f, 1000.0f*scale, 1000.0f*scale);
 
-    text_manager.draw();
     for (const auto &ui: ui_buffer) ui->draw();
 
     int width, height;

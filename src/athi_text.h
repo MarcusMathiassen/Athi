@@ -24,58 +24,24 @@
 #define FONT_ATLAS_CHARACTER_WIDTH  0.06125f
 #define FONT_ATLAS_CHARACTER_HEIGHT 0.06125f
 
-struct Athi_Text
-{
-  std::string id;
-  s32*   int_dynamic_part{nullptr};
-  f32*   float_dynamic_part{nullptr};
-  vec2 pos {0.0f, 0.0f};
-  std::string str{"default text"};
-  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
-  Athi_Text() = default;
-};
-
-
 struct Athi_Text_Manager
 {
-  std::string id;
+  protected:
   static constexpr u16 indices[]{0,1,2, 0,2,3};
   enum { POSITION_OFFSET, COLOR, TEXTCOORD_INDEX, NUM_UNIFORMS};
   u32           VAO;
   u32           shaderProgram;
   u32           uniform[NUM_UNIFORMS];
   Texture       texture;
-  std::string   font_atlas_path;
 
-  std::vector<std::unique_ptr<Athi_Text> >   text_buffer;
+  public:
+  std::vector<Athi_Text> text_buffer;
+  std::string font_atlas_path;
 
   Athi_Text_Manager() = default;
   ~Athi_Text_Manager()
   {
     glDeleteVertexArrays(1, &VAO);
-  }
-
-  void draw() const
-  {
-    glBindVertexArray(VAO);
-    glUseProgram(shaderProgram);
-    texture.bind(0);
-    for (const auto &text: text_buffer)
-    {
-      std::string temp = text->str;
-      if (text->float_dynamic_part != nullptr) temp += std::to_string(*text->float_dynamic_part);
-      if (text->int_dynamic_part != nullptr)temp += std::to_string(*text->int_dynamic_part);
-
-      glUniform4f(uniform[COLOR], text->color.r, text->color.g, text->color.g, text->color.a);
-      const size_t num_chars{temp.length()};
-      for (size_t i = 0; i < num_chars; ++i)
-      {
-        if (temp[i] == ' ') continue;
-        glUniform2f(uniform[POSITION_OFFSET], text->pos.x + i * DIST_BETW_CHAR, text->pos.y);
-        glUniform1i(uniform[TEXTCOORD_INDEX], temp[i]);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
-      }
-    }
   }
 
   void init()
@@ -106,9 +72,34 @@ struct Athi_Text_Manager
   }
 };
 
-template <typename T>
-auto create_text(T* t)
+
+struct Athi_Text : public Athi_Text_Manager
 {
-  auto text = std::make_unique<Athi_Text>();
-  return text;
-}
+  std::string id;
+  s32*   int_dynamic_part{nullptr};
+  f32*   float_dynamic_part{nullptr};
+  vec2 pos {0.0f, 0.0f};
+  std::string str{"default text"};
+  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+  Athi_Text() = default;
+  void draw()
+  {
+    glBindVertexArray(VAO);
+    glUseProgram(shaderProgram);
+    texture.bind(0);
+
+    std::string temp = str;
+    if (float_dynamic_part != nullptr)  temp += std::to_string(*float_dynamic_part);
+    if (int_dynamic_part != nullptr)    temp += std::to_string(*int_dynamic_part);
+
+    glUniform4f(uniform[COLOR], color.r, color.g, color.g, color.a);
+    const size_t num_chars{temp.length()};
+    for (size_t i = 0; i < num_chars; ++i)
+    {
+      if (temp[i] == ' ') continue;
+      glUniform2f(uniform[POSITION_OFFSET], pos.x + i * DIST_BETW_CHAR, pos.y);
+      glUniform1i(uniform[TEXTCOORD_INDEX], temp[i]);
+      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+    }
+  }
+};

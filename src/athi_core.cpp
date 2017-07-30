@@ -63,6 +63,11 @@ void Athi_Core::draw_loop()
   box.pos = vec2(LEFT+ROW*11,BOTTOM+ROW*3);
   box.variable = &vsync;
 
+  Athi_Text text;
+  text.pos = vec2(LEFT, BOTTOM);
+  text.str = "Frametime: ";
+  text.float_dynamic_part = &frametime;
+
   box.init();
   while (app_is_running)
   {
@@ -71,6 +76,7 @@ void Athi_Core::draw_loop()
 
     if (show_settings)
     {
+      text.draw();
       box.update();
       box.draw();
       update_UI();
@@ -88,14 +94,13 @@ void Athi_Core::draw_loop()
 template <typename T>
 void Athi_Core::add_text_dynamic(string static_str, T* dynamic_str, f32 x, f32 y, string id)
 {
-  Athi_Text text;
-  text.id = id;
-  text.pos.x = x;
-  text.pos.y = y;
-  text.str = static_str;
-  if constexpr (std::is_floating_point<T>::value) text.float_dynamic_part = dynamic_str;
-  if constexpr (std::is_integral<T>::value) text.int_dynamic_part = dynamic_str;
-  text_manager->text_buffer.emplace_back(std::make_unique<Athi_Text>(text));
+  //Athi_Text text;
+  //text.id = id;
+  //text.pos.x = x;
+  //text.pos.y = y;
+  //text.str = static_str;
+  //if constexpr (std::is_floating_point<T>::value) text.float_dynamic_part = dynamic_str;
+  //if constexpr (std::is_integral<T>::value) text.int_dynamic_part = dynamic_str;
 }
 
 void Athi_Core::update_settings()
@@ -112,7 +117,6 @@ void Athi_Core::update_UI()
 void Athi_Core::draw_UI()
 {
   ui_manager->draw();
-  text_manager->draw();
 }
 
 void Athi_Core::shutdown()
