@@ -3,6 +3,7 @@
 #include "athi_utility.h"
 #include "athi_slider.h"
 #include "athi_checkbox.h"
+#include "athi_input.h"
 
 
 #include <thread>
@@ -18,6 +19,8 @@ void Athi_Core::init()
   window->scene.width = 512;
   window->scene.height = 512;
   window->init();
+
+  init_input_manager();
 
   text_manager = std::make_unique<Athi_Text_Manager>();
   text_manager->font_atlas_path = "./res/font_custom.png";

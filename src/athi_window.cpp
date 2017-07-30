@@ -3,8 +3,6 @@
 
 #include <iostream>
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void Athi_Window::init()
 {
@@ -21,8 +19,6 @@ void Athi_Window::init()
   context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
-  glfwSetKeyCallback(context, key_callback);
-  glfwSetCursorPosCallback(context, cursor_position_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 
   // Gather monitor info
@@ -55,15 +51,6 @@ void Athi_Window::update()
 GLFWwindow* Athi_Window::get_window_context()
 {
   return context;
-}
-
-static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
-{
-
-}
-
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
 }
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)

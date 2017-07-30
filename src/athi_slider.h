@@ -10,7 +10,6 @@
 
 #include <iostream>
 
-
 // @Not working: ranges are showing wildy different numbers
 
 template <typename T>
