@@ -5,6 +5,7 @@
 #include "athi_checkbox.h"
 #include "athi_input.h"
 #include "athi_text.h"
+#include "athi_circle.h"
 
 
 #include <thread>
@@ -73,13 +74,20 @@ void Athi_Core::draw_loop()
 
   Athi_Text cpu_info_text;
   cpu_info_text.pos = vec2(LEFT, TOP);
-  cpu_info_text.str = cpu_brand + " | " + std::to_string(cpu_cores) + "cores | " + std::to_string(cpu_threads) + "threads";
+  cpu_info_text.str = cpu_brand + " | " + std::to_string(cpu_cores) + " cores | " + std::to_string(cpu_threads) + " threads";
   add_text(&cpu_info_text);
+
+  Athi_Circle circle;
+  circle.pos = vec2(0,0);
+  circle.radius = 0.1f;
 
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
     glClear(GL_COLOR_BUFFER_BIT);
+
+
+    circle.draw();
 
     if (show_settings)
     {

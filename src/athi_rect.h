@@ -10,7 +10,7 @@
 
 struct Athi_Rect
 {
-  std::string id;
+  string id;
   static constexpr u16 indices[]{0,1,2, 0,2,3};
   enum {POSITION_OFFSET, COLOR, NUM_UNIFORMS};
   enum {POSITION, INDICES, NUM_BUFFERS};

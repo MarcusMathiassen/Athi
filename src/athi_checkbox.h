@@ -26,7 +26,7 @@ struct Athi_Checkbox
   vec4 outer_box_color{0.3f,0.3f,0.3f,1.0f};
   vec4 inner_box_color;
 
-  vec4 hover_color{0.1f, 0.1f, 0.1f,1.0f};
+  vec4 hover_color{0.4f,0.4f,0.4f,1.0f};
   vec4 pressed_color{0.5f, 0.3f, 0.3f,1.0f};
   vec4 idle_color{0.9f, 0.3f, 0.3f,1.0f};
 

@@ -12,8 +12,8 @@ void Athi_Checkbox::update()
   if (last_state == PRESSED && get_status() == HOVER) this_state = TOGGLE;
   switch(this_state)
   {
-    case HOVER:       inner_box.color = hover_color;   break;
-    case PRESSED:     inner_box.color = pressed_color; break;
+    case HOVER:       inner_box.color = idle_color;   break;
+    case PRESSED:     inner_box.color = hover_color; break;
     case IDLE:        inner_box.color = idle_color;    break;
     case TOGGLE:      inner_box.color = pressed_color; *variable = !(*variable); break;
   }
