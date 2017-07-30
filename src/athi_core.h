@@ -4,7 +4,6 @@
 #include "athi_window.h"
 #include "athi_settings.h"
 #include "athi_ui.h"
-#include "athi_text.h"
 #include "athi_slider.h"
 
 #include <memory>
@@ -25,7 +24,6 @@ struct Athi_Core
 
   std::unique_ptr<Athi_UI_Manager>      ui_manager;
   std::unique_ptr<Athi_Window>          window;
-  std::unique_ptr<Athi_Text_Manager>    text_manager;
 
   void update_UI();
   void draw_UI();
@@ -37,7 +35,4 @@ struct Athi_Core
   void start();
 
   void update_settings();
-
-  template <typename T>
-  void add_text_dynamic(string static_str, T* str, f32 x, f32 y, string id);
 };

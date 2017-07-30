@@ -4,6 +4,7 @@
 #include "athi_slider.h"
 #include "athi_checkbox.h"
 #include "athi_input.h"
+#include "athi_text.h"
 
 
 #include <thread>
@@ -13,6 +14,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+
 void Athi_Core::init()
 {
   window = std::make_unique<Athi_Window>();
@@ -21,10 +23,7 @@ void Athi_Core::init()
   window->init();
 
   init_input_manager();
-
-  text_manager = std::make_unique<Athi_Text_Manager>();
-  text_manager->font_atlas_path = "./res/font_custom.png";
-  text_manager->init();
+  init_text_manager();
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -56,17 +55,20 @@ void Athi_Core::start()
 void Athi_Core::draw_loop()
 {
   glfwMakeContextCurrent(window->get_window_context());
-  add_text_dynamic("Framerate limit: ", &framerate_limit, LEFT, BOTTOM+ROW, "framerate_limit");
-  add_text_dynamic("Frametime:       ", &frametime, LEFT, BOTTOM, "frametime");
 
   Athi_Checkbox box;
-  box.pos = vec2(LEFT+ROW*11,BOTTOM+ROW*3);
+  box.pos = vec2(LEFT+ROW*9,BOTTOM+ROW*2.5f);
+  box.width = 0.03f;
+  box.height = 0.03f;
   box.variable = &vsync;
 
-  Athi_Text text;
-  text.pos = vec2(LEFT, BOTTOM);
-  text.str = "Frametime: ";
-  text.float_dynamic_part = &frametime;
+  Athi_Text frametime_text;
+  frametime_text.pos = vec2(LEFT, BOTTOM);
+  add_text(&frametime_text);
+
+  Athi_Text frame_limit_text;
+  frame_limit_text.pos = vec2(LEFT, BOTTOM+ROW);
+  add_text(&frame_limit_text);
 
   box.init();
   while (app_is_running)
@@ -76,7 +78,8 @@ void Athi_Core::draw_loop()
 
     if (show_settings)
     {
-      text.draw();
+      frametime_text.str = "Frametime: " + std::to_string(frametime);
+      frame_limit_text.str = "Framerate limit: " + std::to_string(framerate_limit);
       box.update();
       box.draw();
       update_UI();
@@ -89,18 +92,6 @@ void Athi_Core::draw_loop()
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
   }
-}
-
-template <typename T>
-void Athi_Core::add_text_dynamic(string static_str, T* dynamic_str, f32 x, f32 y, string id)
-{
-  //Athi_Text text;
-  //text.id = id;
-  //text.pos.x = x;
-  //text.pos.y = y;
-  //text.str = static_str;
-  //if constexpr (std::is_floating_point<T>::value) text.float_dynamic_part = dynamic_str;
-  //if constexpr (std::is_integral<T>::value) text.int_dynamic_part = dynamic_str;
 }
 
 void Athi_Core::update_settings()

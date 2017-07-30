@@ -42,12 +42,9 @@ public:
   vec4 outer_box_color{0.3f,0.3f,0.3f,1.0f};
   u32 min{0}, max{100};
 
-  Athi_Slider(T* v) : var(v) {}
-
-
+  Athi_Slider(T* t) : var(t) {}
   void init()
   {
-
     // Border
     slider_border.pos = pos;
     slider_border.color = outer_box_color;
@@ -97,6 +94,7 @@ public:
     const f32 box_at_perc = ((slider_input_box.pos.x - box_min_pos) / (box_max_pos - box_min_pos)) * (max-min) + min;
     *var = box_at_perc * ((max-min)/(100.0f));
   }
+
 
   u32 get_status()
   {

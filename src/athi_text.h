@@ -24,19 +24,32 @@
 #define FONT_ATLAS_CHARACTER_WIDTH  0.06125f
 #define FONT_ATLAS_CHARACTER_HEIGHT 0.06125f
 
+void draw_all_text();
+void init_text_manager();
+void shutdown_text_manager();
+
+struct Athi_Text
+{
+  std::string id;
+  std::string str;
+  vec2 pos {0.0f, 0.0f};
+  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+  Athi_Text() = default;
+};
+void add_text(Athi_Text *text);
+
 struct Athi_Text_Manager
 {
-  protected:
+  std::string id;
   static constexpr u16 indices[]{0,1,2, 0,2,3};
   enum { POSITION_OFFSET, COLOR, TEXTCOORD_INDEX, NUM_UNIFORMS};
   u32           VAO;
   u32           shaderProgram;
   u32           uniform[NUM_UNIFORMS];
   Texture       texture;
+  std::string   font_atlas_path;
 
-  public:
-  std::vector<Athi_Text> text_buffer;
-  std::string font_atlas_path;
+  std::vector<Athi_Text*>   text_buffer;
 
   Athi_Text_Manager() = default;
   ~Athi_Text_Manager()
@@ -44,9 +57,31 @@ struct Athi_Text_Manager
     glDeleteVertexArrays(1, &VAO);
   }
 
+  void update() {}
+
+  void draw() const
+  {
+    glBindVertexArray(VAO);
+    glUseProgram(shaderProgram);
+    texture.bind(0);
+
+    for (const auto &text: text_buffer)
+    {
+      glUniform4f(uniform[COLOR], text->color.r, text->color.g, text->color.g, text->color.a);
+      const size_t num_chars{text->str.length()};
+      for (size_t i = 0; i < num_chars; ++i)
+      {
+        if (text->str[i] == ' ') continue;
+        glUniform2f(uniform[POSITION_OFFSET], text->pos.x + i * DIST_BETW_CHAR, text->pos.y);
+        glUniform1i(uniform[TEXTCOORD_INDEX], text->str[i]);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+      }
+    }
+  }
+
   void init()
   {
-    texture = Texture(font_atlas_path.c_str(), GL_LINEAR);
+    texture = Texture("./res/font_custom.png", GL_LINEAR);
     shaderProgram  = glCreateProgram();
     const u32 vs   = createShader("./res/text_shader.vs", GL_VERTEX_SHADER);
     const u32 fs   = createShader("./res/text_shader.fs", GL_FRAGMENT_SHADER);
@@ -56,7 +91,7 @@ struct Athi_Text_Manager
 
     glLinkProgram(shaderProgram);
     glValidateProgram(shaderProgram);
-    validateShaderProgram("text_manager_init", shaderProgram);
+    validateShaderProgram("MM_TextManager", shaderProgram);
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -72,34 +107,5 @@ struct Athi_Text_Manager
   }
 };
 
+static Athi_Text_Manager *athi_text_manager;
 
-struct Athi_Text : public Athi_Text_Manager
-{
-  std::string id;
-  s32*   int_dynamic_part{nullptr};
-  f32*   float_dynamic_part{nullptr};
-  vec2 pos {0.0f, 0.0f};
-  std::string str{"default text"};
-  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
-  Athi_Text() = default;
-  void draw()
-  {
-    glBindVertexArray(VAO);
-    glUseProgram(shaderProgram);
-    texture.bind(0);
-
-    std::string temp = str;
-    if (float_dynamic_part != nullptr)  temp += std::to_string(*float_dynamic_part);
-    if (int_dynamic_part != nullptr)    temp += std::to_string(*int_dynamic_part);
-
-    glUniform4f(uniform[COLOR], color.r, color.g, color.g, color.a);
-    const size_t num_chars{temp.length()};
-    for (size_t i = 0; i < num_chars; ++i)
-    {
-      if (temp[i] == ' ') continue;
-      glUniform2f(uniform[POSITION_OFFSET], pos.x + i * DIST_BETW_CHAR, pos.y);
-      glUniform1i(uniform[TEXTCOORD_INDEX], temp[i]);
-      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
-    }
-  }
-};
