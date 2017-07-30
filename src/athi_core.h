@@ -5,13 +5,12 @@
 #include "athi_settings.h"
 #include "athi_ui.h"
 #include "athi_text.h"
+#include "athi_slider.h"
 
 #include <memory>
 
-class Athi_Core
+struct Athi_Core
 {
-private:
-
   f32 frametime;
   u32 framerate;
   s32 framerate_limit;
@@ -28,8 +27,7 @@ private:
   std::unique_ptr<Athi_Window>          window;
   std::unique_ptr<Athi_Text_Manager>    text_manager;
 
-public:
-
+  void update_UI();
   void draw_UI();
   void draw_loop();
 

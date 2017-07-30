@@ -57,7 +57,7 @@ struct Athi_Rect
     uniform[COLOR]    = glGetUniformLocation(shaderProgram, "color");
   }
 
-  void draw()
+  void draw() const
   {
     glBindVertexArray(VAO);
     glUseProgram(shaderProgram);

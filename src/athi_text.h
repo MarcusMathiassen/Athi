@@ -8,7 +8,6 @@
 #include "athi_typedefs.h"
 #include "athi_texture.h"
 #include "athi_utility.h"
-#include "athi_ui.h"
 #include <vector>
 #include <memory>
 
@@ -37,7 +36,7 @@ struct Athi_Text
 };
 
 
-struct Athi_Text_Manager : public Athi_UI
+struct Athi_Text_Manager
 {
   std::string id;
   static constexpr u16 indices[]{0,1,2, 0,2,3};
@@ -55,8 +54,6 @@ struct Athi_Text_Manager : public Athi_UI
   {
     glDeleteVertexArrays(1, &VAO);
   }
-
-  void update() {}
 
   void draw() const
   {
@@ -108,3 +105,10 @@ struct Athi_Text_Manager : public Athi_UI
     uniform[TEXTCOORD_INDEX] = glGetUniformLocation(shaderProgram, "textCoord_index");
   }
 };
+
+template <typename T>
+auto create_text(T* t)
+{
+  auto text = std::make_unique<Athi_Text>();
+  return text;
+}

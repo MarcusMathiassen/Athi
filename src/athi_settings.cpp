@@ -1,3 +1,3 @@
 #include "athi_settings.h"
 
-bool show_settings{false};
+bool show_settings{tr};

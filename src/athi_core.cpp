@@ -24,10 +24,7 @@ void Athi_Core::init()
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(0.1f,0.1f,0.1f,1);
-
-  framerate_limit = 30;
-  vsync = 0;
+  glClearColor(0,0,0,1);
 
   ui_manager = std::make_unique<Athi_UI_Manager>();
   ui_manager->scale = 1.0f;
@@ -44,7 +41,7 @@ void Athi_Core::start()
   while (!glfwWindowShouldClose(window->get_window_context()))
   {
     window->update();
-    glfwPollEvents();
+    glfwWaitEvents();
   }
   app_is_running = false;
   draw_thread.join();
@@ -55,29 +52,20 @@ void Athi_Core::start()
 void Athi_Core::draw_loop()
 {
   glfwMakeContextCurrent(window->get_window_context());
-
-  add_text_dynamic("framerate limit: ", &framerate_limit, LEFT, BOTTOM+ROW, "framerate_limit");
-  add_text_dynamic("frametime: ", &frametime, LEFT, BOTTOM, "frametime");
-
-  Athi_Slider<s32> slider(&framerate_limit);
-  slider.pos = vec2(LEFT+ROW,TOP);
-  slider.width = 1.0f;
-  slider.range_min = 0;
-  slider.range_max = 60;
-  slider.init();
+  add_text_dynamic("Framerate limit: ", &framerate_limit, LEFT, BOTTOM+ROW, "framerate_limit");
+  add_text_dynamic("Frametime:       ", &frametime, LEFT, BOTTOM, "frametime");
 
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if (show_settings){}
-    if (settings_changed) update_settings();
-
-    slider.update();
-    slider.draw();
-    draw_UI();
-
+    if (show_settings)
+    {
+      update_UI();
+      draw_UI();
+      update_settings();
+    }
 
     glfwSwapBuffers(window->get_window_context());
 
@@ -104,6 +92,12 @@ void Athi_Core::update_settings()
   glfwSwapInterval(vsync);
 }
 
+
+void Athi_Core::update_UI()
+{
+  ui_manager->update();
+}
+
 void Athi_Core::draw_UI()
 {
   ui_manager->draw();
@@ -114,3 +108,4 @@ void Athi_Core::shutdown()
 {
   glfwTerminate();
 }
+
