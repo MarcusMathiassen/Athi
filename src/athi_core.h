@@ -14,7 +14,7 @@ struct Athi_Core
   f32 frametime;
   u32 framerate;
   s32 framerate_limit;
-  u8 vsync{0};
+  bool vsync{0};
 
   u32    cpu_cores;
   u32    cpu_threads;

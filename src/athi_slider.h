@@ -96,9 +96,6 @@ public:
 
     // Get the percentage of box position.
     const f32 box_at_perc = ((slider_input_box.pos.x - box_min_pos) / (box_max_pos - box_min_pos)) * (max-min) + min;
-    std::cout << min << std::endl;
-    std::cout << max << std::endl;
-    std::cout << (max-min)/(100.0f) << std::endl;
     *var = box_at_perc * ((max-min)/(100.0f));
   }
 

@@ -2,6 +2,7 @@
 #include "athi_core.h"
 #include "athi_utility.h"
 #include "athi_slider.h"
+#include "athi_checkbox.h"
 
 
 #include <thread>
@@ -55,6 +56,11 @@ void Athi_Core::draw_loop()
   add_text_dynamic("Framerate limit: ", &framerate_limit, LEFT, BOTTOM+ROW, "framerate_limit");
   add_text_dynamic("Frametime:       ", &frametime, LEFT, BOTTOM, "frametime");
 
+  Athi_Checkbox box;
+  box.pos = vec2(LEFT+ROW*11,BOTTOM+ROW*3);
+  box.variable = &vsync;
+
+  box.init();
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
@@ -62,6 +68,8 @@ void Athi_Core::draw_loop()
 
     if (show_settings)
     {
+      box.update();
+      box.draw();
       update_UI();
       draw_UI();
       update_settings();
