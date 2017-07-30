@@ -3,6 +3,7 @@
 #include "athi_typedefs.h"
 #include "athi_rect.h"
 #include "athi_ui.h"
+#include "athi_input.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -101,23 +102,21 @@ public:
     f64 mouse_x, mouse_y;
     glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
 
-    int width, height;
+    s32 width, height;
     glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
     mouse_x = -1.0f + 2 * mouse_x / width;
     mouse_y = +1.0f - 2 * mouse_y / height;
 
-    int state = glfwGetMouseButton(glfwGetCurrentContext(), GLFW_MOUSE_BUTTON_LEFT);
+    s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
     if (state == GLFW_PRESS && last_state == PRESSED)
     {
       update_position(mouse_x);
       return PRESSED;
     }
 
-    if (
-      mouse_x > slider_border.pos.x && mouse_x < slider_border.pos.x+slider_border.width &&
-      mouse_y > slider_border.pos.y && mouse_y < slider_border.pos.y+slider_border.height)
+    if (  mouse_x > slider_border.pos.x && mouse_x < slider_border.pos.x+slider_border.width &&
+          mouse_y > slider_border.pos.y && mouse_y < slider_border.pos.y+slider_border.height)
     {
-      int state = glfwGetMouseButton(glfwGetCurrentContext(), GLFW_MOUSE_BUTTON_LEFT);
       if (state == GLFW_PRESS)
       {
         update_position(mouse_x);
