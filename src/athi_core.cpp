@@ -1,6 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "athi_core.h"
 #include "athi_utility.h"
+#include "athi_slider.h"
 
 
 #include <thread>
@@ -26,6 +27,7 @@ void Athi_Core::init()
   glClearColor(0.1f,0.1f,0.1f,1);
 
   framerate_limit = 30;
+  vsync = 0;
 
   ui_manager = std::make_unique<Athi_UI_Manager>();
   ui_manager->scale = 1.0f;
@@ -42,7 +44,7 @@ void Athi_Core::start()
   while (!glfwWindowShouldClose(window->get_window_context()))
   {
     window->update();
-    glfwWaitEvents();
+    glfwPollEvents();
   }
   app_is_running = false;
   draw_thread.join();
@@ -57,6 +59,13 @@ void Athi_Core::draw_loop()
   add_text_dynamic("framerate limit: ", &framerate_limit, LEFT, BOTTOM+ROW, "framerate_limit");
   add_text_dynamic("frametime: ", &frametime, LEFT, BOTTOM, "frametime");
 
+  Athi_Slider<s32> slider(&framerate_limit);
+  slider.pos = vec2(0,0);
+  slider.step_per_tick = 1.0f;
+  slider.range_min = 0;
+  slider.range_max = 60;
+  slider.init();
+
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
@@ -65,7 +74,11 @@ void Athi_Core::draw_loop()
     if (show_settings){}
     if (settings_changed) update_settings();
 
+    slider.update();
+    slider.draw();
     draw_UI();
+
+
     glfwSwapBuffers(window->get_window_context());
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
@@ -81,7 +94,6 @@ void Athi_Core::add_text_dynamic(string static_str, T* dynamic_str, f32 x, f32 y
   text.pos.x = x;
   text.pos.y = y;
   text.str = static_str;
-  //text.dynamic_str = dynamic_str;
   if constexpr (std::is_floating_point<T>::value) text.float_dynamic_part = dynamic_str;
   if constexpr (std::is_integral<T>::value) text.int_dynamic_part = dynamic_str;
   text_manager->text_buffer.emplace_back(std::make_unique<Athi_Text>(text));

@@ -32,6 +32,9 @@ struct Athi_UI_Manager
     {
       ui->draw();
     }
+    int width, height;
+    glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
+    glViewport(0, 0, width, height);
   }
 
   void add_ui(const Athi_UI& ui)

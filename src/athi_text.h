@@ -93,7 +93,7 @@ struct Athi_Text_Manager : public Athi_UI
 
     glLinkProgram(shaderProgram);
     glValidateProgram(shaderProgram);
-    validateShaderProgram("MM_TextManager", shaderProgram);
+    validateShaderProgram("text_manager_init", shaderProgram);
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
