@@ -6,8 +6,6 @@
 
 #include <iostream>
 
-// @Buggy: too fast
-
 struct Athi_Checkbox
 {
 
@@ -32,8 +30,9 @@ struct Athi_Checkbox
 
   void update()
   {
-    if (last_state == PRESSED && get_status() == HOVER) last_state = TOGGLE;
-    switch(last_state)
+    u8 this_state = get_status();
+    if (last_state == PRESSED && get_status() == HOVER) this_state = TOGGLE;
+    switch(this_state)
     {
       case HOVER:       inner_box.color = hover_color;   break;
       case PRESSED:     inner_box.color = pressed_color; break;
@@ -41,13 +40,12 @@ struct Athi_Checkbox
       case TOGGLE:      inner_box.color = pressed_color; *variable = !(*variable); break;
     }
     last_state = get_status();
-    std::cout << "last_state: " << last_state << std::endl;
   }
 
   void draw() const
   {
     outer_box.draw();
-    if (*variable) inner_box.draw();
+    if (*variable || last_state == HOVER) inner_box.draw();
   }
 
 

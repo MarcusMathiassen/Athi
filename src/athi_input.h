@@ -49,7 +49,6 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
     case GLFW_MOUSE_BUTTON_LEFT: athi_input_manager.mouse.left_button.state = action;
     case GLFW_MOUSE_BUTTON_RIGHT: athi_input_manager.mouse.right_button.state = action;
   }
-  std::cout << "mouse button: " << button << " state: " << action << std::endl;
 }
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
