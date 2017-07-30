@@ -11,7 +11,7 @@
 #include <vector>
 #include <memory>
 
-#define TOP     0.85f
+#define TOP     0.92f
 #define BOTTOM -1.0f
 #define LEFT   -1.0f
 #define RIGHT   1.0f

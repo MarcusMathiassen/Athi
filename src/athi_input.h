@@ -6,6 +6,7 @@
 
 #include "athi_typedefs.h"
 #include <iostream>
+#include "athi_settings.h"
 
 
 void init_input_manager();
@@ -53,5 +54,9 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-
+  if (key == GLFW_KEY_I && action == GLFW_PRESS)
+  {
+    if (show_settings) show_settings = false;
+    else show_settings = true;
+  }
 }

@@ -61,6 +61,7 @@ void Athi_Core::draw_loop()
   box.width = 0.03f;
   box.height = 0.03f;
   box.variable = &vsync;
+  box.init();
 
   Athi_Text frametime_text;
   frametime_text.pos = vec2(LEFT, BOTTOM);
@@ -70,7 +71,11 @@ void Athi_Core::draw_loop()
   frame_limit_text.pos = vec2(LEFT, BOTTOM+ROW);
   add_text(&frame_limit_text);
 
-  box.init();
+  Athi_Text cpu_info_text;
+  cpu_info_text.pos = vec2(LEFT, TOP);
+  cpu_info_text.str = cpu_brand + " | " + std::to_string(cpu_cores) + "cores | " + std::to_string(cpu_threads) + "threads";
+  add_text(&cpu_info_text);
+
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };

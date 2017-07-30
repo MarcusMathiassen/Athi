@@ -41,11 +41,6 @@ void Athi_Window::open()
 
 void Athi_Window::update()
 {
-  if (glfwGetKey(context, GLFW_KEY_I) == GLFW_PRESS)
-  {
-    if (show_settings) show_settings = false;
-    else show_settings = true;
-  }
 }
 
 GLFWwindow* Athi_Window::get_window_context()
