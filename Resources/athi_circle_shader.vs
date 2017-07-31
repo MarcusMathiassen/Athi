@@ -1,13 +1,16 @@
 #version 410
 
-in vec3 position;
+in vec2 position;
 in vec4 color;
 in mat4 transform;
 
-out vec4 color0;
+out Vertex
+{
+  vec4 color;
+} vertex;
 
 void main()
 {
-  gl_Position = transform * vec4(position, 1.0);
-  color0 = color;
+  gl_Position = transform * vec4(position, 0.0, 1.0);
+  vertex.color = color;
 }

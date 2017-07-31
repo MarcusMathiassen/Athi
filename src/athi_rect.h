@@ -15,7 +15,7 @@ struct Athi_Rect
   enum {POSITION_OFFSET, COLOR, NUM_UNIFORMS};
   enum {POSITION, INDICES, NUM_BUFFERS};
   u32 VAO;
-  u32 shaderProgram;
+  u32 shader_program;
   u32 uniform[NUM_UNIFORMS];
 
   vec2 pos;
@@ -26,16 +26,18 @@ struct Athi_Rect
   Athi_Rect() = default;
   void init()
   {
-    shaderProgram  = glCreateProgram();
+    shader_program  = glCreateProgram();
     const u32 vs   = createShader("../Resources/athi_rect_shader.vs", GL_VERTEX_SHADER);
     const u32 fs   = createShader("../Resources/athi_rect_shader.fs", GL_FRAGMENT_SHADER);
 
-    glAttachShader(shaderProgram, vs);
-    glAttachShader(shaderProgram, fs);
+    glAttachShader(shader_program, vs);
+    glAttachShader(shader_program, fs);
 
-    glLinkProgram(shaderProgram);
-    glValidateProgram(shaderProgram);
-    validateShaderProgram("rect_constructor", shaderProgram);
+    glBindAttribLocation(shader_program, 0, "position");
+
+    glLinkProgram(shader_program);
+    glValidateProgram(shader_program);
+    validateShaderProgram("rect_constructor", shader_program);
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -59,14 +61,14 @@ struct Athi_Rect
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[INDICES]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    uniform[POSITION_OFFSET] = glGetUniformLocation(shaderProgram, "position_offset");
-    uniform[COLOR]    = glGetUniformLocation(shaderProgram, "color");
+    uniform[POSITION_OFFSET] = glGetUniformLocation(shader_program, "position_offset");
+    uniform[COLOR]           = glGetUniformLocation(shader_program, "color");
   }
 
   void draw() const
   {
     glBindVertexArray(VAO);
-    glUseProgram(shaderProgram);
+    glUseProgram(shader_program);
     glUniform2f(uniform[POSITION_OFFSET], pos.x, pos.y);
     glUniform4f(uniform[COLOR], color.r, color.g, color.g, color.a);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);

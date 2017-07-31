@@ -73,19 +73,16 @@ void Athi_Core::draw_loop()
   frame_limit_text.pos = vec2(LEFT, BOTTOM+ROW);
   add_text(&frame_limit_text);
 
+  Athi_Text circle_info;
+  circle_info.pos = vec2(LEFT, BOTTOM+ROW*3);
+  add_text(&circle_info);
+
   Athi_Text cpu_info_text;
   cpu_info_text.pos = vec2(LEFT, TOP);
   cpu_info_text.str = cpu_brand + " | " + std::to_string(cpu_cores) + " cores | " + std::to_string(cpu_threads) + " threads";
   add_text(&cpu_info_text);
 
   SMA smooth_frametime_avg(&smoothed_frametime);
-
-
-  Athi_Circle circle;
-  circle.pos = vec2(0,0);
-  circle.radius = 1.0f;
-  circle.init();
-  addCircle(circle);
 
   while (app_is_running)
   {
@@ -94,13 +91,33 @@ void Athi_Core::draw_loop()
 
     if (show_settings)
     {
-      frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | Frametime: " + std::to_string(smoothed_frametime);
-      frame_limit_text.str = "Framerate limit: " + std::to_string(framerate_limit);
+      frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | frametime: " + std::to_string(smoothed_frametime);
+      frame_limit_text.str = "limit FPS: " + std::to_string(framerate_limit);
+      circle_info.str = "circles: " + std::to_string(get_num_circles());
       box.update();
       box.draw();
       update_UI();
       draw_UI();
       update_settings();
+    }
+
+    // @Cleanup: move this somewhere nice
+    if (glfwGetKey(window->get_window_context(),GLFW_KEY_1) == GLFW_PRESS)
+    {
+
+      f64 mouse_x, mouse_y;
+      glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
+
+      s32 width, height;
+      glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+      mouse_x = -1.0f + 2 * mouse_x / width;
+      mouse_y = +1.0f - 2 * mouse_y / height;
+
+      Athi_Circle c;
+      c.pos = vec2(mouse_x,mouse_y);
+      c.radius = 0.003f;
+      c.init();
+      addCircle(c);
     }
 
     update_circles();
@@ -119,7 +136,6 @@ void Athi_Core::update_settings()
 {
   glfwSwapInterval(vsync);
 }
-
 
 void Athi_Core::update_UI()
 {

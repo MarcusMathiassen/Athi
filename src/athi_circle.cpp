@@ -4,7 +4,6 @@
 #include <cmath>
 #include <glm/gtx/vector_angle.hpp>
 
-
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -22,8 +21,7 @@ void Athi_Circle::update()
 
   if (physics_gravity) vel.y -= (9.81f * mass) * 0.00001f;
 
-  //pos += vel;
-
+  pos += vel;
   transform.pos   = glm::vec3(pos.x, pos.y, 0);
   transform.scale = glm::vec3(radius, radius, 0);
 }
@@ -55,12 +53,12 @@ void Athi_Circle::borderCollision() {
 
 static bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b)
 {
-  const float ax = a.pos.x;
-  const float ay = a.pos.y;
-  const float bx = b.pos.x;
-  const float by = b.pos.y;
-  const float ar = a.radius;
-  const float br = b.radius;
+  const f32 ax = a.pos.x;
+  const f32 ay = a.pos.y;
+  const f32 bx = b.pos.x;
+  const f32 by = b.pos.y;
+  const f32 ar = a.radius;
+  const f32 br = b.radius;
 
   // square collision check
   if (ax - ar < bx + br &&
@@ -69,13 +67,13 @@ static bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b)
       ay + ar > by - br) {
 
     // circle collision check
-    const float dx = bx - ax;
-    const float dy = by - ay;
+    const f32 dx = bx - ax;
+    const f32 dy = by - ay;
 
-    const float sumRadius = ar + br;
-    const float sqrRadius = sumRadius * sumRadius;
+    const f32 sumRadius = ar + br;
+    const f32 sqrRadius = sumRadius * sumRadius;
 
-    const float distSqr = (dx * dx) + (dy * dy);
+    const f32 distSqr = (dx * dx) + (dy * dy);
 
     if (distSqr <= sqrRadius) return true;
   }
@@ -86,26 +84,26 @@ static void collisionResolve(Athi_Circle &a, Athi_Circle &b)
 {
   separate(a, b);
 
-  const float dx = b.pos.x - a.pos.x;
-  const float dy = b.pos.y - a.pos.y;
-  const float vdx = b.vel.x - a.vel.x;
-  const float vdy = b.vel.y - a.vel.y;
-  const float d = dx * vdx + dy * vdy;
+  const f32 dx = b.pos.x - a.pos.x;
+  const f32 dy = b.pos.y - a.pos.y;
+  const f32 vdx = b.vel.x - a.vel.x;
+  const f32 vdy = b.vel.y - a.vel.y;
+  const f32 d = dx * vdx + dy * vdy;
 
   // if they're not moving away from eachother
-  if (d < 0) {
+  if (d < 0.0f) {
     const vec2 norm = glm::normalize(vec2(dx,dy));
     const vec2 tang{norm.y * -1, norm.x};
-    const float scal_norm_1 = glm::dot(norm, a.vel);
-    const float scal_norm_2 = glm::dot(norm, b.vel);
-    const float scal_tang_1 = glm::dot(tang, a.vel);
-    const float scal_tang_2 = glm::dot(tang, b.vel);
+    const f32 scal_norm_1 = glm::dot(norm, a.vel);
+    const f32 scal_norm_2 = glm::dot(norm, b.vel);
+    const f32 scal_tang_1 = glm::dot(tang, a.vel);
+    const f32 scal_tang_2 = glm::dot(tang, b.vel);
 
-    const float m1 = a.mass;
-    const float m2 = b.mass;
+    const f32 m1 = a.mass;
+    const f32 m2 = b.mass;
 
-    const float scal_norm_1_after = (scal_norm_1 * (m1 - m2) + 2 * m2 * scal_norm_2) / (m1 + m2);
-    const float scal_norm_2_after = (scal_norm_2 * (m2 - m1) + 2 * m1 * scal_norm_1) / (m1 + m2);
+    const f32 scal_norm_1_after = (scal_norm_1 * (m1 - m2) + 2.0f * m2 * scal_norm_2) / (m1 + m2);
+    const f32 scal_norm_2_after = (scal_norm_2 * (m2 - m1) + 2.0f * m1 * scal_norm_1) / (m1 + m2);
     const vec2 scal_norm_1_after_vec{norm * scal_norm_1_after};
     const vec2 scal_norm_2_after_vec{norm * scal_norm_2_after};
     const vec2 scal_norm_1_vec{tang * scal_tang_1};
@@ -121,36 +119,36 @@ static void separate(Athi_Circle &a, Athi_Circle &b)
 {
   const vec2 apos{a.pos};
   const vec2 bpos{b.pos};
-  const float ar{a.radius};
-  const float br{b.radius};
+  const f32 ar{a.radius};
+  const f32 br{b.radius};
 
-  const float colDepth = (ar + br) - glm::distance(b.pos, a.pos);
+  const f32 colDepth = (ar + br) - glm::distance(b.pos, a.pos);
 
-  const float dx = bpos.x - apos.x;
-  const float dy = bpos.y - apos.y;
+  const f32 dx = bpos.x - apos.x;
+  const f32 dy = bpos.y - apos.y;
 
   // contact angle
-  const float colAngle = atan2(dy, dx);
-  const float cos_angle = cos(colAngle);
-  const float sin_angle = sin(colAngle);
+  const f32 colAngle = atan2(dy, dx);
+  const f32 cos_angle = cos(colAngle);
+  const f32 sin_angle = sin(colAngle);
 
   // move the balls away from eachother so they dont overlap
-  const float a_move_x = -colDepth * 0.5 * cos_angle;
-  const float a_move_y = -colDepth * 0.5 * sin_angle;
-  const float b_move_x = colDepth * 0.5 * cos_angle;
-  const float b_move_y = colDepth * 0.5 * sin_angle;
+  const f32 a_move_x = -colDepth * 0.5f * cos_angle;
+  const f32 a_move_y = -colDepth * 0.5f * sin_angle;
+  const f32 b_move_x = colDepth * 0.5f * cos_angle;
+  const f32 b_move_y = colDepth * 0.5f * sin_angle;
 
   // Make sure they dont get moved beyond the border
-  if (apos.x + a_move_x >= -1.0 + ar && apos.x + a_move_x <= 1.0 - ar) {
+  if (apos.x + a_move_x >= -1.0f + ar && apos.x + a_move_x <= 1.0f - ar) {
     a.pos.x += a_move_x;
   }
-  if (apos.y + a_move_y >= -1.0 + ar && apos.y + a_move_y <= 1.0 - ar) {
+  if (apos.y + a_move_y >= -1.0f + ar && apos.y + a_move_y <= 1.0f - ar) {
     a.pos.y += a_move_y;
   }
-  if (bpos.x + b_move_x >= -1.0 + br && bpos.x + b_move_x <= 1.0 - br) {
+  if (bpos.x + b_move_x >= -1.0f + br && bpos.x + b_move_x <= 1.0f - br) {
     b.pos.x += b_move_x;
   }
-  if (bpos.y + b_move_y >= -1.0 + br && bpos.y + b_move_y <= 1.0 - br) {
+  if (bpos.y + b_move_y >= -1.0f + br && bpos.y + b_move_y <= 1.0f - br) {
     b.pos.y += b_move_y;
   }
 }
@@ -165,6 +163,10 @@ void Athi_Circle_Manager::init()
   glAttachShader(shader_program, vs);
   glAttachShader(shader_program, fs);
 
+  glBindAttribLocation(shader_program, 0, "position");
+  glBindAttribLocation(shader_program, 1, "color");
+  glBindAttribLocation(shader_program, 2, "transform");
+
   glLinkProgram(shader_program);
   glValidateProgram(shader_program);
   validateShaderProgram("circle_manager", shader_program);
@@ -172,9 +174,10 @@ void Athi_Circle_Manager::init()
   // MESH SETUP
   std::vector<vec2> positions;
   positions.reserve(CIRCLE_NUM_VERTICES);
-  for (int i = 0; i < CIRCLE_NUM_VERTICES; ++i) {
-    positions.emplace_back(cos(i * M_PI * 2 / CIRCLE_NUM_VERTICES),
-                           sin(i * M_PI * 2 / CIRCLE_NUM_VERTICES));
+  for (int i = 0; i < CIRCLE_NUM_VERTICES; ++i)
+  {
+    positions.emplace_back(cos(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES),
+                           sin(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES));
   }
 
   // VAO
@@ -200,27 +203,25 @@ void Athi_Circle_Manager::init()
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
   for (int i = 0; i < 4; ++i) {
     glEnableVertexAttribArray(2 + i);
-    glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(mat4),
-                          (GLvoid *)(i * sizeof(vec4)));
+    glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                          (GLvoid *)(i * sizeof(glm::vec4)));
     glVertexAttribDivisor(2 + i, 1);
   }
 }
 
 Athi_Circle_Manager::~Athi_Circle_Manager()
 {
-  //glDeleteBuffers(NUM_BUFFERS, VBO);
-  //glDeleteVertexArrays(1, &VAO);
+  glDeleteBuffers(NUM_BUFFERS, VBO);
+  glDeleteVertexArrays(1, &VAO);
 }
 
 void Athi_Circle_Manager::draw()
 {
   if (num_circles == 0) return;
 
-  glUseProgram(shader_program);
   glBindVertexArray(VAO);
-  glDrawArraysInstanced(GL_TRIANGLES, 0, CIRCLE_NUM_VERTICES, num_circles);
-
-  //if (settings.quadtree) quadtree->draw();
+  glUseProgram(shader_program);
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, num_circles);
 }
 
 void Athi_Circle_Manager::update()
@@ -243,11 +244,11 @@ void Athi_Circle_Manager::update()
   u32 i = 0;
   for (const auto &circle : circle_buffer)
   {
-    transforms[i] = circle.transform.getModel();
+    transforms[i] = circle.transform.get_model();
     colors[i++] = circle.color;
   }
 
-  // TRANSFORM BUFFER
+  // transforms BUFFER
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
   // Does the buffer need to allocate more space?
   size_t transform_bytes_needed = sizeof(mat4) * num_circles;
@@ -272,8 +273,10 @@ void Athi_Circle_Manager::update()
 
 static void collision_logNxN(size_t begin, size_t end)
 {
-  for (size_t i = begin; i < end; ++i) {
-    for (size_t j = 1 + i; j < end; ++j) {
+  for (size_t i = begin; i < end; ++i)
+  {
+    for (size_t j = 1 + i; j < end; ++j)
+    {
       if (collisionDetection(athi_circle_manager.circle_buffer[i], athi_circle_manager.circle_buffer[j]))
         collisionResolve(athi_circle_manager.circle_buffer[i], athi_circle_manager.circle_buffer[j]);
     }
@@ -299,5 +302,10 @@ void addCircle(Athi_Circle &circle)
   circle.id = athi_circle_manager.circle_buffer.size();
   athi_circle_manager.circle_buffer.emplace_back(circle);
   ++athi_circle_manager.num_circles;
+}
+
+u32 get_num_circles()
+{
+  return athi_circle_manager.num_circles;
 }
 

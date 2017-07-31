@@ -2,9 +2,12 @@
 
 out vec4 frag_color;
 
-in vec4 color0;
+in Vertex
+{
+  vec4 color;
+} frag;
 
 void main()
 {
-  frag_color = color0;
+  frag_color = frag.color
 }

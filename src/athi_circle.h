@@ -1,9 +1,9 @@
 #pragma once
 
 #include "athi_typedefs.h"
+#include "athi_transform.h"
 
 #include "athi_utility.h"
-#include "athi_transform.h"
 
 #include <vector>
 
@@ -15,12 +15,12 @@ struct Athi_Circle
   vec2 pos{0, 0};
   vec2 vel{0, 0};
 
-  f32 radius{0.1f};
+  f32 radius{0.001f};
   f32 mass{1.0f};
 
-  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
-
   Transform transform;
+
+  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
 
   void update();
   void draw() const;
@@ -34,7 +34,6 @@ struct Athi_Circle
 struct Athi_Circle_Manager
 {
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
-
 
   u32 num_circles{0};
   std::vector<Athi_Circle> circle_buffer;
@@ -59,6 +58,7 @@ struct Athi_Circle_Manager
   void update();
 };
 
+u32  get_num_circles();
 void update_circles();
 void draw_circles();
 void addCircle(Athi_Circle &circle);

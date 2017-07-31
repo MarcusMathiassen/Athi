@@ -9,7 +9,7 @@ struct Transform
   vec3 rot{0, 0, 0};
   vec3 scale{1, 1, 1};
 
-  mat4 getModel() const
+  mat4 get_model() const
   {
     const mat4 posMatrix{    glm::translate(pos)   };
     const mat4 rotXMatrix{   glm::rotate(rot.x, vec3{1, 0, 0})  };
