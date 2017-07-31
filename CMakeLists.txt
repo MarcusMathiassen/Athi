@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 SET(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-function -Wno-unused-parameter" )
 
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Load headers
 include_directories("./src/")
@@ -27,18 +27,12 @@ elseif(APPLE)
 	  link_libraries(${OPENGL_LIBRARIES})
 	endif()
 
-	# GLEW
-	if (!${GLEW_FOUND})
-	  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/GL/include)
-	endif()
+	# DEP includes
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS)
 
-	# GLFW
-	if (!${GLFW3_FOUND})
-	  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/GLFW/include)
-	endif()
-
+	#link_libraries(GLEW STATIC ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GL/libGLEW.a)
+	#link_libraries(glfw ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
 	add_executable(${PROJECT_NAME} ${SOURCES})
 	target_link_libraries(${PROJECT_NAME} glew ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GL/libGLEW.a)
 	target_link_libraries(${PROJECT_NAME} glfw ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
-
 endif()

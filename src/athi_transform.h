@@ -1,7 +1,6 @@
 #pragma once
 
 #include "athi_typedefs.h"
-#include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
 struct Transform
