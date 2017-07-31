@@ -15,7 +15,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-
 void Athi_Core::init()
 {
   window = std::make_unique<Athi_Window>();
@@ -25,10 +24,11 @@ void Athi_Core::init()
 
   init_input_manager();
   init_text_manager();
+  init_circle_manager();
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(0,0,0,1);
+  glClearColor(4/255.0f,32/255.0f,41/255.0f,1);
 
   ui_manager = std::make_unique<Athi_UI_Manager>();
   ui_manager->scale = 1.0f;
@@ -80,6 +80,13 @@ void Athi_Core::draw_loop()
 
   SMA smooth_frametime_avg(&smoothed_frametime);
 
+
+  Athi_Circle circle;
+  circle.pos = vec2(0,0);
+  circle.radius = 1.0f;
+  circle.init();
+  addCircle(circle);
+
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
@@ -95,6 +102,9 @@ void Athi_Core::draw_loop()
       draw_UI();
       update_settings();
     }
+
+    update_circles();
+    draw_circles();
 
     glfwSwapBuffers(window->get_window_context());
 
