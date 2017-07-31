@@ -81,10 +81,10 @@ struct Athi_Text_Manager
 
   void init()
   {
-    texture = Texture("./res/font_custom.png", GL_LINEAR);
+    texture = Texture("../Resources/font_custom.png", GL_LINEAR);
     shaderProgram  = glCreateProgram();
-    const u32 vs   = createShader("./res/text_shader.vs", GL_VERTEX_SHADER);
-    const u32 fs   = createShader("./res/text_shader.fs", GL_FRAGMENT_SHADER);
+    const u32 vs   = createShader("../Resources/text_shader.vs", GL_VERTEX_SHADER);
+    const u32 fs   = createShader("../Resources/text_shader.fs", GL_FRAGMENT_SHADER);
 
     glAttachShader(shaderProgram, vs);
     glAttachShader(shaderProgram, fs);

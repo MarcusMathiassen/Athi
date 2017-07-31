@@ -27,8 +27,8 @@ struct Athi_Rect
   void init()
   {
     shaderProgram  = glCreateProgram();
-    const u32 vs   = createShader("./res/athi_rect_shader.vs", GL_VERTEX_SHADER);
-    const u32 fs   = createShader("./res/athi_rect_shader.fs", GL_FRAGMENT_SHADER);
+    const u32 vs   = createShader("../Resources/athi_rect_shader.vs", GL_VERTEX_SHADER);
+    const u32 fs   = createShader("../Resources/athi_rect_shader.fs", GL_FRAGMENT_SHADER);
 
     glAttachShader(shaderProgram, vs);
     glAttachShader(shaderProgram, fs);

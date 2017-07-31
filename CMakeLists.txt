@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 SET(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-function -Wno-unused-parameter")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 # Load headers
 include_directories("./src/")
@@ -21,8 +21,23 @@ if(WIN32)
 
 elseif(APPLE)
 
-	add_executable(${PROJECT_NAME} ${SOURCES})
+	# RESOURCE FILE LOCATION
+	file(GLOB RESOURCE_FILES
+  "./Resources/*.png"
+  "./Resources/*.vs"
+  "./Resources/*.fs"
+	)
 
+	add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCE_FILES})
+
+	# BUNDLE OPTIONS
+	set_target_properties(${PROJECT_NAME} PROPERTIES
+  MACOSX_BUNDLE TRUE
+  MACOSX_FRAMEWORK_IDENTIFIER org.cmake.${PROJECT_NAME}
+  RESOURCE "${RESOURCE_FILES}"
+	)
+
+	# INCLUDE DEPENDENCIES
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS)
 
 	ADD_LIBRARY(glew STATIC IMPORTED)
@@ -31,5 +46,7 @@ elseif(APPLE)
 	ADD_LIBRARY(glfw STATIC IMPORTED)
 	SET_TARGET_PROPERTIES(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
 
+	# LINK TO TARGET
 	target_link_libraries(${PROJECT_NAME} glew glfw "-framework OpenGL -framework Cocoa -framework IOKIT -framework CoreVideo")
+
 endif()

@@ -2,7 +2,7 @@
 
 #include <cstdio>
 
-#include "../res/stb_image.h"
+#include "stb_image.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
