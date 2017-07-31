@@ -31,9 +31,9 @@ struct Athi_UI_Manager
     draw_all_text();
     for (const auto &ui: ui_buffer) ui->draw();
 
-    int width, height;
-    glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
-    glViewport(0, 0, width, height);
+    //int width, height;
+    //glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
+    //glViewport(0, 0, width, height);
   }
 };
 

@@ -18,6 +18,7 @@ void Athi_Window::init()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
+  glfwWindowHint(GLFW_SAMPLES, 8);
   glfwWindowHint(GL_RED_BITS, 8);
   glfwWindowHint(GL_GREEN_BITS, 8);
   glfwWindowHint(GL_BLUE_BITS, 8);

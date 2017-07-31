@@ -69,7 +69,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     else physics_gravity = true;
   }
 
-  // Erase all circles
+  // clear all circles
   if (key == GLFW_KEY_E && action == GLFW_PRESS)
   {
     delete_circles();
