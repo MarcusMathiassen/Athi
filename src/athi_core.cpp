@@ -92,7 +92,6 @@ void Athi_Core::draw_loop()
   slider->init();
   ui_manager->ui_buffer.emplace_back(std::move(slider));
 
-
   SMA smooth_frametime_avg(&smoothed_frametime);
 
   while (app_is_running)
@@ -100,22 +99,9 @@ void Athi_Core::draw_loop()
     f64 time_start_frame{ glfwGetTime() };
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if (show_settings)
-    {
-      frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | frametime: " + std::to_string(smoothed_frametime);
-      frame_limit_text.str = "limit FPS: " + std::to_string(framerate_limit);
-      circle_info.str = "circles: " + std::to_string(get_num_circles());
-      update_UI();
-      draw_UI();
-      box.update();
-      box.draw();
-      update_settings();
-    }
-
     // @Cleanup: move this somewhere nice
     if (glfwGetKey(window->get_window_context(),GLFW_KEY_1) == GLFW_PRESS)
     {
-
       f64 mouse_x, mouse_y;
       glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
 
@@ -133,6 +119,18 @@ void Athi_Core::draw_loop()
 
     update_circles();
     draw_circles();
+
+    if (show_settings)
+    {
+      frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | frametime: " + std::to_string(smoothed_frametime);
+      frame_limit_text.str = "limit FPS: " + std::to_string(framerate_limit);
+      circle_info.str = "circles: " + std::to_string(get_num_circles());
+      update_UI();
+      draw_UI();
+      box.update();
+      box.draw();
+      update_settings();
+    }
 
     glfwSwapBuffers(window->get_window_context());
 

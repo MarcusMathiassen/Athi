@@ -252,6 +252,7 @@ void Athi_Circle_Manager::update()
     colors[i++] = circle.color;
   }
 
+  glBindVertexArray(VAO);
   // transforms BUFFER
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
   // Does the buffer need to allocate more space?
