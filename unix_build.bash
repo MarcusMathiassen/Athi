@@ -5,7 +5,7 @@ output=-o\ athi
 wlvl=-Wall\ -Wno-unused-function
 compiler=clang++
 std=-std=c++1z
-olvl=-O3
+olvl=
 
 src=./src/*.cpp
 libs=-lglew\ -lglfw\ -framework\ OpenGL

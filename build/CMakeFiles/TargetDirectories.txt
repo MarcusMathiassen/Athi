@@ -1,0 +1,3 @@
+/Users/mathiassen/Athi/build/CMakeFiles/rebuild_cache.dir
+/Users/mathiassen/Athi/build/CMakeFiles/edit_cache.dir
+/Users/mathiassen/Athi/build/CMakeFiles/athi.dir
