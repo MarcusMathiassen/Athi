@@ -4,7 +4,7 @@ project(athi)
 # Compiler flags
 set(CMAKE_CXX_STANDARD 17)
 
-SET(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-function -Wno-unused-parameter" )
+SET(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-function -Wno-unused-parameter")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -18,21 +18,18 @@ file(GLOB SOURCES "./src/*.cpp")
 if(WIN32)
 	add_executable(${PROJECT_NAME} ${SOURCES})
 	target_link_libraries(${PROJECT_NAME} " -opengl32 -lglew32s -lglew3 -lkernel32")
+
 elseif(APPLE)
 
-	 # OPENGL
-	find_package(OpenGL REQUIRED)
-	if (OPENGL_FOUND)
-	  include_directories(${OPENGL_INCLUDE_DIRS})
-	  link_libraries(${OPENGL_LIBRARIES})
-	endif()
+	add_executable(${PROJECT_NAME} ${SOURCES})
 
-	# DEP includes
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS)
 
-	#link_libraries(GLEW STATIC ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GL/libGLEW.a)
-	#link_libraries(glfw ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
-	add_executable(${PROJECT_NAME} ${SOURCES})
-	target_link_libraries(${PROJECT_NAME} glew ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GL/libGLEW.a)
-	target_link_libraries(${PROJECT_NAME} glfw ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
+	ADD_LIBRARY(glew STATIC IMPORTED)
+	SET_TARGET_PROPERTIES(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GL/libGLEW.a)
+
+	ADD_LIBRARY(glfw STATIC IMPORTED)
+	SET_TARGET_PROPERTIES(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
+
+	target_link_libraries(${PROJECT_NAME} glew glfw "-framework OpenGL -framework Cocoa -framework IOKIT -framework CoreVideo")
 endif()
