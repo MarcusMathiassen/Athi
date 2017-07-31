@@ -3,6 +3,8 @@
 #include "athi_typedefs.h"
 
 #include "athi_utility.h"
+#include "athi_transform.h"
+#include "athi_camera.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -12,7 +14,7 @@ struct Athi_Rect
 {
   string id;
   static constexpr u16 indices[]{0,1,2, 0,2,3};
-  enum {POSITION_OFFSET, COLOR, NUM_UNIFORMS};
+  enum {TRANSFORM, COLOR, NUM_UNIFORMS};
   enum {POSITION, INDICES, NUM_BUFFERS};
 
   u32 VAO;
@@ -34,8 +36,8 @@ struct Athi_Rect
   void init()
   {
     shader_program  = glCreateProgram();
-    const u32 vs   = createShader("../Resources/athi_rect_shader.vs", GL_VERTEX_SHADER);
-    const u32 fs   = createShader("../Resources/athi_rect_shader.fs", GL_FRAGMENT_SHADER);
+    const u32 vs    = createShader("../Resources/athi_rect_shader.vs", GL_VERTEX_SHADER);
+    const u32 fs    = createShader("../Resources/athi_rect_shader.fs", GL_FRAGMENT_SHADER);
 
     glAttachShader(shader_program, vs);
     glAttachShader(shader_program, fs);
@@ -72,15 +74,21 @@ struct Athi_Rect
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[INDICES]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    uniform[POSITION_OFFSET] = glGetUniformLocation(shader_program, "position_offset");
-    uniform[COLOR]           = glGetUniformLocation(shader_program, "color");
+    uniform[TRANSFORM] = glGetUniformLocation(shader_program, "transform");
+    uniform[COLOR]     = glGetUniformLocation(shader_program, "color");
   }
 
+  // @Cleanup: make a parent class
   void draw() const
   {
+    const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
+    Transform temp{vec3(pos,0), vec3(), vec3(1,1,1)};
+    temp.scale = vec3(inverse_aspect, 1, 0);
+    mat4 trans = temp.get_model();
+
     glBindVertexArray(VAO);
     glUseProgram(shader_program);
-    glUniform2f(uniform[POSITION_OFFSET], pos.x, pos.y);
+    glUniformMatrix4fv(uniform[TRANSFORM], 1, GL_FALSE, &trans[0][0]);
     glUniform4f(uniform[COLOR], color.r, color.g, color.g, color.a);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
   }

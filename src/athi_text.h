@@ -102,7 +102,7 @@ struct Athi_Text_Manager
 
     glLinkProgram(shader_program);
     glValidateProgram(shader_program);
-    validateShaderProgram("MM_TextManager", shader_program);
+    validateShaderProgram("text_manager", shader_program);
 
     glDetachShader(shader_program, vs);
     glDetachShader(shader_program, fs);

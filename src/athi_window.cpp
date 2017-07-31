@@ -4,7 +4,9 @@
 
 #include <iostream>
 
+static void window_size_callback(GLFWwindow* window, int xpos, int ypos);
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
 void Athi_Window::init()
 {
   if (!glfwInit())
@@ -31,6 +33,7 @@ void Athi_Window::init()
   context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
+  glfwSetWindowSizeCallback(context, window_size_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 
   // Gather monitor info
@@ -53,6 +56,7 @@ void Athi_Window::open()
 
 void Athi_Window::update()
 {
+
 }
 
 GLFWwindow* Athi_Window::get_window_context()
@@ -60,10 +64,19 @@ GLFWwindow* Athi_Window::get_window_context()
   return context;
 }
 
+// @Cleanup: this is messy
+static void window_size_callback(GLFWwindow* window, int xpos, int ypos)
+{
+  int width, height;
+  glfwGetFramebufferSize(window, &width, &height);
+  glViewport(0, 0, width, height);
+  camera.aspect_ratio = (f32)width/(f32)height;
+  camera.update_perspective();
+}
+
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
   camera.aspect_ratio = (f32)width/(f32)height;
-  camera.update_perspective(); // @Cleanup: move this somewhere else
+  camera.update_perspective();
   glViewport(0,width,0,height);
-  std::cout << "viewport: " << width << "x" << height << std::endl;
 }

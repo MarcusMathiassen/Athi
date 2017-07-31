@@ -4,6 +4,7 @@
 #include "athi_rect.h"
 #include "athi_ui.h"
 #include "athi_input.h"
+#include "athi_camera.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -41,7 +42,7 @@ public:
   vec4 idle_color{0.9f, 0.3f, 0.3f,1.0f};
 
   vec4 outer_box_color{0.3f,0.3f,0.3f,1.0f};
-  u32 min{0}, max{100};
+  f32 min{0}, max{100};
 
   Athi_Slider(T* t) : var(t) {}
   void init()

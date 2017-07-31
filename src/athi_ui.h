@@ -26,14 +26,8 @@ struct Athi_UI_Manager
 
   void draw() const
   {
-    //glViewport(0.0f, 0.0f, 1000.0f*scale, 1000.0f*scale);
-
     draw_all_text();
     for (const auto &ui: ui_buffer) ui->draw();
-
-    //int width, height;
-    //glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
-    //glViewport(0, 0, width, height);
   }
 };
 

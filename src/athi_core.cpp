@@ -93,6 +93,16 @@ void Athi_Core::draw_loop()
   slider->init();
   ui_manager->ui_buffer.emplace_back(std::move(slider));
 
+  auto circle_size_slider = create_slider<f32>(&circle_size);
+  circle_size_slider->pos = vec2(LEFT+ROW*0.3f, BOTTOM+ROW*4.5f);
+  circle_size_slider->width = 0.5f;
+  circle_size_slider->height = 0.03f;
+  circle_size_slider->knob_width = 0.03f;
+  circle_size_slider->min = 0.001f;
+  circle_size_slider->max = 0.1f;
+  circle_size_slider->init();
+  ui_manager->ui_buffer.emplace_back(std::move(circle_size_slider));
+
   SMA smooth_frametime_avg(&smoothed_frametime);
 
   while (app_is_running)
@@ -100,23 +110,8 @@ void Athi_Core::draw_loop()
     f64 time_start_frame{ glfwGetTime() };
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // @Cleanup: move this somewhere nice
-    if (glfwGetKey(window->get_window_context(),GLFW_KEY_1) == GLFW_PRESS)
-    {
-      f64 mouse_x, mouse_y;
-      glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
-
-      s32 width, height;
-      glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-      mouse_x = -1.0f + 2 * mouse_x / width;
-      mouse_y = +1.0f - 2 * mouse_y / height;
-
-      Athi_Circle c;
-      c.pos = vec2(mouse_x,mouse_y);
-      c.radius = 0.03f;
-      c.init();
-      addCircle(c);
-    }
+    // Checks keyboard and mouse inputs
+    update_inputs();
 
     update_circles();
     draw_circles();
@@ -124,7 +119,6 @@ void Athi_Core::draw_loop()
     // UI stuff
     if (show_settings)
     {
-      //glViewport(0.0f, 0.0f, 1000.0f, 1000.0f);
       frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | frametime: " + std::to_string(smoothed_frametime);
       frame_limit_text.str = "limit FPS: " + std::to_string(framerate_limit);
       circle_info.str = "circles: " + std::to_string(get_num_circles());
@@ -133,9 +127,6 @@ void Athi_Core::draw_loop()
       box.update();
       box.draw();
       update_settings();
-      int width, height;
-      glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
-      glViewport(0, 0, width, height);
     }
 
     glfwSwapBuffers(window->get_window_context());

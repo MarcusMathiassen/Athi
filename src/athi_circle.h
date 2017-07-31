@@ -23,9 +23,7 @@ struct Athi_Circle
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
 
   void update();
-  void draw() const;
   void borderCollision();
-  void init();
 
   Athi_Circle() = default;
 };
@@ -35,7 +33,6 @@ struct Athi_Circle_Manager
 {
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
 
-  u32 num_circles{0};
   std::vector<Athi_Circle> circle_buffer;
 
   std::vector<mat4> transforms;

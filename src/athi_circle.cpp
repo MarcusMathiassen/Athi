@@ -10,11 +10,6 @@
 
 #include <iostream>
 
-void Athi_Circle::init()
-{
-  mass = 1.33333f * M_PI * radius * radius * radius;
-}
-
 void Athi_Circle::update()
 {
   borderCollision();
@@ -24,11 +19,6 @@ void Athi_Circle::update()
   pos += vel;
   transform.pos   = glm::vec3(pos.x, pos.y, 0);
   transform.scale = glm::vec3(radius, radius, 0);
-}
-
-void Athi_Circle::draw() const
-{
-
 }
 
 void Athi_Circle::borderCollision() {
@@ -222,26 +212,26 @@ Athi_Circle_Manager::~Athi_Circle_Manager()
 
 void Athi_Circle_Manager::draw()
 {
-  if (num_circles == 0) return;
+  if (circle_buffer.size() == 0) return;
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_LINE_LOOP, 0, CIRCLE_NUM_VERTICES, num_circles);
+  glDrawArraysInstanced(GL_LINE_LOOP, 0, CIRCLE_NUM_VERTICES, circle_buffer.size());
 }
 
 void Athi_Circle_Manager::update()
 {
-  if (num_circles == 0) return;
+  if (circle_buffer.size() == 0) return;
   for (auto &circle : circle_buffer) circle.update();
 
   if (circle_collision)
   {
-    collision_logNxN(0, num_circles);
+    collision_logNxN(0, circle_buffer.size());
   }
 
   if (circle_buffer.size() > transforms.size())
   {
-    transforms.resize(num_circles);
-    colors.resize(num_circles);
+    transforms.resize(circle_buffer.size());
+    colors.resize(circle_buffer.size());
   }
 
   // Update the color and transform arrays
@@ -255,7 +245,7 @@ void Athi_Circle_Manager::update()
   // transforms BUFFER
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
   // Does the buffer need to allocate more space?
-  size_t transform_bytes_needed = sizeof(mat4) * num_circles;
+  size_t transform_bytes_needed = sizeof(mat4) * circle_buffer.size();
   if (transform_bytes_needed > transform_bytes_allocated) {
     glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &transforms[0], GL_STREAM_DRAW);
     transform_bytes_allocated = transform_bytes_needed;
@@ -266,7 +256,7 @@ void Athi_Circle_Manager::update()
   // COLOR BUFFER
   glBindBuffer(GL_ARRAY_BUFFER, VBO[COLOR]);
   // Does the buffer need to allocate more space?
-  size_t color_bytes_needed = sizeof(vec4) * num_circles;
+  size_t color_bytes_needed = sizeof(vec4) * circle_buffer.size();
   if (color_bytes_needed > color_bytes_allocated) {
     glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0], GL_STREAM_DRAW);
     color_bytes_allocated = color_bytes_needed;
@@ -304,18 +294,17 @@ void draw_circles()
 void delete_circles()
 {
   athi_circle_manager.circle_buffer.clear();
-  athi_circle_manager.num_circles = 0;
 }
 
 void addCircle(Athi_Circle &circle)
 {
+  circle.mass = 1.33333f * M_PI * circle.radius * circle.radius * circle.radius;
   circle.id = athi_circle_manager.circle_buffer.size();
   athi_circle_manager.circle_buffer.emplace_back(circle);
-  ++athi_circle_manager.num_circles;
 }
 
 u32 get_num_circles()
 {
-  return athi_circle_manager.num_circles;
+  return athi_circle_manager.circle_buffer.size();
 }
 
