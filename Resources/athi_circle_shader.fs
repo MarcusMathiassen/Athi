@@ -9,5 +9,5 @@ in Vertex
 
 void main()
 {
-  frag_color = frag.color
+  frag_color = frag.color;
 }

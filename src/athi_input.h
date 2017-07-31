@@ -7,6 +7,7 @@
 #include "athi_typedefs.h"
 #include <iostream>
 #include "athi_settings.h"
+#include "athi_circle.h"
 
 
 void init_input_manager();
@@ -54,9 +55,23 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+  // TOGGLE SETTINGS UI
   if (key == GLFW_KEY_I && action == GLFW_PRESS)
   {
     if (show_settings) show_settings = false;
     else show_settings = true;
+  }
+
+  // TOGGLE GRAVITY
+  if (key == GLFW_KEY_G && action == GLFW_PRESS)
+  {
+    if (physics_gravity) physics_gravity = false;
+    else physics_gravity = true;
+  }
+
+  // Erase all circles
+  if (key == GLFW_KEY_E && action == GLFW_PRESS)
+  {
+    delete_circles();
   }
 }

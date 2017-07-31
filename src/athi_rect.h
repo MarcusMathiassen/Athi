@@ -14,6 +14,7 @@ struct Athi_Rect
   static constexpr u16 indices[]{0,1,2, 0,2,3};
   enum {POSITION_OFFSET, COLOR, NUM_UNIFORMS};
   enum {POSITION, INDICES, NUM_BUFFERS};
+
   u32 VAO;
   u32 VBO[NUM_BUFFERS];
   u32 shader_program;

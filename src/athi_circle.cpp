@@ -19,7 +19,7 @@ void Athi_Circle::update()
 {
   borderCollision();
 
-  if (physics_gravity) vel.y -= (9.81f * mass) * 0.00001f;
+  if (physics_gravity) vel.y -= (9.81f * mass);
 
   pos += vel;
   transform.pos   = glm::vec3(pos.x, pos.y, 0);
@@ -109,8 +109,8 @@ static void collisionResolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_vec{tang * scal_tang_1};
     const vec2 scal_norm_2_vec{tang * scal_tang_2};
 
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.999f;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.999f;
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.98f;
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.98f;
   }
 }
 
@@ -252,7 +252,6 @@ void Athi_Circle_Manager::update()
     colors[i++] = circle.color;
   }
 
-  glBindVertexArray(VAO);
   // transforms BUFFER
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
   // Does the buffer need to allocate more space?
@@ -300,6 +299,12 @@ void update_circles()
 void draw_circles()
 {
   athi_circle_manager.draw();
+}
+
+void delete_circles()
+{
+  athi_circle_manager.circle_buffer.clear();
+  athi_circle_manager.num_circles = 0;
 }
 
 void addCircle(Athi_Circle &circle)

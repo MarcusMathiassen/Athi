@@ -58,6 +58,7 @@ struct Athi_Circle_Manager
   void update();
 };
 
+void delete_circles();
 u32  get_num_circles();
 void update_circles();
 void draw_circles();

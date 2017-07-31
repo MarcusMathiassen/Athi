@@ -111,8 +111,8 @@ void Athi_Core::draw_loop()
       mouse_y = +1.0f - 2 * mouse_y / height;
 
       Athi_Circle c;
-      c.pos = vec2(0,0);
-      c.radius = 0.003f;
+      c.pos = vec2(mouse_x,mouse_y);
+      c.radius = 0.03f;
       c.init();
       addCircle(c);
     }
@@ -120,6 +120,7 @@ void Athi_Core::draw_loop()
     update_circles();
     draw_circles();
 
+    // UI stuff
     if (show_settings)
     {
       frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | frametime: " + std::to_string(smoothed_frametime);
