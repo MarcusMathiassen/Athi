@@ -13,9 +13,19 @@ void Athi_Window::init()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 #if __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+
+  glfwWindowHint(GL_RED_BITS, 8);
+  glfwWindowHint(GL_GREEN_BITS, 8);
+  glfwWindowHint(GL_BLUE_BITS, 8);
+  glfwWindowHint(GL_ALPHA_BITS, 8);
+  glfwWindowHint(GL_BUFFER_SIZE, 32);
+  glfwWindowHint(GL_DEPTH_BITS, 16);
+  glfwWindowHint(GL_DOUBLEBUFFER, 1);
+
   context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
