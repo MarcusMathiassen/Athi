@@ -87,7 +87,7 @@ void Athi_Core::draw_loop()
 
     if (show_settings)
     {
-      frametime_text.str = "FPS: " + std::to_string((u32)(1000/smoothed_frametime)) + " | Frametime: " + std::to_string(smoothed_frametime);
+      frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | Frametime: " + std::to_string(smoothed_frametime);
       frame_limit_text.str = "Framerate limit: " + std::to_string(framerate_limit);
       box.update();
       box.draw();
