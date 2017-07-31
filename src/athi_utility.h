@@ -31,6 +31,25 @@ static u64 get_cpu_cores();
 static u64 get_cpu_threads();
 static string get_cpu_brand();
 
+
+struct SMA
+{
+  SMA(f64* var) : var(var){}
+  f64* var;
+  #define SMA_SAMPLES 50
+  u32 tickindex{0};
+  f64 ticksum{0};
+  f64 ticklist[SMA_SAMPLES];
+  void add_new_frametime(f64 newtick)
+  {
+      ticksum -= ticklist[tickindex];
+      ticksum += newtick;
+      ticklist[tickindex] = newtick;
+      if(++tickindex == SMA_SAMPLES) tickindex = 0;
+      *var = ((f64)ticksum/SMA_SAMPLES);
+  }
+};
+
 static void readFile(const char* file, char** buffer)
 {
   string buff, line;

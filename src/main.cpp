@@ -15,7 +15,7 @@ int main()
   slider->height = 0.03f;
   slider->knob_width = 0.03f;
   slider->min = 0;
-  slider->max = 300;
+  slider->max = 60;
   slider->init();
   //add_UI(&slider);
   athi.ui_manager->ui_buffer.emplace_back(std::move(slider));

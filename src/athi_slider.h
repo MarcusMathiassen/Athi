@@ -63,6 +63,9 @@ public:
 
     box_min_pos = slider_border.pos.x;
     box_max_pos = slider_border.pos.x + slider_border.width - slider_input_box.width;
+
+    // set starting position of box based on the var
+    slider_input_box.pos.x = box_min_pos + (box_max_pos - box_min_pos)*((*var) - min) / (max-min);
   }
 
   void update()
@@ -92,10 +95,9 @@ public:
     if (slider_input_box.pos.x > box_max_pos) slider_input_box.pos.x = box_max_pos;
 
     // Get the percentage of box position.
-    const f32 box_at_perc = ((slider_input_box.pos.x - box_min_pos) / (box_max_pos - box_min_pos)) * (max-min) + min;
-    *var = box_at_perc;
+    const f32 box_pos_to_slider_val = ((slider_input_box.pos.x - box_min_pos) / (box_max_pos - box_min_pos)) * (max-min) + min;
+    *var = box_pos_to_slider_val;
   }
-
 
   u32 get_status()
   {

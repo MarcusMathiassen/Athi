@@ -77,21 +77,16 @@ void Athi_Core::draw_loop()
   cpu_info_text.str = cpu_brand + " | " + std::to_string(cpu_cores) + " cores | " + std::to_string(cpu_threads) + " threads";
   add_text(&cpu_info_text);
 
-  Athi_Circle circle;
-  circle.pos = vec2(0,0);
-  circle.radius = 0.1f;
+  SMA smooth_frametime_avg(&smoothed_frametime);
 
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
     glClear(GL_COLOR_BUFFER_BIT);
 
-
-    circle.draw();
-
     if (show_settings)
     {
-      frametime_text.str = "Frametime: " + std::to_string(frametime);
+      frametime_text.str = "FPS: " + std::to_string((u32)(1000/smoothed_frametime)) + " | Frametime: " + std::to_string(smoothed_frametime);
       frame_limit_text.str = "Framerate limit: " + std::to_string(framerate_limit);
       box.update();
       box.draw();
@@ -104,6 +99,8 @@ void Athi_Core::draw_loop()
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
+
+    smooth_frametime_avg.add_new_frametime(frametime);
   }
 }
 
