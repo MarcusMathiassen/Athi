@@ -171,6 +171,11 @@ void Athi_Circle_Manager::init()
   glValidateProgram(shader_program);
   validateShaderProgram("circle_manager", shader_program);
 
+  glDetachShader(shader_program, vs);
+  glDetachShader(shader_program, fs);
+  glDeleteShader(vs);
+  glDeleteShader(fs);
+
   // MESH SETUP
   std::vector<vec2> positions;
   positions.reserve(CIRCLE_NUM_VERTICES);
@@ -218,10 +223,9 @@ Athi_Circle_Manager::~Athi_Circle_Manager()
 void Athi_Circle_Manager::draw()
 {
   if (num_circles == 0) return;
-
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, num_circles);
+  glDrawArraysInstanced(GL_LINE_LOOP, 0, CIRCLE_NUM_VERTICES, num_circles);
 }
 
 void Athi_Circle_Manager::update()

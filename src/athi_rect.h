@@ -15,6 +15,7 @@ struct Athi_Rect
   enum {POSITION_OFFSET, COLOR, NUM_UNIFORMS};
   enum {POSITION, INDICES, NUM_BUFFERS};
   u32 VAO;
+  u32 VBO[NUM_BUFFERS];
   u32 shader_program;
   u32 uniform[NUM_UNIFORMS];
 
@@ -24,6 +25,11 @@ struct Athi_Rect
   vec4 color;
 
   Athi_Rect() = default;
+  ~Athi_Rect()
+  {
+    glDeleteBuffers(NUM_BUFFERS, VBO);
+    glDeleteVertexArrays(1, &VAO);
+  }
   void init()
   {
     shader_program  = glCreateProgram();
@@ -39,10 +45,14 @@ struct Athi_Rect
     glValidateProgram(shader_program);
     validateShaderProgram("rect_constructor", shader_program);
 
+    glDetachShader(shader_program, vs);
+    glDetachShader(shader_program, fs);
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
-    u32 VBO[NUM_BUFFERS];
     glGenBuffers(NUM_BUFFERS, VBO);
 
     const f32 positions[] =

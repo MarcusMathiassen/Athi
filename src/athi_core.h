@@ -11,12 +11,12 @@
 struct Athi_Core
 {
   u32 framerate;
-  s32 framerate_limit;
+  s32 framerate_limit{60};
 
   f64 frametime;
   f64 smoothed_frametime;
 
-  bool vsync{0};
+  bool vsync{1};
 
   u32    cpu_cores;
   u32    cpu_threads;

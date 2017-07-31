@@ -44,7 +44,7 @@ struct Athi_Text_Manager
   static constexpr u16 indices[]{0,1,2, 0,2,3};
   enum { POSITION_OFFSET, COLOR, TEXTCOORD_INDEX, NUM_UNIFORMS};
   u32           VAO;
-  u32           shaderProgram;
+  u32           shader_program;
   u32           uniform[NUM_UNIFORMS];
   Texture       texture;
   std::string   font_atlas_path;
@@ -62,7 +62,7 @@ struct Athi_Text_Manager
   void draw() const
   {
     glBindVertexArray(VAO);
-    glUseProgram(shaderProgram);
+    glUseProgram(shader_program);
     texture.bind(0);
 
     for (const auto &text: text_buffer)
@@ -82,16 +82,21 @@ struct Athi_Text_Manager
   void init()
   {
     texture = Texture("../Resources/font_custom.png", GL_LINEAR);
-    shaderProgram  = glCreateProgram();
+    shader_program  = glCreateProgram();
     const u32 vs   = createShader("../Resources/text_shader.vs", GL_VERTEX_SHADER);
     const u32 fs   = createShader("../Resources/text_shader.fs", GL_FRAGMENT_SHADER);
 
-    glAttachShader(shaderProgram, vs);
-    glAttachShader(shaderProgram, fs);
+    glAttachShader(shader_program, vs);
+    glAttachShader(shader_program, fs);
 
-    glLinkProgram(shaderProgram);
-    glValidateProgram(shaderProgram);
-    validateShaderProgram("MM_TextManager", shaderProgram);
+    glLinkProgram(shader_program);
+    glValidateProgram(shader_program);
+    validateShaderProgram("MM_TextManager", shader_program);
+
+    glDetachShader(shader_program, vs);
+    glDetachShader(shader_program, fs);
+    glDeleteShader(vs);
+    glDeleteShader(fs);
 
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -101,9 +106,9 @@ struct Athi_Text_Manager
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    uniform[POSITION_OFFSET] = glGetUniformLocation(shaderProgram, "pos_offset");
-    uniform[COLOR]           = glGetUniformLocation(shaderProgram, "color");
-    uniform[TEXTCOORD_INDEX] = glGetUniformLocation(shaderProgram, "textCoord_index");
+    uniform[POSITION_OFFSET] = glGetUniformLocation(shader_program, "pos_offset");
+    uniform[COLOR]           = glGetUniformLocation(shader_program, "color");
+    uniform[TEXTCOORD_INDEX] = glGetUniformLocation(shader_program, "textCoord_index");
   }
 };
 

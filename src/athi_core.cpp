@@ -82,6 +82,17 @@ void Athi_Core::draw_loop()
   cpu_info_text.str = cpu_brand + " | " + std::to_string(cpu_cores) + " cores | " + std::to_string(cpu_threads) + " threads";
   add_text(&cpu_info_text);
 
+  auto slider = create_slider<s32>(&framerate_limit);
+  slider->pos = vec2(LEFT+ROW*0.3f, BOTTOM+ROW*2.5f);
+  slider->width = 0.5f;
+  slider->height = 0.03f;
+  slider->knob_width = 0.03f;
+  slider->min = 0;
+  slider->max = 300;
+  slider->init();
+  ui_manager->ui_buffer.emplace_back(std::move(slider));
+
+
   SMA smooth_frametime_avg(&smoothed_frametime);
 
   while (app_is_running)
@@ -114,7 +125,7 @@ void Athi_Core::draw_loop()
       mouse_y = +1.0f - 2 * mouse_y / height;
 
       Athi_Circle c;
-      c.pos = vec2(mouse_x,mouse_y);
+      c.pos = vec2(0,0);
       c.radius = 0.003f;
       c.init();
       addCircle(c);
