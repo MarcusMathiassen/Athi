@@ -14,7 +14,7 @@ int main()
   slider->width = 0.5f;
   slider->height = 0.03f;
   slider->knob_width = 0.03f;
-  slider->min = 30;
+  slider->min = 0;
   slider->max = 300;
   slider->init();
   //add_UI(&slider);

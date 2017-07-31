@@ -62,20 +62,24 @@ static void limit_FPS(u32 desired_framerate, f64 time_start_frame)
 {
   const f64 frametime = (f64)(1000.0/desired_framerate);
   f64 time_spent_frame{(glfwGetTime() - time_start_frame) * 1000.0};
-  const f64 time_to_sleep{(frametime - time_spent_frame) * 0.8};
+  const f64 time_to_sleep{(frametime - time_spent_frame) * 0.7};
 
-  if (time_to_sleep > 1.0) // just burn if sleep time is 1ms
+  if (time_to_sleep > 0.0)
   {
-  #ifdef _WIN32
-    Sleep((DWORD)time_to_sleep);
-  #elif __APPLE__
-    nanosleep((const struct timespec[]){{0, static_cast<long>(time_to_sleep*1e6)}}, NULL);
-  #endif
+    if (time_to_sleep > 2.0)  // because of the inconsistent wakeup times from sleep
+    {
+    #ifdef _WIN32
+      Sleep((DWORD)time_to_sleep);
+    #elif __APPLE__
+      nanosleep((const struct timespec[]){{0, static_cast<long>(time_to_sleep*1e6)}}, NULL);
+    #endif
+    }
     while (time_spent_frame < frametime)
     {
       time_spent_frame = (glfwGetTime() - time_start_frame) * 1000.0;
     }
   }
+
 }
 
 static void validateShader(const char *file, const char *type, u32 shader)
