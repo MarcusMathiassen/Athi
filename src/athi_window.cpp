@@ -1,5 +1,6 @@
 #include "athi_window.h"
 #include "athi_settings.h"
+#include "athi_camera.h"
 
 #include <iostream>
 
@@ -61,5 +62,8 @@ GLFWwindow* Athi_Window::get_window_context()
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-  std::cout << "viewport not changed: screen: " << width << "x" << height << std::endl;
+  camera.aspect_ratio = (f32)width/(f32)height;
+  camera.update_perspective(); // @Cleanup: move this somewhere else
+  glViewport(0,width,0,height);
+  std::cout << "viewport: " << width << "x" << height << std::endl;
 }

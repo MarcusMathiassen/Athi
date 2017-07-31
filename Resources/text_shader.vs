@@ -1,6 +1,6 @@
 #version 410
 
-uniform vec2 pos_offset;
+uniform mat4 transform;
 uniform vec4 color;
 uniform int textCoord_index;
 
@@ -282,5 +282,5 @@ void main()
   vertex.textCoord.y = tex[textCoord_index-32].y + 0.0625*((gl_VertexID*gl_VertexID)%3);
   vertex.color       = color;
 
-  gl_Position      = vec4(position[gl_VertexID] + pos_offset, 0.0, 1.0 );
+  gl_Position      = transform * vec4(position[gl_VertexID], 0.0, 1.0 );
 }

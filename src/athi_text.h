@@ -7,7 +7,9 @@
 
 #include "athi_typedefs.h"
 #include "athi_texture.h"
+#include "athi_transform.h"
 #include "athi_utility.h"
+#include "athi_camera.h"
 #include <vector>
 #include <memory>
 
@@ -32,6 +34,7 @@ struct Athi_Text
 {
   std::string id;
   std::string str;
+  Transform transform;
   vec2 pos {0.0f, 0.0f};
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
   Athi_Text() = default;
@@ -42,7 +45,7 @@ struct Athi_Text_Manager
 {
   std::string id;
   static constexpr u16 indices[]{0,1,2, 0,2,3};
-  enum { POSITION_OFFSET, COLOR, TEXTCOORD_INDEX, NUM_UNIFORMS};
+  enum { TRANSFORM, COLOR, TEXTCOORD_INDEX, NUM_UNIFORMS};
   u32           VAO;
   u32           shader_program;
   u32           uniform[NUM_UNIFORMS];
@@ -65,14 +68,22 @@ struct Athi_Text_Manager
     glUseProgram(shader_program);
     texture.bind(0);
 
+    const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
+
     for (const auto &text: text_buffer)
     {
+      Transform temp{vec3(text->pos,0), vec3(), vec3(1,1,1)};
+      temp.scale = vec3(inverse_aspect, 1, 0);
+
       glUniform4f(uniform[COLOR], text->color.r, text->color.g, text->color.g, text->color.a);
       const size_t num_chars{text->str.length()};
       for (size_t i = 0; i < num_chars; ++i)
       {
         if (text->str[i] == ' ') continue;
-        glUniform2f(uniform[POSITION_OFFSET], text->pos.x + i * DIST_BETW_CHAR, text->pos.y);
+        temp.pos.x = text->pos.x + DIST_BETW_CHAR * i * inverse_aspect;
+        mat4 trans = temp.get_model();
+
+        glUniformMatrix4fv(uniform[TRANSFORM], 1, GL_FALSE, &trans[0][0]);
         glUniform1i(uniform[TEXTCOORD_INDEX], text->str[i]);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
       }
@@ -106,7 +117,7 @@ struct Athi_Text_Manager
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    uniform[POSITION_OFFSET] = glGetUniformLocation(shader_program, "pos_offset");
+    uniform[TRANSFORM]       = glGetUniformLocation(shader_program, "transform");
     uniform[COLOR]           = glGetUniformLocation(shader_program, "color");
     uniform[TEXTCOORD_INDEX] = glGetUniformLocation(shader_program, "textCoord_index");
   }

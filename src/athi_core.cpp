@@ -6,6 +6,7 @@
 #include "athi_input.h"
 #include "athi_text.h"
 #include "athi_circle.h"
+#include "athi_camera.h"
 
 
 #include <thread>
@@ -123,7 +124,7 @@ void Athi_Core::draw_loop()
     // UI stuff
     if (show_settings)
     {
-      glViewport(0.0f, 0.0f, 1000.0f, 1000.0f);
+      //glViewport(0.0f, 0.0f, 1000.0f, 1000.0f);
       frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | frametime: " + std::to_string(smoothed_frametime);
       frame_limit_text.str = "limit FPS: " + std::to_string(framerate_limit);
       circle_info.str = "circles: " + std::to_string(get_num_circles());
