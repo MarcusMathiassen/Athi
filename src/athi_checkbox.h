@@ -18,7 +18,7 @@ struct Athi_Checkbox
   bool* variable;
   vec2 pos;
 
-  Athi_Text description;
+  Athi_Text text;
 
   f32 width{0.05f};
   f32 height{0.05f};

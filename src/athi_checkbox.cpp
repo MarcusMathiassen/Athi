@@ -52,7 +52,7 @@ u32 Athi_Checkbox::get_status()
 
 void Athi_Checkbox::init()
 {
-      // Border
+  // Border
   outer_box.pos = pos;
   outer_box.color = outer_box_color;
   outer_box.width  = width;
@@ -65,4 +65,9 @@ void Athi_Checkbox::init()
   inner_box.width  = width;
   inner_box.height = height;
   inner_box.init();
+
+  text.pos = pos;
+  text.pos.x += width;
+  text.pos.y -= height*0.65f;
+  add_text(&text);
 }

@@ -12,14 +12,13 @@
 #elif __APPLE__
   #include <ctime>
   #include <unistd.h>
+  #include <sys/types.h>
+  #include <sys/sysctl.h>
 #endif
 
 #include <sstream>
 #include <cstring>
 #include <fstream>
-
-#include <sys/types.h>
-#include <sys/sysctl.h>
 
 static void readFile(const char* file, char** buffer);
 static void limit_FPS(u32 desired_framerate, f64 time_start_frame);

@@ -30,6 +30,8 @@ struct Texture
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(image_data);
+
+    std::cout << "Texture loaded: " << file << std::endl;
   }
 
   Texture() = default;

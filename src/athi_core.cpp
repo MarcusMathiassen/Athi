@@ -59,6 +59,7 @@ void Athi_Core::draw_loop()
 
   Athi_Checkbox box;
   box.pos = vec2(LEFT+ROW*9,BOTTOM+ROW*2.5f);
+  box.text.str = "vsync";
   box.width = 0.03f;
   box.height = 0.03f;
   box.variable = &vsync;
