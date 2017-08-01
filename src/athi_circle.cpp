@@ -15,11 +15,6 @@ void Athi_Circle::update()
 {
   borderCollision();
 
-
-
-  auto timestep = physics_frametime/(1000.0/60.0);
-  std::cout << "timestep: " << timestep << std::endl;
-
   if (physics_gravity) vel.y -= (9.81f * mass) * timestep;
 
   pos.x += vel.x * timestep;
@@ -108,8 +103,8 @@ static void collisionResolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_vec{tang * scal_tang_1};
     const vec2 scal_norm_2_vec{tang * scal_tang_2};
 
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec);
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec);
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec)*0.99f;
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec)*0.99f;
   }
 }
 

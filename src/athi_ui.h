@@ -2,6 +2,7 @@
 
 #include "athi_typedefs.h"
 #include "athi_text.h"
+#include "athi_settings.h"
 #include <vector>
 #include <memory>
 

@@ -13,7 +13,7 @@ extern bool quadtree_active;
 extern u32 quadtree_depth;
 extern u32 quadtree_capacity;
 
-extern f32  timescale;
+extern f64  timestep;
 extern f64  physics_frametime;
 extern f64  smoothed_physics_frametime;
 extern u32  physics_framerate;

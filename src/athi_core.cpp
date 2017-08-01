@@ -38,31 +38,6 @@ void Athi_Core::init()
 
 void Athi_Core::start()
 {
-  std::thread draw_thread(&Athi_Core::draw_loop, this);
-  std::thread physics_thread(&Athi_Core::physics_loop, this);
-
-  while (!glfwWindowShouldClose(window->get_window_context()))
-  {
-    window->update();
-    update_inputs();
-    // but currently that draws a bugged circle when pressing 1 covering the screen.
-    // The bug happens when the draw thread updates faster than the physics thread.
-
-
-    if (show_settings) update_settings();
-    glfwWaitEvents();
-  }
-  app_is_running = false;
-  draw_thread.join();
-  physics_thread.join();
-
-  shutdown();
-}
-
-void Athi_Core::draw_loop()
-{
-  glfwMakeContextCurrent(window->get_window_context());
-
   Athi_Checkbox vsync_box;
   vsync_box.pos = vec2(LEFT+ROW,TOP-ROW*3.5f);
   vsync_box.text.str = "vsync";
@@ -87,15 +62,6 @@ void Athi_Core::draw_loop()
   multithread_box.variable = &use_multithreading;
   add_checkbox(&multithread_box);
 
-  Athi_Text cpu_info_text;
-  cpu_info_text.pos = vec2(LEFT+ROW, TOP);
-  cpu_info_text.str = cpu_brand + " | " + std::to_string(cpu_cores) + " cores | " + std::to_string(cpu_threads) + " threads";
-  add_text(&cpu_info_text);
-
-  Athi_Text frametime_text;
-  frametime_text.pos = vec2(LEFT+ROW, TOP-ROW);
-  add_text(&frametime_text);
-
   Athi_Slider<u32> physics_updates_per_sec_slider;
   physics_updates_per_sec_slider.str = "Physics updates per sec: ";
   physics_updates_per_sec_slider.var = &physics_updates_per_sec;
@@ -114,10 +80,6 @@ void Athi_Core::draw_loop()
   framerate_limit_slider.max = 300;
   add_slider<u32>(&framerate_limit_slider);
 
-  Athi_Text circle_info;
-  circle_info.pos = vec2(LEFT+ROW, BOTTOM+ROW*2.5f);
-  add_text(&circle_info);
-
   Athi_Slider<f32> circle_size_slider;
   circle_size_slider.str = "Circle size: ";
   circle_size_slider.var = &circle_size;
@@ -126,22 +88,57 @@ void Athi_Core::draw_loop()
   circle_size_slider.max = 0.1f;
   add_slider<f32>(&circle_size_slider);
 
-  SMA smooth_frametime_avg(&smoothed_frametime);
+  std::thread draw_thread(&Athi_Core::draw_loop, this);
+  std::thread physics_thread(&Athi_Core::physics_loop, this);
+
+  auto window_context = window->get_window_context();
+  while (!glfwWindowShouldClose(window_context))
+  {
+    window->update();
+    update_inputs();
+    // but currently that draws a bugged circle when pressing 1 covering the screen.
+    // The bug happens when the draw thread updates faster than the physics thread.
+    update_UI();
+
+    if (show_settings) update_settings();
+
+    glfwWaitEvents();
+  }
+  app_is_running = false;
+  draw_thread.join();
+  physics_thread.join();
+
+  shutdown();
+}
+
+static SMA smooth_frametime_avg(&smoothed_frametime);
+void Athi_Core::draw_loop()
+{
+  glfwMakeContextCurrent(window->get_window_context());
+
+  Athi_Text cpu_info_text;
+  cpu_info_text.pos = vec2(LEFT+ROW, TOP);
+  cpu_info_text.str = cpu_brand + " | " + std::to_string(cpu_cores) + " cores | " + std::to_string(cpu_threads) + " threads";
+  add_text(&cpu_info_text);
+
+  Athi_Text frametime_text;
+  frametime_text.pos = vec2(LEFT+ROW, TOP-ROW);
+  add_text(&frametime_text);
+
+  Athi_Text circle_info;
+  circle_info.pos = vec2(LEFT+ROW, BOTTOM+ROW*2.5f);
+  add_text(&circle_info);
 
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // !*!*"#!*"#*!"#*!"*#*!"#*!*"#*!"#*!*"#**"#*!*!"
+    frametime_text.str = "FPS: " + std::to_string(framerate) + " | Frametime: " + std::to_string(smoothed_frametime) + " | Physics frametime: " + std::to_string(smoothed_physics_frametime);
+    circle_info.str = "Circles: " + std::to_string(get_num_circles());
+
     draw_circles();
-    if (show_settings)
-    {
-      frametime_text.str = "FPS: " + std::to_string(framerate) + " | Frametime: " + std::to_string(smoothed_frametime) + " | Physics frametime: " + std::to_string(physics_frametime);
-      circle_info.str = "Circles: " + std::to_string(get_num_circles());
-      update_UI();
-      draw_UI();
-    }
+    if (show_settings) draw_UI();
 
     glfwSwapBuffers(window->get_window_context());
 
@@ -153,9 +150,10 @@ void Athi_Core::draw_loop()
 }
 
 // smoothed_physics_frametime IS BUGGY ATM
+
+static SMA smooth_physics_rametime_avg(&smoothed_physics_frametime);
 void Athi_Core::physics_loop()
 {
-  SMA smooth_physics_rametime_avg(&smoothed_physics_frametime);
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
@@ -166,6 +164,8 @@ void Athi_Core::physics_loop()
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     physics_framerate = (u32)(std::round(1000.0f/physics_frametime));
     smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
+
+    timestep = smoothed_physics_frametime/(1000.0/60.0);
   }
 }
 

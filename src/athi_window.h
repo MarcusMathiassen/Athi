@@ -15,7 +15,7 @@ public:
   u16 monitor_refreshrate {60};
 
   string title{"Athi"};
-  struct { u32 width{1024}, height{1024}; } scene, view;
+  struct { u32 width{512}, height{512}; } scene, view;
 
   void open();
   void init();

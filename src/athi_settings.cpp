@@ -11,10 +11,11 @@ bool quadtree_active{false};
 u32 quadtree_depth{5};
 u32 quadtree_capacity{25};
 
+f64  timestep;
 f64 physics_frametime;
 f64 smoothed_physics_frametime;
 u32 physics_framerate;
-u32 physics_updates_per_sec{60};
+u32 physics_updates_per_sec{0};
 
 f64 frametime;
 f64 smoothed_frametime;
