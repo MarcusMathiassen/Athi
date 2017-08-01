@@ -13,9 +13,14 @@ extern bool quadtree_active;
 extern u32 quadtree_depth;
 extern u32 quadtree_capacity;
 
-extern u32 framerate;
-extern s32 framerate_limit;
+extern f32  timescale;
+extern f64  physics_frametime;
+extern u32  physics_framerate;
 
+extern u32 framerate;
+extern u32 framerate_limit;
+
+extern f64 deltatime;
 extern f64 frametime;
 extern f64 smoothed_frametime;
 

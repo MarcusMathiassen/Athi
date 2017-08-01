@@ -13,6 +13,7 @@ struct Athi_Core
   std::unique_ptr<Athi_Window>          window;
 
   void draw_loop();
+  void physics_loop();
 
   void init();
   void shutdown();

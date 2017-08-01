@@ -7,7 +7,7 @@
 #include "athi_text.h"
 #include "athi_circle.h"
 #include "athi_camera.h"
-
+#include "athi_settings.h"
 
 #include <thread>
 #include <iostream>
@@ -39,14 +39,18 @@ void Athi_Core::init()
 void Athi_Core::start()
 {
   std::thread draw_thread(&Athi_Core::draw_loop, this);
+  std::thread physics_thread(&Athi_Core::physics_loop, this);
 
   while (!glfwWindowShouldClose(window->get_window_context()))
   {
     window->update();
+    update_inputs();
+    if (show_settings) update_settings();
     glfwWaitEvents();
   }
   app_is_running = false;
   draw_thread.join();
+  physics_thread.join();
 
   shutdown();
 }
@@ -82,14 +86,21 @@ void Athi_Core::draw_loop()
   frametime_text.pos = vec2(LEFT+ROW, TOP-ROW);
   add_text(&frametime_text);
 
+  Athi_Slider<u32> physics_framerate_slider;
+  physics_framerate_slider.str = "Physics updates per sec: ";
+  physics_framerate_slider.var = &physics_framerate;
+  physics_framerate_slider.pos = vec2(LEFT+ROW, TOP-ROW*5.5f);
+  physics_framerate_slider.min = 0;
+  physics_framerate_slider.max = 300;
+  add_slider<u32>(&physics_framerate_slider);
 
-  Athi_Slider<s32> slider;
-  slider.str = "FPS limit: ";
-  slider.var = &framerate_limit;
-  slider.pos = vec2(LEFT+ROW, TOP-ROW*2.5f);
-  slider.min = 0;
-  slider.max = 300;
-  add_slider<s32>(&slider);
+  Athi_Slider<u32> framerate_limit_slider;
+  framerate_limit_slider.str = "FPS limit: ";
+  framerate_limit_slider.var = &framerate_limit;
+  framerate_limit_slider.pos = vec2(LEFT+ROW, TOP-ROW*2.5f);
+  framerate_limit_slider.min = 0;
+  framerate_limit_slider.max = 300;
+  add_slider<u32>(&framerate_limit_slider);
 
   Athi_Text circle_info;
   circle_info.pos = vec2(LEFT+ROW, BOTTOM+ROW*2.5f);
@@ -110,18 +121,14 @@ void Athi_Core::draw_loop()
     f64 time_start_frame{ glfwGetTime() };
     glClear(GL_COLOR_BUFFER_BIT);
 
-    update_inputs();
-
-    update_circles();
     draw_circles();
 
     if (show_settings)
     {
-      frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | Frametime: " + std::to_string(smoothed_frametime);
+      frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | Frametime: " + std::to_string(smoothed_frametime) + " | Physics frametime: " + std::to_string(physics_frametime);
       circle_info.str = "Circles: " + std::to_string(get_num_circles());
       update_UI();
       draw_UI();
-      update_settings();
     }
 
     glfwSwapBuffers(window->get_window_context());
@@ -130,6 +137,17 @@ void Athi_Core::draw_loop()
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
 
     smooth_frametime_avg.add_new_frametime(frametime);
+  }
+}
+
+void Athi_Core::physics_loop()
+{
+  while (app_is_running)
+  {
+    f64 time_start_frame{ glfwGetTime() };
+    update_circles();
+    if (physics_framerate != 0) limit_FPS(physics_framerate, time_start_frame);
+    physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
   }
 }
 

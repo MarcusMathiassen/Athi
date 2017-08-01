@@ -38,7 +38,6 @@ static Athi_Input_Manager athi_input_manager;
 
 static void update_inputs()
 {
-
   f64 mouse_x, mouse_y;
   glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
 
@@ -55,7 +54,6 @@ static void update_inputs()
     addCircle(c);
   }
 }
-
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {

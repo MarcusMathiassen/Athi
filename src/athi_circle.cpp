@@ -99,8 +99,8 @@ static void collisionResolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_vec{tang * scal_tang_1};
     const vec2 scal_norm_2_vec{tang * scal_tang_2};
 
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.98f;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.98f;
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.9f;
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.9f;
   }
 }
 
@@ -213,26 +213,6 @@ Athi_Circle_Manager::~Athi_Circle_Manager()
 void Athi_Circle_Manager::draw()
 {
   if (circle_buffer.size() == 0) return;
-  glBindVertexArray(VAO);
-  glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_LINE_LOOP, 0, CIRCLE_NUM_VERTICES, circle_buffer.size());
-}
-
-void Athi_Circle_Manager::update()
-{
-  if (circle_buffer.size() == 0) return;
-  for (auto &circle : circle_buffer) circle.update();
-
-  if (circle_collision) {
-    if (quadtree_active) {
-      std::vector<std::vector<u32> > cont;
-      quadtree.update();
-      quadtree.get(cont);
-      collision_quadtree(cont, 0, cont.size());
-    } else {
-      collision_logNxN(0, circle_buffer.size());
-    }
-  }
 
   if (circle_buffer.size() > transforms.size())
   {
@@ -268,6 +248,27 @@ void Athi_Circle_Manager::update()
     color_bytes_allocated = color_bytes_needed;
   } else {
     glBufferSubData(GL_ARRAY_BUFFER, 0, color_bytes_allocated, &colors[0]);
+  }
+
+  glBindVertexArray(VAO);
+  glUseProgram(shader_program);
+  glDrawArraysInstanced(GL_LINE_LOOP, 0, CIRCLE_NUM_VERTICES, circle_buffer.size());
+}
+
+void Athi_Circle_Manager::update()
+{
+  if (circle_buffer.size() == 0) return;
+  for (auto &circle : circle_buffer) circle.update();
+
+  if (circle_collision) {
+    if (quadtree_active) {
+      std::vector<std::vector<u32> > cont;
+      quadtree.update();
+      quadtree.get(cont);
+      collision_quadtree(cont, 0, cont.size());
+    } else {
+      collision_logNxN(0, circle_buffer.size());
+    }
   }
 }
 
