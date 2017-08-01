@@ -15,7 +15,10 @@ extern u32 quadtree_capacity;
 
 extern f32  timescale;
 extern f64  physics_frametime;
+extern f64  smoothed_physics_frametime;
 extern u32  physics_framerate;
+extern u32  physics_updates_per_sec;
+
 
 extern u32 framerate;
 extern u32 framerate_limit;
