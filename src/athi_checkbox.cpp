@@ -67,7 +67,7 @@ void Athi_Checkbox::init()
   inner_box.init();
 
   text.pos = pos;
-  text.pos.x += width;
+  text.pos.x += width+0.02f;
   text.pos.y -= height*0.65f;
   add_text(&text);
 }

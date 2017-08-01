@@ -5,6 +5,7 @@
 #include "athi_ui.h"
 #include "athi_input.h"
 #include "athi_camera.h"
+#include "athi_text.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -24,18 +25,21 @@ private:
   enum { HOVER, PRESSED, NOTHING};
   u16 last_state{NOTHING};
 
-  T* var;
 
   Athi_Rect slider_border;
   Athi_Rect slider_input_box;
 
+  Athi_Text text;
+
 public:
+  std::string str;
   vec2 pos{0,0};
 
+  T* var;
   f32 width{1.0f};
-  f32 height{0.05f};
+  f32 height{0.03f};
 
-  f32 knob_width{0.05f};
+  f32 knob_width{0.03f};
 
   vec4 hover_color{1.0f, 0.5f, 0.5f,1.0f};
   vec4 pressed_color{0.5f, 0.3f, 0.3f,1.0f};
@@ -44,9 +48,15 @@ public:
   vec4 outer_box_color{0.3f,0.3f,0.3f,1.0f};
   f32 min{0}, max{100};
 
+  Athi_Slider() = default;
   Athi_Slider(T* t) : var(t) {}
   void init()
   {
+    // Text description
+    text.pos    = pos;
+    text.pos.y += height;
+    add_text(&text);
+
     // Border
     slider_border.pos = pos;
     slider_border.color = outer_box_color;
@@ -71,6 +81,10 @@ public:
 
   void update()
   {
+    // Update text variable
+    std::string temp = str + std::to_string(*var);
+    text.str = temp;
+
     last_state = get_status();
     switch(last_state)
     {
@@ -132,8 +146,10 @@ public:
 };
 
 template <typename T>
-auto create_slider(T* t)
+static void add_slider(Athi_Slider<T> *ui)
 {
-  auto slider = std::make_unique<Athi_Slider<T>>(t);
-  return slider;
+  ui->init();
+  athi_ui_manager.ui_buffer.emplace_back(ui);
 }
+
+

@@ -17,7 +17,7 @@ struct Athi_UI_Manager
 {
   f32 scale{1.0f};
 
-  std::vector<std::unique_ptr<Athi_UI> >  ui_buffer;
+  std::vector<Athi_UI*>  ui_buffer;
 
   void update()
   {
@@ -31,4 +31,15 @@ struct Athi_UI_Manager
   }
 };
 
-static Athi_UI_Manager* athi_ui_manager;
+
+static Athi_UI_Manager athi_ui_manager;
+
+static void update_UI()
+{
+  athi_ui_manager.update();
+}
+
+static void draw_UI()
+{
+  athi_ui_manager.draw();
+}

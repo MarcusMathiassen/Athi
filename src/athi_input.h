@@ -9,7 +9,6 @@
 #include "athi_settings.h"
 #include "athi_circle.h"
 
-
 void init_input_manager();
 u8 get_mouse_button_state(u8 button);
 static void update_inputs();
@@ -94,6 +93,13 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
   {
     if (circle_collision) circle_collision = false;
     else circle_collision = true;
+  }
+
+  // TOGGLE QUADTREE ACTIVE
+  if (key == GLFW_KEY_Q && action == GLFW_PRESS)
+  {
+    if (quadtree_active) quadtree_active = false;
+    else quadtree_active = true;
   }
 
   // clear all circles

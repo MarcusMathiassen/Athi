@@ -4,12 +4,15 @@
 #include "athi_rect.h"
 #include "athi_input.h"
 #include "athi_text.h"
+#include "athi_ui.h"
 
 #include <iostream>
 
+#include <memory>
+
 //@Note to self: Fix the colors. They don't look right.
 
-struct Athi_Checkbox
+struct Athi_Checkbox : public Athi_UI
 {
 
   enum { HOVER, PRESSED, IDLE, TOGGLE};
@@ -20,8 +23,8 @@ struct Athi_Checkbox
 
   Athi_Text text;
 
-  f32 width{0.05f};
-  f32 height{0.05f};
+  f32 width{0.03f};
+  f32 height{0.03f};
 
   vec4 outer_box_color{0.3f,0.3f,0.3f,1.0f};
   vec4 inner_box_color;
@@ -38,11 +41,10 @@ struct Athi_Checkbox
   bool hover_over();
   u32  get_status();
   void init();
-
 };
 
-// auto create_checkbox(bool* b)
-// {
-//   auto checkbox = std::make_unique<Athi_Checkbox>(b);
-//   return checkbox;
-// }
+static void add_checkbox(Athi_Checkbox *ui)
+{
+  ui->init();
+  athi_ui_manager.ui_buffer.emplace_back(ui);
+}

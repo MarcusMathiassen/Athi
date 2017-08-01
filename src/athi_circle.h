@@ -4,6 +4,7 @@
 #include "athi_transform.h"
 
 #include "athi_utility.h"
+#include "athi_quadtree.h"
 
 #include <vector>
 
@@ -33,18 +34,18 @@ struct Athi_Circle_Manager
 {
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
 
+  Athi_Quadtree quadtree;
+
   std::vector<Athi_Circle> circle_buffer;
 
   std::vector<mat4> transforms;
   std::vector<vec4> colors;
 
-  // Mesh
   u32 VAO;
   u32 VBO[NUM_BUFFERS];
   size_t transform_bytes_allocated{0};
   size_t color_bytes_allocated{0};
 
-  // Shader
   u32 shader_program;
 
   Athi_Circle_Manager() = default;
@@ -66,5 +67,5 @@ static bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b);
 static void collisionResolve(Athi_Circle &a, Athi_Circle &b);
 static void separate(Athi_Circle &a, Athi_Circle &b);
 static void collision_logNxN(size_t begin, size_t end);
-
+static void collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end);
 static Athi_Circle_Manager athi_circle_manager;

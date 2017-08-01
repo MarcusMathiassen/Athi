@@ -31,9 +31,6 @@ void Athi_Core::init()
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClearColor(4/255.0f,32/255.0f,41/255.0f,1);
 
-  ui_manager = std::make_unique<Athi_UI_Manager>();
-  ui_manager->scale = 1.0f;
-
   cpu_cores   = get_cpu_cores();
   cpu_threads = get_cpu_threads();
   cpu_brand   = get_cpu_brand();
@@ -58,50 +55,53 @@ void Athi_Core::draw_loop()
 {
   glfwMakeContextCurrent(window->get_window_context());
 
-  Athi_Checkbox box;
-  box.pos = vec2(LEFT+ROW*9,BOTTOM+ROW*2.5f);
-  box.text.str = "vsync";
-  box.width = 0.03f;
-  box.height = 0.03f;
-  box.variable = &vsync;
-  box.init();
+  Athi_Checkbox vsync_box;
+  vsync_box.pos = vec2(LEFT+ROW,TOP-ROW*3.5f);
+  vsync_box.text.str = "vsync";
+  vsync_box.variable = &vsync;
+  add_checkbox(&vsync_box);
 
-  Athi_Text frametime_text;
-  frametime_text.pos = vec2(LEFT, BOTTOM);
-  add_text(&frametime_text);
+  Athi_Checkbox quadtree_box;
+  quadtree_box.pos = vec2(RIGHT-ROW*5.5f,BOTTOM+ROW);
+  quadtree_box.text.str = "quadtree";
+  quadtree_box.variable = &quadtree_active;
+  add_checkbox(&quadtree_box);
 
-  Athi_Text frame_limit_text;
-  frame_limit_text.pos = vec2(LEFT, BOTTOM+ROW);
-  add_text(&frame_limit_text);
-
-  Athi_Text circle_info;
-  circle_info.pos = vec2(LEFT, BOTTOM+ROW*3);
-  add_text(&circle_info);
+  Athi_Checkbox gravity_box;
+  gravity_box.pos = vec2(RIGHT-ROW*5.5f,BOTTOM+ROW*2);
+  gravity_box.text.str = "gravity";
+  gravity_box.variable = &physics_gravity;
+  add_checkbox(&gravity_box);
 
   Athi_Text cpu_info_text;
-  cpu_info_text.pos = vec2(LEFT, TOP);
+  cpu_info_text.pos = vec2(LEFT+ROW, TOP);
   cpu_info_text.str = cpu_brand + " | " + std::to_string(cpu_cores) + " cores | " + std::to_string(cpu_threads) + " threads";
   add_text(&cpu_info_text);
 
-  auto slider = create_slider<s32>(&framerate_limit);
-  slider->pos = vec2(LEFT+ROW*0.3f, BOTTOM+ROW*2.5f);
-  slider->width = 0.5f;
-  slider->height = 0.03f;
-  slider->knob_width = 0.03f;
-  slider->min = 0;
-  slider->max = 300;
-  slider->init();
-  ui_manager->ui_buffer.emplace_back(std::move(slider));
+  Athi_Text frametime_text;
+  frametime_text.pos = vec2(LEFT+ROW, TOP-ROW);
+  add_text(&frametime_text);
 
-  auto circle_size_slider = create_slider<f32>(&circle_size);
-  circle_size_slider->pos = vec2(LEFT+ROW*0.3f, BOTTOM+ROW*4.5f);
-  circle_size_slider->width = 0.5f;
-  circle_size_slider->height = 0.03f;
-  circle_size_slider->knob_width = 0.03f;
-  circle_size_slider->min = 0.001f;
-  circle_size_slider->max = 0.1f;
-  circle_size_slider->init();
-  ui_manager->ui_buffer.emplace_back(std::move(circle_size_slider));
+
+  Athi_Slider<s32> slider;
+  slider.str = "FPS limit: ";
+  slider.var = &framerate_limit;
+  slider.pos = vec2(LEFT+ROW, TOP-ROW*2.5f);
+  slider.min = 0;
+  slider.max = 300;
+  add_slider<s32>(&slider);
+
+  Athi_Text circle_info;
+  circle_info.pos = vec2(LEFT+ROW, BOTTOM+ROW*2.5f);
+  add_text(&circle_info);
+
+  Athi_Slider<f32> circle_size_slider;
+  circle_size_slider.str = "Circle size: ";
+  circle_size_slider.var = &circle_size;
+  circle_size_slider.pos = vec2(LEFT+ROW, BOTTOM+ROW);
+  circle_size_slider.min = 0.001f;
+  circle_size_slider.max = 0.1f;
+  add_slider<f32>(&circle_size_slider);
 
   SMA smooth_frametime_avg(&smoothed_frametime);
 
@@ -110,22 +110,17 @@ void Athi_Core::draw_loop()
     f64 time_start_frame{ glfwGetTime() };
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Checks keyboard and mouse inputs
     update_inputs();
 
     update_circles();
     draw_circles();
 
-    // UI stuff
     if (show_settings)
     {
-      frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | frametime: " + std::to_string(smoothed_frametime);
-      frame_limit_text.str = "limit FPS: " + std::to_string(framerate_limit);
-      circle_info.str = "circles: " + std::to_string(get_num_circles());
+      frametime_text.str = "FPS: " + std::to_string((u32)(std::round((1000.0f/smoothed_frametime)))) + " | Frametime: " + std::to_string(smoothed_frametime);
+      circle_info.str = "Circles: " + std::to_string(get_num_circles());
       update_UI();
       draw_UI();
-      box.update();
-      box.draw();
       update_settings();
     }
 
@@ -141,16 +136,6 @@ void Athi_Core::draw_loop()
 void Athi_Core::update_settings()
 {
   glfwSwapInterval(vsync);
-}
-
-void Athi_Core::update_UI()
-{
-  ui_manager->update();
-}
-
-void Athi_Core::draw_UI()
-{
-  ui_manager->draw();
 }
 
 void Athi_Core::shutdown()

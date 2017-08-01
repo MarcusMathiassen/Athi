@@ -223,9 +223,15 @@ void Athi_Circle_Manager::update()
   if (circle_buffer.size() == 0) return;
   for (auto &circle : circle_buffer) circle.update();
 
-  if (circle_collision)
-  {
-    collision_logNxN(0, circle_buffer.size());
+  if (circle_collision) {
+    if (quadtree_active) {
+      std::vector<std::vector<u32> > cont;
+      quadtree.update();
+      quadtree.get(cont);
+      collision_quadtree(cont, 0, cont.size());
+    } else {
+      collision_logNxN(0, circle_buffer.size());
+    }
   }
 
   if (circle_buffer.size() > transforms.size())
@@ -277,9 +283,22 @@ static void collision_logNxN(size_t begin, size_t end)
   }
 }
 
+static void collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end) {
+  for (size_t k = begin; k < end; ++k) {
+    for (size_t i = 0; i < cont[k].size(); ++i) {
+      for (size_t j = i + 1; j < cont[k].size(); ++j) {
+        if (collisionDetection(athi_circle_manager.circle_buffer[cont[k][i]],athi_circle_manager.circle_buffer[cont[k][j]])) {
+          collisionResolve(athi_circle_manager.circle_buffer[cont[k][i]],athi_circle_manager.circle_buffer[cont[k][j]]);
+        }
+      }
+    }
+  }
+}
+
 void init_circle_manager()
 {
   athi_circle_manager.init();
+  athi_circle_manager.quadtree.init(vec2(-1,-1), vec2(1,1));
 }
 
 void update_circles()

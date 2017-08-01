@@ -13,6 +13,7 @@ void shutdown_text_manager()
 
 void add_text(Athi_Text *text)
 {
+  text->init();
   athi_text_manager->text_buffer.emplace_back(text);
 }
 

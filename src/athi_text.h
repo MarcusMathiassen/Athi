@@ -38,6 +38,10 @@ struct Athi_Text
   vec2 pos {0.0f, 0.0f};
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
   Athi_Text() = default;
+  void init()
+  {
+    pos.x -= DIST_BETW_CHAR*0.5f;
+  }
 };
 void add_text(Athi_Text *text);
 
