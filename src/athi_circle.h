@@ -63,6 +63,7 @@ void draw_circles();
 void addCircle(Athi_Circle &circle);
 void init_circle_manager();
 
+static void process_segment(size_t begin, size_t end);
 static bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b);
 static void collisionResolve(Athi_Circle &a, Athi_Circle &b);
 static void separate(Athi_Circle &a, Athi_Circle &b);

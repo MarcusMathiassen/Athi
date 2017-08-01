@@ -100,6 +100,13 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     else quadtree_active = true;
   }
 
+  // TOGGLE MULTITHREADING
+  if (key == GLFW_KEY_M && action == GLFW_PRESS)
+  {
+    if (use_multithreading) use_multithreading = false;
+    else use_multithreading = true;
+  }
+
   // clear all circles
   if (key == GLFW_KEY_E && action == GLFW_PRESS)
   {

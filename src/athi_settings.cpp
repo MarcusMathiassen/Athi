@@ -26,6 +26,8 @@ f64 smoothed_frametime;
 
 bool vsync{1};
 
+bool use_multithreading{true};
+
 u32    cpu_cores;
 u32    cpu_threads;
 string cpu_brand;

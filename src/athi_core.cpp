@@ -77,6 +77,12 @@ void Athi_Core::draw_loop()
   gravity_box.variable = &physics_gravity;
   add_checkbox(&gravity_box);
 
+  Athi_Checkbox multithread_box;
+  multithread_box.pos = vec2(RIGHT-ROW*5.5f,BOTTOM+ROW*3);
+  multithread_box.text.str = "multithreading";
+  multithread_box.variable = &use_multithreading;
+  add_checkbox(&multithread_box);
+
   Athi_Text cpu_info_text;
   cpu_info_text.pos = vec2(LEFT+ROW, TOP);
   cpu_info_text.str = cpu_brand + " | " + std::to_string(cpu_cores) + " cores | " + std::to_string(cpu_threads) + " threads";

@@ -2,6 +2,7 @@
 #include "athi_settings.h"
 
 #include <cmath>
+#include <thread>
 #include <glm/gtx/vector_angle.hpp>
 
 #define GLEW_STATIC
@@ -99,8 +100,8 @@ static void collisionResolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_vec{tang * scal_tang_1};
     const vec2 scal_norm_2_vec{tang * scal_tang_2};
 
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.9f;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.9f;
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.99f;
   }
 }
 
@@ -260,28 +261,50 @@ void Athi_Circle_Manager::update()
   if (circle_buffer.size() == 0) return;
   for (auto &circle : circle_buffer) circle.update();
 
-  if (circle_collision) {
-    if (quadtree_active) {
+  if (circle_collision)
+  {
+    if (quadtree_active)
+    {
       std::vector<std::vector<u32> > cont;
       quadtree.update();
       quadtree.get(cont);
       collision_quadtree(cont, 0, cont.size());
-    } else {
+    }
+    else if (use_multithreading)
+    {
+      const u32 total = circle_buffer.size();
+      const u32 parts = total / cpu_threads;
+
+      std::thread thread_pool[cpu_threads];
+
+      process_segment(parts * cpu_threads, total);
+      for (u32 i = 0; i < cpu_threads; ++i)
+      {
+        thread_pool[i] = std::thread(process_segment, parts * i, parts * (i + 1));
+      }
+      for (auto &thread : thread_pool) thread.join();
+    }
+    else
+    {
       collision_logNxN(0, circle_buffer.size());
     }
   }
 }
 
+static void process_segment(size_t begin, size_t end)
+{
+  for (size_t i = begin; i < end; ++i)
+    for (size_t j = 1 + i; j < athi_circle_manager.circle_buffer.size(); ++j)
+      if (collisionDetection(athi_circle_manager.circle_buffer[i], athi_circle_manager.circle_buffer[j]))
+        collisionResolve(athi_circle_manager.circle_buffer[i], athi_circle_manager.circle_buffer[j]);
+}
+
 static void collision_logNxN(size_t begin, size_t end)
 {
   for (size_t i = begin; i < end; ++i)
-  {
     for (size_t j = 1 + i; j < end; ++j)
-    {
       if (collisionDetection(athi_circle_manager.circle_buffer[i], athi_circle_manager.circle_buffer[j]))
         collisionResolve(athi_circle_manager.circle_buffer[i], athi_circle_manager.circle_buffer[j]);
-    }
-  }
 }
 
 static void collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end) {
