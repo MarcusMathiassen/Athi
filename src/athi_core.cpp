@@ -44,7 +44,7 @@ void Athi_Core::start()
   while (!glfwWindowShouldClose(window->get_window_context()))
   {
     window->update();
-    update_inputs();
+    //update_inputs();
     if (show_settings) update_settings();
     glfwWaitEvents();
   }
@@ -124,6 +124,8 @@ void Athi_Core::draw_loop()
     glClear(GL_COLOR_BUFFER_BIT);
 
     draw_circles();
+    update_inputs(); // this should be played in the window thread.
+    // but currently that draws a bugged circle when pressing 1 covering the screen.
 
     if (show_settings)
     {
