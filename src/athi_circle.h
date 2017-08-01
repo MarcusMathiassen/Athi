@@ -54,6 +54,9 @@ struct Athi_Circle_Manager
   void init();
   void draw();
   void update();
+
+  void collision_logNxN(size_t begin, size_t end);
+  void collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end);
 };
 
 void delete_circles();
@@ -63,10 +66,7 @@ void draw_circles();
 void addCircle(Athi_Circle &circle);
 void init_circle_manager();
 
-static void process_segment(size_t begin, size_t end);
 static bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b);
 static void collisionResolve(Athi_Circle &a, Athi_Circle &b);
 static void separate(Athi_Circle &a, Athi_Circle &b);
-static void collision_logNxN(size_t begin, size_t end);
-static void collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end);
 static Athi_Circle_Manager athi_circle_manager;

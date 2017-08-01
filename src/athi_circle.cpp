@@ -277,10 +277,10 @@ void Athi_Circle_Manager::update()
 
       std::thread thread_pool[cpu_threads];
 
-      process_segment(parts * cpu_threads, total);
+      collision_logNxN(parts * cpu_threads, total);
       for (u32 i = 0; i < cpu_threads; ++i)
       {
-        thread_pool[i] = std::thread(process_segment, parts * i, parts * (i + 1));
+        thread_pool[i] = std::thread(&Athi_Circle_Manager::collision_logNxN, this, parts * i, parts * (i + 1));
       }
       for (auto &thread : thread_pool) thread.join();
     }
@@ -291,32 +291,21 @@ void Athi_Circle_Manager::update()
   }
 }
 
-static void process_segment(size_t begin, size_t end)
+void Athi_Circle_Manager::collision_logNxN(size_t begin, size_t end)
 {
   for (size_t i = begin; i < end; ++i)
-    for (size_t j = 1 + i; j < athi_circle_manager.circle_buffer.size(); ++j)
-      if (collisionDetection(athi_circle_manager.circle_buffer[i], athi_circle_manager.circle_buffer[j]))
-        collisionResolve(athi_circle_manager.circle_buffer[i], athi_circle_manager.circle_buffer[j]);
+    for (size_t j = 1 + i; j < circle_buffer.size(); ++j)
+      if (collisionDetection( circle_buffer[i],   circle_buffer[j]))
+          collisionResolve(   circle_buffer[i],   circle_buffer[j]);
 }
 
-static void collision_logNxN(size_t begin, size_t end)
+void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end)
 {
-  for (size_t i = begin; i < end; ++i)
-    for (size_t j = 1 + i; j < end; ++j)
-      if (collisionDetection(athi_circle_manager.circle_buffer[i], athi_circle_manager.circle_buffer[j]))
-        collisionResolve(athi_circle_manager.circle_buffer[i], athi_circle_manager.circle_buffer[j]);
-}
-
-static void collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end) {
-  for (size_t k = begin; k < end; ++k) {
-    for (size_t i = 0; i < cont[k].size(); ++i) {
-      for (size_t j = i + 1; j < cont[k].size(); ++j) {
-        if (collisionDetection(athi_circle_manager.circle_buffer[cont[k][i]],athi_circle_manager.circle_buffer[cont[k][j]])) {
-          collisionResolve(athi_circle_manager.circle_buffer[cont[k][i]],athi_circle_manager.circle_buffer[cont[k][j]]);
-        }
-      }
-    }
-  }
+  for (size_t k = begin; k < end; ++k)
+    for (size_t i = 0; i < cont[k].size(); ++i)
+      for (size_t j = i + 1; j < cont[k].size(); ++j)
+        if (collisionDetection( circle_buffer[cont[k][i]],  circle_buffer[cont[k][j]]))
+            collisionResolve(   circle_buffer[cont[k][i]],  circle_buffer[cont[k][j]]);
 }
 
 void init_circle_manager()

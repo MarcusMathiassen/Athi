@@ -3,25 +3,9 @@
 #include "athi_circle.h"
 #include "athi_settings.h"
 
+#include <iostream>
 
-Rect::Rect(const vec2 &min, const vec2 &max)  : min(min), max(max)
-{
-
-}
-
-bool Rect::contains(u32 id) const {
-  const vec2 o = athi_circle_manager.circle_buffer[id].pos;
-  const f32 r = athi_circle_manager.circle_buffer[id].radius;
-
-  //  basic square collision check
-  if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
-      o.y + r > min.y) {
-    return true;
-  }
-  return false;
-}
-
-Athi_Quadtree::Athi_Quadtree(u32 level, const Rect &bounds)
+Athi_Quadtree::Athi_Quadtree(u32 level, const Athi_Rect &bounds)
     : level(level),
       bounds(bounds),
       subnode{nullptr, nullptr, nullptr, nullptr} {
@@ -30,7 +14,8 @@ Athi_Quadtree::Athi_Quadtree(u32 level, const Rect &bounds)
 
 void Athi_Quadtree::init(const vec2& min, const vec2& max)
 {
-  bounds = Rect(min, max);
+  bounds.min = min;
+  bounds.max = max;
   index.reserve(quadtree_capacity);
 }
 
@@ -64,10 +49,10 @@ void Athi_Quadtree::split() {
   const f32 w = width * 0.5;
   const f32 h = height * 0.5;
 
-  const Rect SW(vec2(x, y),     vec2(x+w,y+h));
-  const Rect SE(vec2(x+w, y),   vec2(x+width,  y+h));
-  const Rect NW(vec2(x, y+h),   vec2(x+w,      y+height));
-  const Rect NE(vec2(x+w, y+h), vec2(x+width,  y+height));
+  const Athi_Rect SW(vec2(x, y),     vec2(x+w,y+h));
+  const Athi_Rect SE(vec2(x+w, y),   vec2(x+width,  y+h));
+  const Athi_Rect NW(vec2(x, y+h),   vec2(x+w,      y+height));
+  const Athi_Rect NE(vec2(x+w, y+h), vec2(x+width,  y+height));
 
   subnode[0] = std::make_unique<Athi_Quadtree>(level+1, SW);
   subnode[1] = std::make_unique<Athi_Quadtree>(level+1, SE);
@@ -140,7 +125,9 @@ void Athi_Quadtree::draw()
   }
   // Only draw the nodes with objects in them.
   //if (index.size() != 0) bounds.draw();  // [1]
-  //bounds.draw(); // draw them all '
+
+  std::cout << "Bound drawn at: " << bounds.min.x  << "x" << bounds.min.y << " to " << bounds.max.x << "x" << bounds.max.y << std::endl;
+  bounds.draw(GL_LINE_LOOP); // draw them all '
 }
 
 void Athi_Quadtree::get(std::vector<std::vector<u32> > &cont) const {
