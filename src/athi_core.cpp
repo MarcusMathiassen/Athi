@@ -123,9 +123,12 @@ void Athi_Core::draw_loop()
     f64 time_start_frame{ glfwGetTime() };
     glClear(GL_COLOR_BUFFER_BIT);
 
+    // !*!*"#!*"#*!"#*!"*#*!"#*!*"#*!"#*!*"#**"#*!*!"
     draw_circles();
     update_inputs(); // this should be played in the window thread.
     // but currently that draws a bugged circle when pressing 1 covering the screen.
+    // The bug happens when the draw thread updates faster than the physics thread.
+
 
     if (show_settings)
     {
