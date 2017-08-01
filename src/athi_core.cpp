@@ -148,23 +148,25 @@ void Athi_Core::draw_loop()
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-    framerate = (u32)(std::round((1000.0f/smoothed_frametime)));
-
+    framerate = (u32)(std::round(1000.0f/smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
   }
 }
 
+// smoothed_physics_frametime IS BUGGY ATM
 void Athi_Core::physics_loop()
 {
   SMA smooth_physics_rametime_avg(&smoothed_physics_frametime);
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
+
     update_circles();
+
     if (physics_updates_per_sec != 0) limit_FPS(physics_updates_per_sec, time_start_frame);
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
+    physics_framerate = (u32)(std::round(1000.0f/physics_frametime));
     smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
-    physics_framerate = (u32)std::round((1000.0f/smoothed_physics_frametime));
   }
 }
 
