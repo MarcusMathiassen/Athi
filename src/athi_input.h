@@ -51,6 +51,8 @@ static void update_inputs()
   {
     c.pos = vec2(mouse_x,mouse_y);
     c.radius = circle_size;
+
+
     addCircle(c);
   }
 }

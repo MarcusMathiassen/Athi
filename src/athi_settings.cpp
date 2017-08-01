@@ -4,7 +4,7 @@ bool show_settings{true};
 bool physics_gravity{false};
 bool circle_collision{true};
 
-f32 circle_size{0.01f};
+f32 circle_size{0.03f};
 vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
 bool quadtree_active{false};

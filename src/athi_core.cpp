@@ -44,7 +44,11 @@ void Athi_Core::start()
   while (!glfwWindowShouldClose(window->get_window_context()))
   {
     window->update();
-    //update_inputs();
+    update_inputs();
+    // but currently that draws a bugged circle when pressing 1 covering the screen.
+    // The bug happens when the draw thread updates faster than the physics thread.
+
+
     if (show_settings) update_settings();
     glfwWaitEvents();
   }
@@ -131,11 +135,6 @@ void Athi_Core::draw_loop()
 
     // !*!*"#!*"#*!"#*!"*#*!"#*!*"#*!"#*!*"#**"#*!*!"
     draw_circles();
-    update_inputs(); // this should be played in the window thread.
-    // but currently that draws a bugged circle when pressing 1 covering the screen.
-    // The bug happens when the draw thread updates faster than the physics thread.
-
-
     if (show_settings)
     {
       frametime_text.str = "FPS: " + std::to_string(framerate) + " | Frametime: " + std::to_string(smoothed_frametime) + " | Physics frametime: " + std::to_string(physics_frametime);

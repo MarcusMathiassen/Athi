@@ -5,16 +5,27 @@ project(athi)
 
 set(CMAKE_CXX_STANDARD 17)
 
-SET(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-function -Wno-unused-parameter")
+#SET(CMAKE_BUILD_TYPE DEBUG)
+SET(CMAKE_BUILD_TYPE RELEASE)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -Wno-unused-function -Wno-unused-parameter")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+#SET(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-function -Wno-unused-parameter")
+
+set(DEBUG FALSE)
+
+if(${DEBUG})
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
+else()
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+endif()
 
 # Load headers
 include_directories("./src/")
 
 # Load sources
 file(GLOB SOURCES "./src/*.cpp")
-
 
 if(WIN32)
 	add_executable(${PROJECT_NAME} ${SOURCES})

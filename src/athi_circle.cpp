@@ -15,9 +15,17 @@ void Athi_Circle::update()
 {
   borderCollision();
 
-  if (physics_gravity) vel.y -= (9.81f * mass);
 
-  pos += vel;
+
+  auto timestep = physics_frametime/(1000.0/60.0);
+  std::cout << "timestep: " << timestep << std::endl;
+
+  if (physics_gravity) vel.y -= (9.81f * mass) * timestep;
+
+  pos.x += vel.x * timestep;
+  pos.y += vel.y * timestep;
+
+  std::cout << "vel.y :   " << vel.y << std::endl;
   transform.pos   = glm::vec3(pos.x, pos.y, 0);
   transform.scale = glm::vec3(radius, radius, 0);
 }
@@ -75,16 +83,16 @@ static void collisionResolve(Athi_Circle &a, Athi_Circle &b)
 {
   separate(a, b);
 
-  const f32 dx = b.pos.x - a.pos.x;
-  const f32 dy = b.pos.y - a.pos.y;
-  const f32 vdx = b.vel.x - a.vel.x;
-  const f32 vdy = b.vel.y - a.vel.y;
-  const f32 d = dx * vdx + dy * vdy;
+  const f64 dx = b.pos.x - a.pos.x;
+  const f64 dy = b.pos.y - a.pos.y;
+  const f64 vdx = b.vel.x - a.vel.x;
+  const f64 vdy = b.vel.y - a.vel.y;
+  const f64 d = dx * vdx + dy * vdy;
 
   // if they're not moving away from eachother
-  if (d < 0.0f) {
+  if (d < 0.0) {
     const vec2 norm = glm::normalize(vec2(dx,dy));
-    const vec2 tang{norm.y * -1, norm.x};
+    const vec2 tang{norm.y * -1.0, norm.x};
     const f32 scal_norm_1 = glm::dot(norm, a.vel);
     const f32 scal_norm_2 = glm::dot(norm, b.vel);
     const f32 scal_tang_1 = glm::dot(tang, a.vel);
@@ -100,8 +108,8 @@ static void collisionResolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_vec{tang * scal_tang_1};
     const vec2 scal_norm_2_vec{tang * scal_tang_2};
 
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.99f;
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec);
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec);
   }
 }
 
@@ -253,7 +261,7 @@ void Athi_Circle_Manager::draw()
 
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_LINE_LOOP, 0, CIRCLE_NUM_VERTICES, circle_buffer.size());
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, circle_buffer.size());
 }
 
 void Athi_Circle_Manager::update()
