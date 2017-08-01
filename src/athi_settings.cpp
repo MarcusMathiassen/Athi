@@ -24,6 +24,7 @@ u32 framerate_limit{60};
 
 bool vsync{1};
 
+u32 variable_thread_count;
 bool use_multithreading{true};
 
 u32    cpu_cores;

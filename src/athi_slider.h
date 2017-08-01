@@ -38,8 +38,8 @@ public:
   std::string str;
   vec2 pos{0,0};
 
-  T* var;
-  T* var_indicator;
+  T* var{nullptr};
+  T* var_indicator{nullptr};
 
   f32 width{1.0f};
   f32 height{0.03f};

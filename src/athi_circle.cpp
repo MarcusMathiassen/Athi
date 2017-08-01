@@ -273,15 +273,16 @@ void Athi_Circle_Manager::update()
       quadtree.get(cont);
       collision_quadtree(cont, 0, cont.size());
     }
-    else if (use_multithreading)
+    else if (use_multithreading && variable_thread_count != 0)
     {
       const u32 total = circle_buffer.size();
-      const u32 parts = total / cpu_threads;
+      const u32 parts = total / variable_thread_count;
 
-      std::thread thread_pool[cpu_threads];
+      u32 const thread_count = variable_thread_count;
+      std::thread thread_pool[thread_count];
 
-      collision_logNxN(parts * cpu_threads, total);
-      for (u32 i = 0; i < cpu_threads; ++i)
+      collision_logNxN(parts * thread_count, total);
+      for (u32 i = 0; i < thread_count; ++i)
       {
         thread_pool[i] = std::thread(&Athi_Circle_Manager::collision_logNxN, this, parts * i, parts * (i + 1));
       }

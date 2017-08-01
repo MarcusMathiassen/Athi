@@ -29,6 +29,7 @@ extern f64 smoothed_frametime;
 
 extern bool vsync;
 
+extern u32 variable_thread_count;
 extern bool use_multithreading;
 
 extern u32    cpu_cores;

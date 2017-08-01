@@ -34,6 +34,8 @@ void Athi_Core::init()
   cpu_cores   = get_cpu_cores();
   cpu_threads = get_cpu_threads();
   cpu_brand   = get_cpu_brand();
+
+  variable_thread_count = cpu_threads;
 }
 
 void Athi_Core::start()
@@ -45,19 +47,19 @@ void Athi_Core::start()
   add_checkbox(&vsync_box);
 
   Athi_Checkbox quadtree_box;
-  quadtree_box.pos = vec2(RIGHT-ROW*5.5f,BOTTOM+ROW);
+  quadtree_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW);
   quadtree_box.text.str = "quadtree";
   quadtree_box.variable = &quadtree_active;
   add_checkbox(&quadtree_box);
 
   Athi_Checkbox gravity_box;
-  gravity_box.pos = vec2(RIGHT-ROW*5.5f,BOTTOM+ROW*2);
+  gravity_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*2);
   gravity_box.text.str = "gravity";
   gravity_box.variable = &physics_gravity;
   add_checkbox(&gravity_box);
 
   Athi_Checkbox multithread_box;
-  multithread_box.pos = vec2(RIGHT-ROW*5.5f,BOTTOM+ROW*3);
+  multithread_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*3);
   multithread_box.text.str = "multithreading";
   multithread_box.variable = &use_multithreading;
   add_checkbox(&multithread_box);
@@ -87,6 +89,15 @@ void Athi_Core::start()
   circle_size_slider.min = 0.001f;
   circle_size_slider.max = 0.1f;
   add_slider<f32>(&circle_size_slider);
+
+  Athi_Slider<u32> multithreaded_collision_thread_count_slider;
+  multithreaded_collision_thread_count_slider.str = "Threads: ";
+  multithreaded_collision_thread_count_slider.var = &variable_thread_count;
+  multithreaded_collision_thread_count_slider.pos = vec2(RIGHT-ROW*7.5f, BOTTOM+ROW*4);
+  multithreaded_collision_thread_count_slider.width = 0.3f;
+  multithreaded_collision_thread_count_slider.min = 0;
+  multithreaded_collision_thread_count_slider.max = cpu_threads*4;
+  add_slider<u32>(&multithreaded_collision_thread_count_slider);
 
   std::thread draw_thread(&Athi_Core::draw_loop, this);
   std::thread physics_thread(&Athi_Core::physics_loop, this);
@@ -162,7 +173,7 @@ void Athi_Core::physics_loop()
 
     if (physics_updates_per_sec != 0) limit_FPS(physics_updates_per_sec, time_start_frame);
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-    physics_framerate = (u32)(std::round(1000.0f/physics_frametime));
+    physics_framerate = (u32)(std::round(1000.0f/smoothed_physics_frametime));
     smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
 
     timestep = smoothed_physics_frametime/(1000.0/60.0);
