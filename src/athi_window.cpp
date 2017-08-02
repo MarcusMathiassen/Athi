@@ -68,6 +68,7 @@ GLFWwindow* Athi_Window::get_window_context()
 // @Cleanup: this is messy
 static void window_size_callback(GLFWwindow* window, int xpos, int ypos)
 {
+
   int width, height;
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);

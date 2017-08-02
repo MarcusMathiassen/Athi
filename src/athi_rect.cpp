@@ -7,6 +7,7 @@
 #include "athi_utility.h"
 
 std::vector<Athi_Rect*> rect_buffer;
+Athi_Rect_Manager athi_rect_manager;
 
 bool Rect::contains(u32 id)
 {
@@ -82,15 +83,17 @@ void add_rect(Athi_Rect* rect)
   rect_buffer.emplace_back(rect);
 }
 
-void draw_rect(const vec2& pos, f32 width, f32 height, const vec4& color, GLenum draw_type)
+void draw_rect(const vec2& min, const vec2& max, const vec4& color, GLenum draw_type)
 {
   glBindVertexArray(athi_rect_manager.VAO);
   glUseProgram(athi_rect_manager.shader_program);
 
+  Transform temp{vec3(min,0), vec3(), vec3(1,1,1)};
+  //const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
 
-  Transform temp{vec3(pos,0), vec3(), vec3(1,1,1)};
-  // const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
-  // temp.scale = vec3(width * inverse_aspect, height, 0);
+  const f32 width = max.x - min.x;
+  const f32 height = max.y - min.y;
+  temp.scale = vec3(width, height, 0);
   mat4 trans = temp.get_model();
 
   glUniform4f(athi_rect_manager.uniform[athi_rect_manager.COLOR], color.r, color.g, color.b, color.a);

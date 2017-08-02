@@ -47,10 +47,28 @@ static void update_inputs()
   mouse_y = +1.0f - 2 * mouse_y / height;
 
   Athi_Circle c;
-  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_1) == GLFW_PRESS)
+  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_SPACE) == GLFW_PRESS)
   {
     c.pos = vec2(mouse_x,mouse_y);
     c.radius = circle_size;
+    addCircle(c);
+  }
+  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_1) == GLFW_PRESS)
+  {
+    c.pos = vec2(mouse_x,mouse_y);
+    c.radius = 0.01f;
+    addCircle(c);
+  }
+  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_2) == GLFW_PRESS)
+  {
+    c.pos = vec2(mouse_x,mouse_y);
+    c.radius = 0.02f;
+    addCircle(c);
+  }
+  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_3) == GLFW_PRESS)
+  {
+    c.pos = vec2(mouse_x,mouse_y);
+    c.radius = 0.03f;
     addCircle(c);
   }
 
@@ -113,6 +131,16 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
   {
     if (use_multithreading) use_multithreading = false;
     else use_multithreading = true;
+  }
+
+  if (key == GLFW_KEY_6 && action == GLFW_PRESS && voxelgrid_parts > 4)
+  {
+    voxelgrid_parts *= 0.25f;
+  }
+
+  if (key == GLFW_KEY_7 && action == GLFW_PRESS && voxelgrid_parts < 64)
+  {
+    voxelgrid_parts *= 4;
   }
 
   // clear all circles

@@ -263,8 +263,6 @@ void Athi_Circle_Manager::draw()
 void Athi_Circle_Manager::update()
 {
   if (circle_buffer.size() == 0) return;
-  for (auto &circle : circle_buffer) circle.update();
-
   if (circle_collision)
   {
     std::vector<std::vector<u32> > cont;
@@ -300,6 +298,7 @@ void Athi_Circle_Manager::update()
       collision_logNxN(0, circle_buffer.size());
     }
   }
+  for (auto &circle : circle_buffer) circle.update();
 }
 
 void Athi_Circle_Manager::collision_logNxN(size_t begin, size_t end)

@@ -26,25 +26,26 @@ struct Athi_Quadtree
   Athi_Quadtree() = default;
 };
 
-static Athi_Quadtree athi_quadtree;
+extern std::unique_ptr<Athi_Quadtree> athi_quadtree;
 
 static void init_quadtree()
 {
-  athi_quadtree.init(vec2(-1,-1), vec2(1,1));
+  athi_quadtree = std::make_unique<Athi_Quadtree>();
+  athi_quadtree->init(vec2(-1,-1), vec2(1,1));
 }
 
 static void update_quadtree()
 {
-  athi_quadtree.update();
+  athi_quadtree->update();
 }
 static void get_nodes_quadtree(std::vector<std::vector<u32> > &cont)
 {
-  athi_quadtree.get(cont);
+  athi_quadtree->get(cont);
 }
 
 static void draw_quadtree()
 {
-  athi_quadtree.draw();
+  athi_quadtree->draw();
 }
 
 static void reset_quadtree()
@@ -52,11 +53,11 @@ static void reset_quadtree()
   //----------------------------------------------------------------
   // Sets bounds to the screens bounds and clears the quadtrees.
   //----------------------------------------------------------------
-  athi_quadtree.index.clear();
-  athi_quadtree.index.shrink_to_fit();
+  athi_quadtree->index.clear();
+  athi_quadtree->index.shrink_to_fit();
 
-  athi_quadtree.subnode[0] = nullptr;
-  athi_quadtree.subnode[1] = nullptr;
-  athi_quadtree.subnode[2] = nullptr;
-  athi_quadtree.subnode[3] = nullptr;
+  athi_quadtree->subnode[0] = nullptr;
+  athi_quadtree->subnode[1] = nullptr;
+  athi_quadtree->subnode[2] = nullptr;
+  athi_quadtree->subnode[3] = nullptr;
 }

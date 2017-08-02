@@ -5,6 +5,8 @@
 #include <cmath>
 #include <iostream>
 
+Athi_Voxel_Grid athi_voxelgrid;
+
 Node::Node(const Rect &r) : bounds{r} {}
 
 void Node::insert(const u32 id)
@@ -20,9 +22,7 @@ void Node::get(std::vector<std::vector<u32>> &cont)
 }
 void Node::draw() const
 {
-  const f32 width = bounds.max.x - bounds.min.x;
-  const f32 height = bounds.max.y - bounds.min.y;
-  draw_rect(bounds.min, width, height, bounds.color, GL_LINE_LOOP);
+  draw_rect(bounds.min, bounds.max, bounds.color, GL_LINE_LOOP);
 }
 void Node::color_objects()
 {
@@ -30,7 +30,7 @@ void Node::color_objects()
     circle_buffer[id].color = bounds.color;
 }
 
-bool Node::contain(const u32 id) { return bounds.contains(id); }
+bool Node::contains(const u32 id) { return bounds.contains(id); }
 
 
 void Athi_Voxel_Grid::init()
@@ -51,9 +51,12 @@ void Athi_Voxel_Grid::init()
     for (f32 x = -1.0f; x < 1.0f; x += col)
     {
       Rect bounds(vec2(x, y), vec2(x + col, y + row));
+      bounds.color = get_universal_current_color();
+      ++universal_color_picker;
       nodes.emplace_back(std::make_unique<Node>(bounds));
     }
   }
+  current_voxelgrid_part = voxelgrid_parts;
 }
 
 void Athi_Voxel_Grid::update()
@@ -64,12 +67,13 @@ void Athi_Voxel_Grid::update()
   // be added to the nodes object-container.
   //-----------------------------------------------------------------------------------
 
+  if (voxelgrid_parts != current_voxelgrid_part) init();
   for (const auto &circle : circle_buffer)
   {
     u32 id = circle.id;
 
     for (const auto &node : nodes)
-      if (node->contain(id))
+      if (node->contains(id))
         node->insert(id);
   }
 }

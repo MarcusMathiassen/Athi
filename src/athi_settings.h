@@ -41,3 +41,14 @@ extern string cpu_brand;
 
 extern bool app_is_running;
 extern bool settings_changed;
+
+extern u32 universal_color_picker;
+
+extern vec4 pastel_red;
+extern vec4 pastel_gray;
+extern vec4 pastel_green;
+extern vec4 pastel_orange;
+extern vec4 pastel_yellow;
+extern vec4 pastel_purple;
+extern vec4 pastel_blue;
+extern vec4 pastel_pink;

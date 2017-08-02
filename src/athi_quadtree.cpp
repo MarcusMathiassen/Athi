@@ -3,7 +3,7 @@
 #include "athi_circle.h"
 #include "athi_settings.h"
 
-#include <iostream>
+std::unique_ptr<Athi_Quadtree> athi_quadtree;
 
 Athi_Quadtree::Athi_Quadtree(u32 level, const Rect &bounds)
     : level(level),
@@ -16,6 +16,7 @@ void Athi_Quadtree::init(const vec2& min, const vec2& max)
 {
   bounds.min = min;
   bounds.max = max;
+  bounds.color = pastel_gray;
   index.reserve(quadtree_capacity);
 }
 
@@ -118,6 +119,12 @@ void Athi_Quadtree::draw()
 
   if (subnode[0] != nullptr)  // [2]
   {
+    // Set color of each subnode
+    subnode[0]->bounds.color = pastel_red;
+    subnode[1]->bounds.color = pastel_gray;
+    subnode[2]->bounds.color = pastel_orange;
+    subnode[3]->bounds.color = pastel_pink;
+
     // Continue down the tree
     subnode[0]->draw();
     subnode[1]->draw();
@@ -126,12 +133,15 @@ void Athi_Quadtree::draw()
 
     return;
   }
+
+  // Color the balls in the same color as the boundaries
+  for (const auto &id : index)
+    circle_buffer[id].color = bounds.color;
+
   // Only draw the nodes with objects in them.
   if (index.size() != 0)
   {
-    const f32 width = bounds.max.x - bounds.min.x;
-    const f32 height = bounds.max.y - bounds.min.y;
-    draw_rect(bounds.min, width, height, bounds.color, GL_LINE_LOOP);
+    draw_rect(bounds.min, bounds.max, bounds.color, GL_LINE_LOOP);
   }
 }
 

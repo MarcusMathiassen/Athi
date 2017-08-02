@@ -17,13 +17,14 @@ struct Node
   void get(std::vector<std::vector<u32>> &cont);
   void draw() const;
   void color_objects();
-  bool contain(const u32 id);
+  bool contains(const u32 id);
 };
 
 class Athi_Voxel_Grid
 {
  private:
   std::vector<std::unique_ptr<Node> > nodes;
+  u32 current_voxelgrid_part{4};
 
  public:
   void init();
@@ -32,7 +33,7 @@ class Athi_Voxel_Grid
   void get(std::vector<std::vector<u32>> &cont) const;
 };
 
-static Athi_Voxel_Grid athi_voxelgrid;
+extern Athi_Voxel_Grid athi_voxelgrid;
 
 static void init_voxelgrid()
 {

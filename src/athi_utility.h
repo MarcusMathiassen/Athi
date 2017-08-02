@@ -1,6 +1,7 @@
 #pragma once
 
 #include "athi_typedefs.h"
+#include "athi_settings.h"
 
 
 #define GLEW_STATIC
@@ -29,6 +30,37 @@ static u32 get_cpu_freq();
 static u32 get_cpu_cores();
 static u32 get_cpu_threads();
 static string get_cpu_brand();
+static void get_universal_current_color(vec4 &col);
+
+static vec4 get_universal_current_color()
+{
+  if (universal_color_picker > 6) universal_color_picker = 0;
+  switch (universal_color_picker)
+  {
+    case 0:
+      return pastel_red;
+      break;
+    case 1:
+      return pastel_gray;
+      break;
+    case 2:
+      return pastel_green;
+      break;
+    case 3:
+      return pastel_orange;
+      break;
+    case 4:
+      return pastel_yellow;
+      break;
+    case 5:
+      return pastel_pink;
+      break;
+    case 6:
+      return pastel_blue;
+      break;
+  }
+  return vec4();
+}
 
 template <typename T>
 struct Optimizer

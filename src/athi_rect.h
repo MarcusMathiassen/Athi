@@ -52,8 +52,8 @@ struct Athi_Rect_Manager
 
 void add_rect(Athi_Rect* rect);
 void init_rect_manager();
-void draw_rect(const vec2& pos, f32 width, f32 height, const vec4& color, GLenum draw_type);
+void draw_rect(const vec2& min, const vec2& max, const vec4& color, GLenum draw_type);
 void draw_rects();
 
 extern std::vector<Athi_Rect*> rect_buffer;
-static Athi_Rect_Manager athi_rect_manager;
+extern Athi_Rect_Manager athi_rect_manager;
