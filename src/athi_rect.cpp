@@ -1,31 +1,18 @@
-#include "athi_rect.h"
 
+
+#include "athi_rect.h"
 #include "athi_circle.h"
 #include "athi_camera.h"
 #include "athi_transform.h"
 
 #include "athi_utility.h"
 
-
-Athi_Rect::Athi_Rect(const vec2& min, const vec2& max) : min(min), max(max) {}
+std::vector<Athi_Rect*> rect_buffer;
 
 Athi_Rect::~Athi_Rect()
 {
   glDeleteBuffers(NUM_BUFFERS, VBO);
   glDeleteVertexArrays(1, &VAO);
-}
-
-bool Athi_Rect::contains(u32 id) const
-{
-  const vec2 o  = athi_circle_manager.circle_buffer[id].pos;
-  const f32 r   = athi_circle_manager.circle_buffer[id].radius;
-
-  //  basic square collision check
-  if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
-      o.y + r > min.y) {
-    return true;
-  }
-  return false;
 }
 
 void Athi_Rect::init()
@@ -87,3 +74,15 @@ void Athi_Rect::draw(GLenum draw_type) const
   glUniform4f(uniform[COLOR], color.r, color.g, color.g, color.a);
   glDrawElements(draw_type, 6, GL_UNSIGNED_SHORT, NULL);
 }
+
+Athi_Rect_Manager::~Athi_Rect_Manager()
+{
+  glDeleteBuffers(NUM_BUFFERS, VBO);
+  glDeleteVertexArrays(1, &VAO);
+}
+
+void Athi_Rect_Manager::init()
+{
+
+}
+

@@ -5,7 +5,20 @@
 
 #include <iostream>
 
-Athi_Quadtree::Athi_Quadtree(u32 level, const Athi_Rect &bounds)
+bool Rect::contains(u32 id)
+{
+  const vec2 o  = circle_buffer[id].pos;
+  const f32  r  = circle_buffer[id].radius;
+  
+  //  basic square collision check
+  if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
+      o.y + r > min.y) {
+    return true;
+  }
+  return false;
+}
+
+Athi_Quadtree::Athi_Quadtree(u32 level, const Rect &bounds)
     : level(level),
       bounds(bounds),
       subnode{nullptr, nullptr, nullptr, nullptr} {
@@ -19,7 +32,8 @@ void Athi_Quadtree::init(const vec2& min, const vec2& max)
   index.reserve(quadtree_capacity);
 }
 
-void Athi_Quadtree::update() {
+void Athi_Quadtree::update()
+{
   index.clear();
   index.shrink_to_fit();
 
@@ -27,17 +41,19 @@ void Athi_Quadtree::update() {
   subnode[1] = nullptr;
   subnode[2] = nullptr;
   subnode[3] = nullptr;
-
-  for (const auto &circle : athi_circle_manager.circle_buffer) {
+  
+  for (const auto &circle : circle_buffer)
+  {
     insert(circle.id);
   }
 }
 
-void Athi_Quadtree::split() {
+void Athi_Quadtree::split()
+{
   //----------------------------------------------------------------
   // Create subnodes and gives each its own quadrant.
   //----------------------------------------------------------------
-
+  
   const vec2 min = bounds.min;
   const vec2 max = bounds.max;
 
@@ -49,10 +65,10 @@ void Athi_Quadtree::split() {
   const f32 w = width * 0.5;
   const f32 h = height * 0.5;
 
-  const Athi_Rect SW(vec2(x, y),     vec2(x+w,y+h));
-  const Athi_Rect SE(vec2(x+w, y),   vec2(x+width,  y+h));
-  const Athi_Rect NW(vec2(x, y+h),   vec2(x+w,      y+height));
-  const Athi_Rect NE(vec2(x+w, y+h), vec2(x+width,  y+height));
+  const Rect SW(vec2(x, y),     vec2(x+w,y+h));
+  const Rect SE(vec2(x+w, y),   vec2(x+width,  y+h));
+  const Rect NW(vec2(x, y+h),   vec2(x+w,      y+height));
+  const Rect NE(vec2(x+w, y+h), vec2(x+width,  y+height));
 
   subnode[0] = std::make_unique<Athi_Quadtree>(level+1, SW);
   subnode[1] = std::make_unique<Athi_Quadtree>(level+1, SE);
@@ -126,8 +142,7 @@ void Athi_Quadtree::draw()
   // Only draw the nodes with objects in them.
   //if (index.size() != 0) bounds.draw();  // [1]
 
-  std::cout << "Bound drawn at: " << bounds.min.x  << "x" << bounds.min.y << " to " << bounds.max.x << "x" << bounds.max.y << std::endl;
-  bounds.draw(GL_LINE_LOOP); // draw them all '
+  //bounds.draw(GL_LINE_LOOP); // draw them all '
 }
 
 void Athi_Quadtree::get(std::vector<std::vector<u32> > &cont) const {

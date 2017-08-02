@@ -26,6 +26,8 @@ void Athi_Core::init()
   init_input_manager();
   init_text_manager();
   init_circle_manager();
+  
+  init_quadtree();
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -34,6 +36,13 @@ void Athi_Core::init()
   cpu_cores   = get_cpu_cores();
   cpu_threads = get_cpu_threads();
   cpu_brand   = get_cpu_brand();
+  
+  std::cout << "Status: " << glGetString(GL_VERSION) << '\n';
+  std::cout << "Status: " << glGetString(GL_VENDOR) << '\n';
+  std::cout << "Status: " << glGetString(GL_RENDERER) << '\n';
+  
+  std::cout << "Status: Using GLEW " << glewGetString(GLEW_VERSION) << '\n';
+  std::cout << "Status: Using GLFW " << glfwGetVersionString() << '\n';
 
   variable_thread_count = cpu_threads;
 }
@@ -105,6 +114,7 @@ void Athi_Core::start()
   auto window_context = window->get_window_context();
   while (!glfwWindowShouldClose(window_context))
   {
+    f64 time_start_frame{ glfwGetTime() };
     window->update();
     update_inputs();
     // but currently that draws a bugged circle when pressing 1 covering the screen.
@@ -113,7 +123,9 @@ void Athi_Core::start()
 
     if (show_settings) update_settings();
 
-    glfwWaitEvents();
+    glfwPollEvents();
+
+    limit_FPS(60, time_start_frame);
   }
   app_is_running = false;
   draw_thread.join();
@@ -145,7 +157,7 @@ void Athi_Core::draw_loop()
     f64 time_start_frame{ glfwGetTime() };
     glClear(GL_COLOR_BUFFER_BIT);
 
-    frametime_text.str = "FPS: " + std::to_string(framerate) + " | Frametime: " + std::to_string(smoothed_frametime) + " | Physics frametime: " + std::to_string(smoothed_physics_frametime);
+    frametime_text.str = "FPS: " + std::to_string(framerate) + " | Frametime: " + std::to_string(smoothed_frametime) + " | Physics updates/sec: " + std::to_string(physics_framerate);
     circle_info.str = "Circles: " + std::to_string(get_num_circles());
 
     draw_circles();

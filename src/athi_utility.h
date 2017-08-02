@@ -25,10 +25,27 @@ static void limit_FPS(u32 desired_framerate, f64 time_start_frame);
 static void validateShader(const char *file, const char *type, u32 shader);
 static void validateShaderProgram(const char* name, u32 shaderProgram);
 static u32 createShader(const char *file, const GLenum type);
-static u64 get_cpu_freq();
-static u64 get_cpu_cores();
-static u64 get_cpu_threads();
+static u32 get_cpu_freq();
+static u32 get_cpu_cores();
+static u32 get_cpu_threads();
 static string get_cpu_brand();
+
+template <typename T>
+struct Optimizer
+{
+  T *var;
+  struct {f64 frametime; T val; } previous;
+  Optimizer(T* var) : var(var) { previous.val = *var; previous.frametime = 100000.0; }
+  void feed(T val, f64 frametime)
+  {
+    if (frametime < previous.frametime)
+    {
+      *var = previous.val;
+      previous.val = val;
+      previous.frametime = frametime;
+    } else *var = previous.val;
+  }
+};
 
 
 struct SMA
@@ -131,7 +148,7 @@ static u32 createShader(const char *file, const GLenum type)
   return shader;
 }
 
-static u64 get_cpu_freq()
+static u32 get_cpu_freq()
 {
   u64 num = 0;
   size_t size = sizeof(num);
@@ -142,7 +159,7 @@ static u64 get_cpu_freq()
   return num;
 }
 
-static u64 get_cpu_cores()
+static u32 get_cpu_cores()
 {
   u64 num = 0;
   size_t size = sizeof(num);
@@ -153,7 +170,7 @@ static u64 get_cpu_cores()
   return num;
 }
 
-static u64 get_cpu_threads()
+static u32 get_cpu_threads()
 {
   u64 num = 0;
   size_t size = sizeof(num);

@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#define CIRCLE_NUM_VERTICES 36
+#define CIRCLE_NUM_VERTICES 360
 
 struct Athi_Circle
 {
@@ -29,14 +29,11 @@ struct Athi_Circle
   Athi_Circle() = default;
 };
 
+extern std::vector<Athi_Circle> circle_buffer;
 
 struct Athi_Circle_Manager
 {
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
-
-  Athi_Quadtree quadtree;
-
-  std::vector<Athi_Circle> circle_buffer;
 
   std::vector<mat4> transforms;
   std::vector<vec4> colors;

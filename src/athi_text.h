@@ -40,23 +40,25 @@ struct Athi_Text
   Athi_Text() = default;
   void init()
   {
-    pos.x -= DIST_BETW_CHAR*0.5f;
+    pos.x -= DIST_BETW_CHAR*0.5f; // looks better this way
   }
 };
-void add_text(Athi_Text *text);
+
+extern std::vector<Athi_Text*> text_buffer;
+
+void add_text(Athi_Text* text);
 
 struct Athi_Text_Manager
 {
+  const u16 indices[6]{0,1,2, 0,2,3};
+
   std::string id;
-  static constexpr u16 indices[]{0,1,2, 0,2,3};
   enum { TRANSFORM, COLOR, TEXTCOORD_INDEX, NUM_UNIFORMS};
   u32           VAO;
   u32           shader_program;
   u32           uniform[NUM_UNIFORMS];
   Texture       texture;
   std::string   font_atlas_path;
-
-  std::vector<Athi_Text*>   text_buffer;
 
   Athi_Text_Manager() = default;
   ~Athi_Text_Manager()
@@ -79,7 +81,7 @@ struct Athi_Text_Manager
       Transform temp{vec3(text->pos,0), vec3(), vec3(1,1,1)};
       temp.scale = vec3(inverse_aspect, 1, 0);
 
-      glUniform4f(uniform[COLOR], text->color.r, text->color.g, text->color.g, text->color.a);
+      glUniform4f(uniform[COLOR], text->color.r, text->color.g, text->color.b, text->color.a);
       const size_t num_chars{text->str.length()};
       for (size_t i = 0; i < num_chars; ++i)
       {
@@ -127,5 +129,4 @@ struct Athi_Text_Manager
   }
 };
 
-static Athi_Text_Manager *athi_text_manager;
-
+static Athi_Text_Manager athi_text_manager;

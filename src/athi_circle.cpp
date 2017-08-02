@@ -9,7 +9,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <iostream>
+std::vector<Athi_Circle> circle_buffer;
 
 void Athi_Circle::update()
 {
@@ -20,7 +20,6 @@ void Athi_Circle::update()
   pos.x += vel.x * timestep;
   pos.y += vel.y * timestep;
 
-  std::cout << "vel.y :   " << vel.y << std::endl;
   transform.pos   = glm::vec3(pos.x, pos.y, 0);
   transform.scale = glm::vec3(radius, radius, 0);
 }
@@ -256,7 +255,7 @@ void Athi_Circle_Manager::draw()
 
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, circle_buffer.size());
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
 }
 
 void Athi_Circle_Manager::update()
@@ -269,13 +268,13 @@ void Athi_Circle_Manager::update()
     if (quadtree_active)
     {
       std::vector<std::vector<u32> > cont;
-      quadtree.update();
-      quadtree.get(cont);
+      athi_quadtree.update();
+      athi_quadtree.get(cont);
       collision_quadtree(cont, 0, cont.size());
     }
     else if (use_multithreading && variable_thread_count != 0)
     {
-      const u32 total = circle_buffer.size();
+      const u32 total = (u32)circle_buffer.size();
       const u32 parts = total / variable_thread_count;
 
       u32 const thread_count = variable_thread_count;
@@ -315,7 +314,6 @@ void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<u32> 
 void init_circle_manager()
 {
   athi_circle_manager.init();
-  athi_circle_manager.quadtree.init(vec2(-1,-1), vec2(1,1));
 }
 
 void update_circles()
@@ -329,18 +327,22 @@ void draw_circles()
 
 void delete_circles()
 {
-  athi_circle_manager.circle_buffer.clear();
+  circle_buffer.clear();
 }
 
 void addCircle(Athi_Circle &circle)
 {
   circle.mass = 1.33333f * M_PI * circle.radius * circle.radius * circle.radius;
-  circle.id = athi_circle_manager.circle_buffer.size();
-  athi_circle_manager.circle_buffer.emplace_back(circle);
+  circle.id = (u32)circle_buffer.size();
+  circle_buffer.emplace_back(circle);
 }
 
 u32 get_num_circles()
 {
-  return athi_circle_manager.circle_buffer.size();
+  return (u32)circle_buffer.size();
 }
 
+std::vector<Athi_Circle> &get_circle_buffer()
+{
+  return circle_buffer;
+}
