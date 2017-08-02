@@ -5,6 +5,7 @@
 #include "athi_checkbox.h"
 #include "athi_input.h"
 #include "athi_text.h"
+#include "athi_rect.h"
 #include "athi_circle.h"
 #include "athi_camera.h"
 #include "athi_settings.h"
@@ -25,8 +26,9 @@ void Athi_Core::init()
 
   init_input_manager();
   init_text_manager();
+  init_rect_manager();
   init_circle_manager();
-  
+
   init_quadtree();
 
   glEnable(GL_BLEND);
@@ -36,11 +38,11 @@ void Athi_Core::init()
   cpu_cores   = get_cpu_cores();
   cpu_threads = get_cpu_threads();
   cpu_brand   = get_cpu_brand();
-  
+
   std::cout << "Status: " << glGetString(GL_VERSION) << '\n';
   std::cout << "Status: " << glGetString(GL_VENDOR) << '\n';
   std::cout << "Status: " << glGetString(GL_RENDERER) << '\n';
-  
+
   std::cout << "Status: Using GLEW " << glewGetString(GLEW_VERSION) << '\n';
   std::cout << "Status: Using GLFW " << glfwGetVersionString() << '\n';
 
@@ -152,6 +154,10 @@ void Athi_Core::draw_loop()
   circle_info.pos = vec2(LEFT+ROW, BOTTOM+ROW*2.5f);
   add_text(&circle_info);
 
+  Athi_Rect rect;
+  rect.pos = vec2(0,0);
+  add_rect(&rect);
+
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
@@ -160,7 +166,9 @@ void Athi_Core::draw_loop()
     frametime_text.str = "FPS: " + std::to_string(framerate) + " | Frametime: " + std::to_string(smoothed_frametime) + " | Physics updates/sec: " + std::to_string(physics_framerate);
     circle_info.str = "Circles: " + std::to_string(get_num_circles());
 
+    draw_rects();
     draw_circles();
+
     if (show_settings) draw_UI();
 
     glfwSwapBuffers(window->get_window_context());

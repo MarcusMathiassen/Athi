@@ -2,8 +2,6 @@
 
 void Athi_Checkbox::draw() const
 {
-  outer_box.draw();
-  if (*variable || last_state == HOVER) inner_box.draw();
 }
 
 void Athi_Checkbox::update()
@@ -12,11 +10,12 @@ void Athi_Checkbox::update()
   if (last_state == PRESSED && get_status() == HOVER) this_state = TOGGLE;
   switch(this_state)
   {
-    case HOVER:       inner_box.color = hover_color;     break;
-    case PRESSED:     inner_box.color = pressed_color;    break;
-    case IDLE:        inner_box.color = idle_color;     break;
-    case TOGGLE:      inner_box.color = pressed_color; *variable = !(*variable); break;
+    case HOVER:       box.color = hover_color;    break;
+    case PRESSED:     box.color = pressed_color;  break;
+    case IDLE:        box.color = box_color;     break;
+    case TOGGLE:      box.color = idle_color; *variable = !(*variable); break;
   }
+  if (*variable && this_state != HOVER) box.color = active_color;
   last_state = get_status();
 }
 
@@ -31,8 +30,8 @@ bool Athi_Checkbox::hover_over()
   mouse_y = +1.0f - 2 * mouse_y / height;
 
   if (
-    mouse_x > outer_box.pos.x && mouse_x < outer_box.pos.x+outer_box.width &&
-    mouse_y > outer_box.pos.y && mouse_y < outer_box.pos.y+outer_box.height)
+    mouse_x > box.pos.x && mouse_x < box.pos.x+box.width &&
+    mouse_y > box.pos.y && mouse_y < box.pos.y+box.height)
   {
     return true;
   }
@@ -52,19 +51,11 @@ u32 Athi_Checkbox::get_status()
 
 void Athi_Checkbox::init()
 {
-  // Border
-  outer_box.pos = pos;
-  outer_box.color = outer_box_color;
-  outer_box.width  = width;
-  outer_box.height = height;
-  outer_box.init();
-
-  // Box
-  inner_box.pos = pos;
-  inner_box.color = inner_box_color;
-  inner_box.width  = width;
-  inner_box.height = height;
-  inner_box.init();
+  box.pos = pos;
+  box.color = box_color;
+  box.width  = width;
+  box.height = height;
+  add_rect(&box);
 
   text.pos = pos;
   text.pos.x += width+0.02f;

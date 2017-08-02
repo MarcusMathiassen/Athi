@@ -26,15 +26,14 @@ struct Athi_Checkbox : public Athi_UI
   f32 width{0.03f};
   f32 height{0.03f};
 
-  vec4 outer_box_color{0.3f,0.3f,0.3f,1.0f};
-  vec4 inner_box_color;
+  vec4 box_color{0.3f,0.3f,0.3f,1.0f};
 
   vec4 hover_color{1.0f, 0.5f, 0.5f,1.0f};
   vec4 pressed_color{0.5f, 0.3f, 0.3f,1.0f};
   vec4 idle_color{0.9f, 0.3f, 0.3f,1.0f};
+  vec4 active_color{0.9f, 0.3f, 0.3f,1.0f};
 
-  Athi_Rect outer_box;
-  Athi_Rect inner_box;
+  Athi_Rect box;
 
   void draw() const;
   void update();

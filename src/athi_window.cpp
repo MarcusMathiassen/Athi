@@ -33,7 +33,7 @@ void Athi_Window::init()
   context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
-  glfwSetWindowAspectRatio(context, 1, 1);
+  //glfwSetWindowAspectRatio(context, 1, 1);
   glfwSetWindowSizeCallback(context, window_size_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 
