@@ -5,10 +5,11 @@
 
 #include "athi_utility.h"
 #include "athi_quadtree.h"
+#include "athi_voxelgrid.h"
 
 #include <vector>
 
-#define CIRCLE_NUM_VERTICES 360
+#define CIRCLE_NUM_VERTICES 36
 
 struct Athi_Circle
 {

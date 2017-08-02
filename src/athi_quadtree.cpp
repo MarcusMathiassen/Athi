@@ -5,19 +5,6 @@
 
 #include <iostream>
 
-bool Rect::contains(u32 id)
-{
-  const vec2 o  = circle_buffer[id].pos;
-  const f32  r  = circle_buffer[id].radius;
-  
-  //  basic square collision check
-  if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
-      o.y + r > min.y) {
-    return true;
-  }
-  return false;
-}
-
 Athi_Quadtree::Athi_Quadtree(u32 level, const Rect &bounds)
     : level(level),
       bounds(bounds),
@@ -41,7 +28,7 @@ void Athi_Quadtree::update()
   subnode[1] = nullptr;
   subnode[2] = nullptr;
   subnode[3] = nullptr;
-  
+
   for (const auto &circle : circle_buffer)
   {
     insert(circle.id);
@@ -53,7 +40,7 @@ void Athi_Quadtree::split()
   //----------------------------------------------------------------
   // Create subnodes and gives each its own quadrant.
   //----------------------------------------------------------------
-  
+
   const vec2 min = bounds.min;
   const vec2 max = bounds.max;
 
@@ -140,9 +127,12 @@ void Athi_Quadtree::draw()
     return;
   }
   // Only draw the nodes with objects in them.
-  //if (index.size() != 0) bounds.draw();  // [1]
-
-  //bounds.draw(GL_LINE_LOOP); // draw them all '
+  if (index.size() != 0)
+  {
+    const f32 width = bounds.max.x - bounds.min.x;
+    const f32 height = bounds.max.y - bounds.min.y;
+    draw_rect(bounds.min, width, height, bounds.color, GL_LINE_LOOP);
+  }
 }
 
 void Athi_Quadtree::get(std::vector<std::vector<u32> > &cont) const {

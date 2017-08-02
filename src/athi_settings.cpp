@@ -9,7 +9,10 @@ vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
 bool quadtree_active{false};
 u32 quadtree_depth{5};
-u32 quadtree_capacity{25};
+u32 quadtree_capacity{50};
+
+bool voxelgrid_active{false};
+u32 voxelgrid_parts{4};
 
 f64  timestep;
 f64 physics_frametime;

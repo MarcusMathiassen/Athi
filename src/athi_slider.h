@@ -14,8 +14,6 @@
 
 #include <iostream>
 
-// @Not working: ranges are showing wildy different numbers
-
 template <typename T>
 class Athi_Slider : public Athi_UI
 {
@@ -26,10 +24,8 @@ private:
   enum { HOVER, PRESSED, NOTHING};
   u16 last_state{NOTHING};
 
-
   Athi_Rect slider_box;
   Athi_Rect slider_knob;
-
   Athi_Rect variable_indicator_box;
 
   Athi_Text text;

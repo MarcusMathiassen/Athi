@@ -9,6 +9,8 @@
 #include "athi_circle.h"
 #include "athi_camera.h"
 #include "athi_settings.h"
+#include "athi_quadtree.h"
+#include "athi_voxelgrid.h"
 
 #include <thread>
 #include <iostream>
@@ -30,6 +32,7 @@ void Athi_Core::init()
   init_circle_manager();
 
   init_quadtree();
+  init_voxelgrid();
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -51,29 +54,35 @@ void Athi_Core::init()
 
 void Athi_Core::start()
 {
-  Athi_Checkbox vsync_box;
-  vsync_box.pos = vec2(LEFT+ROW,TOP-ROW*3.5f);
-  vsync_box.text.str = "vsync";
-  vsync_box.variable = &vsync;
-  add_checkbox(&vsync_box);
-
   Athi_Checkbox quadtree_box;
   quadtree_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW);
   quadtree_box.text.str = "quadtree";
   quadtree_box.variable = &quadtree_active;
   add_checkbox(&quadtree_box);
 
+  Athi_Checkbox voxelgrid_box;
+  voxelgrid_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*2);
+  voxelgrid_box.text.str = "voxelgrid";
+  voxelgrid_box.variable = &voxelgrid_active;
+  add_checkbox(&voxelgrid_box);
+
   Athi_Checkbox gravity_box;
-  gravity_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*2);
+  gravity_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*3);
   gravity_box.text.str = "gravity";
   gravity_box.variable = &physics_gravity;
   add_checkbox(&gravity_box);
 
   Athi_Checkbox multithread_box;
-  multithread_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*3);
+  multithread_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*4);
   multithread_box.text.str = "multithreading";
   multithread_box.variable = &use_multithreading;
   add_checkbox(&multithread_box);
+
+  Athi_Checkbox vsync_box;
+  vsync_box.pos = vec2(LEFT+ROW,TOP-ROW*3.5f);
+  vsync_box.text.str = "vsync";
+  vsync_box.variable = &vsync;
+  add_checkbox(&vsync_box);
 
   Athi_Slider<u32> physics_updates_per_sec_slider;
   physics_updates_per_sec_slider.str = "Physics updates per sec: ";
@@ -104,7 +113,7 @@ void Athi_Core::start()
   Athi_Slider<u32> multithreaded_collision_thread_count_slider;
   multithreaded_collision_thread_count_slider.str = "Threads: ";
   multithreaded_collision_thread_count_slider.var = &variable_thread_count;
-  multithreaded_collision_thread_count_slider.pos = vec2(RIGHT-ROW*7.5f, BOTTOM+ROW*4);
+  multithreaded_collision_thread_count_slider.pos = vec2(RIGHT-ROW*7.5f, TOP-ROW*2.5f);
   multithreaded_collision_thread_count_slider.width = 0.3f;
   multithreaded_collision_thread_count_slider.min = 0;
   multithreaded_collision_thread_count_slider.max = cpu_threads*4;
@@ -166,6 +175,9 @@ void Athi_Core::draw_loop()
     if (show_settings) draw_UI();
     draw_rects();
 
+    if (voxelgrid_active) draw_voxelgrid();
+    if (quadtree_active)  draw_quadtree();
+
     glfwSwapBuffers(window->get_window_context());
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
@@ -174,8 +186,6 @@ void Athi_Core::draw_loop()
     smooth_frametime_avg.add_new_frametime(frametime);
   }
 }
-
-// smoothed_physics_frametime IS BUGGY ATM
 
 static SMA smooth_physics_rametime_avg(&smoothed_physics_frametime);
 void Athi_Core::physics_loop()

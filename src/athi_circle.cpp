@@ -1,5 +1,7 @@
 #include "athi_circle.h"
 #include "athi_settings.h"
+#include "athi_quadtree.h"
+#include "athi_voxelgrid.h"
 
 #include <cmath>
 #include <thread>
@@ -265,13 +267,19 @@ void Athi_Circle_Manager::update()
 
   if (circle_collision)
   {
+    std::vector<std::vector<u32> > cont;
+
     if (quadtree_active)
     {
-      std::vector<std::vector<u32> > cont;
-      athi_quadtree.update();
-      athi_quadtree.get(cont);
-      collision_quadtree(cont, 0, cont.size());
+      update_quadtree();
+      get_nodes_quadtree(cont);
     }
+    else if (voxelgrid_active)
+    {
+      update_voxelgrid();
+      get_nodes_voxelgrid(cont);
+    }
+    if (quadtree_active || voxelgrid_active) collision_quadtree(cont, 0, cont.size());
     else if (use_multithreading && variable_thread_count != 0)
     {
       const u32 total = (u32)circle_buffer.size();

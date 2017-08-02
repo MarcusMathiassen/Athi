@@ -6,6 +6,8 @@ void Athi_Checkbox::draw() const
 
 void Athi_Checkbox::update()
 {
+  if (!(*variable)) box.color = idle_color;
+  if ((*variable)) box.color = active_color;
   u8 this_state = get_status();
   if (last_state == PRESSED && get_status() == HOVER) this_state = TOGGLE;
   switch(this_state)

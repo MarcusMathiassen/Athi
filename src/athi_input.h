@@ -51,10 +51,9 @@ static void update_inputs()
   {
     c.pos = vec2(mouse_x,mouse_y);
     c.radius = circle_size;
-
-
     addCircle(c);
   }
+
 }
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -99,7 +98,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
   if (key == GLFW_KEY_Q && action == GLFW_PRESS)
   {
     if (quadtree_active) quadtree_active = false;
-    else quadtree_active = true;
+    else { reset_quadtree(); quadtree_active = true; voxelgrid_active = false; }
+  }
+
+  // TOGGLE VOXELGRID ACTIVE
+  if (key == GLFW_KEY_W && action == GLFW_PRESS)
+  {
+    if (voxelgrid_active) voxelgrid_active = false;
+    else {voxelgrid_active = true; quadtree_active = false; }
   }
 
   // TOGGLE MULTITHREADING

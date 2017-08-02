@@ -26,6 +26,7 @@
 		F27B59E21F313A5A007FD6D9 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F27B59E11F313A5A007FD6D9 /* IOKit.framework */; };
 		F27B59E41F313A5F007FD6D9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F27B59E31F313A5F007FD6D9 /* Cocoa.framework */; };
 		F27B59E61F313AA9007FD6D9 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F27B59E51F313AA9007FD6D9 /* CoreVideo.framework */; };
+		F2FEC6971F3173ED0018F20F /* athi_voxelgrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2FEC6951F3173ED0018F20F /* athi_voxelgrid.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -81,6 +82,8 @@
 		F27B59E11F313A5A007FD6D9 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		F27B59E31F313A5F007FD6D9 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		F27B59E51F313AA9007FD6D9 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		F2FEC6951F3173ED0018F20F /* athi_voxelgrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_voxelgrid.cpp; sourceTree = "<group>"; };
+		F2FEC6961F3173ED0018F20F /* athi_voxelgrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_voxelgrid.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +123,8 @@
 		F27B59AB1F3139B9007FD6D9 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				F2FEC6951F3173ED0018F20F /* athi_voxelgrid.cpp */,
+				F2FEC6961F3173ED0018F20F /* athi_voxelgrid.h */,
 				F27B59AC1F3139B9007FD6D9 /* athi.h */,
 				F27B59AD1F3139B9007FD6D9 /* athi_camera.cpp */,
 				F27B59AE1F3139B9007FD6D9 /* athi_camera.h */,
@@ -240,6 +245,7 @@
 				F27B59D11F3139B9007FD6D9 /* athi_input.cpp in Sources */,
 				F27B59D91F3139B9007FD6D9 /* main.cpp in Sources */,
 				F27B59D61F3139B9007FD6D9 /* athi_task_manager.cpp in Sources */,
+				F2FEC6971F3173ED0018F20F /* athi_voxelgrid.cpp in Sources */,
 				F27B59D51F3139B9007FD6D9 /* athi_slider.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
