@@ -85,8 +85,7 @@ void Athi_Quadtree::insert(u32 id) {
   // Add object to this node
   index.emplace_back(id);  // [3]
 
-  // If it has NOT split..and NODE_CAPACITY is reached and we are not at MAX
-  // LEVEL..
+  // If it has NOT split..and NODE_CAPACITY is reached and we are not at MAX LEVEL..
   if (index.size() > quadtree_capacity && level < quadtree_depth) {
     // Split into subnodes.
     split();
