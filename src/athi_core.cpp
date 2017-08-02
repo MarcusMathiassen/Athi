@@ -154,10 +154,6 @@ void Athi_Core::draw_loop()
   circle_info.pos = vec2(LEFT+ROW, BOTTOM+ROW*2.5f);
   add_text(&circle_info);
 
-  Athi_Rect rect;
-  rect.pos = vec2(0,0);
-  add_rect(&rect);
-
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
@@ -166,10 +162,9 @@ void Athi_Core::draw_loop()
     frametime_text.str = "FPS: " + std::to_string(framerate) + " | Frametime: " + std::to_string(smoothed_frametime) + " | Physics updates/sec: " + std::to_string(physics_framerate);
     circle_info.str = "Circles: " + std::to_string(get_num_circles());
 
-    draw_rects();
     draw_circles();
-
     if (show_settings) draw_UI();
+    draw_rects();
 
     glfwSwapBuffers(window->get_window_context());
 

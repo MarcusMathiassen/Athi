@@ -27,8 +27,8 @@ private:
   u16 last_state{NOTHING};
 
 
-  Athi_Rect slider_border;
-  Athi_Rect slider_input_box;
+  Athi_Rect slider_box;
+  Athi_Rect slider_knob;
 
   Athi_Rect variable_indicator_box;
 
@@ -65,34 +65,33 @@ public:
     add_text(&text);
 
     // Border
-    slider_border.pos = pos;
-    slider_border.color = outer_box_color;
-    slider_border.width  = width;
-    slider_border.height = height;
-    slider_border.init();
+    slider_box.pos = pos;
+    slider_box.color = outer_box_color;
+    slider_box.width  = width;
+    slider_box.height = height;
+    add_rect(&slider_box);
 
     // Box
-    slider_input_box.pos = pos;
-    slider_input_box.color = idle_color;
-    slider_input_box.width  = knob_width;
-    slider_input_box.height = height;
-    slider_input_box.init();
+    slider_knob.pos = pos;
+    slider_knob.color = idle_color;
+    slider_knob.width  = knob_width;
+    slider_knob.height = height;
+    add_rect(&slider_knob);
 
-    box_min_pos = slider_border.pos.x;
-    box_max_pos = slider_border.pos.x + slider_border.width - slider_input_box.width;
+    box_min_pos = slider_box.pos.x;
+    box_max_pos = slider_box.pos.x + slider_box.width - slider_knob.width;
 
     // set starting position of box based on the var
-    slider_input_box.pos.x = box_min_pos + (box_max_pos - box_min_pos)*((*var) - min) / (max-min);
+    slider_knob.pos.x = box_min_pos + (box_max_pos - box_min_pos)*((*var) - min) / (max-min);
 
     if (var_indicator != nullptr)
     {
-      variable_indicator_box.pos = slider_input_box.pos;
+      variable_indicator_box.pos = slider_knob.pos;
       variable_indicator_box.color = indicator_color;
       variable_indicator_box.width  = knob_width*0.25f;
       variable_indicator_box.height = height;
-      variable_indicator_box.init();
+      add_rect(&variable_indicator_box);
     }
-
   }
 
   void update()
@@ -107,8 +106,8 @@ public:
       variable_indicator_box.pos.x = variable_indicator_box.width*1.5f + box_min_pos + (box_max_pos - box_min_pos)*((*var_indicator) - min) / (max-min);
 
       // change color to green if inside knob
-      if (variable_indicator_box.pos.x > slider_input_box.pos.x &&
-          variable_indicator_box.pos.x + variable_indicator_box.width < slider_input_box.pos.x + slider_input_box.width)
+      if (variable_indicator_box.pos.x > slider_knob.pos.x &&
+          variable_indicator_box.pos.x + variable_indicator_box.width < slider_knob.pos.x + slider_knob.width)
       {
         variable_indicator_box.color = indicator_target_color;
       } else variable_indicator_box.color = indicator_color;
@@ -117,30 +116,27 @@ public:
     last_state = get_status();
     switch(last_state)
     {
-      case HOVER:   slider_input_box.color = hover_color;   break;
-      case PRESSED: slider_input_box.color = pressed_color; break;
-      case NOTHING: slider_input_box.color = idle_color;    break;
+      case HOVER:   slider_knob.color = hover_color;   break;
+      case PRESSED: slider_knob.color = pressed_color; break;
+      case NOTHING: slider_knob.color = idle_color;    break;
     }
   }
 
   void draw() const
   {
-    slider_border.draw();
-    slider_input_box.draw();
-    if (var_indicator != nullptr) variable_indicator_box.draw();
   }
 
   void update_position(f32 mouse_x)
   {
     // Move box to where the mouse is.
-    slider_input_box.pos.x = mouse_x - (slider_input_box.width*0.5f);
+    slider_knob.pos.x = mouse_x - (slider_knob.width*0.5f);
 
     // make sure it stays within the border
-    if (slider_input_box.pos.x < box_min_pos) slider_input_box.pos.x = box_min_pos;
-    if (slider_input_box.pos.x > box_max_pos) slider_input_box.pos.x = box_max_pos;
+    if (slider_knob.pos.x < box_min_pos) slider_knob.pos.x = box_min_pos;
+    if (slider_knob.pos.x > box_max_pos) slider_knob.pos.x = box_max_pos;
 
     // Get the percentage of box position.
-    const f32 box_pos_to_slider_val = ((slider_input_box.pos.x - box_min_pos) / (box_max_pos - box_min_pos)) * (max-min) + min;
+    const f32 box_pos_to_slider_val = ((slider_knob.pos.x - box_min_pos) / (box_max_pos - box_min_pos)) * (max-min) + min;
     *var = box_pos_to_slider_val;
   }
 
@@ -161,8 +157,8 @@ public:
       return PRESSED;
     }
 
-    if (  mouse_x > slider_border.pos.x && mouse_x < slider_border.pos.x+slider_border.width &&
-          mouse_y > slider_border.pos.y && mouse_y < slider_border.pos.y+slider_border.height)
+    if (  mouse_x > slider_box.pos.x && mouse_x < slider_box.pos.x+slider_box.width &&
+          mouse_y > slider_box.pos.y && mouse_y < slider_box.pos.y+slider_box.height)
     {
       if (state == GLFW_PRESS)
       {
