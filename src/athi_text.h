@@ -49,7 +49,9 @@ struct Athi_Text_Manager
   const u16 indices[6]{0,1,2, 0,2,3};
 
   enum { TRANSFORM, COLOR, TEXTCOORD_INDEX, NUM_UNIFORMS};
+  enum { INDICES, NUM_BUFFERS};
   u32           VAO;
+  u32           VBO[NUM_BUFFERS];
   u32           shader_program;
   u32           uniform[NUM_UNIFORMS];
   Texture       texture;
@@ -59,7 +61,7 @@ struct Athi_Text_Manager
   ~Athi_Text_Manager();
 
   void update() {}
-  void draw() const;
+  void draw();
   void init();
 };
 

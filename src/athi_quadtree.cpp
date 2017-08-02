@@ -32,7 +32,7 @@ void Athi_Quadtree::update()
 
   for (const auto &circle : circle_buffer)
   {
-    insert(circle.id);
+    insert(circle->id);
   }
 }
 
@@ -135,7 +135,7 @@ void Athi_Quadtree::draw()
 
   // Color the balls in the same color as the boundaries
   for (const auto &id : index)
-    circle_buffer[id].color = bounds.color;
+    circle_buffer[id]->color = bounds.color;
 
   // Only draw the nodes with objects in them.
   if (index.size() != 0)
@@ -168,4 +168,38 @@ void Athi_Quadtree::get(std::vector<std::vector<u32> > &cont) const {
 
 bool Athi_Quadtree::contains(u32 id) {
   return bounds.contains(id);
+}
+
+void init_quadtree()
+{
+  athi_quadtree = std::make_unique<Athi_Quadtree>();
+  athi_quadtree->init(vec2(-1,-1), vec2(1,1));
+}
+
+void update_quadtree()
+{
+  athi_quadtree->update();
+}
+void get_nodes_quadtree(std::vector<std::vector<u32> > &cont)
+{
+  athi_quadtree->get(cont);
+}
+
+void draw_quadtree()
+{
+  athi_quadtree->draw();
+}
+
+void reset_quadtree()
+{
+  //----------------------------------------------------------------
+  // Sets bounds to the screens bounds and clears the quadtrees.
+  //----------------------------------------------------------------
+  athi_quadtree->index.clear();
+  athi_quadtree->index.shrink_to_fit();
+  
+  athi_quadtree->subnode[0] = nullptr;
+  athi_quadtree->subnode[1] = nullptr;
+  athi_quadtree->subnode[2] = nullptr;
+  athi_quadtree->subnode[3] = nullptr;
 }

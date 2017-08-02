@@ -5,13 +5,15 @@
 
 #include <cmath>
 #include <thread>
+#include <atomic>
 #include <glm/gtx/vector_angle.hpp>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-std::vector<Athi_Circle> circle_buffer;
+std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
+std::unique_ptr<Athi_Circle_Manager> athi_circle_manager;
 
 void Athi_Circle::update()
 {
@@ -46,7 +48,7 @@ void Athi_Circle::borderCollision() {
 }
 
 
-static bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b)
+bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b)
 {
   const f32 ax = a.pos.x;
   const f32 ay = a.pos.y;
@@ -75,7 +77,7 @@ static bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b)
   return false;
 }
 
-static void collisionResolve(Athi_Circle &a, Athi_Circle &b)
+void collisionResolve(Athi_Circle &a, Athi_Circle &b)
 {
   separate(a, b);
 
@@ -110,7 +112,7 @@ static void collisionResolve(Athi_Circle &a, Athi_Circle &b)
 }
 
 // Separates two intersecting circles.
-static void separate(Athi_Circle &a, Athi_Circle &b)
+void separate(Athi_Circle &a, Athi_Circle &b)
 {
   const vec2 apos{a.pos};
   const vec2 bpos{b.pos};
@@ -229,8 +231,8 @@ void Athi_Circle_Manager::draw()
   u32 i = 0;
   for (const auto &circle : circle_buffer)
   {
-    transforms[i] = circle.transform.get_model();
-    colors[i++] = circle.color;
+    transforms[i] = circle->transform.get_model();
+    colors[i++] = circle->color;
   }
 
   // transforms BUFFER
@@ -257,7 +259,7 @@ void Athi_Circle_Manager::draw()
 
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
+  glDrawArraysInstanced(GL_LINE_LOOP, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
 }
 
 void Athi_Circle_Manager::update()
@@ -298,15 +300,15 @@ void Athi_Circle_Manager::update()
       collision_logNxN(0, circle_buffer.size());
     }
   }
-  for (auto &circle : circle_buffer) circle.update();
+  for (auto &circle : circle_buffer) circle->update();
 }
 
 void Athi_Circle_Manager::collision_logNxN(size_t begin, size_t end)
 {
   for (size_t i = begin; i < end; ++i)
     for (size_t j = 1 + i; j < circle_buffer.size(); ++j)
-      if (collisionDetection( circle_buffer[i],   circle_buffer[j]))
-          collisionResolve(   circle_buffer[i],   circle_buffer[j]);
+      if (collisionDetection( *circle_buffer[i],   *circle_buffer[j]))
+          collisionResolve(   *circle_buffer[i],   *circle_buffer[j]);
 }
 
 void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end)
@@ -314,22 +316,23 @@ void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<u32> 
   for (size_t k = begin; k < end; ++k)
     for (size_t i = 0; i < cont[k].size(); ++i)
       for (size_t j = i + 1; j < cont[k].size(); ++j)
-        if (collisionDetection( circle_buffer[cont[k][i]],  circle_buffer[cont[k][j]]))
-            collisionResolve(   circle_buffer[cont[k][i]],  circle_buffer[cont[k][j]]);
+        if (collisionDetection( *circle_buffer[cont[k][i]],  *circle_buffer[cont[k][j]]))
+            collisionResolve(   *circle_buffer[cont[k][i]],  *circle_buffer[cont[k][j]]);
 }
 
 void init_circle_manager()
 {
-  athi_circle_manager.init();
+  athi_circle_manager = std::make_unique<Athi_Circle_Manager>();
+  athi_circle_manager->init();
 }
 
 void update_circles()
 {
-  athi_circle_manager.update();
+  athi_circle_manager->update();
 }
 void draw_circles()
 {
-  athi_circle_manager.draw();
+  athi_circle_manager->draw();
 }
 
 void delete_circles()
@@ -337,19 +340,14 @@ void delete_circles()
   circle_buffer.clear();
 }
 
-void addCircle(Athi_Circle &circle)
+void add_circle(Athi_Circle &circle)
 {
   circle.mass = 1.33333f * M_PI * circle.radius * circle.radius * circle.radius;
   circle.id = (u32)circle_buffer.size();
-  circle_buffer.emplace_back(circle);
+  circle_buffer.emplace_back(std::make_unique<Athi_Circle>(circle));
 }
 
 u32 get_num_circles()
 {
   return (u32)circle_buffer.size();
-}
-
-std::vector<Athi_Circle> &get_circle_buffer()
-{
-  return circle_buffer;
 }

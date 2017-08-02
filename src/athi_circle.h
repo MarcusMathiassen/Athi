@@ -7,6 +7,7 @@
 #include "athi_quadtree.h"
 #include "athi_voxelgrid.h"
 
+#include <mutex>
 #include <vector>
 
 #define CIRCLE_NUM_VERTICES 36
@@ -30,7 +31,7 @@ struct Athi_Circle
   Athi_Circle() = default;
 };
 
-extern std::vector<Athi_Circle> circle_buffer;
+extern std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
 
 struct Athi_Circle_Manager
 {
@@ -61,10 +62,10 @@ void delete_circles();
 u32  get_num_circles();
 void update_circles();
 void draw_circles();
-void addCircle(Athi_Circle &circle);
+void add_circle(Athi_Circle &circle);
 void init_circle_manager();
 
-static bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b);
-static void collisionResolve(Athi_Circle &a, Athi_Circle &b);
-static void separate(Athi_Circle &a, Athi_Circle &b);
-static Athi_Circle_Manager athi_circle_manager;
+bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b);
+void collisionResolve(Athi_Circle &a, Athi_Circle &b);
+void separate(Athi_Circle &a, Athi_Circle &b);
+extern std::unique_ptr<Athi_Circle_Manager> athi_circle_manager;

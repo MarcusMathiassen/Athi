@@ -11,11 +11,10 @@
 
 void init_input_manager();
 u8 get_mouse_button_state(u8 button);
-static void update_inputs();
+void update_inputs();
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 struct Mouse
 {
@@ -34,45 +33,8 @@ struct Athi_Input_Manager
   }
 };
 
-static Athi_Input_Manager athi_input_manager;
+extern Athi_Input_Manager athi_input_manager;
 
-static void update_inputs()
-{
-  f64 mouse_x, mouse_y;
-  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
-
-  s32 width, height;
-  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-  mouse_x = -1.0f + 2 * mouse_x / width;
-  mouse_y = +1.0f - 2 * mouse_y / height;
-
-  Athi_Circle c;
-  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_SPACE) == GLFW_PRESS)
-  {
-    c.pos = vec2(mouse_x,mouse_y);
-    c.radius = circle_size;
-    addCircle(c);
-  }
-  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_1) == GLFW_PRESS)
-  {
-    c.pos = vec2(mouse_x,mouse_y);
-    c.radius = 0.01f;
-    addCircle(c);
-  }
-  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_2) == GLFW_PRESS)
-  {
-    c.pos = vec2(mouse_x,mouse_y);
-    c.radius = 0.02f;
-    addCircle(c);
-  }
-  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_3) == GLFW_PRESS)
-  {
-    c.pos = vec2(mouse_x,mouse_y);
-    c.radius = 0.03f;
-    addCircle(c);
-  }
-
-}
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -143,7 +105,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     voxelgrid_parts *= 4;
   }
 
-  // clear all circles
+  // ERASE ALL CIRCLES
   if (key == GLFW_KEY_E && action == GLFW_PRESS)
   {
     delete_circles();

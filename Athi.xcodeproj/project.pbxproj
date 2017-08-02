@@ -7,30 +7,30 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F27B59CD1F3139B9007FD6D9 /* athi_camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59AD1F3139B9007FD6D9 /* athi_camera.cpp */; };
-		F27B59CE1F3139B9007FD6D9 /* athi_checkbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59AF1F3139B9007FD6D9 /* athi_checkbox.cpp */; };
-		F27B59CF1F3139B9007FD6D9 /* athi_circle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59B11F3139B9007FD6D9 /* athi_circle.cpp */; };
-		F27B59D01F3139B9007FD6D9 /* athi_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59B31F3139B9007FD6D9 /* athi_core.cpp */; };
-		F27B59D11F3139B9007FD6D9 /* athi_input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59B51F3139B9007FD6D9 /* athi_input.cpp */; };
-		F27B59D21F3139B9007FD6D9 /* athi_quadtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59B71F3139B9007FD6D9 /* athi_quadtree.cpp */; };
-		F27B59D31F3139B9007FD6D9 /* athi_rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59B91F3139B9007FD6D9 /* athi_rect.cpp */; };
-		F27B59D41F3139B9007FD6D9 /* athi_settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59BC1F3139B9007FD6D9 /* athi_settings.cpp */; };
-		F27B59D51F3139B9007FD6D9 /* athi_slider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59BE1F3139B9007FD6D9 /* athi_slider.cpp */; };
-		F27B59D61F3139B9007FD6D9 /* athi_task_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59C01F3139B9007FD6D9 /* athi_task_manager.cpp */; };
-		F27B59D71F3139B9007FD6D9 /* athi_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59C21F3139B9007FD6D9 /* athi_text.cpp */; };
-		F27B59D81F3139B9007FD6D9 /* athi_window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59C91F3139B9007FD6D9 /* athi_window.cpp */; };
-		F27B59D91F3139B9007FD6D9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F27B59CB1F3139B9007FD6D9 /* main.cpp */; };
-		F27B59DC1F3139CB007FD6D9 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F27B59DB1F3139CB007FD6D9 /* OpenGL.framework */; };
-		F27B59DE1F3139D5007FD6D9 /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F27B59DD1F3139D5007FD6D9 /* libGLEW.a */; };
-		F27B59E01F3139DE007FD6D9 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F27B59DF1F3139DE007FD6D9 /* libglfw3.a */; };
-		F27B59E21F313A5A007FD6D9 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F27B59E11F313A5A007FD6D9 /* IOKit.framework */; };
-		F27B59E41F313A5F007FD6D9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F27B59E31F313A5F007FD6D9 /* Cocoa.framework */; };
-		F27B59E61F313AA9007FD6D9 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F27B59E51F313AA9007FD6D9 /* CoreVideo.framework */; };
-		F2FEC6971F3173ED0018F20F /* athi_voxelgrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2FEC6951F3173ED0018F20F /* athi_voxelgrid.cpp */; };
+		F2298A391F328D00007DCBB3 /* athi_camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A171F328D00007DCBB3 /* athi_camera.cpp */; };
+		F2298A3A1F328D00007DCBB3 /* athi_checkbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A191F328D00007DCBB3 /* athi_checkbox.cpp */; };
+		F2298A3B1F328D00007DCBB3 /* athi_circle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A1B1F328D00007DCBB3 /* athi_circle.cpp */; };
+		F2298A3C1F328D00007DCBB3 /* athi_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A1D1F328D00007DCBB3 /* athi_core.cpp */; };
+		F2298A3D1F328D00007DCBB3 /* athi_input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A1F1F328D00007DCBB3 /* athi_input.cpp */; };
+		F2298A3E1F328D00007DCBB3 /* athi_quadtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A211F328D00007DCBB3 /* athi_quadtree.cpp */; };
+		F2298A3F1F328D00007DCBB3 /* athi_rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A231F328D00007DCBB3 /* athi_rect.cpp */; };
+		F2298A401F328D00007DCBB3 /* athi_settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A261F328D00007DCBB3 /* athi_settings.cpp */; };
+		F2298A411F328D00007DCBB3 /* athi_slider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A281F328D00007DCBB3 /* athi_slider.cpp */; };
+		F2298A421F328D00007DCBB3 /* athi_task_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A2A1F328D00007DCBB3 /* athi_task_manager.cpp */; };
+		F2298A431F328D00007DCBB3 /* athi_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A2C1F328D00007DCBB3 /* athi_text.cpp */; };
+		F2298A441F328D00007DCBB3 /* athi_voxelgrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A331F328D00007DCBB3 /* athi_voxelgrid.cpp */; };
+		F2298A451F328D00007DCBB3 /* athi_window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A351F328D00007DCBB3 /* athi_window.cpp */; };
+		F2298A461F328D00007DCBB3 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A371F328D00007DCBB3 /* main.cpp */; };
+		F2298A491F328D54007DCBB3 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A481F328D54007DCBB3 /* OpenGL.framework */; };
+		F2298A4B1F328D5A007DCBB3 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A4A1F328D5A007DCBB3 /* IOKit.framework */; };
+		F2298A4D1F328D60007DCBB3 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A4C1F328D60007DCBB3 /* CoreVideo.framework */; };
+		F2298A4F1F328D67007DCBB3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A4E1F328D67007DCBB3 /* Cocoa.framework */; };
+		F2298A511F328D70007DCBB3 /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A501F328D70007DCBB3 /* libGLEW.a */; };
+		F2298A531F328D78007DCBB3 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A521F328D78007DCBB3 /* libglfw3.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		F27B599B1F3138F3007FD6D9 /* CopyFiles */ = {
+		F2298A091F328CDE007DCBB3 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -42,135 +42,135 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		F27B599D1F3138F3007FD6D9 /* Athi */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Athi; sourceTree = BUILT_PRODUCTS_DIR; };
-		F27B59AC1F3139B9007FD6D9 /* athi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi.h; sourceTree = "<group>"; };
-		F27B59AD1F3139B9007FD6D9 /* athi_camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_camera.cpp; sourceTree = "<group>"; };
-		F27B59AE1F3139B9007FD6D9 /* athi_camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_camera.h; sourceTree = "<group>"; };
-		F27B59AF1F3139B9007FD6D9 /* athi_checkbox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_checkbox.cpp; sourceTree = "<group>"; };
-		F27B59B01F3139B9007FD6D9 /* athi_checkbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_checkbox.h; sourceTree = "<group>"; };
-		F27B59B11F3139B9007FD6D9 /* athi_circle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_circle.cpp; sourceTree = "<group>"; };
-		F27B59B21F3139B9007FD6D9 /* athi_circle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_circle.h; sourceTree = "<group>"; };
-		F27B59B31F3139B9007FD6D9 /* athi_core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_core.cpp; sourceTree = "<group>"; };
-		F27B59B41F3139B9007FD6D9 /* athi_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_core.h; sourceTree = "<group>"; };
-		F27B59B51F3139B9007FD6D9 /* athi_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_input.cpp; sourceTree = "<group>"; };
-		F27B59B61F3139B9007FD6D9 /* athi_input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_input.h; sourceTree = "<group>"; };
-		F27B59B71F3139B9007FD6D9 /* athi_quadtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_quadtree.cpp; sourceTree = "<group>"; };
-		F27B59B81F3139B9007FD6D9 /* athi_quadtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_quadtree.h; sourceTree = "<group>"; };
-		F27B59B91F3139B9007FD6D9 /* athi_rect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_rect.cpp; sourceTree = "<group>"; };
-		F27B59BA1F3139B9007FD6D9 /* athi_rect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_rect.h; sourceTree = "<group>"; };
-		F27B59BB1F3139B9007FD6D9 /* athi_resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_resource.h; sourceTree = "<group>"; };
-		F27B59BC1F3139B9007FD6D9 /* athi_settings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_settings.cpp; sourceTree = "<group>"; };
-		F27B59BD1F3139B9007FD6D9 /* athi_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_settings.h; sourceTree = "<group>"; };
-		F27B59BE1F3139B9007FD6D9 /* athi_slider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_slider.cpp; sourceTree = "<group>"; };
-		F27B59BF1F3139B9007FD6D9 /* athi_slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_slider.h; sourceTree = "<group>"; };
-		F27B59C01F3139B9007FD6D9 /* athi_task_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_task_manager.cpp; sourceTree = "<group>"; };
-		F27B59C11F3139B9007FD6D9 /* athi_task_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_task_manager.h; sourceTree = "<group>"; };
-		F27B59C21F3139B9007FD6D9 /* athi_text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_text.cpp; sourceTree = "<group>"; };
-		F27B59C31F3139B9007FD6D9 /* athi_text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_text.h; sourceTree = "<group>"; };
-		F27B59C41F3139B9007FD6D9 /* athi_texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_texture.h; sourceTree = "<group>"; };
-		F27B59C51F3139B9007FD6D9 /* athi_transform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_transform.h; sourceTree = "<group>"; };
-		F27B59C61F3139B9007FD6D9 /* athi_typedefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_typedefs.h; sourceTree = "<group>"; };
-		F27B59C71F3139B9007FD6D9 /* athi_ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_ui.h; sourceTree = "<group>"; };
-		F27B59C81F3139B9007FD6D9 /* athi_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_utility.h; sourceTree = "<group>"; };
-		F27B59C91F3139B9007FD6D9 /* athi_window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_window.cpp; sourceTree = "<group>"; };
-		F27B59CA1F3139B9007FD6D9 /* athi_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_window.h; sourceTree = "<group>"; };
-		F27B59CB1F3139B9007FD6D9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		F27B59CC1F3139B9007FD6D9 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
-		F27B59DB1F3139CB007FD6D9 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
-		F27B59DD1F3139D5007FD6D9 /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = dep/macOS/GL/libGLEW.a; sourceTree = "<group>"; };
-		F27B59DF1F3139DE007FD6D9 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = dep/macOS/GLFW/libglfw3.a; sourceTree = "<group>"; };
-		F27B59E11F313A5A007FD6D9 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
-		F27B59E31F313A5F007FD6D9 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		F27B59E51F313AA9007FD6D9 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
-		F2FEC6951F3173ED0018F20F /* athi_voxelgrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_voxelgrid.cpp; sourceTree = "<group>"; };
-		F2FEC6961F3173ED0018F20F /* athi_voxelgrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_voxelgrid.h; sourceTree = "<group>"; };
+		F2298A0B1F328CDE007DCBB3 /* Athi */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Athi; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2298A161F328D00007DCBB3 /* athi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi.h; sourceTree = "<group>"; };
+		F2298A171F328D00007DCBB3 /* athi_camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_camera.cpp; sourceTree = "<group>"; };
+		F2298A181F328D00007DCBB3 /* athi_camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_camera.h; sourceTree = "<group>"; };
+		F2298A191F328D00007DCBB3 /* athi_checkbox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_checkbox.cpp; sourceTree = "<group>"; };
+		F2298A1A1F328D00007DCBB3 /* athi_checkbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_checkbox.h; sourceTree = "<group>"; };
+		F2298A1B1F328D00007DCBB3 /* athi_circle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_circle.cpp; sourceTree = "<group>"; };
+		F2298A1C1F328D00007DCBB3 /* athi_circle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_circle.h; sourceTree = "<group>"; };
+		F2298A1D1F328D00007DCBB3 /* athi_core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_core.cpp; sourceTree = "<group>"; };
+		F2298A1E1F328D00007DCBB3 /* athi_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_core.h; sourceTree = "<group>"; };
+		F2298A1F1F328D00007DCBB3 /* athi_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_input.cpp; sourceTree = "<group>"; };
+		F2298A201F328D00007DCBB3 /* athi_input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_input.h; sourceTree = "<group>"; };
+		F2298A211F328D00007DCBB3 /* athi_quadtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_quadtree.cpp; sourceTree = "<group>"; };
+		F2298A221F328D00007DCBB3 /* athi_quadtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_quadtree.h; sourceTree = "<group>"; };
+		F2298A231F328D00007DCBB3 /* athi_rect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_rect.cpp; sourceTree = "<group>"; };
+		F2298A241F328D00007DCBB3 /* athi_rect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_rect.h; sourceTree = "<group>"; };
+		F2298A251F328D00007DCBB3 /* athi_resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_resource.h; sourceTree = "<group>"; };
+		F2298A261F328D00007DCBB3 /* athi_settings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_settings.cpp; sourceTree = "<group>"; };
+		F2298A271F328D00007DCBB3 /* athi_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_settings.h; sourceTree = "<group>"; };
+		F2298A281F328D00007DCBB3 /* athi_slider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_slider.cpp; sourceTree = "<group>"; };
+		F2298A291F328D00007DCBB3 /* athi_slider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_slider.h; sourceTree = "<group>"; };
+		F2298A2A1F328D00007DCBB3 /* athi_task_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_task_manager.cpp; sourceTree = "<group>"; };
+		F2298A2B1F328D00007DCBB3 /* athi_task_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_task_manager.h; sourceTree = "<group>"; };
+		F2298A2C1F328D00007DCBB3 /* athi_text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_text.cpp; sourceTree = "<group>"; };
+		F2298A2D1F328D00007DCBB3 /* athi_text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_text.h; sourceTree = "<group>"; };
+		F2298A2E1F328D00007DCBB3 /* athi_texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_texture.h; sourceTree = "<group>"; };
+		F2298A2F1F328D00007DCBB3 /* athi_transform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_transform.h; sourceTree = "<group>"; };
+		F2298A301F328D00007DCBB3 /* athi_typedefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_typedefs.h; sourceTree = "<group>"; };
+		F2298A311F328D00007DCBB3 /* athi_ui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_ui.h; sourceTree = "<group>"; };
+		F2298A321F328D00007DCBB3 /* athi_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_utility.h; sourceTree = "<group>"; };
+		F2298A331F328D00007DCBB3 /* athi_voxelgrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_voxelgrid.cpp; sourceTree = "<group>"; };
+		F2298A341F328D00007DCBB3 /* athi_voxelgrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_voxelgrid.h; sourceTree = "<group>"; };
+		F2298A351F328D00007DCBB3 /* athi_window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_window.cpp; sourceTree = "<group>"; };
+		F2298A361F328D00007DCBB3 /* athi_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_window.h; sourceTree = "<group>"; };
+		F2298A371F328D00007DCBB3 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		F2298A381F328D00007DCBB3 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		F2298A481F328D54007DCBB3 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		F2298A4A1F328D5A007DCBB3 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		F2298A4C1F328D60007DCBB3 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		F2298A4E1F328D67007DCBB3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		F2298A501F328D70007DCBB3 /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = dep/macOS/GL/libGLEW.a; sourceTree = "<group>"; };
+		F2298A521F328D78007DCBB3 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = dep/macOS/GLFW/libglfw3.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		F27B599A1F3138F3007FD6D9 /* Frameworks */ = {
+		F2298A081F328CDE007DCBB3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F27B59E61F313AA9007FD6D9 /* CoreVideo.framework in Frameworks */,
-				F27B59E41F313A5F007FD6D9 /* Cocoa.framework in Frameworks */,
-				F27B59E21F313A5A007FD6D9 /* IOKit.framework in Frameworks */,
-				F27B59E01F3139DE007FD6D9 /* libglfw3.a in Frameworks */,
-				F27B59DE1F3139D5007FD6D9 /* libGLEW.a in Frameworks */,
-				F27B59DC1F3139CB007FD6D9 /* OpenGL.framework in Frameworks */,
+				F2298A531F328D78007DCBB3 /* libglfw3.a in Frameworks */,
+				F2298A511F328D70007DCBB3 /* libGLEW.a in Frameworks */,
+				F2298A4F1F328D67007DCBB3 /* Cocoa.framework in Frameworks */,
+				F2298A4D1F328D60007DCBB3 /* CoreVideo.framework in Frameworks */,
+				F2298A4B1F328D5A007DCBB3 /* IOKit.framework in Frameworks */,
+				F2298A491F328D54007DCBB3 /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		F27B59941F3138F3007FD6D9 = {
+		F2298A021F328CDE007DCBB3 = {
 			isa = PBXGroup;
 			children = (
-				F27B59AB1F3139B9007FD6D9 /* src */,
-				F27B599E1F3138F3007FD6D9 /* Products */,
-				F27B59DA1F3139CB007FD6D9 /* Frameworks */,
+				F2298A151F328D00007DCBB3 /* src */,
+				F2298A0C1F328CDE007DCBB3 /* Products */,
+				F2298A471F328D54007DCBB3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		F27B599E1F3138F3007FD6D9 /* Products */ = {
+		F2298A0C1F328CDE007DCBB3 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F27B599D1F3138F3007FD6D9 /* Athi */,
+				F2298A0B1F328CDE007DCBB3 /* Athi */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		F27B59AB1F3139B9007FD6D9 /* src */ = {
+		F2298A151F328D00007DCBB3 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				F2FEC6951F3173ED0018F20F /* athi_voxelgrid.cpp */,
-				F2FEC6961F3173ED0018F20F /* athi_voxelgrid.h */,
-				F27B59AC1F3139B9007FD6D9 /* athi.h */,
-				F27B59AD1F3139B9007FD6D9 /* athi_camera.cpp */,
-				F27B59AE1F3139B9007FD6D9 /* athi_camera.h */,
-				F27B59AF1F3139B9007FD6D9 /* athi_checkbox.cpp */,
-				F27B59B01F3139B9007FD6D9 /* athi_checkbox.h */,
-				F27B59B11F3139B9007FD6D9 /* athi_circle.cpp */,
-				F27B59B21F3139B9007FD6D9 /* athi_circle.h */,
-				F27B59B31F3139B9007FD6D9 /* athi_core.cpp */,
-				F27B59B41F3139B9007FD6D9 /* athi_core.h */,
-				F27B59B51F3139B9007FD6D9 /* athi_input.cpp */,
-				F27B59B61F3139B9007FD6D9 /* athi_input.h */,
-				F27B59B71F3139B9007FD6D9 /* athi_quadtree.cpp */,
-				F27B59B81F3139B9007FD6D9 /* athi_quadtree.h */,
-				F27B59B91F3139B9007FD6D9 /* athi_rect.cpp */,
-				F27B59BA1F3139B9007FD6D9 /* athi_rect.h */,
-				F27B59BB1F3139B9007FD6D9 /* athi_resource.h */,
-				F27B59BC1F3139B9007FD6D9 /* athi_settings.cpp */,
-				F27B59BD1F3139B9007FD6D9 /* athi_settings.h */,
-				F27B59BE1F3139B9007FD6D9 /* athi_slider.cpp */,
-				F27B59BF1F3139B9007FD6D9 /* athi_slider.h */,
-				F27B59C01F3139B9007FD6D9 /* athi_task_manager.cpp */,
-				F27B59C11F3139B9007FD6D9 /* athi_task_manager.h */,
-				F27B59C21F3139B9007FD6D9 /* athi_text.cpp */,
-				F27B59C31F3139B9007FD6D9 /* athi_text.h */,
-				F27B59C41F3139B9007FD6D9 /* athi_texture.h */,
-				F27B59C51F3139B9007FD6D9 /* athi_transform.h */,
-				F27B59C61F3139B9007FD6D9 /* athi_typedefs.h */,
-				F27B59C71F3139B9007FD6D9 /* athi_ui.h */,
-				F27B59C81F3139B9007FD6D9 /* athi_utility.h */,
-				F27B59C91F3139B9007FD6D9 /* athi_window.cpp */,
-				F27B59CA1F3139B9007FD6D9 /* athi_window.h */,
-				F27B59CB1F3139B9007FD6D9 /* main.cpp */,
-				F27B59CC1F3139B9007FD6D9 /* stb_image.h */,
+				F2298A161F328D00007DCBB3 /* athi.h */,
+				F2298A171F328D00007DCBB3 /* athi_camera.cpp */,
+				F2298A181F328D00007DCBB3 /* athi_camera.h */,
+				F2298A191F328D00007DCBB3 /* athi_checkbox.cpp */,
+				F2298A1A1F328D00007DCBB3 /* athi_checkbox.h */,
+				F2298A1B1F328D00007DCBB3 /* athi_circle.cpp */,
+				F2298A1C1F328D00007DCBB3 /* athi_circle.h */,
+				F2298A1D1F328D00007DCBB3 /* athi_core.cpp */,
+				F2298A1E1F328D00007DCBB3 /* athi_core.h */,
+				F2298A1F1F328D00007DCBB3 /* athi_input.cpp */,
+				F2298A201F328D00007DCBB3 /* athi_input.h */,
+				F2298A211F328D00007DCBB3 /* athi_quadtree.cpp */,
+				F2298A221F328D00007DCBB3 /* athi_quadtree.h */,
+				F2298A231F328D00007DCBB3 /* athi_rect.cpp */,
+				F2298A241F328D00007DCBB3 /* athi_rect.h */,
+				F2298A251F328D00007DCBB3 /* athi_resource.h */,
+				F2298A261F328D00007DCBB3 /* athi_settings.cpp */,
+				F2298A271F328D00007DCBB3 /* athi_settings.h */,
+				F2298A281F328D00007DCBB3 /* athi_slider.cpp */,
+				F2298A291F328D00007DCBB3 /* athi_slider.h */,
+				F2298A2A1F328D00007DCBB3 /* athi_task_manager.cpp */,
+				F2298A2B1F328D00007DCBB3 /* athi_task_manager.h */,
+				F2298A2C1F328D00007DCBB3 /* athi_text.cpp */,
+				F2298A2D1F328D00007DCBB3 /* athi_text.h */,
+				F2298A2E1F328D00007DCBB3 /* athi_texture.h */,
+				F2298A2F1F328D00007DCBB3 /* athi_transform.h */,
+				F2298A301F328D00007DCBB3 /* athi_typedefs.h */,
+				F2298A311F328D00007DCBB3 /* athi_ui.h */,
+				F2298A321F328D00007DCBB3 /* athi_utility.h */,
+				F2298A331F328D00007DCBB3 /* athi_voxelgrid.cpp */,
+				F2298A341F328D00007DCBB3 /* athi_voxelgrid.h */,
+				F2298A351F328D00007DCBB3 /* athi_window.cpp */,
+				F2298A361F328D00007DCBB3 /* athi_window.h */,
+				F2298A371F328D00007DCBB3 /* main.cpp */,
+				F2298A381F328D00007DCBB3 /* stb_image.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
 		};
-		F27B59DA1F3139CB007FD6D9 /* Frameworks */ = {
+		F2298A471F328D54007DCBB3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				F27B59E51F313AA9007FD6D9 /* CoreVideo.framework */,
-				F27B59E31F313A5F007FD6D9 /* Cocoa.framework */,
-				F27B59E11F313A5A007FD6D9 /* IOKit.framework */,
-				F27B59DF1F3139DE007FD6D9 /* libglfw3.a */,
-				F27B59DD1F3139D5007FD6D9 /* libGLEW.a */,
-				F27B59DB1F3139CB007FD6D9 /* OpenGL.framework */,
+				F2298A521F328D78007DCBB3 /* libglfw3.a */,
+				F2298A501F328D70007DCBB3 /* libGLEW.a */,
+				F2298A4E1F328D67007DCBB3 /* Cocoa.framework */,
+				F2298A4C1F328D60007DCBB3 /* CoreVideo.framework */,
+				F2298A4A1F328D5A007DCBB3 /* IOKit.framework */,
+				F2298A481F328D54007DCBB3 /* OpenGL.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -178,13 +178,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F27B599C1F3138F3007FD6D9 /* Athi */ = {
+		F2298A0A1F328CDE007DCBB3 /* Athi */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F27B59A41F3138F3007FD6D9 /* Build configuration list for PBXNativeTarget "Athi" */;
+			buildConfigurationList = F2298A121F328CDE007DCBB3 /* Build configuration list for PBXNativeTarget "Athi" */;
 			buildPhases = (
-				F27B59991F3138F3007FD6D9 /* Sources */,
-				F27B599A1F3138F3007FD6D9 /* Frameworks */,
-				F27B599B1F3138F3007FD6D9 /* CopyFiles */,
+				F2298A071F328CDE007DCBB3 /* Sources */,
+				F2298A081F328CDE007DCBB3 /* Frameworks */,
+				F2298A091F328CDE007DCBB3 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -192,68 +192,68 @@
 			);
 			name = Athi;
 			productName = Athi;
-			productReference = F27B599D1F3138F3007FD6D9 /* Athi */;
+			productReference = F2298A0B1F328CDE007DCBB3 /* Athi */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		F27B59951F3138F3007FD6D9 /* Project object */ = {
+		F2298A031F328CDE007DCBB3 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = mathiassen;
 				TargetAttributes = {
-					F27B599C1F3138F3007FD6D9 = {
+					F2298A0A1F328CDE007DCBB3 = {
 						CreatedOnToolsVersion = 8.3.3;
 						DevelopmentTeam = 6D77ZFXSCS;
 						ProvisioningStyle = Automatic;
 					};
 				};
 			};
-			buildConfigurationList = F27B59981F3138F3007FD6D9 /* Build configuration list for PBXProject "Athi" */;
+			buildConfigurationList = F2298A061F328CDE007DCBB3 /* Build configuration list for PBXProject "Athi" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = F27B59941F3138F3007FD6D9;
-			productRefGroup = F27B599E1F3138F3007FD6D9 /* Products */;
+			mainGroup = F2298A021F328CDE007DCBB3;
+			productRefGroup = F2298A0C1F328CDE007DCBB3 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F27B599C1F3138F3007FD6D9 /* Athi */,
+				F2298A0A1F328CDE007DCBB3 /* Athi */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		F27B59991F3138F3007FD6D9 /* Sources */ = {
+		F2298A071F328CDE007DCBB3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F27B59D41F3139B9007FD6D9 /* athi_settings.cpp in Sources */,
-				F27B59D81F3139B9007FD6D9 /* athi_window.cpp in Sources */,
-				F27B59D21F3139B9007FD6D9 /* athi_quadtree.cpp in Sources */,
-				F27B59D01F3139B9007FD6D9 /* athi_core.cpp in Sources */,
-				F27B59D31F3139B9007FD6D9 /* athi_rect.cpp in Sources */,
-				F27B59CE1F3139B9007FD6D9 /* athi_checkbox.cpp in Sources */,
-				F27B59D71F3139B9007FD6D9 /* athi_text.cpp in Sources */,
-				F27B59CF1F3139B9007FD6D9 /* athi_circle.cpp in Sources */,
-				F27B59CD1F3139B9007FD6D9 /* athi_camera.cpp in Sources */,
-				F27B59D11F3139B9007FD6D9 /* athi_input.cpp in Sources */,
-				F27B59D91F3139B9007FD6D9 /* main.cpp in Sources */,
-				F27B59D61F3139B9007FD6D9 /* athi_task_manager.cpp in Sources */,
-				F2FEC6971F3173ED0018F20F /* athi_voxelgrid.cpp in Sources */,
-				F27B59D51F3139B9007FD6D9 /* athi_slider.cpp in Sources */,
+				F2298A401F328D00007DCBB3 /* athi_settings.cpp in Sources */,
+				F2298A3E1F328D00007DCBB3 /* athi_quadtree.cpp in Sources */,
+				F2298A3C1F328D00007DCBB3 /* athi_core.cpp in Sources */,
+				F2298A3F1F328D00007DCBB3 /* athi_rect.cpp in Sources */,
+				F2298A461F328D00007DCBB3 /* main.cpp in Sources */,
+				F2298A3A1F328D00007DCBB3 /* athi_checkbox.cpp in Sources */,
+				F2298A431F328D00007DCBB3 /* athi_text.cpp in Sources */,
+				F2298A3B1F328D00007DCBB3 /* athi_circle.cpp in Sources */,
+				F2298A391F328D00007DCBB3 /* athi_camera.cpp in Sources */,
+				F2298A451F328D00007DCBB3 /* athi_window.cpp in Sources */,
+				F2298A441F328D00007DCBB3 /* athi_voxelgrid.cpp in Sources */,
+				F2298A3D1F328D00007DCBB3 /* athi_input.cpp in Sources */,
+				F2298A421F328D00007DCBB3 /* athi_task_manager.cpp in Sources */,
+				F2298A411F328D00007DCBB3 /* athi_slider.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		F27B59A21F3138F3007FD6D9 /* Debug */ = {
+		F2298A101F328CDE007DCBB3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -263,9 +263,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -273,11 +271,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -307,7 +301,7 @@
 			};
 			name = Debug;
 		};
-		F27B59A31F3138F3007FD6D9 /* Release */ = {
+		F2298A111F328CDE007DCBB3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -317,9 +311,7 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -327,11 +319,7 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -354,17 +342,16 @@
 			};
 			name = Release;
 		};
-		F27B59A51F3138F3007FD6D9 /* Debug */ = {
+		F2298A131F328CDE007DCBB3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				DEVELOPMENT_TEAM = "";
-				GCC_WARN_UNUSED_FUNCTION = NO;
 				HEADER_SEARCH_PATHS = "/Users/mathiassen/Athi/dep/macOS/**";
 				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
+					"/Users/mathiassen/Athi/dep/macOS/**",
 					"$(PROJECT_DIR)/dep/macOS/GL",
 					"$(PROJECT_DIR)/dep/macOS/GLFW",
 				);
@@ -373,17 +360,16 @@
 			};
 			name = Debug;
 		};
-		F27B59A61F3138F3007FD6D9 /* Release */ = {
+		F2298A141F328CDE007DCBB3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				DEVELOPMENT_TEAM = "";
-				GCC_WARN_UNUSED_FUNCTION = NO;
 				HEADER_SEARCH_PATHS = "/Users/mathiassen/Athi/dep/macOS/**";
 				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
+					"/Users/mathiassen/Athi/dep/macOS/**",
 					"$(PROJECT_DIR)/dep/macOS/GL",
 					"$(PROJECT_DIR)/dep/macOS/GLFW",
 				);
@@ -395,25 +381,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F27B59981F3138F3007FD6D9 /* Build configuration list for PBXProject "Athi" */ = {
+		F2298A061F328CDE007DCBB3 /* Build configuration list for PBXProject "Athi" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F27B59A21F3138F3007FD6D9 /* Debug */,
-				F27B59A31F3138F3007FD6D9 /* Release */,
+				F2298A101F328CDE007DCBB3 /* Debug */,
+				F2298A111F328CDE007DCBB3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F27B59A41F3138F3007FD6D9 /* Build configuration list for PBXNativeTarget "Athi" */ = {
+		F2298A121F328CDE007DCBB3 /* Build configuration list for PBXNativeTarget "Athi" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F27B59A51F3138F3007FD6D9 /* Debug */,
-				F27B59A61F3138F3007FD6D9 /* Release */,
+				F2298A131F328CDE007DCBB3 /* Debug */,
+				F2298A141F328CDE007DCBB3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = F27B59951F3138F3007FD6D9 /* Project object */;
+	rootObject = F2298A031F328CDE007DCBB3 /* Project object */;
 }

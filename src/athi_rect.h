@@ -14,8 +14,10 @@ static constexpr u16 indices[]{0,1,2, 0,2,3};
 struct Rect
 {
   vec2 min,max;
+  vec2 pos;
+  f32 width,height;
   vec4 color{1.0f,1.0f,1.0f,1.0f};
-  Rect(const vec2& min, const vec2& max) : min(min), max(max) {}
+  Rect(const vec2& min, const vec2& max) : min(min), max(max), pos(min) {}
   bool contains(u32 id);
   Rect() = default;
 };
@@ -52,6 +54,7 @@ struct Athi_Rect_Manager
 
 void add_rect(Athi_Rect* rect);
 void init_rect_manager();
+void draw_rect(const vec2& min, f32 width, f32 height, const vec4& color, GLenum draw_type);
 void draw_rect(const vec2& min, const vec2& max, const vec4& color, GLenum draw_type);
 void draw_rects();
 

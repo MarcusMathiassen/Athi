@@ -33,7 +33,7 @@ struct Athi_Checkbox : public Athi_UI
   vec4 idle_color{0.9f, 0.3f, 0.3f,1.0f};
   vec4 active_color{0.9f, 0.3f, 0.3f,1.0f};
 
-  Athi_Rect box;
+  Rect box;
 
   void draw() const;
   void update();

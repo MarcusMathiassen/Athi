@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "F27B599C1F3138F3007FD6D9"
+               BlueprintIdentifier = "F2298A0A1F328CDE007DCBB3"
                BuildableName = "Athi"
                BlueprintName = "Athi"
                ReferencedContainer = "container:Athi.xcodeproj">
@@ -32,7 +32,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F27B599C1F3138F3007FD6D9"
+            BlueprintIdentifier = "F2298A0A1F328CDE007DCBB3"
             BuildableName = "Athi"
             BlueprintName = "Athi"
             ReferencedContainer = "container:Athi.xcodeproj">
@@ -56,7 +56,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F27B599C1F3138F3007FD6D9"
+            BlueprintIdentifier = "F2298A0A1F328CDE007DCBB3"
             BuildableName = "Athi"
             BlueprintName = "Athi"
             ReferencedContainer = "container:Athi.xcodeproj">
@@ -75,7 +75,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "F27B599C1F3138F3007FD6D9"
+            BlueprintIdentifier = "F2298A0A1F328CDE007DCBB3"
             BuildableName = "Athi"
             BlueprintName = "Athi"
             ReferencedContainer = "container:Athi.xcodeproj">

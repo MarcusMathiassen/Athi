@@ -11,8 +11,8 @@ Athi_Rect_Manager athi_rect_manager;
 
 bool Rect::contains(u32 id)
 {
-  const vec2 o  = circle_buffer[id].pos;
-  const f32  r  = circle_buffer[id].radius;
+  const vec2 o  = circle_buffer[id]->pos;
+  const f32  r  = circle_buffer[id]->radius;
   if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y && o.y + r > min.y) return true;
   return false;
 }
@@ -93,6 +93,22 @@ void draw_rect(const vec2& min, const vec2& max, const vec4& color, GLenum draw_
 
   const f32 width = max.x - min.x;
   const f32 height = max.y - min.y;
+  temp.scale = vec3(width, height, 0);
+  mat4 trans = temp.get_model();
+
+  glUniform4f(athi_rect_manager.uniform[athi_rect_manager.COLOR], color.r, color.g, color.b, color.a);
+  glUniformMatrix4fv(athi_rect_manager.uniform[athi_rect_manager.TRANSFORM], 1, GL_FALSE, &trans[0][0]);
+  glDrawElements(draw_type, 6, GL_UNSIGNED_SHORT, NULL);
+}
+
+void draw_rect(const vec2& min, f32 width, f32 height, const vec4& color, GLenum draw_type)
+{
+  glBindVertexArray(athi_rect_manager.VAO);
+  glUseProgram(athi_rect_manager.shader_program);
+
+  Transform temp{vec3(min,0), vec3(), vec3(1,1,1)};
+  //const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
+
   temp.scale = vec3(width, height, 0);
   mat4 trans = temp.get_model();
 

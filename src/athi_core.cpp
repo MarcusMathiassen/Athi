@@ -135,7 +135,6 @@ void Athi_Core::start()
     if (show_settings) update_settings();
 
     glfwPollEvents();
-
     limit_FPS(60, time_start_frame);
   }
   app_is_running = false;
@@ -168,17 +167,19 @@ void Athi_Core::draw_loop()
     f64 time_start_frame{ glfwGetTime() };
     glClear(GL_COLOR_BUFFER_BIT);
 
-    frametime_text.str = "FPS: " + std::to_string(framerate) + " | Frametime: " + std::to_string(smoothed_frametime) + " | Physics updates/sec: " + std::to_string(physics_framerate);
+    frametime_text.str = "FPS: " +                    std::to_string(framerate) +
+                         " | Frametime: " +           std::to_string(smoothed_frametime) +
+                         " | Physics updates/sec: " + std::to_string(physics_framerate);
+    
     circle_info.str = "Circles: " + std::to_string(get_num_circles());
-
+    
     update_circles();
-
     draw_circles();
-    if (show_settings) draw_UI();
-    draw_rects();
-
+    
     if (voxelgrid_active) draw_voxelgrid();
     if (quadtree_active)  draw_quadtree();
+    draw_rects();
+    if (show_settings) draw_UI();
 
     glfwSwapBuffers(window->get_window_context());
 
@@ -194,13 +195,12 @@ void Athi_Core::physics_loop()
 {
   while (app_is_running)
   {
-    f64 time_start_frame{ glfwGetTime() };
-
+    f64 time_start_frame = glfwGetTime();
+    
     if (physics_updates_per_sec != 0) limit_FPS(physics_updates_per_sec, time_start_frame);
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     physics_framerate = (u32)(std::round(1000.0f/smoothed_physics_frametime));
     smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
-
     timestep = smoothed_physics_frametime/(1000.0/60.0);
   }
 }

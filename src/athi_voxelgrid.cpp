@@ -27,7 +27,7 @@ void Node::draw() const
 void Node::color_objects()
 {
   for (const auto &id : index)
-    circle_buffer[id].color = bounds.color;
+    circle_buffer[id]->color = bounds.color;
 }
 
 bool Node::contains(const u32 id) { return bounds.contains(id); }
@@ -42,9 +42,9 @@ void Athi_Voxel_Grid::init()
   nodes.clear();
   nodes.shrink_to_fit();
 
-  f32 sqrtGrid = sqrt(voxelgrid_parts);
-  f32 col = 1.0f / sqrtGrid;
-  f32 row = 1.0f / sqrtGrid;
+  const f32 sqrtGrid = sqrt(voxelgrid_parts);
+  const f32 col = 1.0f / sqrtGrid;
+  const f32 row = 1.0f / sqrtGrid;
 
   for (f32 y = -1.0f; y < 1.0f; y += row)
   {
@@ -70,7 +70,7 @@ void Athi_Voxel_Grid::update()
   if (voxelgrid_parts != current_voxelgrid_part) init();
   for (const auto &circle : circle_buffer)
   {
-    u32 id = circle.id;
+    const u32 id = circle->id;
 
     for (const auto &node : nodes)
       if (node->contains(id))

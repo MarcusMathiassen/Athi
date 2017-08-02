@@ -24,9 +24,9 @@ private:
   enum { HOVER, PRESSED, NOTHING};
   u16 last_state{NOTHING};
 
-  Athi_Rect slider_box;
-  Athi_Rect slider_knob;
-  Athi_Rect variable_indicator_box;
+  Rect slider_box;
+  Rect slider_knob;
+  Rect variable_indicator_box;
 
   Athi_Text text;
 
@@ -65,14 +65,14 @@ public:
     slider_box.color = outer_box_color;
     slider_box.width  = width;
     slider_box.height = height;
-    add_rect(&slider_box);
+    //add_rect(&slider_box);
 
     // Box
     slider_knob.pos = pos;
     slider_knob.color = idle_color;
     slider_knob.width  = knob_width;
     slider_knob.height = height;
-    add_rect(&slider_knob);
+    //add_rect(&slider_knob);
 
     box_min_pos = slider_box.pos.x;
     box_max_pos = slider_box.pos.x + slider_box.width - slider_knob.width;
@@ -86,7 +86,7 @@ public:
       variable_indicator_box.color = indicator_color;
       variable_indicator_box.width  = knob_width*0.25f;
       variable_indicator_box.height = height;
-      add_rect(&variable_indicator_box);
+      //add_rect(&variable_indicator_box);
     }
   }
 
@@ -120,6 +120,25 @@ public:
 
   void draw() const
   {
+    draw_rect(
+      slider_box.pos,
+      slider_box.width,
+      slider_box.height,
+      slider_box.color,
+      GL_TRIANGLES);
+
+    draw_rect(
+      slider_knob.pos,
+      slider_knob.width,
+      slider_knob.height,
+      slider_knob.color,
+      GL_TRIANGLES);
+
+    draw_rect(variable_indicator_box.pos,
+      variable_indicator_box.width,
+      variable_indicator_box.height,
+      variable_indicator_box.color,
+      GL_TRIANGLES);
   }
 
   void update_position(f32 mouse_x)

@@ -15,16 +15,16 @@ u32 quadtree_capacity{25};
 bool voxelgrid_active{false};
 u32 voxelgrid_parts{4};
 
+f64 frametime;
+f64 smoothed_frametime;
+u32 framerate;
+u32 framerate_limit{60};
+
 f64  timestep;
 f64 physics_frametime;
 f64 smoothed_physics_frametime;
 u32 physics_framerate;
 u32 physics_updates_per_sec{0};
-
-f64 frametime;
-f64 smoothed_frametime;
-u32 framerate;
-u32 framerate_limit{60};
 
 bool vsync{1};
 

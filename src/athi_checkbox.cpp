@@ -2,6 +2,12 @@
 
 void Athi_Checkbox::draw() const
 {
+    draw_rect(
+    box.pos,
+    box.width,
+    box.height,
+    box.color,
+    GL_TRIANGLES);
 }
 
 void Athi_Checkbox::update()
@@ -57,7 +63,7 @@ void Athi_Checkbox::init()
   box.color = box_color;
   box.width  = width;
   box.height = height;
-  add_rect(&box);
+  //add_rect(&box);
 
   text.pos = pos;
   text.pos.x += width+0.02f;

@@ -32,6 +32,28 @@ static u32 get_cpu_threads();
 static string get_cpu_brand();
 static void get_universal_current_color(vec4 &col);
 
+template <typename T>
+struct Buffer
+{
+  std::vector<T> buffer;
+  bool has_been_modified;
+  std::mutex mutex;
+  
+  void push(const T& t)
+  {
+    mutex.lock();
+    buffer.emplace_back(t);
+    mutex.unlock();
+  }
+  T pop_at(u32 index)
+  {
+    mutex.lock();
+    const T t = buffer.at(index);
+    mutex.unlock();
+    return t;
+  }
+};
+
 static vec4 get_universal_current_color()
 {
   if (universal_color_picker > 6) universal_color_picker = 0;
