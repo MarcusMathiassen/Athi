@@ -12,6 +12,8 @@
 #include "athi_quadtree.h"
 #include "athi_voxelgrid.h"
 
+
+#include <dispatch/dispatch.h>
 #include <thread>
 #include <iostream>
 
@@ -120,9 +122,12 @@ void Athi_Core::start()
   multithreaded_collision_thread_count_slider.max = cpu_threads*8;
   add_slider<u32>(&multithreaded_collision_thread_count_slider);
 
-  std::thread draw_thread(&Athi_Core::draw_loop, this);
-  std::thread physics_thread(&Athi_Core::physics_loop, this);
+  auto draw_queue    = dispatch_queue_create("draw_queue", NULL);
+  auto physics_queue = dispatch_queue_create("physics_queue", NULL);
+  dispatch_async(draw_queue,    ^{ draw_loop();    });
+  dispatch_async(physics_queue, ^{ physics_loop(); });
 
+  // UI
   auto window_context = window->get_window_context();
   while (!glfwWindowShouldClose(window_context))
   {
@@ -134,10 +139,7 @@ void Athi_Core::start()
     glfwPollEvents();
     limit_FPS(60, time_start_frame);
   }
-
   app_is_running = false;
-  draw_thread.join();
-  physics_thread.join();
 
   shutdown();
 }
@@ -158,20 +160,20 @@ void Athi_Core::draw_loop()
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
-    glClear(GL_COLOR_BUFFER_BIT);
-
     frametime_text.str = "FPS: " +                    std::to_string(framerate) +
                          " | Frametime: " +           std::to_string(smoothed_frametime) +
                          " | Physics updates/sec: " + std::to_string(physics_framerate);
     circle_info_text.str = "Circles: " + std::to_string(get_num_circles());
+
+    glClear(GL_COLOR_BUFFER_BIT);
 
     draw_circles();
     draw_rects();
     if (show_settings) draw_UI();
 
     glfwSwapBuffers(window->get_window_context());
-
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
+
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     framerate = (u32)(std::round(1000.0f/smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
