@@ -38,8 +38,8 @@ void Athi_Core::init()
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  //glClearColor(4/255.0f,32/255.0f,41/255.0f,1);
-  glClearColor(0,0,0,1);
+  glClearColor(4/255.0f,32/255.0f,41/255.0f,1);
+  //glClearColor(0,0,0,1);
 
   cpu_cores   = get_cpu_cores();
   cpu_threads = get_cpu_threads();
