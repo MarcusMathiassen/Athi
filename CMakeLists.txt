@@ -8,11 +8,6 @@ set(CMAKE_CXX_STANDARD 17)
 #SET(CMAKE_BUILD_TYPE DEBUG)
 SET(CMAKE_BUILD_TYPE RELEASE)
 
-SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -Wno-unused-function -Wno-unused-parameter")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
-#SET(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-function -Wno-unused-parameter")
-
 set(DEBUG TRUE)
 
 if(${DEBUG})
@@ -29,9 +24,21 @@ file(GLOB SOURCES "./src/*.cpp")
 
 if(WIN32)
 	add_executable(${PROJECT_NAME} ${SOURCES})
-	target_link_libraries(${PROJECT_NAME} " -opengl32 -lglew32s -lglew3 -lkernel32")
+
+  # INCLUDE DEPENDENCIES
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows)
+
+  ADD_LIBRARY(glew STATIC IMPORTED)
+  SET_TARGET_PROPERTIES(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/GL/libGLEW.a)
+
+  ADD_LIBRARY(glfw STATIC IMPORTED)
+  SET_TARGET_PROPERTIES(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/GLFW/libglfw3.a)
+	target_link_libraries(${PROJECT_NAME} "-lopengl32 -lkernel32")
 
 elseif(APPLE)
+
+  SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
+  SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 	# RESOURCE FILE LOCATION
 	file(GLOB RESOURCE_FILES

@@ -11,8 +11,11 @@ Athi_Rect_Manager athi_rect_manager;
 
 bool Rect::contains(u32 id)
 {
-  const vec2 o  = circle_buffer[id]->pos;
-  const f32  r  = circle_buffer[id]->radius;
+  auto circle_pos      = athi_circle_manager->circle_buffer[id]->pos;
+  auto circle_radius   = athi_circle_manager->circle_buffer[id]->radius;
+
+  const vec2 o  = circle_pos;
+  const f32  r  = circle_radius;
   if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y && o.y + r > min.y) return true;
   return false;
 }

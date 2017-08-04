@@ -7,6 +7,7 @@
 #include "athi_quadtree.h"
 #include "athi_voxelgrid.h"
 
+#include <thread>
 #include <mutex>
 #include <vector>
 
@@ -22,12 +23,10 @@ struct Athi_Circle
   f32 mass{1.0f};
 
   Transform transform;
-
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
 
   void update();
-  void borderCollision();
-
+  void border_collision();
   Athi_Circle() = default;
 };
 
@@ -35,6 +34,20 @@ extern std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
 
 struct Athi_Circle_Manager
 {
+  std::vector<std::thread> threads;
+
+  // Make sure it's thread safe
+  bool clear_circles{false};
+  std::mutex circle_buffer_function_mutex;
+  std::mutex circle_buffer_mutex;
+  std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
+  void add_circle(Athi_Circle& circle);
+  void update_circles();
+  void draw_circles();
+  Athi_Circle get_circle(u32 id);
+  void set_color_circle_id(u32 id, const vec4& color);
+  //
+
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
 
   std::vector<mat4> transforms;
@@ -42,10 +55,10 @@ struct Athi_Circle_Manager
 
   u32 VAO;
   u32 VBO[NUM_BUFFERS];
+  u32 shader_program;
+
   size_t transform_bytes_allocated{0};
   size_t color_bytes_allocated{0};
-
-  u32 shader_program;
 
   Athi_Circle_Manager() = default;
   ~Athi_Circle_Manager();

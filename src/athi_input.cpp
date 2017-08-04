@@ -47,5 +47,4 @@ void update_inputs()
     c.radius = 0.03f;
     add_circle(c);
   }
-
 }

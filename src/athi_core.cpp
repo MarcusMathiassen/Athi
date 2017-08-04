@@ -61,19 +61,19 @@ void Athi_Core::start()
   add_checkbox(&quadtree_box);
 
   Athi_Checkbox voxelgrid_box;
-  voxelgrid_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*2);
+  voxelgrid_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*2.0f);
   voxelgrid_box.text.str = "voxelgrid";
   voxelgrid_box.variable = &voxelgrid_active;
   add_checkbox(&voxelgrid_box);
 
   Athi_Checkbox gravity_box;
-  gravity_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*3);
+  gravity_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*3.0f);
   gravity_box.text.str = "gravity";
   gravity_box.variable = &physics_gravity;
   add_checkbox(&gravity_box);
 
   Athi_Checkbox multithread_box;
-  multithread_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*4);
+  multithread_box.pos = vec2(RIGHT-ROW*7.5f,BOTTOM+ROW*4.0f);
   multithread_box.text.str = "multithreading";
   multithread_box.variable = &use_multithreading;
   add_checkbox(&multithread_box);
@@ -128,15 +128,12 @@ void Athi_Core::start()
     f64 time_start_frame{ glfwGetTime() };
     window->update();
     update_inputs();
-    // but currently that draws a bugged circle when pressing 1 covering the screen.
-    // The bug happens when the draw thread updates faster than the physics thread.
     update_UI();
-
     if (show_settings) update_settings();
-
     glfwPollEvents();
     limit_FPS(60, time_start_frame);
   }
+
   app_is_running = false;
   draw_thread.join();
   physics_thread.join();
@@ -149,18 +146,13 @@ void Athi_Core::draw_loop()
 {
   glfwMakeContextCurrent(window->get_window_context());
 
-  Athi_Text cpu_info_text;
-  cpu_info_text.pos = vec2(LEFT+ROW, TOP);
-  cpu_info_text.str = cpu_brand + " | " + std::to_string(cpu_cores) + " cores | " + std::to_string(cpu_threads) + " threads";
-  add_text(&cpu_info_text);
-
   Athi_Text frametime_text;
-  frametime_text.pos = vec2(LEFT+ROW, TOP-ROW);
+  frametime_text.pos = vec2(LEFT+ROW, TOP);
   add_text(&frametime_text);
 
-  Athi_Text circle_info;
-  circle_info.pos = vec2(LEFT+ROW, BOTTOM+ROW*2.5f);
-  add_text(&circle_info);
+  Athi_Text circle_info_text;
+  circle_info_text.pos = vec2(LEFT+ROW, BOTTOM+ROW*3.0f);
+  add_text(&circle_info_text);
 
   while (app_is_running)
   {
@@ -170,14 +162,9 @@ void Athi_Core::draw_loop()
     frametime_text.str = "FPS: " +                    std::to_string(framerate) +
                          " | Frametime: " +           std::to_string(smoothed_frametime) +
                          " | Physics updates/sec: " + std::to_string(physics_framerate);
-    
-    circle_info.str = "Circles: " + std::to_string(get_num_circles());
-    
-    update_circles();
+    circle_info_text.str = "Circles: " + std::to_string(get_num_circles());
+
     draw_circles();
-    
-    if (voxelgrid_active) draw_voxelgrid();
-    if (quadtree_active)  draw_quadtree();
     draw_rects();
     if (show_settings) draw_UI();
 
@@ -196,7 +183,7 @@ void Athi_Core::physics_loop()
   while (app_is_running)
   {
     f64 time_start_frame = glfwGetTime();
-    
+    update_circles();
     if (physics_updates_per_sec != 0) limit_FPS(physics_updates_per_sec, time_start_frame);
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     physics_framerate = (u32)(std::round(1000.0f/smoothed_physics_frametime));

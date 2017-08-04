@@ -30,7 +30,7 @@ void Athi_Quadtree::update()
   subnode[2] = nullptr;
   subnode[3] = nullptr;
 
-  for (const auto &circle : circle_buffer)
+  for (const auto &circle : athi_circle_manager->circle_buffer)
   {
     insert(circle->id);
   }
@@ -62,6 +62,12 @@ void Athi_Quadtree::split()
   subnode[1] = std::make_unique<Athi_Quadtree>(level+1, SE);
   subnode[2] = std::make_unique<Athi_Quadtree>(level+1, NW);
   subnode[3] = std::make_unique<Athi_Quadtree>(level+1, NE);
+
+  // Set color of each subnode
+  subnode[0]->bounds.color = pastel_red;
+  subnode[1]->bounds.color = pastel_gray;
+  subnode[2]->bounds.color = pastel_orange;
+  subnode[3]->bounds.color = pastel_pink;
 }
 
 void Athi_Quadtree::insert(u32 id) {
@@ -118,12 +124,6 @@ void Athi_Quadtree::draw()
 
   if (subnode[0] != nullptr)  // [2]
   {
-    // Set color of each subnode
-    subnode[0]->bounds.color = pastel_red;
-    subnode[1]->bounds.color = pastel_gray;
-    subnode[2]->bounds.color = pastel_orange;
-    subnode[3]->bounds.color = pastel_pink;
-
     // Continue down the tree
     subnode[0]->draw();
     subnode[1]->draw();
@@ -132,10 +132,6 @@ void Athi_Quadtree::draw()
 
     return;
   }
-
-  // Color the balls in the same color as the boundaries
-  for (const auto &id : index)
-    circle_buffer[id]->color = bounds.color;
 
   // Only draw the nodes with objects in them.
   if (index.size() != 0)
@@ -160,6 +156,12 @@ void Athi_Quadtree::get(std::vector<std::vector<u32> > &cont) const {
     subnode[3]->get(cont);
 
     return;
+  }
+
+  // Color the balls in the same color as the boundaries
+  for (const auto &id : index)
+  {
+    athi_circle_manager->set_color_circle_id(id, bounds.color);
   }
 
   // Insert indexes into our container
@@ -197,7 +199,7 @@ void reset_quadtree()
   //----------------------------------------------------------------
   athi_quadtree->index.clear();
   athi_quadtree->index.shrink_to_fit();
-  
+
   athi_quadtree->subnode[0] = nullptr;
   athi_quadtree->subnode[1] = nullptr;
   athi_quadtree->subnode[2] = nullptr;

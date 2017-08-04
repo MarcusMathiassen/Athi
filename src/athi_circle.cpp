@@ -5,7 +5,6 @@
 
 #include <cmath>
 #include <thread>
-#include <atomic>
 #include <glm/gtx/vector_angle.hpp>
 
 #define GLEW_STATIC
@@ -17,7 +16,7 @@ std::unique_ptr<Athi_Circle_Manager> athi_circle_manager;
 
 void Athi_Circle::update()
 {
-  borderCollision();
+  border_collision();
 
   if (physics_gravity) vel.y -= (9.81f * mass) * timestep;
 
@@ -28,20 +27,25 @@ void Athi_Circle::update()
   transform.scale = glm::vec3(radius, radius, 0);
 }
 
-void Athi_Circle::borderCollision() {
-  if (pos.x <= -1.0f + radius && vel.x < 0.0f) {  // LEFT
+void Athi_Circle::border_collision()
+{
+  if (pos.x <= -1.0f + radius && vel.x < 0.0f)
+  {
     pos.x = -1.0f + radius;
     vel.x = -vel.x;
   }
-  if (pos.x >= 1.0f - radius && vel.x > 0.0f) {  // RIGHT
+  if (pos.x >= 1.0f - radius && vel.x > 0.0f)
+  {
     pos.x = (1.0f - radius);
     vel.x = -vel.x;
   }
-  if (pos.y <= -1.0f + radius && vel.y < 0.0f) {  // BOTTOM
+  if (pos.y <= -1.0f + radius && vel.y < 0.0f)
+  {
     pos.y = -1.0f + radius;
     vel.y = -vel.y;
   }
-  if (pos.y >= 1.0f - radius && vel.y > 0.0f) {  // TOP
+  if (pos.y >= 1.0f - radius && vel.y > 0.0f)
+  {
     pos.y = 1.0f - radius;
     vel.y = -vel.y;
   }
@@ -61,19 +65,20 @@ bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b)
   if (ax - ar < bx + br &&
       ax + ar > bx - br &&
       ay - ar < by + br &&
-      ay + ar > by - br) {
-
+      ay + ar > by - br)
+  {
     // circle collision check
     const f32 dx = bx - ax;
     const f32 dy = by - ay;
 
-    const f32 sumRadius = ar + br;
-    const f32 sqrRadius = sumRadius * sumRadius;
+    const f32 sum_radius = ar + br;
+    const f32 sqr_radius = sum_radius * sum_radius;
 
-    const f32 distSqr = (dx * dx) + (dy * dy);
+    const f32 distance_sqr = (dx * dx) + (dy * dy);
 
-    if (distSqr <= sqrRadius) return true;
+    if (distance_sqr <= sqr_radius) return true;
   }
+
   return false;
 }
 
@@ -81,73 +86,76 @@ void collisionResolve(Athi_Circle &a, Athi_Circle &b)
 {
   separate(a, b);
 
-  const f64 dx = b.pos.x - a.pos.x;
-  const f64 dy = b.pos.y - a.pos.y;
-  const f64 vdx = b.vel.x - a.vel.x;
-  const f64 vdy = b.vel.y - a.vel.y;
+  const f64 dx      = b.pos.x - a.pos.x;
+  const f64 dy      = b.pos.y - a.pos.y;
+  const f64 vdx     = b.vel.x - a.vel.x;
+  const f64 vdy     = b.vel.y - a.vel.y;
+  const vec2 a_vel  = a.vel;
+  const vec2 b_vel  = b.vel;
+  const f32 m1      = a.mass;
+  const f32 m2      = b.mass;
+
   const f64 d = dx * vdx + dy * vdy;
 
-  // if they're not moving away from eachother
-  if (d < 0.0) {
-    const vec2 norm = glm::normalize(vec2(dx,dy));
-    const vec2 tang{norm.y * -1.0, norm.x};
-    const f32 scal_norm_1 = glm::dot(norm, a.vel);
-    const f32 scal_norm_2 = glm::dot(norm, b.vel);
-    const f32 scal_tang_1 = glm::dot(tang, a.vel);
-    const f32 scal_tang_2 = glm::dot(tang, b.vel);
-
-    const f32 m1 = a.mass;
-    const f32 m2 = b.mass;
+  // skip if they're moving away from eachother
+  if (d < 0.0)
+  {
+    const vec2 norm       = glm::normalize(vec2(dx, dy));
+    const vec2 tang       = vec2(norm.y * -1.0, norm.x);
+    const f32 scal_norm_1 = glm::dot(norm, a_vel);
+    const f32 scal_norm_2 = glm::dot(norm, b_vel);
+    const f32 scal_tang_1 = glm::dot(tang, a_vel);
+    const f32 scal_tang_2 = glm::dot(tang, b_vel);
 
     const f32 scal_norm_1_after = (scal_norm_1 * (m1 - m2) + 2.0f * m2 * scal_norm_2) / (m1 + m2);
     const f32 scal_norm_2_after = (scal_norm_2 * (m2 - m1) + 2.0f * m1 * scal_norm_1) / (m1 + m2);
-    const vec2 scal_norm_1_after_vec{norm * scal_norm_1_after};
-    const vec2 scal_norm_2_after_vec{norm * scal_norm_2_after};
-    const vec2 scal_norm_1_vec{tang * scal_tang_1};
-    const vec2 scal_norm_2_vec{tang * scal_tang_2};
+    const vec2 scal_norm_1_after_vec = norm * scal_norm_1_after;
+    const vec2 scal_norm_2_after_vec = norm * scal_norm_2_after;
+    const vec2 scal_norm_1_vec = tang * scal_tang_1;
+    const vec2 scal_norm_2_vec = tang * scal_tang_2;
 
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec)*0.99f;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec)*0.99f;
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.95f;
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.95f;
   }
 }
 
 // Separates two intersecting circles.
 void separate(Athi_Circle &a, Athi_Circle &b)
 {
-  const vec2 apos{a.pos};
-  const vec2 bpos{b.pos};
-  const f32 ar{a.radius};
-  const f32 br{b.radius};
+  const vec2 a_pos = a.pos;
+  const vec2 b_pos = b.pos;
+  const f32  ar    = a.radius;
+  const f32  br    = b.radius;
 
-  const f32 colDepth = (ar + br) - glm::distance(b.pos, a.pos);
+  const f32 collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
 
-  const f32 dx = bpos.x - apos.x;
-  const f32 dy = bpos.y - apos.y;
+  const f32 dx = b_pos.x - a_pos.x;
+  const f32 dy = b_pos.y - a_pos.y;
 
   // contact angle
-  const f32 colAngle = atan2(dy, dx);
-  const f32 cos_angle = cos(colAngle);
-  const f32 sin_angle = sin(colAngle);
+  const f32 collision_angle = atan2(dy, dx);
+  const f32 cos_angle       = cos(collision_angle);
+  const f32 sin_angle       = sin(collision_angle);
 
   // move the balls away from eachother so they dont overlap
-  const f32 a_move_x = -colDepth * 0.5f * cos_angle;
-  const f32 a_move_y = -colDepth * 0.5f * sin_angle;
-  const f32 b_move_x = colDepth * 0.5f * cos_angle;
-  const f32 b_move_y = colDepth * 0.5f * sin_angle;
+  const f32 a_move_x = -collision_depth * 0.5f * cos_angle;
+  const f32 a_move_y = -collision_depth * 0.5f * sin_angle;
+  const f32 b_move_x =  collision_depth * 0.5f * cos_angle;
+  const f32 b_move_y =  collision_depth * 0.5f * sin_angle;
 
-  // Make sure they dont get moved beyond the border
-  if (apos.x + a_move_x >= -1.0f + ar && apos.x + a_move_x <= 1.0f - ar) {
-    a.pos.x += a_move_x;
-  }
-  if (apos.y + a_move_y >= -1.0f + ar && apos.y + a_move_y <= 1.0f - ar) {
-    a.pos.y += a_move_y;
-  }
-  if (bpos.x + b_move_x >= -1.0f + br && bpos.x + b_move_x <= 1.0f - br) {
-    b.pos.x += b_move_x;
-  }
-  if (bpos.y + b_move_y >= -1.0f + br && bpos.y + b_move_y <= 1.0f - br) {
-    b.pos.y += b_move_y;
-  }
+  // store the new move values
+  vec2 a_pos_move;
+  vec2 b_pos_move;
+
+  // Make sure they dont moved beyond the border
+  if (a_pos.x + a_move_x >= -1.0f + ar && a_pos.x + a_move_x <= 1.0f - ar) a_pos_move.x += a_move_x;
+  if (a_pos.y + a_move_y >= -1.0f + ar && a_pos.y + a_move_y <= 1.0f - ar) a_pos_move.y += a_move_y;
+  if (b_pos.x + b_move_x >= -1.0f + br && b_pos.x + b_move_x <= 1.0f - br) b_pos_move.x += b_move_x;
+  if (b_pos.y + b_move_y >= -1.0f + br && b_pos.y + b_move_y <= 1.0f - br) b_pos_move.y += b_move_y;
+
+  // Update.
+  a.pos += a_pos_move;
+  b.pos += b_pos_move;
 }
 
 
@@ -176,7 +184,7 @@ void Athi_Circle_Manager::init()
   // MESH SETUP
   std::vector<vec2> positions;
   positions.reserve(CIRCLE_NUM_VERTICES);
-  for (int i = 0; i < CIRCLE_NUM_VERTICES; ++i)
+  for (u32 i = 0; i < CIRCLE_NUM_VERTICES; ++i)
   {
     positions.emplace_back(cos(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES),
                            sin(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES));
@@ -203,7 +211,7 @@ void Athi_Circle_Manager::init()
 
   // TRANSFORM
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
-  for (int i = 0; i < 4; ++i) {
+  for (u32 i = 0; i < 4; ++i) {
     glEnableVertexAttribArray(2 + i);
     glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
                           (GLvoid *)(i * sizeof(glm::vec4)));
@@ -219,7 +227,7 @@ Athi_Circle_Manager::~Athi_Circle_Manager()
 
 void Athi_Circle_Manager::draw()
 {
-  if (circle_buffer.size() == 0) return;
+  if (circle_buffer.empty()) return;
 
   if (circle_buffer.size() > transforms.size())
   {
@@ -227,7 +235,6 @@ void Athi_Circle_Manager::draw()
     colors.resize(circle_buffer.size());
   }
 
-  // Update the color and transform arrays
   u32 i = 0;
   for (const auto &circle : circle_buffer)
   {
@@ -235,9 +242,7 @@ void Athi_Circle_Manager::draw()
     colors[i++] = circle->color;
   }
 
-  // transforms BUFFER
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
-  // Does the buffer need to allocate more space?
   size_t transform_bytes_needed = sizeof(mat4) * circle_buffer.size();
   if (transform_bytes_needed > transform_bytes_allocated) {
     glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &transforms[0], GL_STREAM_DRAW);
@@ -246,9 +251,7 @@ void Athi_Circle_Manager::draw()
     glBufferSubData(GL_ARRAY_BUFFER, 0, transform_bytes_allocated, &transforms[0]);
   }
 
-  // COLOR BUFFER
   glBindBuffer(GL_ARRAY_BUFFER, VBO[COLOR]);
-  // Does the buffer need to allocate more space?
   size_t color_bytes_needed = sizeof(vec4) * circle_buffer.size();
   if (color_bytes_needed > color_bytes_allocated) {
     glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0], GL_STREAM_DRAW);
@@ -282,25 +285,32 @@ void Athi_Circle_Manager::update()
     if (quadtree_active || voxelgrid_active) collision_quadtree(cont, 0, cont.size());
     else if (use_multithreading && variable_thread_count != 0)
     {
+      const u32 thread_count = variable_thread_count;
       const u32 total = (u32)circle_buffer.size();
-      const u32 parts = total / variable_thread_count;
+      const u32 parts = total / thread_count;
 
-      u32 const thread_count = variable_thread_count;
-      std::thread thread_pool[thread_count];
+      threads.resize(thread_count);
 
       collision_logNxN(parts * thread_count, total);
-      for (u32 i = 0; i < thread_count; ++i)
+
+      u32 i = 0;
+      for (auto &thread: threads)
       {
-        thread_pool[i] = std::thread(&Athi_Circle_Manager::collision_logNxN, this, parts * i, parts * (i + 1));
+        thread = std::thread(&Athi_Circle_Manager::collision_logNxN, this, parts * i, parts * (1 + i));
+        ++i;
       }
-      for (auto &thread : thread_pool) thread.join();
+      for (auto &thread : threads) thread.join();
     }
     else
     {
       collision_logNxN(0, circle_buffer.size());
     }
   }
-  for (auto &circle : circle_buffer) circle->update();
+
+  for (auto &circle : circle_buffer)
+  {
+    circle->update();
+  }
 }
 
 void Athi_Circle_Manager::collision_logNxN(size_t begin, size_t end)
@@ -320,6 +330,42 @@ void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<u32> 
             collisionResolve(   *circle_buffer[cont[k][i]],  *circle_buffer[cont[k][j]]);
 }
 
+void Athi_Circle_Manager::add_circle(Athi_Circle& circle)
+{
+  std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
+  circle.id = circle_buffer.size();
+  circle_buffer.emplace_back(std::make_unique<Athi_Circle>(circle));
+}
+
+Athi_Circle Athi_Circle_Manager::get_circle(u32 id)
+{
+  std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
+  return *circle_buffer[id];
+}
+
+void Athi_Circle_Manager::update_circles()
+{
+  std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
+  update();
+}
+
+void Athi_Circle_Manager::draw_circles()
+{
+  std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
+
+  draw();
+  if (voxelgrid_active) draw_voxelgrid();
+  if (quadtree_active)  draw_quadtree();
+
+
+  if (clear_circles) { circle_buffer.clear(); clear_circles = false; }
+}
+
+void Athi_Circle_Manager::set_color_circle_id(u32 id, const vec4& color)
+{
+  circle_buffer[id]->color = color;
+}
+
 void init_circle_manager()
 {
   athi_circle_manager = std::make_unique<Athi_Circle_Manager>();
@@ -328,26 +374,25 @@ void init_circle_manager()
 
 void update_circles()
 {
-  athi_circle_manager->update();
+  athi_circle_manager->update_circles();
 }
 void draw_circles()
 {
-  athi_circle_manager->draw();
+  athi_circle_manager->draw_circles();
 }
 
 void delete_circles()
 {
-  circle_buffer.clear();
+  athi_circle_manager->clear_circles = true;
 }
 
 void add_circle(Athi_Circle &circle)
 {
   circle.mass = 1.33333f * M_PI * circle.radius * circle.radius * circle.radius;
-  circle.id = (u32)circle_buffer.size();
-  circle_buffer.emplace_back(std::make_unique<Athi_Circle>(circle));
+  athi_circle_manager->add_circle(circle);
 }
 
 u32 get_num_circles()
 {
-  return (u32)circle_buffer.size();
+  return (u32)athi_circle_manager->circle_buffer.size();
 }

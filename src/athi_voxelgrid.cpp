@@ -27,7 +27,9 @@ void Node::draw() const
 void Node::color_objects()
 {
   for (const auto &id : index)
-    circle_buffer[id]->color = bounds.color;
+  {
+    athi_circle_manager->set_color_circle_id(id, bounds.color);
+  }
 }
 
 bool Node::contains(const u32 id) { return bounds.contains(id); }
@@ -68,7 +70,8 @@ void Athi_Voxel_Grid::update()
   //-----------------------------------------------------------------------------------
 
   if (voxelgrid_parts != current_voxelgrid_part) init();
-  for (const auto &circle : circle_buffer)
+
+  for (const auto &circle : athi_circle_manager->circle_buffer)
   {
     const u32 id = circle->id;
 
@@ -95,5 +98,7 @@ void Athi_Voxel_Grid::draw() const
   // each node with the nodes color.
   //-----------------------------------------------------------------------------------
   for (const auto &node : nodes)
+  {
     node->draw();
+  }
 }
