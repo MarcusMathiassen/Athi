@@ -24,6 +24,8 @@ void Athi_Circle::update()
   pos.x += vel.x * timestep;
   pos.y += vel.y * timestep;
 
+  const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
+
   transform.pos   = glm::vec3(pos.x, pos.y, 0);
   transform.scale = glm::vec3(radius, radius, 0);
 }
@@ -248,7 +250,7 @@ void Athi_Circle_Manager::draw()
   u32 i = 0;
   for (const auto &circle : circle_buffer)
   {
-    transforms[i] = circle->transform.get_model();
+    transforms[i] = circle->transform.get_model() * camera.get_view_projection();
     colors[i++] = circle->color;
   }
 

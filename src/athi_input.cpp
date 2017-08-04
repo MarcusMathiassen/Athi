@@ -47,4 +47,37 @@ void update_inputs()
     c.radius = 0.007f;
     add_circle(c);
   }
+
+
+    //  CAMERA MOVE
+  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_LEFT) == GLFW_PRESS)
+  {
+    camera.position.x -= 1;
+  }
+    //  CAMERA MOVE
+  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_RIGHT) == GLFW_PRESS)
+  {
+    camera.position.x += 1;
+  }
+    //  CAMERA MOVE
+  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_DOWN) == GLFW_PRESS)
+  {
+    camera.position.y -= 1;
+  }
+    //  CAMERA MOVE
+  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_UP) == GLFW_PRESS)
+  {
+    camera.position.y += 1;
+  }
+
+    if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_A) == GLFW_PRESS)
+  {
+    camera.zoom -= 0.01f;
+  }
+    //  CAMERA MOVE
+  if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_S) == GLFW_PRESS)
+  {
+    camera.zoom += 0.01f;
+  }
+  camera.update_perspective();
 }

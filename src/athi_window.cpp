@@ -33,9 +33,15 @@ void Athi_Window::init()
   context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
-  glfwSetWindowAspectRatio(context, 1, 1);
+  //glfwSetWindowAspectRatio(context, 1, 1);
   glfwSetWindowSizeCallback(context, window_size_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
+
+  int width, height;
+  glfwGetFramebufferSize(context, &width, &height);
+  glViewport(0, 0, width, height);
+  camera.aspect_ratio = (f32)width/(f32)height;
+  camera.update_perspective();
 
   // Gather monitor info
   s32  count;
@@ -68,14 +74,13 @@ GLFWwindow* Athi_Window::get_window_context()
 // @Cleanup: this is messy
 static void window_size_callback(GLFWwindow* window, int xpos, int ypos)
 {
-  int width, height;
-  glfwGetFramebufferSize(window, &width, &height);
-  glViewport(0, 0, width, height);
 }
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
   camera.aspect_ratio = (f32)width/(f32)height;
+  camera.window_width = width;
+  camera.window_height = height;
   camera.update_perspective();
-  glViewport(0,width,0,height);
+  glViewport(0,0,width,height);
 }

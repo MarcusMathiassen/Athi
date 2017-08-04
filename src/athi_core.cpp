@@ -108,7 +108,7 @@ void Athi_Core::start()
   circle_size_slider.var = &circle_size;
   circle_size_slider.pos = vec2(LEFT+ROW, BOTTOM+ROW);
   circle_size_slider.min = 0.001f;
-  circle_size_slider.max = 0.1f;
+  circle_size_slider.max = 1000.0f;
   add_slider<f32>(&circle_size_slider);
 
   Athi_Slider<u32> multithreaded_collision_thread_count_slider;

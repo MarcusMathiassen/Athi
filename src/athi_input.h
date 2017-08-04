@@ -8,6 +8,7 @@
 #include <iostream>
 #include "athi_settings.h"
 #include "athi_circle.h"
+#include "athi_camera.h"
 
 void init_input_manager();
 u8 get_mouse_button_state(u8 button);
