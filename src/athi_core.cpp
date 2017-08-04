@@ -36,7 +36,8 @@ void Athi_Core::init()
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(4/255.0f,32/255.0f,41/255.0f,1);
+  //glClearColor(4/255.0f,32/255.0f,41/255.0f,1);
+  glClearColor(0,0,0,1);
 
   cpu_cores   = get_cpu_cores();
   cpu_threads = get_cpu_threads();
@@ -90,7 +91,7 @@ void Athi_Core::start()
   physics_updates_per_sec_slider.var_indicator = &physics_framerate;
   physics_updates_per_sec_slider.pos = vec2(LEFT+ROW, TOP-ROW*5.5f);
   physics_updates_per_sec_slider.min = 0;
-  physics_updates_per_sec_slider.max = 300;
+  physics_updates_per_sec_slider.max = 3000;
   add_slider<u32>(&physics_updates_per_sec_slider);
 
   Athi_Slider<u32> framerate_limit_slider;
@@ -116,7 +117,7 @@ void Athi_Core::start()
   multithreaded_collision_thread_count_slider.pos = vec2(RIGHT-ROW*7.5f, TOP-ROW*2.5f);
   multithreaded_collision_thread_count_slider.width = 0.3f;
   multithreaded_collision_thread_count_slider.min = 0;
-  multithreaded_collision_thread_count_slider.max = cpu_threads*4;
+  multithreaded_collision_thread_count_slider.max = cpu_threads*8;
   add_slider<u32>(&multithreaded_collision_thread_count_slider);
 
   std::thread draw_thread(&Athi_Core::draw_loop, this);

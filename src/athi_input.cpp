@@ -32,19 +32,19 @@ void update_inputs()
   if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_1) == GLFW_PRESS)
   {
     c.pos = vec2(mouse_x,mouse_y);
-    c.radius = 0.01f;
+    c.radius = 0.003f;
     add_circle(c);
   }
   if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_2) == GLFW_PRESS)
   {
     c.pos = vec2(mouse_x,mouse_y);
-    c.radius = 0.02f;
+    c.radius = 0.005f;
     add_circle(c);
   }
   if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_3) == GLFW_PRESS)
   {
     c.pos = vec2(mouse_x,mouse_y);
-    c.radius = 0.03f;
+    c.radius = 0.007f;
     add_circle(c);
   }
 }

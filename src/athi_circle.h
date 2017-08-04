@@ -78,7 +78,7 @@ void draw_circles();
 void add_circle(Athi_Circle &circle);
 void init_circle_manager();
 
-bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b);
-void collisionResolve(Athi_Circle &a, Athi_Circle &b);
-void separate(Athi_Circle &a, Athi_Circle &b);
+bool collisionDetection(u32 a_id, u32 b_id);
+void collisionResolve(u32 a_id, u32 b_id);
+void separate(u32 a_id, u32 b_id);
 extern std::unique_ptr<Athi_Circle_Manager> athi_circle_manager;

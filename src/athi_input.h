@@ -49,6 +49,22 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
     case GLFW_MOUSE_BUTTON_LEFT: athi_input_manager.mouse.left_button.state = action;
     case GLFW_MOUSE_BUTTON_RIGHT: athi_input_manager.mouse.right_button.state = action;
   }
+
+  f64 mouse_x, mouse_y;
+  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
+
+  s32 width, height;
+  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+  mouse_x = -1.0f + 2 * mouse_x / width;
+  mouse_y = +1.0f - 2 * mouse_y / height;
+
+  Athi_Circle c;
+  if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+  {
+    c.pos = vec2(mouse_x,mouse_y);
+    c.radius = circle_size;
+    add_circle(c);
+  }
 }
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -58,6 +74,13 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
   {
     if (show_settings) show_settings = false;
     else show_settings = true;
+  }
+
+  // TOGGLE DEBUG UI
+  if (key == GLFW_KEY_D && action == GLFW_PRESS)
+  {
+    if (draw_debug) draw_debug = false;
+    else draw_debug = true;
   }
 
   // TOGGLE CIRCLE GRAVITY

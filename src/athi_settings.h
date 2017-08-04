@@ -9,6 +9,8 @@ extern bool circle_collision;
 extern f32  circle_size;
 extern vec4 circle_color;
 
+extern bool draw_debug;
+
 extern bool voxelgrid_active;
 extern u32 voxelgrid_parts;
 

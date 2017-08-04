@@ -8,8 +8,10 @@ bool circle_collision{true};
 f32 circle_size{0.03f};
 vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
+bool draw_debug{false};
+
 bool quadtree_active{false};
-u32 quadtree_depth{5};
+u32 quadtree_depth{6};
 u32 quadtree_capacity{25};
 
 bool voxelgrid_active{false};

@@ -63,7 +63,6 @@ void Athi_Quadtree::split()
   subnode[2] = std::make_unique<Athi_Quadtree>(level+1, NW);
   subnode[3] = std::make_unique<Athi_Quadtree>(level+1, NE);
 
-  // Set color of each subnode
   subnode[0]->bounds.color = pastel_red;
   subnode[1]->bounds.color = pastel_gray;
   subnode[2]->bounds.color = pastel_orange;

@@ -2,6 +2,7 @@
 #include "athi_settings.h"
 #include "athi_quadtree.h"
 #include "athi_voxelgrid.h"
+#include "athi_camera.h"
 
 #include <cmath>
 #include <thread>
@@ -18,7 +19,7 @@ void Athi_Circle::update()
 {
   border_collision();
 
-  if (physics_gravity) vel.y -= (9.81f * mass) * timestep;
+  if (physics_gravity) vel.y -= (9.81f) * 0.0001f * timestep;
 
   pos.x += vel.x * timestep;
   pos.y += vel.y * timestep;
@@ -52,8 +53,11 @@ void Athi_Circle::border_collision()
 }
 
 
-bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b)
+bool collisionDetection(u32 a_id, u32 b_id)
 {
+  auto a = *athi_circle_manager->circle_buffer[a_id];
+  auto b = *athi_circle_manager->circle_buffer[b_id];
+
   const f32 ax = a.pos.x;
   const f32 ay = a.pos.y;
   const f32 bx = b.pos.x;
@@ -82,9 +86,12 @@ bool collisionDetection(const Athi_Circle &a, const Athi_Circle &b)
   return false;
 }
 
-void collisionResolve(Athi_Circle &a, Athi_Circle &b)
+void collisionResolve(u32 a_id, u32 b_id)
 {
-  separate(a, b);
+  auto a = *athi_circle_manager->circle_buffer[a_id];
+  auto b = *athi_circle_manager->circle_buffer[b_id];
+
+  separate(a_id, b_id);
 
   const f64 dx      = b.pos.x - a.pos.x;
   const f64 dy      = b.pos.y - a.pos.y;
@@ -114,14 +121,17 @@ void collisionResolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_vec = tang * scal_tang_1;
     const vec2 scal_norm_2_vec = tang * scal_tang_2;
 
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.95f;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.95f;
+    athi_circle_manager->circle_buffer[a_id]->vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.95f;
+    athi_circle_manager->circle_buffer[b_id]->vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.95f;
   }
 }
 
 // Separates two intersecting circles.
-void separate(Athi_Circle &a, Athi_Circle &b)
+void separate(u32 a_id, u32 b_id)
 {
+  auto a = *athi_circle_manager->circle_buffer[a_id];
+  auto b = *athi_circle_manager->circle_buffer[b_id];
+
   const vec2 a_pos = a.pos;
   const vec2 b_pos = b.pos;
   const f32  ar    = a.radius;
@@ -154,8 +164,8 @@ void separate(Athi_Circle &a, Athi_Circle &b)
   if (b_pos.y + b_move_y >= -1.0f + br && b_pos.y + b_move_y <= 1.0f - br) b_pos_move.y += b_move_y;
 
   // Update.
-  a.pos += a_pos_move;
-  b.pos += b_pos_move;
+  athi_circle_manager->circle_buffer[a_id]->pos += a_pos_move;
+  athi_circle_manager->circle_buffer[b_id]->pos += b_pos_move;
 }
 
 
@@ -262,7 +272,7 @@ void Athi_Circle_Manager::draw()
 
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_LINE_LOOP, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
 }
 
 void Athi_Circle_Manager::update()
@@ -317,8 +327,8 @@ void Athi_Circle_Manager::collision_logNxN(size_t begin, size_t end)
 {
   for (size_t i = begin; i < end; ++i)
     for (size_t j = 1 + i; j < circle_buffer.size(); ++j)
-      if (collisionDetection( *circle_buffer[i],   *circle_buffer[j]))
-          collisionResolve(   *circle_buffer[i],   *circle_buffer[j]);
+      if (collisionDetection(i, j))
+          collisionResolve(i, j);
 }
 
 void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end)
@@ -326,8 +336,8 @@ void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<u32> 
   for (size_t k = begin; k < end; ++k)
     for (size_t i = 0; i < cont[k].size(); ++i)
       for (size_t j = i + 1; j < cont[k].size(); ++j)
-        if (collisionDetection( *circle_buffer[cont[k][i]],  *circle_buffer[cont[k][j]]))
-            collisionResolve(   *circle_buffer[cont[k][i]],  *circle_buffer[cont[k][j]]);
+        if (collisionDetection(cont[k][i], cont[k][j]))
+            collisionResolve(cont[k][i], cont[k][j]);
 }
 
 void Athi_Circle_Manager::add_circle(Athi_Circle& circle)
@@ -354,8 +364,8 @@ void Athi_Circle_Manager::draw_circles()
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
 
   draw();
-  if (voxelgrid_active) draw_voxelgrid();
-  if (quadtree_active)  draw_quadtree();
+  if (voxelgrid_active && draw_debug) draw_voxelgrid();
+  if (quadtree_active && draw_debug)  draw_quadtree();
 
 
   if (clear_circles) { circle_buffer.clear(); clear_circles = false; }

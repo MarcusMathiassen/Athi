@@ -25,7 +25,7 @@ struct Camera
   }
   void update_perspective()
   {
-    perspective = glm::perspective(fov, aspect_ratio, zNear, zFar);
+    perspective = glm::ortho(fov, aspect_ratio, zNear, zFar);
   }
 };
 
