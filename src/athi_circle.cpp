@@ -211,7 +211,7 @@ void Athi_Circle_Manager::init()
 
   // POSITION
   glBindBuffer(GL_ARRAY_BUFFER, VBO[POSITION]);
-  glBufferData(GL_ARRAY_BUFFER, CIRCLE_NUM_VERTICES * sizeof(positions[0]), &positions[0], GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, CIRCLE_NUM_VERTICES * sizeof(positions[0]), &positions[0], GL_DYNAMIC_DRAW);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -274,7 +274,7 @@ void Athi_Circle_Manager::draw()
 
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
+  glDrawArraysInstanced(GL_LINE_LOOP, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
 }
 
 void Athi_Circle_Manager::update()

@@ -33,7 +33,7 @@ void update_inputs()
   {
     c.pos = vec2(mouse_x,mouse_y);
     c.radius = 0.003f;
-    add_circle(c);
+    for (int i = 0; i < 10; ++i) add_circle(c);
   }
   if (glfwGetKey(glfwGetCurrentContext(),GLFW_KEY_2) == GLFW_PRESS)
   {

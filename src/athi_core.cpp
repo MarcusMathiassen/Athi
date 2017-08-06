@@ -37,6 +37,7 @@ void Athi_Core::init()
   init_voxelgrid();
 
   glEnable(GL_BLEND);
+  glDisable(GL_DEPTH_BUFFER);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClearColor(4/255.0f,32/255.0f,41/255.0f,1);
   //glClearColor(0,0,0,1);
@@ -110,7 +111,7 @@ void Athi_Core::start()
   circle_size_slider.var = &circle_size;
   circle_size_slider.pos = vec2(LEFT+ROW, BOTTOM+ROW);
   circle_size_slider.min = 0.001f;
-  circle_size_slider.max = 1000.0f;
+  circle_size_slider.max = 0.1f;
   add_slider<f32>(&circle_size_slider);
 
   Athi_Slider<u32> multithreaded_collision_thread_count_slider;
