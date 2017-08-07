@@ -5,11 +5,10 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include "athi_typedefs.h"
 #include "athi_rect.h"
+#include "athi_typedefs.h"
 
-struct Node
-{
+struct Node {
   Rect bounds;
   std::vector<u32> index;
   Node(const Rect &r);
@@ -20,13 +19,12 @@ struct Node
   bool contains(const u32 id);
 };
 
-class Athi_Voxel_Grid
-{
- private:
-  std::vector<std::unique_ptr<Node> > nodes;
+class Athi_Voxel_Grid {
+private:
+  std::vector<std::unique_ptr<Node>> nodes;
   u32 current_voxelgrid_part{4};
 
- public:
+public:
   void init();
   void update();
   void draw() const;
@@ -35,21 +33,11 @@ class Athi_Voxel_Grid
 
 extern Athi_Voxel_Grid athi_voxelgrid;
 
-static void init_voxelgrid()
-{
-  athi_voxelgrid.init();
-}
+static void init_voxelgrid() { athi_voxelgrid.init(); }
 
-static void update_voxelgrid()
-{
-  athi_voxelgrid.update();
-}
-static void get_nodes_voxelgrid(std::vector<std::vector<u32> > &cont)
-{
+static void update_voxelgrid() { athi_voxelgrid.update(); }
+static void get_nodes_voxelgrid(std::vector<std::vector<u32>> &cont) {
   athi_voxelgrid.get(cont);
 }
 
-static void draw_voxelgrid()
-{
-  athi_voxelgrid.draw();
-}
+static void draw_voxelgrid() { athi_voxelgrid.draw(); }
