@@ -8,11 +8,13 @@ bool circle_collision{true};
 f32 circle_size{0.03f};
 vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
+u64 comparisons{0};
+
 bool draw_debug{false};
 
 bool quadtree_active{false};
-u32 quadtree_depth{6};
-u32 quadtree_capacity{25};
+u32 quadtree_depth{5};
+u32 quadtree_capacity{50};
 
 bool voxelgrid_active{false};
 u32 voxelgrid_parts{4};
@@ -20,7 +22,7 @@ u32 voxelgrid_parts{4};
 f64 frametime;
 f64 smoothed_frametime;
 u32 framerate;
-u32 framerate_limit{60};
+u32 framerate_limit{0};
 
 f64  timestep;
 f64 physics_frametime;
@@ -28,7 +30,7 @@ f64 smoothed_physics_frametime;
 u32 physics_framerate;
 u32 physics_updates_per_sec{0};
 
-bool vsync{1};
+bool vsync{0};
 
 u32 variable_thread_count;
 bool use_multithreading{true};

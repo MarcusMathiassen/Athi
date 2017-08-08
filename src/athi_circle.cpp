@@ -4,6 +4,7 @@
 #include "athi_voxelgrid.h"
 #include "athi_camera.h"
 
+#include <iostream>
 #include <cmath>
 #include <thread>
 #include <glm/gtx/vector_angle.hpp>
@@ -12,6 +13,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+std::vector<u32> leftover_circles;
 std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
 std::unique_ptr<Athi_Circle_Manager> athi_circle_manager;
 
@@ -23,8 +25,6 @@ void Athi_Circle::update()
 
   pos.x += vel.x * timestep;
   pos.y += vel.y * timestep;
-
-  const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
 
   transform.pos   = glm::vec3(pos.x, pos.y, 0);
   transform.scale = glm::vec3(radius, radius, 0);
@@ -105,7 +105,7 @@ void collisionResolve(u32 a_id, u32 b_id)
   const f32 m2      = b.mass;
 
   const f64 d = dx * vdx + dy * vdy;
-
+ 
   // skip if they're moving away from eachother
   if (d < 0.0)
   {
@@ -274,7 +274,7 @@ void Athi_Circle_Manager::draw()
 
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_LINE_LOOP, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
 }
 
 void Athi_Circle_Manager::update()
@@ -294,28 +294,58 @@ void Athi_Circle_Manager::update()
       update_voxelgrid();
       get_nodes_voxelgrid(cont);
     }
-    if (quadtree_active || voxelgrid_active) collision_quadtree(cont, 0, cont.size());
-    else if (use_multithreading && variable_thread_count != 0)
+    if (quadtree_active || voxelgrid_active)
+    {
+      // multithreaded
+
+      // single threaded
+      collision_quadtree(cont, 0, cont.size());
+
+      // Take care of the leftovers
+       if (use_multithreading && variable_thread_count != 0)
+       {
+          // const u32 thread_count = variable_thread_count;
+          // const size_t total = leftover_circles.size();
+          // const u32 parts = total / thread_count;
+
+          // threads.resize(thread_count);
+
+          // collision_logNxN(total, parts * thread_count, total);
+
+          // u32 i = 0;
+          // for (auto &thread: threads)
+          // {
+          //   thread = std::thread(&Athi_Circle_Manager::collision_logNxN, this, total, parts * i, parts * (1 + i));
+          //   ++i;
+          // }
+          // for (auto &thread : threads) thread.join();
+       } else collision_logNxN_leftover(circle_buffer.size(), 0, leftover_circles.size());
+    }
+
+    if (use_multithreading && variable_thread_count != 0)
     {
       const u32 thread_count = variable_thread_count;
-      const u32 total = (u32)circle_buffer.size();
+      const size_t total = circle_buffer.size();
       const u32 parts = total / thread_count;
 
       threads.resize(thread_count);
 
-      collision_logNxN(parts * thread_count, total);
+      collision_logNxN(total, parts * thread_count, total);
+      //collision_quadtree(cont, cont.size()-1, cont.size());
 
       u32 i = 0;
       for (auto &thread: threads)
       {
-        thread = std::thread(&Athi_Circle_Manager::collision_logNxN, this, parts * i, parts * (1 + i));
+        thread = std::thread(&Athi_Circle_Manager::collision_logNxN, this, total, parts * i, parts * (1 + i));
+        //thread = std::thread(&Athi_Circle_Manager::collision_quadtree, this, cont, parts * i, parts * (1 + i));
         ++i;
       }
       for (auto &thread : threads) thread.join();
     }
     else
     {
-      collision_logNxN(0, circle_buffer.size());
+      // total, start, end
+      collision_logNxN(circle_buffer.size(), 0, circle_buffer.size());
     }
   }
 
@@ -325,21 +355,43 @@ void Athi_Circle_Manager::update()
   }
 }
 
-void Athi_Circle_Manager::collision_logNxN(size_t begin, size_t end)
+void Athi_Circle_Manager::collision_logNxN_leftover(size_t total, size_t begin, size_t end)
 {
-  for (size_t i = begin; i < end; ++i)
-    for (size_t j = 1 + i; j < circle_buffer.size(); ++j)
-      if (collisionDetection(i, j))
+  for (size_t i = begin; i < end; ++i) {
+    for (size_t j = 0; j < total; ++j) {
+      if (collisionDetection(leftover_circles[i], j))
+      {
+          collisionResolve(leftover_circles[i], j);
+      }
+      ++comparisons;
+    }
+  }
+}
+
+void Athi_Circle_Manager::collision_logNxN(size_t total, size_t begin, size_t end)
+{
+  for (size_t i = begin; i < end; ++i) {
+    for (size_t j = 1 + i; j < total; ++j) {
+      if (collisionDetection(i, j)) {
           collisionResolve(i, j);
+      }
+      ++comparisons;
+    }
+  }
 }
 
 void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end)
 {
-  for (size_t k = begin; k < end; ++k)
-    for (size_t i = 0; i < cont[k].size(); ++i)
-      for (size_t j = i + 1; j < cont[k].size(); ++j)
-        if (collisionDetection(cont[k][i], cont[k][j]))
+  for (size_t k = begin; k < end; ++k) {
+    for (size_t i = 0; i < cont[k].size(); ++i) {
+      for (size_t j = i + 1; j < cont[k].size(); ++j) {
+        if (collisionDetection(cont[k][i], cont[k][j])) {
             collisionResolve(cont[k][i], cont[k][j]);
+        }
+        ++comparisons;
+      }
+    }
+  }
 }
 
 void Athi_Circle_Manager::add_circle(Athi_Circle& circle)
@@ -359,6 +411,8 @@ void Athi_Circle_Manager::update_circles()
 {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
   update();
+  std::cout << "leftover circles: " << leftover_circles.size() << std::endl;
+  leftover_circles.clear();
 }
 
 void Athi_Circle_Manager::draw_circles()
@@ -369,8 +423,13 @@ void Athi_Circle_Manager::draw_circles()
   if (voxelgrid_active && draw_debug) draw_voxelgrid();
   if (quadtree_active && draw_debug)  draw_quadtree();
 
-
-  if (clear_circles) { circle_buffer.clear(); clear_circles = false; }
+  if (clear_circles)
+  {
+    circle_buffer.clear();
+    clear_circles = false;
+    reset_quadtree();
+  }
+  comparisons = 0;
 }
 
 void Athi_Circle_Manager::set_color_circle_id(u32 id, const vec4& color)

@@ -31,6 +31,7 @@ struct Athi_Circle
 };
 
 extern std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
+extern std::vector<u32> leftover_circles;
 
 struct Athi_Circle_Manager
 {
@@ -67,7 +68,8 @@ struct Athi_Circle_Manager
   void draw();
   void update();
 
-  void collision_logNxN(size_t begin, size_t end);
+  void collision_logNxN_leftover(size_t total, size_t begin, size_t end);
+  void collision_logNxN(size_t total, size_t begin, size_t end);
   void collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end);
 };
 

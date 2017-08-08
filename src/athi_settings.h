@@ -8,6 +8,7 @@ extern bool circle_collision;
 
 extern f32  circle_size;
 extern vec4 circle_color;
+extern u64 comparisons;
 
 extern bool draw_debug;
 

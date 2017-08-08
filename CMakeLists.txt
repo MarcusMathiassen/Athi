@@ -17,10 +17,12 @@ else()
 endif()
 
 # Load headers
-include_directories("./src/")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
 
 # Load sources
-file(GLOB SOURCES "./src/*.cpp")
+file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+
+set (SOURCE_FILES ${CPP_FILES} ${H_FILES})
 
 if(WIN32)
 	add_executable(${PROJECT_NAME} ${SOURCES})

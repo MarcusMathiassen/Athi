@@ -22,7 +22,7 @@ void Node::get(std::vector<std::vector<u32>> &cont)
 }
 void Node::draw() const
 {
-  draw_rect(bounds.min, bounds.max, bounds.color, GL_LINE_LOOP);
+  draw_hollow_rect(bounds.min, bounds.max, bounds.color);
 }
 void Node::color_objects()
 {

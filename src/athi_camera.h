@@ -11,7 +11,7 @@ struct Camera
   vec3 forward{0.0f, 0.0f, -1.0f};
   vec3 up{0.0f, 1.0f, 0.0f};
 
-  f32 fov{120.0f};
+  f32 fov{70.0f};
   f32 aspect_ratio{1.0f};
   f32 zNear{0.01f};
   f32 zFar{1000.0f};

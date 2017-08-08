@@ -158,6 +158,11 @@ void Athi_Core::draw_loop()
   circle_info_text.pos = vec2(LEFT+ROW, BOTTOM+ROW*3.0f);
   add_text(&circle_info_text);
 
+  Athi_Text circle_comparisons;
+  circle_comparisons.pos = vec2(LEFT+ROW, BOTTOM+ROW*4.0f);
+  add_text(&circle_comparisons);
+
+
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
@@ -166,10 +171,13 @@ void Athi_Core::draw_loop()
                          " | Physics updates/sec: " + std::to_string(physics_framerate);
     circle_info_text.str = "Circles: " + std::to_string(get_num_circles());
 
+    circle_comparisons.str = "Comparisons: " + std::to_string(comparisons);
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     draw_circles();
     draw_rects();
+
     if (show_settings) draw_UI();
 
     glfwSwapBuffers(window->get_window_context());

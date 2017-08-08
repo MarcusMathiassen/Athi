@@ -69,7 +69,8 @@ void Athi_Quadtree::split()
   subnode[3]->bounds.color = pastel_pink;
 }
 
-void Athi_Quadtree::insert(u32 id) {
+void Athi_Quadtree::insert(u32 id)
+{
   //----------------------------------------------------------------
   // [1] Insert object into subnodes.
   // [2] If split, insert THIS nodes objects into the subnodes.
@@ -77,12 +78,17 @@ void Athi_Quadtree::insert(u32 id) {
   //----------------------------------------------------------------
 
   // If this subnode has split..
-  if (subnode[0] != nullptr) {
+  if (subnode[0] != nullptr)
+  {
+    int num_contains = 0;
     // Find the subnodes that contain it and insert it there.
-    if (subnode[0]->contains(id)) subnode[0]->insert(id);
-    if (subnode[1]->contains(id)) subnode[1]->insert(id);
-    if (subnode[2]->contains(id)) subnode[2]->insert(id);
-    if (subnode[3]->contains(id)) subnode[3]->insert(id);
+    if (subnode[0]->contains(id)) { subnode[0]->insert(id);                            num_contains++;};
+    if (subnode[1]->contains(id)) { if (num_contains == 0) { subnode[1]->insert(id); } num_contains++;};
+    if (subnode[2]->contains(id)) { if (num_contains == 0) { subnode[2]->insert(id); } num_contains++;};
+    if (subnode[3]->contains(id)) { if (num_contains == 0) { subnode[3]->insert(id); } num_contains++;};    
+
+    // place it in left over buffer
+    if (num_contains > 1) leftover_circles.emplace_back(id);
 
     return;
   }
@@ -135,7 +141,8 @@ void Athi_Quadtree::draw()
   // Only draw the nodes with objects in them.
   if (index.size() != 0)
   {
-    draw_rect(bounds.min, bounds.max, bounds.color, GL_LINE_LOOP);
+    //draw_rect(bounds.min, bounds.max, bounds.color, GL_LINE_LOOP);
+    draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
 }
 
