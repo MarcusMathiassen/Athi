@@ -40,7 +40,7 @@ if(WIN32)
 elseif(APPLE)
 
   SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
-  SET(CMAKE_CXX_FLAGS_RELEASE "-O3")
+  SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
 	# RESOURCE FILE LOCATION
 	file(GLOB RESOURCE_FILES
@@ -68,6 +68,6 @@ elseif(APPLE)
 	SET_TARGET_PROPERTIES(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
 
 	# LINK TO TARGET
-	target_link_libraries(${PROJECT_NAME} glew glfw "-framework OpenGL -framework Cocoa -framework IOKIT -framework CoreVideo")
+	target_link_libraries(${PROJECT_NAME} glew glfw "-framework OpenGL -framework OpenCL -framework Cocoa -framework IOKIT -framework CoreVideo")
 
 endif()

@@ -22,15 +22,15 @@ u32 voxelgrid_parts{4};
 f64 frametime;
 f64 smoothed_frametime;
 u32 framerate;
-u32 framerate_limit{0};
+u32 framerate_limit{60};
 
 f64  timestep;
 f64 physics_frametime;
 f64 smoothed_physics_frametime;
 u32 physics_framerate;
-u32 physics_updates_per_sec{0};
+u32 physics_FPS_limit{0};
 
-bool vsync{0};
+bool vsync{true};
 
 u32 variable_thread_count;
 bool use_multithreading{true};
@@ -38,6 +38,8 @@ bool use_multithreading{true};
 u32    cpu_cores;
 u32    cpu_threads;
 string cpu_brand;
+
+bool openCL_active{false};
 
 bool app_is_running{true};
 bool settings_changed{false};

@@ -11,6 +11,8 @@
 #include <mutex>
 #include <vector>
 
+#include <OpenCL/OpenCL.h>
+
 #define CIRCLE_NUM_VERTICES 36
 
 struct Athi_Circle
@@ -31,10 +33,31 @@ struct Athi_Circle
 };
 
 extern std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
-extern std::vector<u32> leftover_circles;
 
 struct Athi_Circle_Manager
 {
+  // OPENCL ////////////////////////////////////////////////////////////////////////////
+  int err;                            // error code returned from api calls
+  char* kernel_source{nullptr};
+  size_t global;                      // global domain size for our calculation
+  size_t local;                       // local domain size for our calculation
+  unsigned int begin;
+  unsigned int end;
+  bool gpu{true};
+  std::vector<Athi_Circle> data;
+  std::vector<Athi_Circle> results;
+
+  cl_device_id device_id;             // compute device id
+  cl_context context;                 // compute context
+  cl_command_queue commands;          // compute command queue
+  cl_program program;                 // compute program
+  cl_kernel kernel;                   // compute kernel
+
+  cl_mem input;                       // device memory used for the input array
+  cl_mem output;                      // device memory used for the output array
+  ////////////////////////////////////////////////////////////////////////////////////////
+
+
   std::vector<std::thread> threads;
 
   // Make sure it's thread safe
@@ -68,7 +91,6 @@ struct Athi_Circle_Manager
   void draw();
   void update();
 
-  void collision_logNxN_leftover(size_t total, size_t begin, size_t end);
   void collision_logNxN(size_t total, size_t begin, size_t end);
   void collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end);
 };
@@ -80,7 +102,7 @@ void draw_circles();
 void add_circle(Athi_Circle &circle);
 void init_circle_manager();
 
-bool collisionDetection(u32 a_id, u32 b_id);
-void collisionResolve(u32 a_id, u32 b_id);
-void separate(u32 a_id, u32 b_id);
+bool collision_detection(const Athi_Circle &a, const Athi_Circle &b);
+void collision_resolve(Athi_Circle &a, Athi_Circle &b);
+void separate(Athi_Circle &a, Athi_Circle &b);
 extern std::unique_ptr<Athi_Circle_Manager> athi_circle_manager;

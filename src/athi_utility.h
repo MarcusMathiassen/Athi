@@ -23,7 +23,7 @@
 #include <mutex>
 #include <vector>
 
-void readFile(const char* file, char** buffer);
+void read_file(const char* file, char** buffer);
 void limit_FPS(u32 desired_framerate, f64 time_start_frame);
 void validateShader(const char *file, const char *type, u32 shader);
 void validateShaderProgram(const char* name, u32 shaderProgram);

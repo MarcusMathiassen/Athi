@@ -23,8 +23,7 @@ extern f64  timestep;
 extern f64  physics_frametime;
 extern f64  smoothed_physics_frametime;
 extern u32  physics_framerate;
-extern u32  physics_updates_per_sec;
-
+extern u32  physics_FPS_limit;
 
 extern u32 framerate;
 extern u32 framerate_limit;
@@ -41,6 +40,8 @@ extern bool use_multithreading;
 extern u32    cpu_cores;
 extern u32    cpu_threads;
 extern string cpu_brand;
+
+extern bool openCL_active;
 
 extern bool app_is_running;
 extern bool settings_changed;

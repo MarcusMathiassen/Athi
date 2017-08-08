@@ -12,6 +12,7 @@
 #include "athi_quadtree.h"
 #include "athi_voxelgrid.h"
 
+#include "OpenCL/opencl.h"
 
 #include <dispatch/dispatch.h>
 #include <thread>
@@ -89,12 +90,12 @@ void Athi_Core::start()
   add_checkbox(&vsync_box);
 
   Athi_Slider<u32> physics_updates_per_sec_slider;
-  physics_updates_per_sec_slider.str = "Physics updates per sec: ";
-  physics_updates_per_sec_slider.var = &physics_updates_per_sec;
+  physics_updates_per_sec_slider.str = "Physics FPS limit: ";
+  physics_updates_per_sec_slider.var = &physics_FPS_limit;
   physics_updates_per_sec_slider.var_indicator = &physics_framerate;
   physics_updates_per_sec_slider.pos = vec2(LEFT+ROW, TOP-ROW*5.5f);
   physics_updates_per_sec_slider.min = 0;
-  physics_updates_per_sec_slider.max = 3000;
+  physics_updates_per_sec_slider.max = 300;
   add_slider<u32>(&physics_updates_per_sec_slider);
 
   Athi_Slider<u32> framerate_limit_slider;
@@ -120,13 +121,11 @@ void Athi_Core::start()
   multithreaded_collision_thread_count_slider.pos = vec2(RIGHT-ROW*7.5f, TOP-ROW*2.5f);
   multithreaded_collision_thread_count_slider.width = 0.3f;
   multithreaded_collision_thread_count_slider.min = 0;
-  multithreaded_collision_thread_count_slider.max = cpu_threads*8;
+  multithreaded_collision_thread_count_slider.max = cpu_threads*4;
   add_slider<u32>(&multithreaded_collision_thread_count_slider);
 
-  auto draw_queue    = dispatch_queue_create("draw_queue", NULL);
-  auto physics_queue = dispatch_queue_create("physics_queue", NULL);
-  dispatch_async(draw_queue,    ^{ draw_loop();    });
-  dispatch_async(physics_queue, ^{ physics_loop(); });
+  std::thread draw_thread(&Athi_Core::draw_loop, this);
+  std::thread physics_thread(&Athi_Core::physics_loop, this);
 
   // UI
   auto window_context = window->get_window_context();
@@ -141,6 +140,8 @@ void Athi_Core::start()
     limit_FPS(60, time_start_frame);
   }
   app_is_running = false;
+  draw_thread.join();
+  physics_thread.join();
 
   shutdown();
 }
@@ -154,24 +155,20 @@ void Athi_Core::draw_loop()
   frametime_text.pos = vec2(LEFT+ROW, TOP);
   add_text(&frametime_text);
 
+  Athi_Text physics_frametime_text;
+  physics_frametime_text.pos = vec2(LEFT+ROW, TOP-ROW);
+  add_text(&physics_frametime_text);
+
   Athi_Text circle_info_text;
   circle_info_text.pos = vec2(LEFT+ROW, BOTTOM+ROW*3.0f);
   add_text(&circle_info_text);
 
-  Athi_Text circle_comparisons;
-  circle_comparisons.pos = vec2(LEFT+ROW, BOTTOM+ROW*4.0f);
-  add_text(&circle_comparisons);
-
-
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
-    frametime_text.str = "FPS: " +                    std::to_string(framerate) +
-                         " | Frametime: " +           std::to_string(smoothed_frametime) +
-                         " | Physics updates/sec: " + std::to_string(physics_framerate);
-    circle_info_text.str = "Circles: " + std::to_string(get_num_circles());
-
-    circle_comparisons.str = "Comparisons: " + std::to_string(comparisons);
+    frametime_text.str         = "Render:  " + std::to_string(framerate) + "fps | " + std::to_string(smoothed_frametime) + "ms";
+    physics_frametime_text.str = "Physics: " + std::to_string(physics_framerate) + "fps | " + std::to_string(smoothed_physics_frametime) + "ms";
+    circle_info_text.str       = "Circles: " + std::to_string(get_num_circles());
 
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -196,7 +193,7 @@ void Athi_Core::physics_loop()
   {
     f64 time_start_frame = glfwGetTime();
     update_circles();
-    if (physics_updates_per_sec != 0) limit_FPS(physics_updates_per_sec, time_start_frame);
+    if (physics_FPS_limit != 0) limit_FPS(physics_FPS_limit, time_start_frame);
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     physics_framerate = (u32)(std::round(1000.0f/smoothed_physics_frametime));
     smooth_physics_rametime_avg.add_new_frametime(physics_frametime);

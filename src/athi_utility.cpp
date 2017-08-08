@@ -30,7 +30,7 @@ vec4 get_universal_current_color()
   return vec4();
 }
 
-void readFile(const char* file, char** buffer)
+void read_file(const char* file, char** buffer)
 {
   string buff, line;
   std::ifstream fileIn(file);
@@ -92,7 +92,7 @@ void validateShaderProgram(const char* name, u32 shaderProgram)
 u32 createShader(const char *file, const GLenum type)
 {
   char *source = NULL;
-  readFile(file, &source);
+  read_file(file, &source);
 
   u32 shader = glCreateShader(type);
   if (NULL != source)

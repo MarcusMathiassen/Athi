@@ -1,4 +1,4 @@
-#include "athi_text.h"
+ #include "athi_text.h"
 
 std::vector<Athi_Text*> text_buffer;
 

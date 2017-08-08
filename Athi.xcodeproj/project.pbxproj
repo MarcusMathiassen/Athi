@@ -28,6 +28,7 @@
 		F2298A4F1F328D67007DCBB3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A4E1F328D67007DCBB3 /* Cocoa.framework */; };
 		F2298A511F328D70007DCBB3 /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A501F328D70007DCBB3 /* libGLEW.a */; };
 		F2298A531F328D78007DCBB3 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A521F328D78007DCBB3 /* libglfw3.a */; };
+		F2A08A681F3A01B200E2148B /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2A08A671F3A01B200E2148B /* OpenCL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -86,6 +87,7 @@
 		F2298A4E1F328D67007DCBB3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		F2298A501F328D70007DCBB3 /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = dep/macOS/GL/libGLEW.a; sourceTree = "<group>"; };
 		F2298A521F328D78007DCBB3 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = dep/macOS/GLFW/libglfw3.a; sourceTree = "<group>"; };
+		F2A08A671F3A01B200E2148B /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +95,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F2A08A681F3A01B200E2148B /* OpenCL.framework in Frameworks */,
 				F2298A531F328D78007DCBB3 /* libglfw3.a in Frameworks */,
 				F2298A511F328D70007DCBB3 /* libGLEW.a in Frameworks */,
 				F2298A4F1F328D67007DCBB3 /* Cocoa.framework in Frameworks */,
@@ -168,6 +171,7 @@
 		F2298A471F328D54007DCBB3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F2A08A671F3A01B200E2148B /* OpenCL.framework */,
 				F2298A521F328D78007DCBB3 /* libglfw3.a */,
 				F2298A501F328D70007DCBB3 /* libGLEW.a */,
 				F2298A4E1F328D67007DCBB3 /* Cocoa.framework */,
