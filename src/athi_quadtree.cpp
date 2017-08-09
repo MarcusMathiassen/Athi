@@ -134,11 +134,12 @@ void Athi_Quadtree::draw() {
   }
 
   // Only draw the nodes with objects in them.
-  if (index.size() != 0)
+  if (!index.empty() && quadtree_show_only_occupied)
   {
     draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
-  
+  else if (!quadtree_show_only_occupied)draw_hollow_rect(bounds.min, bounds.max, bounds.color);
+
 }
 
 void Athi_Quadtree::get(std::vector<std::vector<u32>> &cont) const {

@@ -79,6 +79,23 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
       show_settings = true;
   }
 
+  // TOGGLE FPS_INFO
+  if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+    if (show_fps_info)
+      show_fps_info = false;
+    else
+      show_fps_info = true;
+  }
+
+  // TOGGLE VSYNC
+  if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+    if (vsync)
+      vsync = false;
+    else
+      vsync = true;
+  }
+
+
   // TOGGLE DEBUG UI
   if (key == GLFW_KEY_D && action == GLFW_PRESS) {
     if (draw_debug)

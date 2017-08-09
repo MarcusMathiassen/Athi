@@ -1,7 +1,9 @@
 #include "athi_checkbox.h"
 void Athi_Checkbox::draw() const
 {
+  if (show_if != nullptr) if (!(*show_if)) return;
   draw_rect(box.pos, box.width, box.height, box.color, GL_TRIANGLES);
+  draw_text(text.str, text.pos, text.color);
 }
 
 void Athi_Checkbox::update()
@@ -33,7 +35,7 @@ bool Athi_Checkbox::hover_over() {
 
   return mouse_x > box.pos.x && mouse_x < box.pos.x + box.width &&
   mouse_y > box.pos.y && mouse_y < box.pos.y+box.height;
-  
+
   return false;
 }
 
@@ -56,5 +58,5 @@ void Athi_Checkbox::init() {
   text.pos = pos;
   text.pos.x += width + 0.02f;
   text.pos.y -= height * 0.65f;
-  add_text(&text);
+  //add_text(&text);
 }

@@ -11,7 +11,9 @@ vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 u64 comparisons{0};
 
 bool draw_debug{false};
+bool show_fps_info{true};
 
+bool quadtree_show_only_occupied{false};
 bool quadtree_active{false};
 u32 quadtree_depth{5};
 u32 quadtree_capacity{50};

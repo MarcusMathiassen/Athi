@@ -33,9 +33,10 @@ public:
   std::string str;
   vec2 pos{0, 0};
 
+
   T *var{nullptr};
   T *var_indicator{nullptr};
-
+  bool *show_if{nullptr};
   f32 width{1.0f};
   f32 height{0.03f};
 
@@ -56,7 +57,7 @@ public:
     // Text description
     text.pos = pos;
     text.pos.y += height;
-    add_text(&text);
+    // add_text(&text);
 
     // Border
     slider_box.pos = pos;
@@ -123,6 +124,7 @@ public:
   }
 
   void draw() const {
+    if (show_if != nullptr) if (!(*show_if)) return;
     draw_rect(slider_box.pos, slider_box.width, slider_box.height,
               slider_box.color, GL_TRIANGLES);
 
@@ -132,6 +134,8 @@ public:
     draw_rect(variable_indicator_box.pos, variable_indicator_box.width,
               variable_indicator_box.height, variable_indicator_box.color,
               GL_TRIANGLES);
+
+    draw_text(text.str, text.pos, text.color);
   }
 
   void update_position(f32 mouse_x) {

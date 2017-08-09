@@ -11,10 +11,12 @@ extern vec4 circle_color;
 extern u64 comparisons;
 
 extern bool draw_debug;
+extern bool show_fps_info;
 
 extern bool voxelgrid_active;
 extern u32 voxelgrid_parts;
 
+extern bool quadtree_show_only_occupied;
 extern bool quadtree_active;
 extern u32 quadtree_depth;
 extern u32 quadtree_capacity;

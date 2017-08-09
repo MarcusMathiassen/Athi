@@ -16,6 +16,7 @@ struct Athi_Checkbox : public Athi_UI {
   u16 last_state{IDLE};
 
   bool *variable;
+  bool *show_if{nullptr};
   vec2 pos;
 
   Athi_Text text;
