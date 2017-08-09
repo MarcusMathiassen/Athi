@@ -145,7 +145,7 @@ __kernel void hello(
   const unsigned int count)
 {
   // Get the thread id
-  const int thread_id = get_global_id(0);
+  const int g_id = get_global_id(0);
   // const int parts = count/get_global_size(0);
   // const int begin = parts * thread_id;
   // const int end   = parts * (thread_id + 1);
@@ -163,9 +163,9 @@ __kernel void hello(
 
   //int i;
   //for (i = 0; i < count; ++i) {
-      output[thread_id] = input[thread_id];
-      output[thread_id].color.x = 0.0f;
-      output[thread_id].color.y = 0.0f;
+      output[g_id] = input[g_id];
+      output[g_id].color.x = 0.0f;
+      output[g_id].color.y = 0.0f;
   //}
 
   //int i,j;

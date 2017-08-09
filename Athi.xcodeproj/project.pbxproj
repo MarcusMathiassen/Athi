@@ -373,8 +373,8 @@
 				HEADER_SEARCH_PATHS = "/Users/mathiassen/Athi/dep/macOS/**";
 				LIBRARY_SEARCH_PATHS = (
 					"/Users/mathiassen/Athi/dep/macOS/**",
-					"$(PROJECT_DIR)/dep/macOS/GL",
-					"$(PROJECT_DIR)/dep/macOS/GLFW",
+					"$(PROJECT_DIR)/dep/macOS/GL/**",
+					"$(PROJECT_DIR)/dep/macOS/GLFW/**",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -392,8 +392,8 @@
 				HEADER_SEARCH_PATHS = "/Users/mathiassen/Athi/dep/macOS/**";
 				LIBRARY_SEARCH_PATHS = (
 					"/Users/mathiassen/Athi/dep/macOS/**",
-					"$(PROJECT_DIR)/dep/macOS/GL",
-					"$(PROJECT_DIR)/dep/macOS/GLFW",
+					"$(PROJECT_DIR)/dep/macOS/GL/**",
+					"$(PROJECT_DIR)/dep/macOS/GLFW/**",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

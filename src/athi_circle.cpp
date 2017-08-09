@@ -498,6 +498,7 @@ void Athi_Circle_Manager::update()
 
       // Get the maximum work group size for executing the kernel o dn the device
       //
+      //local = N;
       err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
       if (err != CL_SUCCESS)
       {
@@ -506,9 +507,8 @@ void Athi_Circle_Manager::update()
       }
 
       global = count;
-      local = 1;
-      err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, &local, 0, NULL, NULL);
-      //err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0, NULL, NULL);
+      //err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, &local, 0, NULL, NULL);
+      err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0, NULL, NULL);
       if (err)
       {
           std::cout << "Error: Failed to execute kernel!\n";
