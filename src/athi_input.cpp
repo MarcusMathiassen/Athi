@@ -58,16 +58,14 @@ void attraction_force(Athi_Circle &a, const vec2 &point)
   const f32 d  = sqrt(dx * dx + dy * dy);
 
   const f32 angle = atan2(dy, dx);
-  if (d > 1e-4)
-  {
-    a.vel.x += 0.1f*d * cos(angle);
-    a.vel.y += 0.1f*d * sin(angle);
-    a.vel *= 0.8f;
-  }
+  a.vel.x += 0.1f*d * cos(angle);
+  a.vel.y += 0.1f*d * sin(angle);
+  a.vel *= 0.7f;
 }
 
 
-s32 mouse_attached_to{-1};
+vector<u32> mouse_attached_to;
+s32 mouse_attached_to_single{-1};
 enum { ATTACHED, PRESSED, NOTHING };
 u16 last_state{NOTHING};
 
@@ -81,6 +79,9 @@ void mouse_grab() {
   {
     last_state = NOTHING;
     mouse_busy_UI = false;
+
+    // remove all circles attached
+    mouse_attached_to.clear();
     return;
   }
   // If pressed continue on..
@@ -96,23 +97,20 @@ void mouse_grab() {
   mouse_y = +1.0f - 2 * mouse_y / height;
 
   Rect mouse_rect(vec2(mouse_x-mouse_size, mouse_y-mouse_size), vec2(mouse_x+mouse_size, mouse_y+mouse_size));
-  draw_rect(mouse_rect.min, mouse_rect.max, pastel_green, GL_LINE_LOOP);
+  if (draw_debug) draw_rect(mouse_rect.min, mouse_rect.max, pastel_green, GL_LINE_LOOP);
 
   // If already attached
-  if (last_state == ATTACHED && mouse_attached_to != -1)
+  if (last_state == ATTACHED)
   {
     if (mouse_grab_multiple)
     {
-      for (auto& c: athi_circle_manager->circle_buffer)
+      for (auto& id: mouse_attached_to)
       {
-        if (mouse_rect.contains(c->id))
-        {
-          attraction_force(*athi_circle_manager->circle_buffer[c->id], vec2(mouse_x, mouse_y));
-          last_state = ATTACHED;
-        }
+        attraction_force(*athi_circle_manager->circle_buffer[id], vec2(mouse_x, mouse_y));
+        last_state = ATTACHED;
       }
     }
-    else attraction_force(*athi_circle_manager->circle_buffer[mouse_attached_to], vec2(mouse_x, mouse_y));
+    else attraction_force(*athi_circle_manager->circle_buffer[mouse_attached_to_single], vec2(mouse_x, mouse_y));
     mouse_busy_UI = true;
   }
 
@@ -123,8 +121,11 @@ void mouse_grab() {
     // If the mouse and circle intersect
     if (mouse_rect.contains(c->id))
     {
-      if (mouse_grab_multiple) attraction_force(*athi_circle_manager->circle_buffer[c->id], vec2(mouse_x, mouse_y));
-      else mouse_attached_to = c->id;
+      if (mouse_grab_multiple)
+      {
+        mouse_attached_to.emplace_back(c->id);
+      }
+      else mouse_attached_to_single = c->id;
       last_state = ATTACHED;
     }
   }

@@ -160,8 +160,8 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
   // TOGGLE OPENCL
   if (key == GLFW_KEY_O && action == GLFW_PRESS)
   {
-    if (openCL_active) openCL_active = false;
-    else openCL_active = true;
+    //if (openCL_active) openCL_active = false;
+    //else openCL_active = true;
   }
 
   if (key == GLFW_KEY_6 && action == GLFW_PRESS && voxelgrid_parts > 4) {

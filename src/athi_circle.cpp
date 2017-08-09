@@ -22,8 +22,8 @@ void Athi_Circle::update()
 
   if (physics_gravity) vel.y -= (9.81f) * 0.0001f * timestep;
 
-  pos.x += vel.x * timestep;
-  pos.y += vel.y * timestep;
+  pos.x += vel.x * timestep * 0.999f;
+  pos.y += vel.y * timestep * 0.999f;
 
   transform.pos   = glm::vec3(pos.x, pos.y, 0);
   transform.scale = glm::vec3(radius, radius, 0);

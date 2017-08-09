@@ -226,8 +226,8 @@ void Athi_Core::draw_loop() {
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    draw_rects();
     draw_circles();
+    draw_rects();
 
     if (show_settings) draw_UI();
 
