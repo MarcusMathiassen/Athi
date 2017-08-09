@@ -36,7 +36,7 @@ public:
 
   T *var{nullptr};
   T *var_indicator{nullptr};
-  bool *show_if{nullptr};
+  bool *active_if{nullptr};
   f32 width{1.0f};
   f32 height{0.03f};
 
@@ -89,7 +89,10 @@ public:
     }
   }
 
-  void update() {
+  void update()
+  {
+    if (active_if != nullptr) if (!(*active_if)) return;
+
     // Update text variable
     std::string temp = str + std::to_string(*var);
     text.str = temp;
@@ -109,22 +112,25 @@ public:
         variable_indicator_box.color = indicator_color;
     }
 
-    last_state = get_status();
-    switch (last_state) {
-    case HOVER:
-      slider_knob.color = hover_color;
-      break;
-    case PRESSED:
-      slider_knob.color = pressed_color;
-      break;
-    case NOTHING:
-      slider_knob.color = idle_color;
-      break;
+    if (!mouse_busy_UI)
+    {
+      last_state = get_status();
+      switch (last_state) {
+      case HOVER:
+        slider_knob.color = hover_color;
+        break;
+      case PRESSED:
+        slider_knob.color = pressed_color;
+        break;
+      case NOTHING:
+        slider_knob.color = idle_color;
+        break;
+      }
     }
   }
 
   void draw() const {
-    if (show_if != nullptr) if (!(*show_if)) return;
+    if (active_if != nullptr) if (!(*active_if)) return;
     draw_rect(slider_box.pos, slider_box.width, slider_box.height,
               slider_box.color, GL_TRIANGLES);
 

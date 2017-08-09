@@ -97,9 +97,15 @@ void Athi_Core::start() {
   quadtree_show_filled.variable = &quadtree_show_only_occupied;
   add_checkbox(&quadtree_show_filled);
 
+    Athi_Checkbox mouse_grab_multiple_box;
+  mouse_grab_multiple_box.pos = vec2(RIGHT - ROW * 7.5f, BOTTOM + ROW * 8.0f);
+  mouse_grab_multiple_box.text.str = "mouse grab multiple";
+  mouse_grab_multiple_box.variable = &mouse_grab_multiple;
+  add_checkbox(&mouse_grab_multiple_box);
+
   Athi_Checkbox vsync_box;
   vsync_box.pos = vec2(LEFT + ROW, TOP - ROW * 3.5f);
-  vsync_box.show_if = &show_fps_info;
+  vsync_box.active_if = &show_fps_info;
   vsync_box.text.str = "vsync";
   vsync_box.variable = &vsync;
   add_checkbox(&vsync_box);
@@ -107,7 +113,7 @@ void Athi_Core::start() {
   Athi_Slider<u32> physics_updates_per_sec_slider;
   physics_updates_per_sec_slider.str = "Physics FPS limit: ";
   physics_updates_per_sec_slider.var = &physics_FPS_limit;
-  physics_updates_per_sec_slider.show_if = &show_fps_info;
+  physics_updates_per_sec_slider.active_if = &show_fps_info;
   physics_updates_per_sec_slider.var_indicator = &physics_framerate;
   physics_updates_per_sec_slider.pos = vec2(LEFT + ROW, TOP - ROW * 5.5f);
   physics_updates_per_sec_slider.min = 0;
@@ -117,7 +123,7 @@ void Athi_Core::start() {
   Athi_Slider<u32> framerate_limit_slider;
   framerate_limit_slider.str = "FPS limit: ";
   framerate_limit_slider.var = &framerate_limit;
-  framerate_limit_slider.show_if = &show_fps_info;
+  framerate_limit_slider.active_if = &show_fps_info;
   framerate_limit_slider.var_indicator = &framerate;
   framerate_limit_slider.pos = vec2(LEFT + ROW, TOP - ROW * 2.5f);
   framerate_limit_slider.min = 0;
@@ -134,7 +140,7 @@ void Athi_Core::start() {
 
   Athi_Slider<u32> quadtree_depth_slider;
   quadtree_depth_slider.str = "Quadtree depth: ";
-  quadtree_depth_slider.show_if = &quadtree_active;
+  quadtree_depth_slider.active_if = &quadtree_active;
   quadtree_depth_slider.var = &quadtree_depth;
   quadtree_depth_slider.var_indicator = nullptr;
   quadtree_depth_slider.pos = vec2(LEFT + ROW, TOP - ROW * 8.5f);
@@ -144,18 +150,18 @@ void Athi_Core::start() {
 
   Athi_Slider<u32> quadtree_capacity_slider;
   quadtree_capacity_slider.str = "Quadtree capacity: ";
-  quadtree_capacity_slider.show_if = &quadtree_active;
+  quadtree_capacity_slider.active_if = &quadtree_active;
   quadtree_capacity_slider.var = &quadtree_capacity;
   quadtree_capacity_slider.var_indicator = nullptr;
   quadtree_capacity_slider.pos = vec2(LEFT + ROW, TOP - ROW * 11.5f);
   quadtree_capacity_slider.min = 0;
-  quadtree_capacity_slider.max = 200;
+  quadtree_capacity_slider.max = 100;
   add_slider<u32>(&quadtree_capacity_slider);
 
   Athi_Slider<u32> multithreaded_collision_thread_count_slider;
   multithreaded_collision_thread_count_slider.str = "Threads: ";
   multithreaded_collision_thread_count_slider.var = &variable_thread_count;
-  multithreaded_collision_thread_count_slider.show_if = &use_multithreading;
+  multithreaded_collision_thread_count_slider.active_if = &use_multithreading;
   multithreaded_collision_thread_count_slider.pos =
       vec2(RIGHT - ROW * 7.5f, TOP - ROW * 2.5f);
   multithreaded_collision_thread_count_slider.width = 0.3f;
@@ -163,13 +169,22 @@ void Athi_Core::start() {
   multithreaded_collision_thread_count_slider.max = cpu_threads*4;
   add_slider<u32>(&multithreaded_collision_thread_count_slider);
 
-
+  Athi_Slider<f32> mouse_size_slider;
+  mouse_size_slider.str = "Mouse box size: ";
+  mouse_size_slider.var = &mouse_size;
+  mouse_size_slider.active_if = &show_settings;
+  mouse_size_slider.pos = vec2(RIGHT - ROW * 7.5f, TOP - ROW * 5.5f);
+  mouse_size_slider.width = 0.3f;
+  mouse_size_slider.min = 0.001f;
+  mouse_size_slider.max = 1.0f;
+  add_slider<f32>(&mouse_size_slider);
 
   std::thread draw_thread(&Athi_Core::draw_loop, this);
   std::thread physics_thread(&Athi_Core::physics_loop, this);
 
   // UI
   auto window_context = window->get_window_context();
+  auto monitor_refreshrate = window->monitor_refreshrate;
   while (!glfwWindowShouldClose(window_context)) {
     f64 time_start_frame{glfwGetTime()};
     window->update();
@@ -177,7 +192,7 @@ void Athi_Core::start() {
     update_UI();
     if (show_settings) update_settings();
     glfwPollEvents();
-    limit_FPS(60, time_start_frame);
+    limit_FPS(monitor_refreshrate, time_start_frame);
   }
   app_is_running = false;
   draw_thread.join();
@@ -211,8 +226,8 @@ void Athi_Core::draw_loop() {
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    draw_circles();
     draw_rects();
+    draw_circles();
 
     if (show_settings) draw_UI();
 

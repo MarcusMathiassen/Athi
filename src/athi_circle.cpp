@@ -507,7 +507,6 @@ void Athi_Circle_Manager::update()
         std::cout << "Error: Failed to execute kernel! "<< err << '\n';
         exit(1);
       }
-  
       // Wait for the command commands to get serviced before reading back results
       //
       clFinish(commands);

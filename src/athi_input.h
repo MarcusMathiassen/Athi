@@ -8,6 +8,7 @@
 #include "athi_circle.h"
 #include "athi_settings.h"
 #include "athi_typedefs.h"
+#include "athi_rect.h"
 #include <iostream>
 
 void init_input_manager();
@@ -19,7 +20,7 @@ static void cursor_position_callback(GLFWwindow *window, double xpos,
                                      double ypos);
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods);
-
+static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 struct Mouse {
   vec2 pos;
   struct Button {
@@ -30,13 +31,20 @@ struct Mouse {
 struct Athi_Input_Manager {
   Mouse mouse;
   void init() {
-    glfwSetMouseButtonCallback(glfwGetCurrentContext(), mouse_button_callback);
-    glfwSetKeyCallback(glfwGetCurrentContext(), key_callback);
-    glfwSetCursorPosCallback(glfwGetCurrentContext(), cursor_position_callback);
+    auto context = glfwGetCurrentContext();
+    glfwSetMouseButtonCallback(context, mouse_button_callback);
+    glfwSetKeyCallback(context, key_callback);
+    glfwSetCursorPosCallback(context, cursor_position_callback);
+    glfwSetScrollCallback(context, scroll_callback);
   }
 };
 
 extern Athi_Input_Manager athi_input_manager;
+
+static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+    mouse_size -= yoffset*0.001f;
+    if (mouse_size < 0.000f) mouse_size = 0.001f;
+}
 
 static void cursor_position_callback(GLFWwindow *window, double xpos,
                                      double ypos) {
@@ -170,7 +178,8 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
     Athi_Circle c;
     c.radius = circle_size;
     for (float i = -1+c.radius; i < 1; i += c.radius*2)
-      for (float j = -1+c.radius; j < 1; j += c.radius*2) {
+      for (float j = -1+c.radius; j < 1; j += c.radius*2)
+      {
         c.pos = vec2(i,j);
         add_circle(c);
       }

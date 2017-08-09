@@ -1,13 +1,14 @@
 #include "athi_checkbox.h"
 void Athi_Checkbox::draw() const
 {
-  if (show_if != nullptr) if (!(*show_if)) return;
+  if (active_if != nullptr) if (!(*active_if)) return;
   draw_rect(box.pos, box.width, box.height, box.color, GL_TRIANGLES);
   draw_text(text.str, text.pos, text.color);
 }
 
 void Athi_Checkbox::update()
 {
+  if (active_if != nullptr) if (!(*active_if)) return;
   if (!(*variable)) box.color = idle_color;
   if ((*variable)) box.color = active_color;
   u32 this_state = get_status();

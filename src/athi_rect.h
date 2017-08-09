@@ -30,6 +30,8 @@ struct Athi_Rect
   f32 height;
   vec4 color{1.0f,1.0f,1.0f,1.0f};
 
+  GLenum draw_mode{GL_TRIANGLES};
+
   Athi_Rect() = default;
   void draw() const {}
 };
@@ -61,5 +63,6 @@ void draw_rects();
 
 void draw_line(const vec2& p1, const vec2& p2, f32 width, const vec4& color);
 
+extern std::vector<Athi_Rect> rect_immediate_buffer;
 extern std::vector<Athi_Rect*> rect_buffer;
 extern Athi_Rect_Manager athi_rect_manager;
