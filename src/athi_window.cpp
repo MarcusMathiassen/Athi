@@ -1,16 +1,15 @@
 #include "athi_window.h"
-#include "athi_settings.h"
 #include "athi_camera.h"
+#include "athi_settings.h"
 
 #include <iostream>
 
-static void window_size_callback(GLFWwindow* window, int xpos, int ypos);
-static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+static void window_size_callback(GLFWwindow *window, int xpos, int ypos);
+static void framebuffer_size_callback(GLFWwindow *window, int width,
+                                      int height);
 
-void Athi_Window::init()
-{
-  if (!glfwInit())
-  {
+void Athi_Window::init() {
+  if (!glfwInit()) {
     std::cerr << "Error initializing GLFW!\n";
   }
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -18,7 +17,7 @@ void Athi_Window::init()
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #if __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
   glfwWindowHint(GLFW_SAMPLES, 4);
@@ -30,57 +29,46 @@ void Athi_Window::init()
   glfwWindowHint(GL_DEPTH_BITS, 16);
   glfwWindowHint(GL_DOUBLEBUFFER, 1);
 
-  context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
+  context =
+      glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
-  //glfwSetWindowAspectRatio(context, 1, 1);
+  // glfwSetWindowAspectRatio(context, 1, 1);
   glfwSetWindowSizeCallback(context, window_size_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 
   int width, height;
   glfwGetFramebufferSize(context, &width, &height);
   glViewport(0, 0, width, height);
-  camera.aspect_ratio = (f32)width/(f32)height;
+  camera.aspect_ratio = (f32)width / (f32)height;
   camera.update_perspective();
 
   // Gather monitor info
-  s32  count;
-  auto modes  = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
+  s32 count;
+  auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
   monitor_refreshrate = modes->refreshRate;
 
   // Setup GLEW
   glewExperimental = true;
-  if (glewInit() != GLEW_OK)
-  {
+  if (glewInit() != GLEW_OK) {
     std::cerr << "Error initializing GLEW!\n";
   }
 }
 
-void Athi_Window::open()
-{
+void Athi_Window::open() {}
 
-}
+void Athi_Window::update() {}
 
-void Athi_Window::update()
-{
-
-}
-
-GLFWwindow* Athi_Window::get_window_context()
-{
-  return context;
-}
+GLFWwindow *Athi_Window::get_window_context() { return context; }
 
 // @Cleanup: this is messy
-static void window_size_callback(GLFWwindow* window, int xpos, int ypos)
-{
-}
+static void window_size_callback(GLFWwindow *window, int xpos, int ypos) {}
 
-static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-  camera.aspect_ratio = (f32)width/(f32)height;
+static void framebuffer_size_callback(GLFWwindow *window, int width,
+                                      int height) {
+  camera.aspect_ratio = (f32)width / (f32)height;
   camera.window_width = width;
   camera.window_height = height;
   camera.update_perspective();
-  glViewport(0,0,width,height);
+  glViewport(0, 0, width, height);
 }

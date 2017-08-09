@@ -130,12 +130,12 @@
 			children = (
 				F203DDE91F33EA94005A1535 /* athi_utility.cpp */,
 				F2298A161F328D00007DCBB3 /* athi.h */,
-				F2298A171F328D00007DCBB3 /* athi_camera.cpp */,
 				F2298A181F328D00007DCBB3 /* athi_camera.h */,
 				F2298A191F328D00007DCBB3 /* athi_checkbox.cpp */,
 				F2298A1A1F328D00007DCBB3 /* athi_checkbox.h */,
 				F2298A1B1F328D00007DCBB3 /* athi_circle.cpp */,
 				F2298A1C1F328D00007DCBB3 /* athi_circle.h */,
+				F2298A171F328D00007DCBB3 /* athi_camera.cpp */,
 				F2298A1D1F328D00007DCBB3 /* athi_core.cpp */,
 				F2298A1E1F328D00007DCBB3 /* athi_core.h */,
 				F2298A1F1F328D00007DCBB3 /* athi_input.cpp */,

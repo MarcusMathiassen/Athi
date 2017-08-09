@@ -146,25 +146,27 @@ __kernel void hello(
 {
   // Get the thread id
   const int thread_id = get_global_id(0);
-  const int parts = count/get_global_size(0);
-  const int begin = parts * thread_id;
-  const int end   = parts * (thread_id + 1);
+  // const int parts = count/get_global_size(0);
+  // const int begin = parts * thread_id;
+  // const int end   = parts * (thread_id + 1);
 
   // Copy input
-  Athi_Circle buff[count];
-  int k;
-  for (k = 0; k < count; ++k)
-  {
-    buff[k].pos     = input[k].pos;
-    buff[k].vel     = input[k].vel;
-    buff[k].radius  = input[k].radius;
-    buff[k].mass    = input[k].mass;
-  }
+  // Athi_Circle buff[count];
+  // int k;
+  // for (k = 0; k < count; ++k)
+  // {
+  //   buff[k].pos     = input[k].pos;
+  //   buff[k].vel     = input[k].vel;
+  //   buff[k].radius  = input[k].radius;
+  //   buff[k].mass    = input[k].mass;
+  // }
 
-  int i;
-  for (i = 0; i < count; ++i) {
-      output[i] = buff[i];
-  }
+  //int i;
+  //for (i = 0; i < count; ++i) {
+      output[thread_id] = input[thread_id];
+      output[thread_id].color.x = 0.0f;
+      output[thread_id].color.y = 0.0f;
+  //}
 
   //int i,j;
   //for (i = begin; i < end; ++i) {

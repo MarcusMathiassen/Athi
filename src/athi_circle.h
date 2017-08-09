@@ -1,22 +1,21 @@
 #pragma once
 
-#include "athi_typedefs.h"
 #include "athi_transform.h"
+#include "athi_typedefs.h"
 
-#include "athi_utility.h"
 #include "athi_quadtree.h"
+#include "athi_utility.h"
 #include "athi_voxelgrid.h"
 
-#include <thread>
 #include <mutex>
+#include <thread>
 #include <vector>
 
 #include <OpenCL/OpenCL.h>
 
 #define CIRCLE_NUM_VERTICES 36
 
-struct Athi_Circle
-{
+struct Athi_Circle {
   u32 id;
   vec2 pos{0, 0};
   vec2 vel{0, 0};
@@ -32,7 +31,7 @@ struct Athi_Circle
   Athi_Circle() = default;
 };
 
-extern std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
+extern std::vector<std::unique_ptr<Athi_Circle>> circle_buffer;
 
 struct Athi_Circle_Manager
 {
@@ -64,12 +63,12 @@ struct Athi_Circle_Manager
   bool clear_circles{false};
   std::mutex circle_buffer_function_mutex;
   std::mutex circle_buffer_mutex;
-  std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
-  void add_circle(Athi_Circle& circle);
+  std::vector<std::unique_ptr<Athi_Circle>> circle_buffer;
+  void add_circle(Athi_Circle &circle);
   void update_circles();
   void draw_circles();
   Athi_Circle get_circle(u32 id);
-  void set_color_circle_id(u32 id, const vec4& color);
+  void set_color_circle_id(u32 id, const vec4 &color);
   //
 
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
@@ -96,7 +95,7 @@ struct Athi_Circle_Manager
 };
 
 void delete_circles();
-u32  get_num_circles();
+u32 get_num_circles();
 void update_circles();
 void draw_circles();
 void add_circle(Athi_Circle &circle);
