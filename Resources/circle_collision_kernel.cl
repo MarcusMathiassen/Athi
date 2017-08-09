@@ -12,18 +12,18 @@ typedef struct Athi_Circle
   unsigned int id;
   float2 pos;
   float2 vel;
-  Transform transform;
   float radius;
   float mass;
+  Transform transform;
   float4 color;
 } Athi_Circle;
 
-void separate_circles(Athi_Circle *a, Athi_Circle *b);
-bool collision_detection(const Athi_Circle *a, const Athi_Circle *b);
-void collision_resolve(Athi_Circle *a, Athi_Circle *b);
+void separate_circles( Athi_Circle *a,  Athi_Circle *b);
+bool collision_detection( const Athi_Circle *a,  const Athi_Circle *b);
+void collision_resolve( Athi_Circle *a,  Athi_Circle *b);
 
 // Separates two intersecting circles.
-void separate_circles(Athi_Circle *a, Athi_Circle *b)
+void separate_circles( Athi_Circle *a,  Athi_Circle *b)
 {
   // local variables
   const float2 a_pos = a->pos;
@@ -67,7 +67,7 @@ void separate_circles(Athi_Circle *a, Athi_Circle *b)
 }
 
 
-bool collision_detection(const Athi_Circle *a, const Athi_Circle *b)
+bool collision_detection( const Athi_Circle *a,  const Athi_Circle *b)
 {
   const float ax = a->pos.x;
   const float ay = a->pos.y;
@@ -97,7 +97,7 @@ bool collision_detection(const Athi_Circle *a, const Athi_Circle *b)
   return false;
 }
 
-void collision_resolve(Athi_Circle *a, Athi_Circle *b)
+void collision_resolve( Athi_Circle *a,  Athi_Circle *b)
 {
   // local variables
   const float dx        = b->pos.x - a->pos.x;
@@ -142,39 +142,24 @@ void collision_resolve(Athi_Circle *a, Athi_Circle *b)
 __kernel void hello(
   __global Athi_Circle* input,
   __global Athi_Circle* output,
-  const unsigned int count)
+   const unsigned int count)
 {
   // Get the thread id
   const int g_id = get_global_id(0);
-  // const int parts = count/get_global_size(0);
-  // const int begin = parts * thread_id;
-  // const int end   = parts * (thread_id + 1);
+  const int l_id = get_local_id(0);
 
-  // Copy input
   // Athi_Circle buff[count];
-  // int k;
-  // for (k = 0; k < count; ++k)
+  // for (int i = 0; i < count; ++i)
   // {
-  //   buff[k].pos     = input[k].pos;
-  //   buff[k].vel     = input[k].vel;
-  //   buff[k].radius  = input[k].radius;
-  //   buff[k].mass    = input[k].mass;
+  //   buff[i].pos = input[i].pos;
+  //   buff[i].vel = input[i].vel;
   // }
 
-  //int i;
-  //for (i = 0; i < count; ++i) {
-      output[g_id] = input[g_id];
-      output[g_id].color.x = 0.0f;
-      output[g_id].color.y = 0.0f;
-  //}
+  // for (size_t i = 0; i < count; ++i)
+  //   for (size_t j = 1 + i; j < count; ++j)
+  //     if (collision_detection(&input[i], &input[j]))
+  //         collision_resolve(&input[i], &input[j]);
 
-  //int i,j;
-  //for (i = begin; i < end; ++i) {
-    //for (j = 1 + i; j < end; ++j) {
-      //if (collision_detection(&buff[i], &buff[j])) {
-         //collision_resolve(&buff[i], &buff[j]);
-      //}
-    //}
-    //output[i] = buff[i];
-  //}
+  //for (int i = 0; i < count; ++i) separate_circles(&input[g_id], &input[i]);
+  output[l_id] = input[l_id];
 }

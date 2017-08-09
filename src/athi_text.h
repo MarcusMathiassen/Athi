@@ -42,6 +42,7 @@ struct Athi_Text {
 extern std::vector<Athi_Text *> text_buffer;
 
 void add_text(Athi_Text *text);
+void draw_text(std::string str, vec2 pos, vec4 color);
 
 struct Athi_Text_Manager {
   const u16 indices[6]{0, 1, 2, 0, 2, 3};

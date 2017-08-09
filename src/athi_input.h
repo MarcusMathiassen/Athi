@@ -147,6 +147,18 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
     voxelgrid_parts *= 4;
   }
 
+  // TEST
+  if (key == GLFW_KEY_B && action == GLFW_PRESS)
+  {
+    Athi_Circle c;
+    c.radius = circle_size;
+    for (float i = -1+c.radius; i < 1; i += c.radius*2)
+      for (float j = -1+c.radius; j < 1; j += c.radius*2) {
+        c.pos = vec2(i,j);
+        add_circle(c);
+      }
+  }
+
   // ERASE ALL CIRCLES
   if (key == GLFW_KEY_E && action == GLFW_PRESS) {
     delete_circles();

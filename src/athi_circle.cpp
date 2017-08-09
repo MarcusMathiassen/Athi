@@ -347,12 +347,12 @@ Athi_Circle_Manager::~Athi_Circle_Manager()
   ////////////////////// OPENCL CLEANUP /////////////////////
   ////////////////////// OPENCL CLEANUP /////////////////////
   ////////////////////// OPENCL CLEANUP /////////////////////
-  clReleaseMemObject(input);
-  clReleaseMemObject(output);
   clReleaseProgram(program);
   clReleaseKernel(kernel);
-  clReleaseCommandQueue(commands);
   clReleaseContext(context);
+  clReleaseMemObject(input);
+  clReleaseMemObject(output);
+  clReleaseCommandQueue(commands);
 
   std::cout << "OpenCL shutting down..\n";
 }
@@ -396,7 +396,7 @@ void Athi_Circle_Manager::draw()
 
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, circle_buffer.size());
 }
 
 void Athi_Circle_Manager::update()
@@ -449,9 +449,7 @@ void Athi_Circle_Manager::update()
     ////////////////////// OPENCL UPDATE BEGIN  /////////////////////
     else if (openCL_active)
     {
-      std::cout << "OpenCL running..\n";
-
-      unsigned int count = circle_buffer.size();
+      cl_uint count = circle_buffer.size();
 
       data.resize(count);
       results.resize(count);
@@ -461,10 +459,6 @@ void Athi_Circle_Manager::update()
       {
         data[i] = *circle_buffer[i];
       }
-
-      std::cout << "number of circles: " << count << '\n';
-      std::cout << "input mem alloc: " << sizeof(Athi_Circle)*count << '\n';
-
 
       // Create the input and output arrays in device memory for our calculation
       //
@@ -487,9 +481,9 @@ void Athi_Circle_Manager::update()
       // Set the arguments to our compute kernel
       //
       err = 0;
-      err  = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
-      err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
-      err |= clSetKernelArg(kernel, 2, sizeof(unsigned int), &count);
+      err  = clSetKernelArg(kernel, 0, sizeof(cl_mem),  &input);
+      err |= clSetKernelArg(kernel, 1, sizeof(cl_mem),  &output);
+      err |= clSetKernelArg(kernel, 2, sizeof(cl_uint), &count);
       if (err != CL_SUCCESS)
       {
           std::cout << "Error: Failed to set kernel arguments! " << err << '\n';
@@ -498,7 +492,6 @@ void Athi_Circle_Manager::update()
 
       // Get the maximum work group size for executing the kernel o dn the device
       //
-      //local = N;
       err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
       if (err != CL_SUCCESS)
       {
@@ -511,10 +504,10 @@ void Athi_Circle_Manager::update()
       err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0, NULL, NULL);
       if (err)
       {
-          std::cout << "Error: Failed to execute kernel!\n";
+        std::cout << "Error: Failed to execute kernel! "<< err << '\n';
         exit(1);
       }
-
+  
       // Wait for the command commands to get serviced before reading back results
       //
       clFinish(commands);
@@ -524,20 +517,17 @@ void Athi_Circle_Manager::update()
       err = clEnqueueReadBuffer( commands, output, CL_TRUE, 0, sizeof(Athi_Circle) * count, &results[0], 0, NULL, NULL );
       if (err != CL_SUCCESS)
       {
-          std::cout << "Error: Failed to read output array! " << err << '\n';
+        std::cout << "Error: Failed to read output array! " << err << '\n';
         exit(1);
       }
 
       clFinish(commands);
 
-      std::cout << "data size: " << data.size() << std::endl;
-      std::cout << "results size: " << results.size() << std::endl;
-
-        // Copy over the results
+      // Copy over the results
       for (int i = 0; i < count; ++i)
       {
-        circle_buffer[i]->pos = results[i].pos;
-        circle_buffer[i]->vel = results[i].vel;
+        circle_buffer[i]->pos   = results[i].pos;
+        circle_buffer[i]->vel   = results[i].vel;
         circle_buffer[i]->color = results[i].color;
       }
 

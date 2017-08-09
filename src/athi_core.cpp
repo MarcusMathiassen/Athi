@@ -157,6 +157,10 @@ void Athi_Core::draw_loop() {
   circle_info_text.pos = vec2(LEFT + ROW, BOTTOM + ROW * 3.0f);
   add_text(&circle_info_text);
 
+
+  Athi_UI_List list;
+  list.add()
+
   while (app_is_running)
   {
     f64 time_start_frame{ glfwGetTime() };
