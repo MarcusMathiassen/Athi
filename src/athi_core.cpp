@@ -9,6 +9,7 @@
 #include "athi_settings.h"
 #include "athi_slider.h"
 #include "athi_text.h"
+#include "athi_line.h"
 #include "athi_ui_list.h"
 #include "athi_utility.h"
 #include "athi_voxelgrid.h"
@@ -30,6 +31,7 @@ void Athi_Core::init() {
   init_text_manager();
   init_rect_manager();
   init_circle_manager();
+  init_line_manager();
 
   init_quadtree();
   init_voxelgrid();
@@ -37,8 +39,8 @@ void Athi_Core::init() {
   glEnable(GL_BLEND);
   glDisable(GL_DEPTH_BUFFER);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(4 / 255.0f, 32 / 255.0f, 41 / 255.0f, 1);
-  // glClearColor(0,0,0,1);
+  //glClearColor(4 / 255.0f, 32 / 255.0f, 41 / 255.0f, 1);
+  glClearColor(0,0,0,1);
 
   cpu_cores = get_cpu_cores();
   cpu_threads = get_cpu_threads();
@@ -189,8 +191,11 @@ void Athi_Core::start() {
     f64 time_start_frame{glfwGetTime()};
     window->update();
     update_inputs();
-    update_UI();
-    if (show_settings) update_settings();
+    if (show_settings)
+    {
+      update_UI();
+      update_settings();
+    }
     glfwPollEvents();
     limit_FPS(monitor_refreshrate, time_start_frame);
   }
@@ -228,6 +233,7 @@ void Athi_Core::draw_loop() {
 
     draw_circles();
     draw_rects();
+    draw_lines();
 
     if (show_settings) draw_UI();
 

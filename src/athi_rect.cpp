@@ -163,7 +163,7 @@ void draw_hollow_rect(const vec2& min, const vec2& max, const vec4& color)
   const f32 width = max.x - min.x;
   const f32 height = max.y - min.y;
   temp.scale = vec3(width, height, 0);
-  mat4 trans = temp.get_model();
+  mat4 trans = temp.get_model() * camera.get_view_projection();
 
   glUniform4f(athi_rect_manager.uniform[athi_rect_manager.COLOR], color.r, color.g, color.b, color.a);
   glUniformMatrix4fv(athi_rect_manager.uniform[athi_rect_manager.TRANSFORM], 1, GL_FALSE, &trans[0][0]);

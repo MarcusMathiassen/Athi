@@ -108,9 +108,14 @@ void mouse_grab() {
       {
         attraction_force(*athi_circle_manager->circle_buffer[id], vec2(mouse_x, mouse_y));
         last_state = ATTACHED;
+        draw_line(vec2(mouse_x, mouse_y), athi_circle_manager->circle_buffer[id]->pos, 0.03f, pastel_green);
       }
     }
-    else attraction_force(*athi_circle_manager->circle_buffer[mouse_attached_to_single], vec2(mouse_x, mouse_y));
+    else
+    {
+      attraction_force(*athi_circle_manager->circle_buffer[mouse_attached_to_single], vec2(mouse_x, mouse_y));
+      draw_line(vec2(mouse_x, mouse_y), athi_circle_manager->circle_buffer[mouse_attached_to_single]->pos, 0.03f, pastel_green);
+    }
     mouse_busy_UI = true;
   }
 
