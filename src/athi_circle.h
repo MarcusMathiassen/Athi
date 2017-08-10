@@ -17,14 +17,19 @@
 
 struct Athi_Circle {
   u32 id;
-  vec2 pos{0, 0};
-  vec2 vel{0, 0};
+  vec2 pos{0.0f, 0.0f};
+  vec2 vel{0.0f, 0.0f};
+  f32 acceleration{0.0f};
+
+  f32 restitution{0.5f};
 
   f32 radius{0.001f};
   f32 mass{1.0f};
 
-  Transform transform;
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+  Transform transform;
+
+  bool kinematic{false};
 
   void update();
   void border_collision();

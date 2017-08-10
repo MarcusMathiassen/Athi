@@ -21,13 +21,15 @@ void Athi_Circle::update()
 {
   border_collision();
 
-  if (physics_gravity) vel.y -= (9.81f) * 0.0001f * timestep;
+  if (!kinematic)
+  {
+    if (physics_gravity) vel.y -= 0.000981f * timestep;
 
-  pos.x += vel.x * timestep * 0.999f;
-  pos.y += vel.y * timestep * 0.999f;
+    pos.x += vel.x * timestep;
+    pos.y += vel.y * timestep;
 
-  transform.pos   = glm::vec3(pos.x, pos.y, 0);
-  transform.scale = glm::vec3(radius, radius, 0);
+    transform.pos = glm::vec3(pos.x, pos.y, 0);
+  }
 }
 
 void Athi_Circle::border_collision()
@@ -90,10 +92,8 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
     const f32 scal_tang_1 = glm::dot(tang, a_vel);
     const f32 scal_tang_2 = glm::dot(tang, b_vel);
 
-    const f32 scal_norm_1_after =
-        (scal_norm_1 * (m1 - m2) + 2.0f * m2 * scal_norm_2) / (m1 + m2);
-    const f32 scal_norm_2_after =
-        (scal_norm_2 * (m2 - m1) + 2.0f * m1 * scal_norm_1) / (m1 + m2);
+    const f32 scal_norm_1_after = (scal_norm_1 * (m1 - m2) + 2.0f * m2 * scal_norm_2) / (m1 + m2);
+    const f32 scal_norm_2_after = (scal_norm_2 * (m2 - m1) + 2.0f * m1 * scal_norm_1) / (m1 + m2);
     const vec2 scal_norm_1_after_vec = norm * scal_norm_1_after;
     const vec2 scal_norm_2_after_vec = norm * scal_norm_2_after;
     const vec2 scal_norm_1_vec = tang * scal_tang_1;
@@ -543,11 +543,6 @@ void Athi_Circle_Manager::update()
       collision_logNxN(circle_buffer.size(), 0, circle_buffer.size());
     }
   }
-
-  for (auto &circle : circle_buffer)
-  {
-    circle->update();
-  }
 }
 
 void Athi_Circle_Manager::collision_logNxN(size_t total, size_t begin, size_t end)
@@ -597,8 +592,9 @@ Athi_Circle Athi_Circle_Manager::get_circle(u32 id)
 void Athi_Circle_Manager::update_circles()
 {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
-  update_springs();
   update();
+  update_springs();
+  for (auto &circle : circle_buffer) circle->update();
 }
 
 void Athi_Circle_Manager::draw_circles()
@@ -635,7 +631,9 @@ void delete_circles() { athi_circle_manager->clear_circles = true; }
 
 void add_circle(Athi_Circle &circle)
 {
-  circle.mass = 1.33333f * M_PI * circle.radius * circle.radius * circle.radius;
+  const f32 radi = circle.radius;
+  circle.mass = 1.33333f * M_PI * radi * radi * radi;
+  circle.transform.scale = glm::vec3(radi, radi, 0);
   athi_circle_manager->add_circle(circle);
 }
 

@@ -24,15 +24,13 @@ struct Athi_Spring
 
     vec2 dist = vec2(p2->pos.x-(p1->pos.x), p2->pos.y-(p1->pos.y));
     vec2 v = p2->vel - p1->vel;
-    vec2 x = glm::normalize(dist);
     f32 d = (distance < length) ? -1.0f : 1.0f;
 
     //  F = -kx -bv
     vec2 F = d*k*dist - b*v;
 
-    std::cout << "force x: " << F.x << " | force y: " << F.y << std::endl;
-
     p1->vel = F;
+    //p2->vel = -F;
   }
 
   void draw()
