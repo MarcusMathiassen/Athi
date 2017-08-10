@@ -12,7 +12,9 @@
 #include "athi_line.h"
 #include "athi_ui_list.h"
 #include "athi_utility.h"
+#include "athi_softbody.h"
 #include "athi_voxelgrid.h"
+#include "athi_spring.h"
 
 #include <iostream>
 #include <thread>
@@ -234,6 +236,7 @@ void Athi_Core::draw_loop() {
     draw_circles();
     draw_rects();
     draw_lines();
+    draw_springs();
 
     if (show_settings) draw_UI();
 

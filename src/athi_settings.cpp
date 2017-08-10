@@ -2,11 +2,11 @@
 #include "athi_typedefs.h"
 
 
-f32 mouse_size{0.1f};
+f32 mouse_size{0.001f};
 bool mouse_busy_UI{false};
-bool mouse_grab_multiple{true};
+bool mouse_grab_multiple{false};
 
-bool show_settings{true};
+bool show_settings{false};
 bool physics_gravity{false};
 bool circle_collision{true};
 

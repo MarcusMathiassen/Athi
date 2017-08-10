@@ -3,6 +3,7 @@
 #include "athi_quadtree.h"
 #include "athi_settings.h"
 #include "athi_voxelgrid.h"
+#include "athi_spring.h"
 
 #include <iostream>
 #include <cmath>
@@ -124,8 +125,8 @@ void separate(Athi_Circle &a, Athi_Circle &b)
   // move the balls away from eachother so they dont overlap
   const f32 a_move_x = -collision_depth * 0.5f * cos_angle;
   const f32 a_move_y = -collision_depth * 0.5f * sin_angle;
-  const f32 b_move_x = collision_depth * 0.5f * cos_angle;
-  const f32 b_move_y = collision_depth * 0.5f * sin_angle;
+  const f32 b_move_x =  collision_depth * 0.5f * cos_angle;
+  const f32 b_move_y =  collision_depth * 0.5f * sin_angle;
 
   // store the new move values
   vec2 a_pos_move;
@@ -147,7 +148,6 @@ void Athi_Circle_Manager::init()
   ///////////////////// OPENCL BEGIN /////////////////////
   ///////////////////// OPENCL BEGIN /////////////////////
   ///////////////////// OPENCL BEGIN /////////////////////
-
 
   read_file("../Resources/circle_collision_kernel.cl", &kernel_source);
 
@@ -597,6 +597,7 @@ Athi_Circle Athi_Circle_Manager::get_circle(u32 id)
 void Athi_Circle_Manager::update_circles()
 {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
+  update_springs();
   update();
 }
 
@@ -613,6 +614,7 @@ void Athi_Circle_Manager::draw_circles()
     circle_buffer.clear();
     clear_circles = false;
     reset_quadtree();
+    spring_buffer.clear();
   }
 }
 

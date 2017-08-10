@@ -30,6 +30,7 @@
 		F2298A531F328D78007DCBB3 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A521F328D78007DCBB3 /* libglfw3.a */; };
 		F2820A041F3BAC1C00BD6C76 /* athi_particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F28209FE1F3BAC1B00BD6C76 /* athi_particle.cpp */; };
 		F2820A051F3BAC1C00BD6C76 /* athi_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2820A021F3BAC1B00BD6C76 /* athi_line.cpp */; };
+		F28B69261F3C962C00766125 /* athi_spring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F28B69241F3C962C00766125 /* athi_spring.cpp */; };
 		F2A08A681F3A01B200E2148B /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2A08A671F3A01B200E2148B /* OpenCL.framework */; };
 /* End PBXBuildFile section */
 
@@ -96,6 +97,9 @@
 		F2820A011F3BAC1B00BD6C76 /* athi_line.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_line.h; sourceTree = "<group>"; };
 		F2820A021F3BAC1B00BD6C76 /* athi_line.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_line.cpp; sourceTree = "<group>"; };
 		F2820A031F3BAC1B00BD6C76 /* athi_button.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_button.h; sourceTree = "<group>"; };
+		F28B69231F3C962C00766125 /* athi_softbody.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_softbody.h; sourceTree = "<group>"; };
+		F28B69241F3C962C00766125 /* athi_spring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_spring.cpp; sourceTree = "<group>"; };
+		F28B69251F3C962C00766125 /* athi_spring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_spring.h; sourceTree = "<group>"; };
 		F2A08A671F3A01B200E2148B /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -137,6 +141,9 @@
 		F2298A151F328D00007DCBB3 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				F28B69231F3C962C00766125 /* athi_softbody.h */,
+				F28B69241F3C962C00766125 /* athi_spring.cpp */,
+				F28B69251F3C962C00766125 /* athi_spring.h */,
 				F2820A031F3BAC1B00BD6C76 /* athi_button.h */,
 				F2820A021F3BAC1B00BD6C76 /* athi_line.cpp */,
 				F2820A011F3BAC1B00BD6C76 /* athi_line.h */,
@@ -260,6 +267,7 @@
 				F203DDEA1F33EA94005A1535 /* athi_utility.cpp in Sources */,
 				F2298A3E1F328D00007DCBB3 /* athi_quadtree.cpp in Sources */,
 				F2820A051F3BAC1C00BD6C76 /* athi_line.cpp in Sources */,
+				F28B69261F3C962C00766125 /* athi_spring.cpp in Sources */,
 				F2298A3C1F328D00007DCBB3 /* athi_core.cpp in Sources */,
 				F2298A3F1F328D00007DCBB3 /* athi_rect.cpp in Sources */,
 				F2298A461F328D00007DCBB3 /* main.cpp in Sources */,
@@ -315,7 +323,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",

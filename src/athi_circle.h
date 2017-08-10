@@ -94,6 +94,7 @@ struct Athi_Circle_Manager
   void collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end);
 };
 
+void attach_spring(Athi_Circle &a, Athi_Circle &b);
 void delete_circles();
 u32 get_num_circles();
 void update_circles();

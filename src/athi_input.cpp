@@ -2,6 +2,7 @@
 #include "athi_rect.h"
 #include "athi_circle.h"
 #include "athi_line.h"
+#include "athi_spring.h"
 
 Athi_Input_Manager athi_input_manager;
 
@@ -68,6 +69,70 @@ vector<u32> mouse_attached_to;
 s32 mouse_attached_to_single{-1};
 enum { ATTACHED, PRESSED, NOTHING };
 u16 last_state{NOTHING};
+
+
+  s32 id1, id2;
+  bool found{false};
+  bool attach{false};
+void mouse_attach_spring()
+{
+  // Drag a spring from one circle to the other
+    // Get mouse position
+  f64 mouse_x, mouse_y;
+  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
+
+  // Turn into Worldspace
+  s32 width, height;
+  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+  mouse_x = -1.0f + 2 * mouse_x / width;
+  mouse_y = +1.0f - 2 * mouse_y / height;
+
+  Rect mouse_rect(vec2(mouse_x-mouse_size, mouse_y-mouse_size), vec2(mouse_x+mouse_size, mouse_y+mouse_size));
+
+  s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
+
+  if (attach)
+  {
+    attach_spring(*athi_circle_manager->circle_buffer[id1], *athi_circle_manager->circle_buffer[id2]);
+    attach = false;
+  }
+
+  // If mouse released and first circle is found
+  if (state == GLFW_RELEASE && found)
+  {
+    for (auto& c: athi_circle_manager->circle_buffer)
+    {
+      if (mouse_rect.contains(c->id))
+      {
+        id2 = c->id;
+        attach = true;
+        found = false;
+        return;
+      }
+    }
+  }
+
+  // draw a line while we look for the second circle
+  if (state == GLFW_PRESS && found)
+  {
+      draw_line(vec2(mouse_x, mouse_y), athi_circle_manager->circle_buffer[id1]->pos, 0.03f, pastel_pink);
+      return;
+  }
+
+  // When the mouse is pressed down, get the first circle id
+  if (state == GLFW_PRESS)
+  {
+    for (auto& c: athi_circle_manager->circle_buffer)
+    {
+      if (mouse_rect.contains(c->id))
+      {
+        id1 = c->id;
+        found = true;
+        return;
+      }
+    }
+  }
+}
 
 void mouse_grab() {
 
@@ -146,55 +211,60 @@ void update_inputs() {
   mouse_x = -1.0f + 2 * mouse_x / width;
   mouse_y = +1.0f - 2 * mouse_y / height;
 
+  auto context = glfwGetCurrentContext();
+
   // Find the circle you're over
-  mouse_grab();
+
+  if (glfwGetKey(context, GLFW_KEY_S) == GLFW_PRESS) {
+    mouse_attach_spring();
+  } else mouse_grab();
 
 
   Athi_Circle c;
-  if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_SPACE) == GLFW_PRESS) {
+  if (glfwGetKey(context, GLFW_KEY_SPACE) == GLFW_PRESS) {
     c.pos = vec2(mouse_x, mouse_y);
     c.radius = circle_size;
     add_circle(c);
   }
-  if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_1) == GLFW_PRESS) {
+  if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
     c.pos = vec2(mouse_x, mouse_y);
     c.radius = 0.003f;
     for (int i = 0; i < 10; ++i)
       add_circle(c);
   }
-  if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_2) == GLFW_PRESS) {
+  if (glfwGetKey(context, GLFW_KEY_2) == GLFW_PRESS) {
     c.pos = vec2(mouse_x, mouse_y);
     c.radius = 0.005f;
     add_circle(c);
   }
-  if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_3) == GLFW_PRESS) {
+  if (glfwGetKey(context, GLFW_KEY_3) == GLFW_PRESS) {
     c.pos = vec2(mouse_x, mouse_y);
     c.radius = 0.007f;
     add_circle(c);
   }
 
   //  CAMERA MOVE
-  if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT) == GLFW_PRESS) {
+  if (glfwGetKey(context, GLFW_KEY_LEFT) == GLFW_PRESS) {
     camera.position.x -= 1;
   }
   //  CAMERA MOVE
-  if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_RIGHT) == GLFW_PRESS) {
+  if (glfwGetKey(context, GLFW_KEY_RIGHT) == GLFW_PRESS) {
     camera.position.x += 1;
   }
   //  CAMERA MOVE
-  if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_DOWN) == GLFW_PRESS) {
+  if (glfwGetKey(context, GLFW_KEY_DOWN) == GLFW_PRESS) {
     camera.position.y -= 1;
   }
   //  CAMERA MOVE
-  if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_UP) == GLFW_PRESS) {
+  if (glfwGetKey(context, GLFW_KEY_UP) == GLFW_PRESS) {
     camera.position.y += 1;
   }
 
-  if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_A) == GLFW_PRESS) {
+  if (glfwGetKey(context, GLFW_KEY_A) == GLFW_PRESS) {
     camera.zoom -= 0.01f;
   }
   //  CAMERA MOVE
-  if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_S) == GLFW_PRESS) {
+  if (glfwGetKey(context, GLFW_KEY_S) == GLFW_PRESS) {
     camera.zoom += 0.01f;
   }
   camera.update_perspective();
