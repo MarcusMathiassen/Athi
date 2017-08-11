@@ -177,13 +177,14 @@ void mouse_grab() {
         draw_line(vec2(mouse_x, mouse_y), athi_circle_manager->circle_buffer[id]->pos, 0.03f, pastel_green);
       }
     }
-    else
+    else // single
     {
       attraction_force(*athi_circle_manager->circle_buffer[mouse_attached_to_single], vec2(mouse_x, mouse_y));
       draw_line(vec2(mouse_x, mouse_y), athi_circle_manager->circle_buffer[mouse_attached_to_single]->pos, 0.03f, pastel_green);
     }
     mouse_busy_UI = true;
   }
+
 
   // Go through all circles. Return the circle hovered
   if (last_state != ATTACHED)
@@ -196,7 +197,10 @@ void mouse_grab() {
       {
         mouse_attached_to.emplace_back(c->id);
       }
-      else mouse_attached_to_single = c->id;
+      else
+      {
+        mouse_attached_to_single = c->id;
+      }
       last_state = ATTACHED;
     }
   }

@@ -4,6 +4,7 @@
 #include "athi_settings.h"
 #include "athi_voxelgrid.h"
 #include "athi_spring.h"
+#include "athi_renderer.h"
 
 #include <iostream>
 #include <cmath>
@@ -14,6 +15,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+vector<std::function<void()> > circle_update_call_buffer;
 std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
 std::unique_ptr<Athi_Circle_Manager> athi_circle_manager;
 
@@ -25,8 +27,8 @@ void Athi_Circle::update()
   {
     if (physics_gravity) vel.y -= 0.000981f * timestep;
 
-    vel.x += acc.x * timestep;
-    vel.y += acc.y * timestep;
+    vel.x += acc.x * timestep * 0.95f;
+    vel.y += acc.y * timestep * 0.95f;
     pos.x += vel.x * timestep;
     pos.y += vel.y * timestep;
 
@@ -101,8 +103,8 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_vec = tang * scal_tang_1;
     const vec2 scal_norm_2_vec = tang * scal_tang_2;
 
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.99f;
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.95f;
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.95f;
   }
 }
 
@@ -370,8 +372,7 @@ void Athi_Circle_Manager::draw()
 
   u32 i = 0;
   for (const auto &circle : circle_buffer) {
-    transforms[i] =
-        circle->transform.get_model() * camera.get_view_projection();
+    transforms[i] = circle->transform.get_model(); // * camera.get_view_projection();
     colors[i++] = circle->color;
   }
 
@@ -398,7 +399,7 @@ void Athi_Circle_Manager::draw()
 
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, circle_buffer.size());
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
 }
 
 void Athi_Circle_Manager::update()
@@ -429,7 +430,7 @@ void Athi_Circle_Manager::update()
     {
       const u32 thread_count = variable_thread_count;
       const size_t total = circle_buffer.size();
-      const u32 parts = total / thread_count;
+      const size_t parts = total / thread_count;
 
       threads.resize(thread_count);
 
@@ -438,8 +439,8 @@ void Athi_Circle_Manager::update()
       int i = 0;
       for (auto &thread: threads)
       {
-        const int begin = parts * i;
-        const int end   = parts * (i + 1);
+        const size_t begin = parts * i;
+        const size_t end   = parts * (i + 1);
         thread = std::thread(&Athi_Circle_Manager::collision_logNxN, this, total, begin, end);
         ++i;
       }
@@ -451,7 +452,7 @@ void Athi_Circle_Manager::update()
     ////////////////////// OPENCL UPDATE BEGIN  /////////////////////
     else if (openCL_active)
     {
-      int count = circle_buffer.size();
+      u32 count = (u32)circle_buffer.size();
 
       data.resize(count);
       results.resize(count);
@@ -581,7 +582,7 @@ void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<u32> 
 void Athi_Circle_Manager::add_circle(Athi_Circle &circle)
 {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
-  circle.id = circle_buffer.size();
+  circle.id = (u32)circle_buffer.size();
   circle_buffer.emplace_back(std::make_unique<Athi_Circle>(circle));
 }
 
@@ -597,6 +598,9 @@ void Athi_Circle_Manager::update_circles()
   update();
   for (auto &circle : circle_buffer) circle->update();
   update_springs();
+  
+  for (auto &c: circle_update_call_buffer) c();
+  circle_update_call_buffer.clear();
 }
 
 void Athi_Circle_Manager::draw_circles()
@@ -605,7 +609,7 @@ void Athi_Circle_Manager::draw_circles()
 
   draw();
   if (voxelgrid_active && draw_debug) draw_voxelgrid();
-  if (quadtree_active && draw_debug) draw_quadtree();
+  if (quadtree_active  && draw_debug) draw_quadtree();
 
   if (clear_circles)
   {
@@ -630,6 +634,12 @@ void init_circle_manager()
 void update_circles() { athi_circle_manager->update_circles(); }
 void draw_circles()   { athi_circle_manager->draw_circles();   }
 void delete_circles() { athi_circle_manager->clear_circles = true; }
+
+void update_circle_call(const std::function<void()>& f)
+{
+  std::lock_guard<std::mutex> lock(athi_circle_manager->circle_buffer_function_mutex);
+  circle_update_call_buffer.emplace_back(std::move(f));
+}
 
 void add_circle(Athi_Circle &circle)
 {

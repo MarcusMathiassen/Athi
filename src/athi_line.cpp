@@ -43,7 +43,6 @@ void Athi_Line_Manager::draw()
 {
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
-  const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
 
   for (auto &line: line_buffer)
   {

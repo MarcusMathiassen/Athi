@@ -5,13 +5,11 @@
 #include "athi_typedefs.h"
 #include "athi_ui.h"
 #include "athi_window.h"
-#include "athi_renderer.h"
 
 #include <memory>
 
 struct Athi_Core {
   std::unique_ptr<Athi_Window> window;
-  Renderer renderer;
 
   void window_loop();
   void draw_loop();

@@ -6,6 +6,9 @@ extern f32 mouse_size;
 extern bool mouse_grab_multiple;
 extern bool mouse_busy_UI;
 
+extern s32 screen_width;
+extern s32 screen_height;
+
 extern bool show_settings;
 extern bool physics_gravity;
 extern bool circle_collision;

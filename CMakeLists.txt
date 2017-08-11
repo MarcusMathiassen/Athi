@@ -39,7 +39,7 @@ if(WIN32)
 
 elseif(APPLE)
 
-  SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
+  SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
 	# RESOURCE FILE LOCATION

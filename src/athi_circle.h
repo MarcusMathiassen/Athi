@@ -11,10 +11,13 @@
 #include <mutex>
 #include <thread>
 #include <vector>
+#include <functional>
 
 #include <OpenCL/OpenCL.h>
 
 #define CIRCLE_NUM_VERTICES 36
+
+extern vector<std::function<void()> > circle_update_call_buffer;
 
 struct Athi_Circle : public Rigid_Body
 {
@@ -93,6 +96,8 @@ struct Athi_Circle_Manager
   void collision_logNxN(size_t total, size_t begin, size_t end);
   void collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end);
 };
+
+void update_circle_call(const std::function<void()>& f);
 
 void attach_spring(Athi_Circle &a, Athi_Circle &b);
 void delete_circles();

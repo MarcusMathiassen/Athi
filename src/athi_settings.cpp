@@ -6,6 +6,9 @@ f32 mouse_size{0.001f};
 bool mouse_busy_UI{false};
 bool mouse_grab_multiple{false};
 
+s32 screen_width;
+s32 screen_height;
+
 bool show_settings{false};
 bool physics_gravity{false};
 bool circle_collision{true};

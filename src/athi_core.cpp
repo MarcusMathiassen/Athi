@@ -243,16 +243,14 @@ void Athi_Core::draw_loop()
     circle_info_text.str       = "Circles: " + std::to_string(get_num_circles());
 
     glClear(GL_COLOR_BUFFER_BIT);
-
+  
     draw_circles();
     draw_rects();
     draw_lines();
     draw_springs();
-
+    
     if (show_settings) draw_UI();
-
-    renderer.commit();
-
+    
     glfwSwapBuffers(window_context);
 
     // Update framerate info

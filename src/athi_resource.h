@@ -2,21 +2,15 @@
 
 #include "athi_typedefs.h"
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-#include <iostream>
-
-class Athi_Resource_Manager
+class Resource
 {
-private:
-  std::vector<u32> shader_program_buffer;
 
-public:
-  Athi_Resource_Manager() = default;
+protected:
+  string name;
+
 };
 
-void load_shader(const char* path, GLenum type)
+class Resource_Manager
 {
-
-}
+  vector<Resource> resource_buffer;
+};

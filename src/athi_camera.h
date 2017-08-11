@@ -27,7 +27,7 @@ struct Camera
   }
   void update_perspective()
   {
-    perspective = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+    perspective = glm::ortho(0.0f, window_width, 0.0f, window_height, -1.0f, 1.0f);
   }
 };
 
