@@ -23,9 +23,9 @@ void attach_spring(Athi_Circle &a, Athi_Circle &b)
 {
   Athi_Spring spring;
 
-  spring.p1 = &a;
-  spring.p2 = &b;
-  spring.length = glm::distance(b.pos, a.pos);
+  spring.object = &a;
+  spring.anchor = &b;
+  spring.length = glm::distance(a.pos, b.pos);
 
   add_spring(spring);
 }

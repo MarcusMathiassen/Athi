@@ -25,6 +25,8 @@ void Athi_Circle::update()
   {
     if (physics_gravity) vel.y -= 0.000981f * timestep;
 
+    vel.x += acc.x * timestep;
+    vel.y += acc.y * timestep;
     pos.x += vel.x * timestep;
     pos.y += vel.y * timestep;
 
@@ -593,8 +595,8 @@ void Athi_Circle_Manager::update_circles()
 {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
   update();
-  update_springs();
   for (auto &circle : circle_buffer) circle->update();
+  update_springs();
 }
 
 void Athi_Circle_Manager::draw_circles()

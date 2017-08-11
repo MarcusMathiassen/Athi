@@ -38,6 +38,7 @@ void Athi_Core::init() {
   init_quadtree();
   init_voxelgrid();
 
+  glEnable(GL_LINE_SMOOTH);
   glEnable(GL_BLEND);
   glDisable(GL_DEPTH_BUFFER);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

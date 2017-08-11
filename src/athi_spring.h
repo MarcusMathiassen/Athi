@@ -6,36 +6,57 @@
 #include "athi_circle.h"
 #include "athi_settings.h"
 
+#include <cmath>
 #include <iostream>
 
 struct Athi_Spring
 {
-  Athi_Circle *p1;
-  Athi_Circle *p2;
+  Athi_Circle *object;
+  Athi_Circle *anchor;
   f32 length;
-  f32 k{0.1f};
-  f32 b{0.1f};
+  f32 k{0.01f};
+  f32 b{0.5f};
   vec4 color{pastel_green};
 
   void update()
   {
-    // make sure distance between p1 and p2 is length
-    f32 distance = glm::distance(p2->pos, p1->pos);
+    // Local variables
+    const vec2 p1 = object->pos;
+    const vec2 p2 = anchor->pos;
+    const vec2 v1 = object->vel;
+    const vec2 v2 = anchor->vel;
+    const f32  m1 = object->mass;
+    const f32  m2 = anchor->mass;
 
-    vec2 dist = vec2(p2->pos.x-(p1->pos.x), p2->pos.y-(p1->pos.y));
-    vec2 v = p2->vel - p1->vel;
-    f32 d = (distance < length) ? -1.0f : 1.0f;
+    const f32 distance = glm::distance(p1, p2);
 
-    //  F = -kx -bv
-    vec2 F = d*k*dist - b*v;
+    if (distance < length || distance > length) return;
 
-    p1->vel = F;
-    //p2->vel = -F;
+    const f32  x = length - distance;
+    const vec2 x_n1 = glm::normalize(p2-p1);
+    const vec2 x_n2 = glm::normalize(p1-p2);
+    const vec2 v = v2 - v1;
+
+    const f32 d = (distance < length) ? -1.0f : 1.0f;
+
+    // Calculate forces
+    const vec2 F1 = -k*x*x_n1 - b*v;
+    const vec2 F2 = -k*x*x_n2 - b*v;
+
+    if (std::isnan(F1.x) || std::isnan(F1.y)) return;
+    if (std::isnan(F2.x) || std::isnan(F2.y)) return;
+
+    std::cout << "F1: " << F1.x << " " << F1.y<< std::endl;
+    std::cout << "F2: " << F2.x << " " << F2.y<< std::endl;
+
+    // Update acceleration
+    object->acc = F1/m1;
+    anchor->acc = F2/m2;
   }
 
   void draw()
   {
-    draw_line(p1->pos, p2->pos, 0.03f, color);
+    draw_line(object->pos, anchor->pos, 0.3f, color);
   }
 };
 

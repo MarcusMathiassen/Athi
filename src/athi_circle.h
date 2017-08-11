@@ -19,7 +19,7 @@ struct Athi_Circle {
   u32 id;
   vec2 pos{0.0f, 0.0f};
   vec2 vel{0.0f, 0.0f};
-  f32 acceleration{0.0f};
+  vec2 acc{0.0f, 0.0f};
 
   f32 restitution{0.5f};
 
