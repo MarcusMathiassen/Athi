@@ -3,6 +3,7 @@
 #include "athi_circle.h"
 #include "athi_line.h"
 #include "athi_spring.h"
+#include "athi_renderer.h"
 
 Athi_Input_Manager athi_input_manager;
 
@@ -139,6 +140,19 @@ void mouse_grab() {
   // Get the mouse state
   s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
+    // Get mouse position
+  f64 mouse_x, mouse_y;
+  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
+
+  // Turn into Worldspace
+  s32 width, height;
+  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+  mouse_x = -1.0f + 2 * mouse_x / width;
+  mouse_y = +1.0f - 2 * mouse_y / height;
+
+  Rect mouse_rect(vec2(mouse_x-mouse_size, mouse_y-mouse_size), vec2(mouse_x+mouse_size, mouse_y+mouse_size));
+  draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
+
   // If it's released just exit the function
   if (state == GLFW_RELEASE)
   {
@@ -150,19 +164,6 @@ void mouse_grab() {
     return;
   }
   // If pressed continue on..
-
-  // Get mouse position
-  f64 mouse_x, mouse_y;
-  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
-
-  // Turn into Worldspace
-  s32 width, height;
-  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-  mouse_x = -1.0f + 2 * mouse_x / width;
-  mouse_y = +1.0f - 2 * mouse_y / height;
-
-  Rect mouse_rect(vec2(mouse_x-mouse_size, mouse_y-mouse_size), vec2(mouse_x+mouse_size, mouse_y+mouse_size));
-  if (draw_debug) draw_rect(mouse_rect.min, mouse_rect.max, pastel_green, GL_LINE_LOOP);
 
   // If already attached
   if (last_state == ATTACHED)

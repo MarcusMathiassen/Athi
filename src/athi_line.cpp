@@ -76,7 +76,6 @@ void draw_lines()
   athi_line_manager.draw();
 }
 
-
 void draw_line(const vec2& p1, const vec2& p2, f32 width, const vec4& color)
 {
   Athi_Line line;

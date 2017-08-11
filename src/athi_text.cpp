@@ -1,4 +1,5 @@
  #include "athi_text.h"
+ #include "athi_renderer.h"
 
 std::vector<Athi_Text *> text_buffer;
 
@@ -85,31 +86,34 @@ void init_text_manager() { athi_text_manager.init(); }
 
 void draw_text(std::string str, vec2 pos, vec4 color)
 {
-  glBindVertexArray(athi_text_manager.VAO);
-  glUseProgram(athi_text_manager.shader_program);
-  athi_text_manager.texture.bind(0);
+  render_call([str, pos, color]()
+  {
+    glBindVertexArray(athi_text_manager.VAO);
+    glUseProgram(athi_text_manager.shader_program);
+    athi_text_manager.texture.bind(0);
 
-  const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
+    const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
 
-  // Scale by the inverse aspectratio to make sure text is renderered
-  // correctly.
-  Transform temp{vec3(pos, 0.0f), vec3(), vec3(1.0f, 1.0f, 1.0f)};
-  temp.scale = vec3(inverse_aspect, 1.0f, 1.0f);
+    // Scale by the inverse aspectratio to make sure text is renderered
+    // correctly.
+    Transform temp{vec3(pos, 0.0f), vec3(), vec3(1.0f, 1.0f, 1.0f)};
+    temp.scale = vec3(inverse_aspect, 1.0f, 1.0f);
 
-  // Assign color of text
-  glUniform4f(athi_text_manager.uniform[athi_text_manager.COLOR], color.r, color.g, color.b,
-              color.a);
+    // Assign color of text
+    glUniform4f(athi_text_manager.uniform[athi_text_manager.COLOR], color.r, color.g, color.b,
+                color.a);
 
-  // Loop through characters, spacing them accordingly
-  const size_t num_characters = str.length();
-  for (size_t i = 0; i < num_characters; ++i) {
-    if (str[i] == ' ') continue;
-    temp.pos.x = pos.x + DIST_BETW_CHAR * i * inverse_aspect;
-    mat4 trans = temp.get_model();
-    glUniformMatrix4fv(athi_text_manager.uniform[athi_text_manager.TRANSFORM], 1, GL_FALSE, &trans[0][0]);
-    glUniform1i(athi_text_manager.uniform[athi_text_manager.TEXTCOORD_INDEX], str[i]);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
-  }
+    // Loop through characters, spacing them accordingly
+    const size_t num_characters = str.length();
+    for (size_t i = 0; i < num_characters; ++i) {
+      if (str[i] == ' ') continue;
+      temp.pos.x = pos.x + DIST_BETW_CHAR * i * inverse_aspect;
+      mat4 trans = temp.get_model();
+      glUniformMatrix4fv(athi_text_manager.uniform[athi_text_manager.TRANSFORM], 1, GL_FALSE, &trans[0][0]);
+      glUniform1i(athi_text_manager.uniform[athi_text_manager.TEXTCOORD_INDEX], str[i]);
+      glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+    }
+  });
 }
 
 void add_text(Athi_Text *text) {

@@ -4,6 +4,7 @@
 #include "athi_circle.h"
 #include "athi_camera.h"
 #include "athi_transform.h"
+#include "athi_renderer.h"
 
 #include "athi_utility.h"
 
@@ -154,20 +155,22 @@ void draw_rect(const vec2& min, f32 width, f32 height, const vec4& color, GLenum
 
 void draw_hollow_rect(const vec2& min, const vec2& max, const vec4& color)
 {
-  glBindVertexArray(athi_rect_manager.VAO);
-  glUseProgram(athi_rect_manager.shader_program);
+  render_call([min, max, color]() {
+    glBindVertexArray(athi_rect_manager.VAO);
+    glUseProgram(athi_rect_manager.shader_program);
 
-  Transform temp{vec3(min,0), vec3(), vec3(1,1,1)};
-  //const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
+    Transform temp{vec3(min,0), vec3(), vec3(1,1,1)};
+    //const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
 
-  const f32 width = max.x - min.x;
-  const f32 height = max.y - min.y;
-  temp.scale = vec3(width, height, 0);
-  mat4 trans = temp.get_model() * camera.get_view_projection();
+    const f32 width = max.x - min.x;
+    const f32 height = max.y - min.y;
+    temp.scale = vec3(width, height, 0);
+    mat4 trans = temp.get_model() * camera.get_view_projection();
 
-  glUniform4f(athi_rect_manager.uniform[athi_rect_manager.COLOR], color.r, color.g, color.b, color.a);
-  glUniformMatrix4fv(athi_rect_manager.uniform[athi_rect_manager.TRANSFORM], 1, GL_FALSE, &trans[0][0]);
-  glDrawArrays(GL_LINE_LOOP, 0, 4);
+    glUniform4f(athi_rect_manager.uniform[athi_rect_manager.COLOR], color.r, color.g, color.b, color.a);
+    glUniformMatrix4fv(athi_rect_manager.uniform[athi_rect_manager.TRANSFORM], 1, GL_FALSE, &trans[0][0]);
+    glDrawArrays(GL_LINE_LOOP, 0, 4);
+  });
 }
 
 void draw_rects()
