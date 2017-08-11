@@ -101,8 +101,8 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_vec = tang * scal_tang_1;
     const vec2 scal_norm_2_vec = tang * scal_tang_2;
 
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.95f;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.95f;
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.99f;
   }
 }
 
@@ -451,7 +451,7 @@ void Athi_Circle_Manager::update()
     ////////////////////// OPENCL UPDATE BEGIN  /////////////////////
     else if (openCL_active)
     {
-      cl_uint count = circle_buffer.size();
+      int count = circle_buffer.size();
 
       data.resize(count);
       results.resize(count);

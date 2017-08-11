@@ -15,6 +15,7 @@
 #include "athi_softbody.h"
 #include "athi_voxelgrid.h"
 #include "athi_spring.h"
+#include <functional>
 
 #include <iostream>
 #include <thread>
@@ -23,7 +24,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-void Athi_Core::init() {
+void Athi_Core::init()
+{
   window = std::make_unique<Athi_Window>();
   window->scene.width = 512;
   window->scene.height = 512;
@@ -42,12 +44,11 @@ void Athi_Core::init() {
   glEnable(GL_BLEND);
   glDisable(GL_DEPTH_BUFFER);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  //glClearColor(4 / 255.0f, 32 / 255.0f, 41 / 255.0f, 1);
-  glClearColor(0,0,0,1);
+  glClearColor(4 / 255.0f, 32 / 255.0f, 41 / 255.0f, 1);
 
-  cpu_cores = get_cpu_cores();
+  cpu_cores   = get_cpu_cores();
   cpu_threads = get_cpu_threads();
-  cpu_brand = get_cpu_brand();
+  cpu_brand   = get_cpu_brand();
 
   std::cout << "Status: " << glGetString(GL_VERSION) << '\n';
   std::cout << "Status: " << glGetString(GL_VENDOR) << '\n';
@@ -59,7 +60,9 @@ void Athi_Core::init() {
   variable_thread_count = cpu_threads;
 }
 
-void Athi_Core::start() {
+void printa() { std::cout << "PRINTA" << std::endl; }
+void Athi_Core::start()
+{
   Athi_Checkbox quadtree_box;
   quadtree_box.pos = vec2(RIGHT - ROW * 7.5f, BOTTOM + ROW);
   quadtree_box.text.str = "quadtree";
@@ -102,7 +105,7 @@ void Athi_Core::start() {
   quadtree_show_filled.variable = &quadtree_show_only_occupied;
   add_checkbox(&quadtree_show_filled);
 
-    Athi_Checkbox mouse_grab_multiple_box;
+  Athi_Checkbox mouse_grab_multiple_box;
   mouse_grab_multiple_box.pos = vec2(RIGHT - ROW * 7.5f, BOTTOM + ROW * 8.0f);
   mouse_grab_multiple_box.text.str = "mouse grab multiple";
   mouse_grab_multiple_box.variable = &mouse_grab_multiple;
@@ -187,21 +190,26 @@ void Athi_Core::start() {
   std::thread draw_thread(&Athi_Core::draw_loop, this);
   std::thread physics_thread(&Athi_Core::physics_loop, this);
 
-  // UI
-  auto window_context = window->get_window_context();
-  auto monitor_refreshrate = window->monitor_refreshrate;
-  while (!glfwWindowShouldClose(window_context)) {
-    f64 time_start_frame{glfwGetTime()};
+  auto window_context       = window->get_window_context();
+  auto monitor_refreshrate  = window->monitor_refreshrate;
+
+  while (!glfwWindowShouldClose(window_context))
+  {
+    const f64 time_start_frame = glfwGetTime();
+
     window->update();
     update_inputs();
+
     if (show_settings)
     {
       update_UI();
       update_settings();
     }
+
     glfwPollEvents();
     limit_FPS(monitor_refreshrate, time_start_frame);
   }
+
   app_is_running = false;
   draw_thread.join();
   physics_thread.join();
@@ -210,9 +218,8 @@ void Athi_Core::start() {
 }
 
 static SMA smooth_frametime_avg(&smoothed_frametime);
-void Athi_Core::draw_loop() {
-  glfwMakeContextCurrent(window->get_window_context());
-
+void Athi_Core::draw_loop()
+{
   Athi_Text frametime_text;
   frametime_text.pos = vec2(LEFT + ROW, TOP);
   add_text(&frametime_text);
@@ -225,9 +232,12 @@ void Athi_Core::draw_loop() {
   circle_info_text.pos = vec2(LEFT + ROW, BOTTOM + ROW * 3.0f);
   add_text(&circle_info_text);
 
+  auto window_context = window->get_window_context();
+  glfwMakeContextCurrent(window_context);
+
   while (app_is_running)
   {
-    f64 time_start_frame{ glfwGetTime() };
+    const f64 time_start_frame = glfwGetTime();
     frametime_text.str         = "Render:  " + std::to_string(framerate) + "fps | " + std::to_string(smoothed_frametime) + "ms";
     physics_frametime_text.str = "Physics: " + std::to_string(physics_framerate) + "fps | " + std::to_string(smoothed_physics_frametime) + "ms";
     circle_info_text.str       = "Circles: " + std::to_string(get_num_circles());
@@ -241,20 +251,32 @@ void Athi_Core::draw_loop() {
 
     if (show_settings) draw_UI();
 
-    glfwSwapBuffers(window->get_window_context());
-    if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
+    renderer.commit();
 
+    glfwSwapBuffers(window_context);
+
+    // Update framerate info
+    if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     framerate = (u32)(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
   }
 }
 
-static SMA smooth_physics_rametime_avg(&smoothed_physics_frametime);
-void Athi_Core::physics_loop() {
-  while (app_is_running) {
-    f64 time_start_frame = glfwGetTime();
-    update_circles();
+void update_game_state()
+{
+  update_circles();
+}
+
+static SMA smooth_physics_rametime_avg(&smoothed_physics_frametime); void
+Athi_Core::physics_loop()
+{
+  while (app_is_running)
+  {
+    const f64 time_start_frame = glfwGetTime();
+
+    update_game_state();
+
     if (physics_FPS_limit != 0) limit_FPS(physics_FPS_limit, time_start_frame);
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     physics_framerate = (u32)(std::round(1000.0f / smoothed_physics_frametime));

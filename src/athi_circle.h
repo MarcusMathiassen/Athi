@@ -6,6 +6,7 @@
 #include "athi_quadtree.h"
 #include "athi_utility.h"
 #include "athi_voxelgrid.h"
+#include "athi_rigidbody.h"
 
 #include <mutex>
 #include <thread>
@@ -15,21 +16,15 @@
 
 #define CIRCLE_NUM_VERTICES 36
 
-struct Athi_Circle {
+struct Athi_Circle : public Rigid_Body
+{
   u32 id;
-  vec2 pos{0.0f, 0.0f};
-  vec2 vel{0.0f, 0.0f};
-  vec2 acc{0.0f, 0.0f};
-
-  f32 restitution{0.5f};
 
   f32 radius{0.001f};
-  f32 mass{1.0f};
 
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
-  Transform transform;
 
-  bool kinematic{false};
+  Transform transform;
 
   void update();
   void border_collision();
