@@ -14,6 +14,7 @@
 #include "athi_utility.h"
 #include "athi_softbody.h"
 #include "athi_voxelgrid.h"
+#include "athi_renderer.h"
 #include "athi_spring.h"
 #include <functional>
 
@@ -40,6 +41,7 @@ void Athi_Core::init()
   init_quadtree();
   init_voxelgrid();
 
+  glEnable(GL_FRAMEBUFFER_SRGB);
   glEnable(GL_LINE_SMOOTH);
   glEnable(GL_BLEND);
   glDisable(GL_DEPTH_BUFFER);
@@ -196,9 +198,9 @@ void Athi_Core::start()
   while (!glfwWindowShouldClose(window_context))
   {
     const f64 time_start_frame = glfwGetTime();
+    update_inputs();
 
     window->update();
-    update_inputs();
 
     if (show_settings)
     {
@@ -243,16 +245,17 @@ void Athi_Core::draw_loop()
     circle_info_text.str       = "Circles: " + std::to_string(get_num_circles());
 
     glClear(GL_COLOR_BUFFER_BIT);
-  
+
     draw_circles();
     draw_rects();
     draw_lines();
     draw_springs();
-    
+
     if (show_settings) draw_UI();
     
+    render();
     glfwSwapBuffers(window_context);
-
+    
     // Update framerate info
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;

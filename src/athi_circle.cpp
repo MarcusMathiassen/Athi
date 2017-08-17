@@ -26,14 +26,16 @@ void Athi_Circle::update()
   if (!kinematic)
   {
     if (physics_gravity) vel.y -= 0.000981f * timestep;
-
-    vel.x += acc.x * timestep * 0.95f;
-    vel.y += acc.y * timestep * 0.95f;
+    
+    vel.x += acc.x * timestep;
+    vel.y += acc.y * timestep;
     pos.x += vel.x * timestep;
     pos.y += vel.y * timestep;
 
     transform.pos = glm::vec3(pos.x, pos.y, 0);
   }
+  
+  acc *= 0;
 }
 
 void Athi_Circle::border_collision()
@@ -103,8 +105,8 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_vec = tang * scal_tang_1;
     const vec2 scal_norm_2_vec = tang * scal_tang_2;
 
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.95f;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.95f;
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec);
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec);
   }
 }
 
@@ -153,67 +155,67 @@ void Athi_Circle_Manager::init()
   ///////////////////// OPENCL BEGIN /////////////////////
   ///////////////////// OPENCL BEGIN /////////////////////
 
-  read_file("../Resources/circle_collision_kernel.cl", &kernel_source);
-
-  if (kernel_source == nullptr)
-  {
-      std::cout << "Error: OpenCL missing kernel source. Load it before calling init().\n";
-  }
-
-  std::cout << "OpenCL initializing..\n";
-
-  // Connect to a compute device
-  //
-  err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
-  if (err != CL_SUCCESS)
-  {
-      std::cout << "Error: Failed to create a device group!\n";
-  }
-
-  // Create a compute context
-  //
-  context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
-  if (!context)
-  {
-      std::cout << "Error: Failed to create a compute context!\n";
-  }
-
-  // Create a command commands
-  //
-  commands = clCreateCommandQueue(context, device_id, 0, &err);
-  if (!commands)
-  {
-      std::cout << "Error: Failed to create a command commands!\n";
-  }
-
-  // Create the compute program from the source buffer
-  //
-  program = clCreateProgramWithSource(context, 1, (const char **) &kernel_source, NULL, &err);
-  if (!program)
-  {
-      std::cout << "Error: Failed to create compute program!\n";
-  }
-
-  // Build the program executable
-  //
-  err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
-  if (err != CL_SUCCESS)
-  {
-      size_t len;
-      char buffer[2048];
-
-      std::cout << "Error: Failed to build program executable!\n";
-      clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
-      std::cout << buffer << '\n';
-  }
-
-  // Create the compute kernel in the program we wish to run
-  //
-  kernel = clCreateKernel(program, "hello", &err);
-  if (!kernel || err != CL_SUCCESS)
-  {
-      std::cout << "Error: Failed to create compute kernel!\n";
-  }
+//  read_file("../Resources/circle_collision_kernel.cl", &kernel_source);
+//
+//  if (kernel_source == nullptr)
+//  {
+//      std::cout << "Error: OpenCL missing kernel source. Load it before calling init().\n";
+//  }
+//
+//  std::cout << "OpenCL initializing..\n";
+//
+//  // Connect to a compute device
+//  //
+//  err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
+//  if (err != CL_SUCCESS)
+//  {
+//      std::cout << "Error: Failed to create a device group!\n";
+//  }
+//
+//  // Create a compute context
+//  //
+//  context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
+//  if (!context)
+//  {
+//      std::cout << "Error: Failed to create a compute context!\n";
+//  }
+//
+//  // Create a command commands
+//  //
+//  commands = clCreateCommandQueue(context, device_id, 0, &err);
+//  if (!commands)
+//  {
+//      std::cout << "Error: Failed to create a command commands!\n";
+//  }
+//
+//  // Create the compute program from the source buffer
+//  //
+//  program = clCreateProgramWithSource(context, 1, (const char **) &kernel_source, NULL, &err);
+//  if (!program)
+//  {
+//      std::cout << "Error: Failed to create compute program!\n";
+//  }
+//
+//  // Build the program executable
+//  //
+//  err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+//  if (err != CL_SUCCESS)
+//  {
+//      size_t len;
+//      char buffer[2048];
+//
+//      std::cout << "Error: Failed to build program executable!\n";
+//      clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+//      std::cout << buffer << '\n';
+//  }
+//
+//  // Create the compute kernel in the program we wish to run
+//  //
+//  kernel = clCreateKernel(program, "hello", &err);
+//  if (!kernel || err != CL_SUCCESS)
+//  {
+//      std::cout << "Error: Failed to create compute kernel!\n";
+//  }
 
   // // Create the input and output arrays in device memory for our calculation
   // //

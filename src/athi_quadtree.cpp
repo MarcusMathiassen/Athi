@@ -138,7 +138,7 @@ void Athi_Quadtree::draw() {
   {
     draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
-  else if (!quadtree_show_only_occupied)draw_hollow_rect(bounds.min, bounds.max, bounds.color);
+  else if (!quadtree_show_only_occupied) draw_hollow_rect(bounds.min, bounds.max, bounds.color);
 
 }
 

@@ -113,7 +113,7 @@ void draw_text(std::string str, vec2 pos, vec4 color)
       glUniform1i(athi_text_manager.uniform[athi_text_manager.TEXTCOORD_INDEX], str[i]);
       glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
     }
-  });
+ });
 }
 
 void add_text(Athi_Text *text) {
