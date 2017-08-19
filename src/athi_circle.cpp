@@ -13,7 +13,6 @@
 
 #define GLEW_STATIC
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 vector<std::function<void()> > circle_update_call_buffer;
 std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
@@ -72,10 +71,10 @@ bool collision_detection(const Athi_Circle &a, const Athi_Circle &b)
   return false;
 }
 
+// Collisions response between two circles with varying radius and mass.
 void collision_resolve(Athi_Circle &a, Athi_Circle &b)
 {
-  separate(a, b);
-
+  // Local variables
   const f64 dx = b.pos.x - a.pos.x;
   const f64 dy = b.pos.y - a.pos.y;
   const f64 vdx = b.vel.x - a.vel.x;
@@ -85,9 +84,13 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
   const f32 m1 = a.mass;
   const f32 m2 = b.mass;
 
+  // Should the circles intersect. Seperate them. If not the next calculated values will be off.
+  separate(a, b);
+
+  // A negative 'd' means the circles velocities are in opposite directions
   const f64 d = dx * vdx + dy * vdy;
 
-  // skip if they're moving away from eachother
+  // And we don't resolve collisions between circles moving away from eachother
   if (d < 0.0)
   {
     const vec2 norm = glm::normalize(vec2(dx, dy));
@@ -104,6 +107,7 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_vec = tang * scal_tang_1;
     const vec2 scal_norm_2_vec = tang * scal_tang_2;
 
+    // Update velocities
     a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
     b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.99f;
   }
@@ -112,6 +116,7 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
 // Separates two intersecting circles.
 void separate(Athi_Circle &a, Athi_Circle &b)
 {
+  // Local variables
   const vec2 a_pos = a.pos;
   const vec2 b_pos = b.pos;
   const f32 ar = a.radius;
@@ -127,6 +132,7 @@ void separate(Athi_Circle &a, Athi_Circle &b)
   const f32 cos_angle = cos(collision_angle);
   const f32 sin_angle = sin(collision_angle);
 
+  // @Note: could this be done using a normal vector and just inverting it?
   // move the balls away from eachother so they dont overlap
   const f32 a_move_x = -collision_depth * 0.5f * cos_angle;
   const f32 a_move_y = -collision_depth * 0.5f * sin_angle;
@@ -143,7 +149,7 @@ void separate(Athi_Circle &a, Athi_Circle &b)
   if (b_pos.x + b_move_x >= -1.0f + br && b_pos.x + b_move_x <= 1.0f - br) b_pos_move.x += b_move_x;
   if (b_pos.y + b_move_y >= -1.0f + br && b_pos.y + b_move_y <= 1.0f - br) b_pos_move.y += b_move_y;
 
-  // Update.
+  // Update positions
   a.pos += a_pos_move;
   b.pos += b_pos_move;
 }
@@ -453,13 +459,13 @@ void Athi_Circle_Manager::update()
     ////////////////////// OPENCL UPDATE BEGIN  /////////////////////
     else if (openCL_active)
     {
-      u32 count = (u32)circle_buffer.size();
+      const auto count = (u32)circle_buffer.size();
 
       data.resize(count);
       results.resize(count);
 
       // Copy over the results
-      for (int i = 0; i < count; ++i)
+      for (size_t i = 0; i < count; ++i)
       {
         data[i] = *circle_buffer[i];
       }
@@ -527,7 +533,7 @@ void Athi_Circle_Manager::update()
       clFinish(commands);
 
       // Copy over the results
-      for (int i = 0; i < count; ++i)
+      for (size_t i = 0; i < count; ++i)
       {
         circle_buffer[i]->pos   = results[i].pos;
         circle_buffer[i]->vel   = results[i].vel;
