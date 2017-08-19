@@ -26,7 +26,7 @@ void Athi_Circle::update()
   if (!kinematic)
   {
     if (physics_gravity) vel.y -= 0.000981f * timestep;
-    
+
     vel.x += acc.x * timestep;
     vel.y += acc.y * timestep;
     pos.x += vel.x * timestep;
@@ -34,7 +34,6 @@ void Athi_Circle::update()
 
     transform.pos = glm::vec3(pos.x, pos.y, 0);
   }
-  
   acc *= 0;
 }
 
@@ -105,8 +104,8 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_vec = tang * scal_tang_1;
     const vec2 scal_norm_2_vec = tang * scal_tang_2;
 
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec);
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec);
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.99f;
   }
 }
 
@@ -600,7 +599,7 @@ void Athi_Circle_Manager::update_circles()
   update();
   for (auto &circle : circle_buffer) circle->update();
   update_springs();
-  
+
   for (auto &c: circle_update_call_buffer) c();
   circle_update_call_buffer.clear();
 }

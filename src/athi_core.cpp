@@ -62,7 +62,6 @@ void Athi_Core::init()
   variable_thread_count = cpu_threads;
 }
 
-void printa() { std::cout << "PRINTA" << std::endl; }
 void Athi_Core::start()
 {
   Athi_Checkbox quadtree_box;
@@ -252,10 +251,10 @@ void Athi_Core::draw_loop()
     draw_springs();
 
     if (show_settings) draw_UI();
-    
+
     render();
     glfwSwapBuffers(window_context);
-    
+
     // Update framerate info
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
