@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run Athi",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/athi",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}/build/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
+    ]
+}

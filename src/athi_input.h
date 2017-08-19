@@ -103,7 +103,6 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
       vsync = true;
   }
 
-
   // TOGGLE DEBUG UI
   if (key == GLFW_KEY_D && action == GLFW_PRESS) {
     if (draw_debug)

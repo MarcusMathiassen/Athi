@@ -171,8 +171,7 @@ void Athi_Core::start()
   multithreaded_collision_thread_count_slider.str = "Threads: ";
   multithreaded_collision_thread_count_slider.var = &variable_thread_count;
   multithreaded_collision_thread_count_slider.active_if = &use_multithreading;
-  multithreaded_collision_thread_count_slider.pos =
-      vec2(RIGHT - ROW * 7.5f, TOP - ROW * 2.5f);
+  multithreaded_collision_thread_count_slider.pos = vec2(RIGHT - ROW * 7.5f, TOP - ROW * 2.5f);
   multithreaded_collision_thread_count_slider.width = 0.3f;
   multithreaded_collision_thread_count_slider.min = 0;
   multithreaded_collision_thread_count_slider.max = cpu_threads*4;
@@ -266,6 +265,7 @@ void Athi_Core::draw_loop()
 void update_game_state()
 {
   update_circles();
+  //std::cout << "[GameState]: Updated" << '\n';
 }
 
 static SMA smooth_physics_rametime_avg(&smoothed_physics_frametime); void
