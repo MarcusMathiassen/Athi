@@ -13,7 +13,11 @@
 #include <vector>
 #include <functional>
 
-#include <OpenCL/OpenCL.h>
+#ifdef __APPLE__
+  #include <OpenCL/OpenCL.h>
+#else
+  #include <CL/cl.h>
+#endif
 
 #define CIRCLE_NUM_VERTICES 36
 

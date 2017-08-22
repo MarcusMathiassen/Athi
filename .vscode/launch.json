@@ -5,7 +5,7 @@
             "name": "Run Athi",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/athi",
+            "program": "${workspaceRoot}/build/athi.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}/build/",

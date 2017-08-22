@@ -78,7 +78,7 @@ u16 last_state{NOTHING};
 void mouse_attach_spring()
 {
   // Drag a spring from one circle to the other
-    // Get mouse position
+  // Get mouse position
   f64 mouse_x, mouse_y;
   glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
 
@@ -140,7 +140,7 @@ void mouse_grab() {
   // Get the mouse state
   s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
-    // Get mouse position
+  // Get mouse position
   f64 mouse_x, mouse_y;
   glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
 
@@ -151,7 +151,7 @@ void mouse_grab() {
   mouse_y = +1.0f - 2 * mouse_y / height;
 
   Rect mouse_rect(vec2(mouse_x-mouse_size, mouse_y-mouse_size), vec2(mouse_x+mouse_size, mouse_y+mouse_size));
-  draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
+  //draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
 
   // If it's released just exit the function
   if (state == GLFW_RELEASE)

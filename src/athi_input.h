@@ -165,10 +165,12 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
   if (key == GLFW_KEY_6 && action == GLFW_PRESS && voxelgrid_parts > 4) {
     voxelgrid_parts *= 0.25f;
+    athi_voxelgrid.init();
   }
 
   if (key == GLFW_KEY_7 && action == GLFW_PRESS && voxelgrid_parts < 64) {
     voxelgrid_parts *= 4;
+    athi_voxelgrid.init();
   }
 
   // TEST

@@ -17,7 +17,12 @@ struct Rect
   vec2 pos;
   f32 width,height;
   vec4 color{1.0f,1.0f,1.0f,1.0f};
-  Rect(const vec2& min, const vec2& max) : min(min), max(max), pos(min) {}
+  Rect(const vec2& _min, const vec2& _max)
+  {
+    min = _min;
+    max = _max;
+    pos = _min;
+  }
   bool contains(u32 id);
   Rect() = default;
 };

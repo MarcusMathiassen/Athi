@@ -4,6 +4,11 @@
 #include "athi_utility.h"
 #include "athi_line.h"
 
+#include <cmath>
+#ifndef M_PI
+  #define M_PI 3.14159265359
+#endif
+
 #define SOFT_BODY_DEFAULT_NUM_VERTICES 12
 
 struct Athi_SoftBody
@@ -22,7 +27,7 @@ struct Athi_SoftBody
     // Initialize vertices
     for (u32 i = 0; i < SOFT_BODY_DEFAULT_NUM_VERTICES; ++i)
     {
-      vertices[i] = vec2(cos(i * M_PI * 2.0f / SOFT_BODY_DEFAULT_NUM_VERTICES)*scale, sin(i * M_PI * 2.0f / SOFT_BODY_DEFAULT_NUM_VERTICES)*scale);
+      vertices[i] = vec2(std::cos(i * M_PI * 2.0f / SOFT_BODY_DEFAULT_NUM_VERTICES)*scale, sin(i * M_PI * 2.0f / SOFT_BODY_DEFAULT_NUM_VERTICES)*scale);
     }
   }
 
@@ -31,7 +36,7 @@ struct Athi_SoftBody
     // Update vertices
     int i = 4;
     f32 amount = 0.8f;
-    vertices[i] = vec2(cos(i * M_PI * 2.0f / SOFT_BODY_DEFAULT_NUM_VERTICES)*scale*amount, sin(i * M_PI * 2.0f / SOFT_BODY_DEFAULT_NUM_VERTICES)*scale*amount);
+    vertices[i] = vec2(std::cos(i * M_PI * 2.0f / SOFT_BODY_DEFAULT_NUM_VERTICES)*scale*amount, sin(i * M_PI * 2.0f / SOFT_BODY_DEFAULT_NUM_VERTICES)*scale*amount);
   }
 
   void draw()

@@ -8,8 +8,13 @@
 
 #include <iostream>
 #include <cmath>
+#ifndef M_PI
+  #define M_PI 3.14159265359
+#endif
 #include <glm/gtx/vector_angle.hpp>
 #include <thread>
+
+#include <cassert>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -303,9 +308,10 @@ void Athi_Circle_Manager::init()
 
   std::vector<vec2> positions;
   positions.reserve(CIRCLE_NUM_VERTICES);
+  static_assert(M_PI);
   for (u32 i = 0; i < CIRCLE_NUM_VERTICES; ++i) {
-    positions.emplace_back(cos(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES),
-                           sin(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES));
+    positions.emplace_back(std::cos(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES),
+                           std::sin(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES));
   }
   ///////////////////// MESH END  /////////////////////
   ///////////////////// MESH END  /////////////////////

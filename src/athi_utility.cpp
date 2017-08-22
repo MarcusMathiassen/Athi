@@ -109,7 +109,7 @@ u32 createShader(const char *file, const GLenum type) {
   printf("Shader loaded: %s\n", file);
   return shader;
 }
-
+#ifdef __APPLE__
 u32 get_cpu_freq() {
   u32 num = 0;
   size_t size = sizeof(num);
@@ -148,3 +148,4 @@ string get_cpu_brand() {
 
   return string(buffer);
 }
+#endif
