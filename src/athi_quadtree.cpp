@@ -3,13 +3,20 @@
 #include "athi_circle.h"
 #include "athi_settings.h"
 
+#include <iostream>
+
 std::unique_ptr<Athi_Quadtree> athi_quadtree;
 
 Athi_Quadtree::Athi_Quadtree(u32 level, const Rect &bounds)
     : level(level),
-      bounds(bounds), subnode{nullptr, nullptr, nullptr, nullptr} {
+      bounds(bounds){
   index.reserve(quadtree_capacity);
 }
+
+Athi_Quadtree::~Athi_Quadtree() {
+  delete[] subnode;
+}
+
 
 void Athi_Quadtree::init(const vec2 &min, const vec2 &max) {
   bounds.min = min;
@@ -20,13 +27,10 @@ void Athi_Quadtree::init(const vec2 &min, const vec2 &max) {
 
 void Athi_Quadtree::update() {
   index.clear();
-  index.shrink_to_fit();
-
-  subnode[0] = nullptr;
-  subnode[1] = nullptr;
-  subnode[2] = nullptr;
-  subnode[3] = nullptr;
-
+  delete[] subnode;
+  subnode = NULL;
+  clear();
+  
   for (const auto &circle : athi_circle_manager->circle_buffer) {
     insert(circle->id);
   }
@@ -52,16 +56,18 @@ void Athi_Quadtree::split() {
   const Rect SE(vec2(x + w, y), vec2(x + width, y + h));
   const Rect NW(vec2(x, y + h), vec2(x + w, y + height));
   const Rect NE(vec2(x + w, y + h), vec2(x + width, y + height));
+  
+  subnode = new Athi_Quadtree[4];
+  
+  subnode[0] = Athi_Quadtree(level + 1, SW);
+  subnode[1] = Athi_Quadtree(level + 1, SE);
+  subnode[2] = Athi_Quadtree(level + 1, NW);
+  subnode[3] = Athi_Quadtree(level + 1, NE);
 
-  subnode[0] = std::make_unique<Athi_Quadtree>(level + 1, SW);
-  subnode[1] = std::make_unique<Athi_Quadtree>(level + 1, SE);
-  subnode[2] = std::make_unique<Athi_Quadtree>(level + 1, NW);
-  subnode[3] = std::make_unique<Athi_Quadtree>(level + 1, NE);
-
-  subnode[0]->bounds.color = pastel_red;
-  subnode[1]->bounds.color = pastel_gray;
-  subnode[2]->bounds.color = pastel_orange;
-  subnode[3]->bounds.color = pastel_pink;
+  subnode[0].bounds.color = pastel_red;
+  subnode[1].bounds.color = pastel_gray;
+  subnode[2].bounds.color = pastel_orange;
+  subnode[3].bounds.color = pastel_pink;
 }
 
 void Athi_Quadtree::insert(u32 id)
@@ -73,17 +79,17 @@ void Athi_Quadtree::insert(u32 id)
   //----------------------------------------------------------------
 
   // If this subnode has split..
-  if (subnode[0] != nullptr)
+  if (subnode)
   {
     // Find the subnodes that contain it and insert it there.
-    if (subnode[0]->contains(id))
-      subnode[0]->insert(id);
-    if (subnode[1]->contains(id))
-      subnode[1]->insert(id);
-    if (subnode[2]->contains(id))
-      subnode[2]->insert(id);
-    if (subnode[3]->contains(id))
-      subnode[3]->insert(id);
+    if (subnode[0].contains(id))
+      subnode[0].insert(id);
+    if (subnode[1].contains(id))
+      subnode[1].insert(id);
+    if (subnode[2].contains(id))
+      subnode[2].insert(id);
+    if (subnode[3].contains(id))
+      subnode[3].insert(id);
 
     return;
   }
@@ -101,11 +107,11 @@ void Athi_Quadtree::insert(u32 id)
     for (const auto &index : index) // [2]
     {
       // Go through all newly created subnodes..
-      for (const auto &subnode : subnode) {
+      for (int i = 0; i < 4; ++i) {
         // If they contain the objects..
-        if (subnode->contains(index)) {
+        if (subnode[i].contains(index)) {
           // Insert the object into the subnode
-          subnode->insert(index);
+          subnode[i].insert(index);
         }
       }
     }
@@ -122,13 +128,13 @@ void Athi_Quadtree::draw() {
   // [2] Draw subnodes boundaries.
   //----------------------------------------------------------------
 
-  if (subnode[0] != nullptr) // [2]
+  if (subnode) // [2]
   {
     // Continue down the tree
-    subnode[0]->draw();
-    subnode[1]->draw();
-    subnode[2]->draw();
-    subnode[3]->draw();
+    subnode[0].draw();
+    subnode[1].draw();
+    subnode[2].draw();
+    subnode[3].draw();
 
     return;
   }
@@ -149,13 +155,13 @@ void Athi_Quadtree::get(std::vector<std::vector<u32>> &cont) const {
   //----------------------------------------------------------------
 
   // If this subnode has split..
-  if (subnode[0] != nullptr) // [1]
+  if (subnode != nullptr) // [1]
   {
     // Continue down the tree
-    subnode[0]->get(cont);
-    subnode[1]->get(cont);
-    subnode[2]->get(cont);
-    subnode[3]->get(cont);
+    subnode[0].get(cont);
+    subnode[1].get(cont);
+    subnode[2].get(cont);
+    subnode[3].get(cont);
 
     return;
   }
@@ -172,13 +178,32 @@ void Athi_Quadtree::get(std::vector<std::vector<u32>> &cont) const {
 
 bool Athi_Quadtree::contains(u32 id) { return bounds.contains(id); }
 
+
+// Go down to the leaf nodes and delete the nodes
+void Athi_Quadtree::clear() {
+  if (subnode)
+  {
+    // Continue down the tree
+    subnode[0].clear();
+    subnode[1].clear();
+    subnode[2].clear();
+    subnode[3].clear();
+    return;
+  }
+  delete[] subnode;
+}
+
 void init_quadtree() {
   athi_quadtree = std::make_unique<Athi_Quadtree>();
   athi_quadtree->init(vec2(-1, -1), vec2(1, 1));
 }
 
-void update_quadtree() { athi_quadtree->update(); }
-void get_nodes_quadtree(std::vector<std::vector<u32>> &cont) {
+void update_quadtree()
+{
+  athi_quadtree->update();
+}
+void get_nodes_quadtree(std::vector<std::vector<u32>> &cont)
+{
   athi_quadtree->get(cont);
 }
 
@@ -190,9 +215,5 @@ void reset_quadtree() {
   //----------------------------------------------------------------
   athi_quadtree->index.clear();
   athi_quadtree->index.shrink_to_fit();
-
-  athi_quadtree->subnode[0] = nullptr;
-  athi_quadtree->subnode[1] = nullptr;
-  athi_quadtree->subnode[2] = nullptr;
-  athi_quadtree->subnode[3] = nullptr;
+  athi_quadtree->clear();
 }

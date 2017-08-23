@@ -9,6 +9,20 @@ Athi_Input_Manager athi_input_manager;
 
 void init_input_manager() { athi_input_manager.init(); }
 
+vec2 get_mouse_viewspace_pos()
+{
+    auto context = glfwGetCurrentContext();  
+    double mouse_pos_x, mouse_pos_y;
+    glfwGetCursorPos(context, &mouse_pos_x, &mouse_pos_y);
+  
+    s32 width, height;
+    glfwGetWindowSize(context, &width, &height);
+    mouse_pos_x = -1.0f + 2 * mouse_pos_x / width;
+    mouse_pos_y =  1.0f - 2 * mouse_pos_y / height;
+
+    return vec2(mouse_pos_x, mouse_pos_y);
+}
+
 u8 get_mouse_button_state(u8 button) {
   switch (button) {
   case GLFW_MOUSE_BUTTON_LEFT:
@@ -72,23 +86,16 @@ enum { ATTACHED, PRESSED, NOTHING };
 u16 last_state{NOTHING};
 
 
-  s32 id1, id2;
-  bool found{false};
-  bool attach{false};
+s32 id1, id2;
+bool found{false};
+bool attach{false};
 void mouse_attach_spring()
 {
   // Drag a spring from one circle to the other
   // Get mouse position
-  f64 mouse_x, mouse_y;
-  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
+  vec2 mouse_pos = get_mouse_viewspace_pos();
 
-  // Turn into Worldspace
-  s32 width, height;
-  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-  mouse_x = -1.0f + 2 * mouse_x / width;
-  mouse_y = +1.0f - 2 * mouse_y / height;
-
-  Rect mouse_rect(vec2(mouse_x-mouse_size, mouse_y-mouse_size), vec2(mouse_x+mouse_size, mouse_y+mouse_size));
+  Rect mouse_rect(vec2(mouse_pos.x-mouse_size, mouse_pos.y-mouse_size), vec2(mouse_pos.x+mouse_size, mouse_pos.y+mouse_size));
 
   s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
@@ -116,7 +123,7 @@ void mouse_attach_spring()
   // draw a line while we look for the second circle
   if (state == GLFW_PRESS && found)
   {
-      draw_line(vec2(mouse_x, mouse_y), athi_circle_manager->circle_buffer[id1]->pos, 0.03f, pastel_pink);
+      draw_line(mouse_pos, athi_circle_manager->circle_buffer[id1]->pos, 0.03f, pastel_pink);
       return;
   }
 
@@ -140,17 +147,9 @@ void mouse_grab() {
   // Get the mouse state
   s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
-  // Get mouse position
-  f64 mouse_x, mouse_y;
-  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
+  auto mouse_pos = get_mouse_viewspace_pos();
 
-  // Turn into Worldspace
-  s32 width, height;
-  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-  mouse_x = -1.0f + 2 * mouse_x / width;
-  mouse_y = +1.0f - 2 * mouse_y / height;
-
-  Rect mouse_rect(vec2(mouse_x-mouse_size, mouse_y-mouse_size), vec2(mouse_x+mouse_size, mouse_y+mouse_size));
+  Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
   //draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
 
   // If it's released just exit the function
@@ -172,15 +171,15 @@ void mouse_grab() {
     {
       for (auto& id: mouse_attached_to)
       {
-        attraction_force(*athi_circle_manager->circle_buffer[id], vec2(mouse_x, mouse_y));
+        attraction_force(*athi_circle_manager->circle_buffer[id], mouse_pos);
         last_state = ATTACHED;
-        draw_line(vec2(mouse_x, mouse_y), athi_circle_manager->circle_buffer[id]->pos, 0.03f, pastel_green);
+        draw_line(mouse_pos, athi_circle_manager->circle_buffer[id]->pos, 0.03f, pastel_green);
       }
     }
     else // single
     {
-      attraction_force(*athi_circle_manager->circle_buffer[mouse_attached_to_single], vec2(mouse_x, mouse_y));
-      draw_line(vec2(mouse_x, mouse_y), athi_circle_manager->circle_buffer[mouse_attached_to_single]->pos, 0.03f, pastel_green);
+      attraction_force(*athi_circle_manager->circle_buffer[mouse_attached_to_single], mouse_pos);
+      draw_line(mouse_pos, athi_circle_manager->circle_buffer[mouse_attached_to_single]->pos, 0.03f, pastel_green);
     }
     mouse_busy_UI = true;
   }
@@ -208,18 +207,10 @@ void mouse_grab() {
 
 void update_inputs() {
 
-  f64 mouse_x, mouse_y;
-  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
-
-  s32 width, height;
-  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-  mouse_x = -1.0f + 2 * mouse_x / width;
-  mouse_y = +1.0f - 2 * mouse_y / height;
-
+  auto mouse_pos = get_mouse_viewspace_pos();
   auto context = glfwGetCurrentContext();
 
   // Find the circle you're over
-
   if (glfwGetKey(context, GLFW_KEY_S) == GLFW_PRESS) {
     mouse_attach_spring();
   } else mouse_grab();
@@ -227,23 +218,23 @@ void update_inputs() {
 
   Athi_Circle c;
   if (glfwGetKey(context, GLFW_KEY_SPACE) == GLFW_PRESS) {
-    c.pos = vec2(mouse_x, mouse_y);
+    c.pos = mouse_pos;
     c.radius = circle_size;
     add_circle(c);
   }
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
-    c.pos = vec2(mouse_x, mouse_y);
+    c.pos = mouse_pos;
     c.radius = 0.003f;
     for (int i = 0; i < 10; ++i)
       add_circle(c);
   }
   if (glfwGetKey(context, GLFW_KEY_2) == GLFW_PRESS) {
-    c.pos = vec2(mouse_x, mouse_y);
+    c.pos = mouse_pos;
     c.radius = 0.005f;
     add_circle(c);
   }
   if (glfwGetKey(context, GLFW_KEY_3) == GLFW_PRESS) {
-    c.pos = vec2(mouse_x, mouse_y);
+    c.pos = mouse_pos;
     c.radius = 0.007f;
     add_circle(c);
   }

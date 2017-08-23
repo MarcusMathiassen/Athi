@@ -1,4 +1,6 @@
 #include "athi_checkbox.h"
+#include "athi_input.h"
+
 void Athi_Checkbox::draw() const
 {
   if (active_if != nullptr) if (!(*active_if)) return;
@@ -26,16 +28,11 @@ void Athi_Checkbox::update()
 }
 
 bool Athi_Checkbox::hover_over() {
-  f64 mouse_x, mouse_y;
-  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
 
-  int width, height;
-  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-  mouse_x = -1.0f + 2 * mouse_x / width;
-  mouse_y = +1.0f - 2 * mouse_y / height;
+  auto mouse_pos = get_mouse_viewspace_pos();
 
-  return mouse_x > box.pos.x && mouse_x < box.pos.x + box.width &&
-  mouse_y > box.pos.y && mouse_y < box.pos.y+box.height;
+  return mouse_pos.x > box.pos.x && mouse_pos.x < box.pos.x + box.width &&
+         mouse_pos.y > box.pos.y && mouse_pos.y < box.pos.y+box.height;
 
   return false;
 }

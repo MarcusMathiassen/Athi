@@ -7,6 +7,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <thread>        
+#include <mutex>         
+#include <condition_variable>
+
 #ifdef _WIN32
 #include <windows.h>
 #elif __APPLE__
@@ -19,7 +23,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <mutex>
 #include <vector>
 
 void read_file(const char* file, char** buffer);
@@ -32,6 +35,34 @@ u32 get_cpu_cores();
 u32 get_cpu_threads();
 string get_cpu_brand();
 vec4 get_universal_current_color();
+
+class Semaphore {
+public:
+    Semaphore (int count_ = 0) : count(count_) {}
+
+    inline void notify()
+    {
+        std::unique_lock<std::mutex> lock(mtx);
+        count++;
+        cv.notify_one();
+    }
+
+    inline void wait()
+    {
+        std::unique_lock<std::mutex> lock(mtx);
+
+        while(count == 0){
+            cv.wait(lock);
+        }
+        count--;
+    }
+
+private:
+    std::mutex mtx;
+    std::condition_variable cv;
+    int count;
+};
+
 
 struct SMA {
   SMA(f64 *var) : var(var) {}

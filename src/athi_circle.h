@@ -26,11 +26,8 @@ extern vector<std::function<void()> > circle_update_call_buffer;
 struct Athi_Circle : public Rigid_Body
 {
   u32 id;
-
   f32 radius{0.001f};
-
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
-
   Transform transform;
 
   void update();
@@ -65,6 +62,8 @@ struct Athi_Circle_Manager
 
 
   std::vector<std::thread> threads;
+
+  Semaphore sem;
 
   // Make sure it's thread safe
   bool clear_circles{false};

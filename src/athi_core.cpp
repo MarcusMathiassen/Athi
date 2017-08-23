@@ -25,14 +25,14 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-static SMA smooth_frametime_avg(&smoothed_frametime);
-static SMA smooth_physics_rametime_avg(&smoothed_physics_frametime);
+SMA smooth_frametime_avg(&smoothed_frametime);
+SMA smooth_physics_rametime_avg(&smoothed_physics_frametime);
 
 void Athi_Core::init()
 {
   window = std::make_unique<Athi_Window>();
-  window->scene.width = 1024;
-  window->scene.height = 1024;
+  window->scene.width = 512;
+  window->scene.height = 512;
   window->init();
 
   init_input_manager();
@@ -190,26 +190,9 @@ void Athi_Core::start()
 
   auto window_context       = window->get_window_context();
   auto monitor_refreshrate  = window->monitor_refreshrate;
-
-#define SINGLE_THREADED
-#ifdef SINGLE_THREADED
-  glfwMakeContextCurrent(window_context);
-  Athi_Text frametime_text;
-  frametime_text.pos = vec2(LEFT + ROW, TOP);
-  add_text(&frametime_text);
-
-  Athi_Text physics_frametime_text;
-  physics_frametime_text.pos = vec2(LEFT+ROW, TOP-ROW);
-  add_text(&physics_frametime_text);
-
-  Athi_Text circle_info_text;
-  circle_info_text.pos = vec2(LEFT + ROW, BOTTOM + ROW * 3.0f);
-  add_text(&circle_info_text);
-#else 
-  glfwMakeContextCurrent(NULL);
+ 
   std::thread draw_thread(&Athi_Core::draw_loop, this);
   std::thread physics_thread(&Athi_Core::physics_loop, this);
-#endif
 
   while (!glfwWindowShouldClose(window_context))
   {
@@ -224,52 +207,13 @@ void Athi_Core::start()
       update_settings();
     }
 
-    #ifdef SINGLE_THREADED
-    
-      frametime_text.str         = "Render:  " + std::to_string(framerate) + "fps | " + std::to_string(smoothed_frametime) + "ms";
-      physics_frametime_text.str = "Physics: " + std::to_string(physics_framerate) + "fps | " + std::to_string(smoothed_physics_frametime) + "ms";
-      circle_info_text.str       = "Circles: " + std::to_string(get_num_circles());
-
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      
-      update_circles();
-      
-      draw_circles();
-      draw_rects();
-      draw_lines();
-      draw_springs();
-
-      if (show_settings) draw_UI();
-
-      render();
-      glfwSwapBuffers(window_context);
-    #endif
-
     glfwPollEvents();
-
-    #ifdef SINGLE_THREADED    
-    //if (physics_FPS_limit != 0) limit_FPS(physics_FPS_limit, time_start_frame);
-    physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-    physics_framerate = (u32)(std::round(1000.0f / smoothed_physics_frametime));
-    smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
-    timestep = smoothed_physics_frametime / (1000.0 / 60.0);
-
-    if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
-    frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-    framerate = (u32)(std::round(1000.0f / smoothed_frametime));
-    smooth_frametime_avg.add_new_frametime(frametime);
-
-    #else     limit_FPS(monitor_refreshrate, time_start_frame);
-    
-    #endif
+    limit_FPS(monitor_refreshrate, time_start_frame);
   }
 
   app_is_running = false;
-
-  #ifndef SINGLE_THREADED  
   draw_thread.join();
   physics_thread.join();
-  #endif
   
   shutdown();
 }
@@ -310,7 +254,6 @@ void Athi_Core::draw_loop()
     render();
     glfwSwapBuffers(window_context);
 
-    // Update framerate info
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     framerate = (u32)(std::round(1000.0f / smoothed_frametime));
@@ -339,6 +282,12 @@ void Athi_Core::physics_loop()
   }
 }
 
-void Athi_Core::update_settings() { glfwSwapInterval(vsync); }
+void Athi_Core::update_settings()
+{ 
+  glfwSwapInterval(vsync); 
+}
 
-void Athi_Core::shutdown() { glfwTerminate(); }
+void Athi_Core::shutdown() 
+{
+  glfwTerminate(); 
+}

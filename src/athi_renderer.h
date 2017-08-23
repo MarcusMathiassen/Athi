@@ -6,7 +6,6 @@
 #include <functional>
 #include <vector>
 
-// Stores all draw calls made each frame
 extern std::vector<std::function<void()> > command_buffer;
 
 void render();

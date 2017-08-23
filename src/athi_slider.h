@@ -163,26 +163,20 @@ public:
   }
 
   u32 get_status() {
-    f64 mouse_x, mouse_y;
-    glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
-
-    s32 width, height;
-    glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-    mouse_x = -1.0f + 2 * mouse_x / width;
-    mouse_y = +1.0f - 2 * mouse_y / height;
+    vec2 mouse_pos = get_mouse_viewspace_pos();
 
     s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
     if (state == GLFW_PRESS && last_state == PRESSED) {
-      update_position(mouse_x);
+      update_position(mouse_pos.x);
       return PRESSED;
     }
 
-    if (mouse_x > slider_box.pos.x &&
-        mouse_x < slider_box.pos.x + slider_box.width &&
-        mouse_y > slider_box.pos.y &&
-        mouse_y < slider_box.pos.y + slider_box.height) {
+    if (mouse_pos.x > slider_box.pos.x &&
+        mouse_pos.x < slider_box.pos.x + slider_box.width &&
+        mouse_pos.y > slider_box.pos.y &&
+        mouse_pos.y < slider_box.pos.y + slider_box.height) {
       if (state == GLFW_PRESS) {
-        update_position(mouse_x);
+        update_position(mouse_pos.x);
         return PRESSED;
       }
       return HOVER;

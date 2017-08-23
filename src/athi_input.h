@@ -12,6 +12,7 @@
 #include <iostream>
 
 void init_input_manager();
+vec2 get_mouse_viewspace_pos();
 u8 get_mouse_button_state(u8 button);
 void update_inputs();
 static void mouse_button_callback(GLFWwindow *window, int button, int action,
@@ -21,6 +22,7 @@ static void cursor_position_callback(GLFWwindow *window, double xpos,
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods);
 static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+
 struct Mouse {
   vec2 pos;
   struct Button {
@@ -61,17 +63,16 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action,
     athi_input_manager.mouse.right_button.state = action;
   }
 
-  f64 mouse_x, mouse_y;
-  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_x, &mouse_y);
+  vec2 mouse_pos = athi_input_manager.mouse.pos;
 
   s32 width, height;
   glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-  mouse_x = -1.0f + 2 * mouse_x / width;
-  mouse_y = +1.0f - 2 * mouse_y / height;
+  mouse_pos.x = -1.0f + 2 * mouse_pos.x / width;
+  mouse_pos.y = +1.0f - 2 * mouse_pos.y / height;
 
   Athi_Circle c;
   if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-    c.pos = vec2(mouse_x, mouse_y);
+    c.pos = vec2(mouse_pos.x, mouse_pos.y);
     c.radius = circle_size;
     add_circle(c);
   }
