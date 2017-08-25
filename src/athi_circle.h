@@ -97,7 +97,7 @@ struct Athi_Circle_Manager
   void update();
 
   void collision_logNxN(size_t total, size_t begin, size_t end);
-  void collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end);
+  void collision_quadtree(const std::vector<std::vector<int> > &cont, size_t begin, size_t end);
 };
 
 void update_circle_call(const std::function<void()>& f);

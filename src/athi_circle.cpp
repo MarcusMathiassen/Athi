@@ -420,7 +420,7 @@ void Athi_Circle_Manager::update()
   if (circle_buffer.empty()) return;
   if (circle_collision)
   {
-    std::vector<std::vector<u32> > cont;
+    std::vector<std::vector<int> > cont;
 
     if (quadtree_active && openCL_active == false)
     {
@@ -575,7 +575,7 @@ void Athi_Circle_Manager::collision_logNxN(size_t total, size_t begin, size_t en
   }
 }
 
-void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<u32> > &cont, size_t begin, size_t end)
+void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<int> > &cont, size_t begin, size_t end)
 {
   for (size_t k = begin; k < end; ++k)
   {
@@ -627,6 +627,8 @@ void Athi_Circle_Manager::draw_circles()
   if (clear_circles)
   {
     circle_buffer.clear();
+    circle_buffer.shrink_to_fit();
+    
     clear_circles = false;
     reset_quadtree();
     spring_buffer.clear();

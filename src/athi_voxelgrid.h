@@ -10,33 +10,33 @@
 
 struct Node {
   Rect bounds;
-  std::vector<u32> index;
+  std::vector<int> index;
   Node(const Rect &r);
-  void insert(const u32 id);
-  void get(std::vector<std::vector<u32>> &cont);
+  void insert(int id);
+  void get(std::vector<std::vector<int>> &cont);
   void draw() const;
   void color_objects();
-  bool contains(const u32 id);
+  bool contains(int id);
 };
 
-class Athi_Voxel_Grid {
+class VoxelGrid {
 private:
-  std::vector<std::unique_ptr<Node>> nodes;
-  u32 current_voxelgrid_part{4};
+  std::vector<Node*> nodes;
+  int current_voxelgrid_part{4};
 
 public:
   void init();
   void update();
   void draw() const;
-  void get(std::vector<std::vector<u32>> &cont) const;
+  void get(std::vector<std::vector<int>> &cont) const;
 };
 
-extern Athi_Voxel_Grid athi_voxelgrid;
+extern VoxelGrid athi_voxelgrid;
 
 static void init_voxelgrid() { athi_voxelgrid.init(); }
 
 static void update_voxelgrid() { athi_voxelgrid.update(); }
-static void get_nodes_voxelgrid(std::vector<std::vector<u32>> &cont) {
+static void get_nodes_voxelgrid(std::vector<std::vector<int>> &cont) {
   athi_voxelgrid.get(cont);
 }
 

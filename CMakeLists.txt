@@ -3,10 +3,8 @@ project(athi)
 
 # Compiler flags
 
-
-set(CMAKE_CXX_STANDARD 17)
-#SET(CMAKE_BUILD_TYPE DEBUG)
-SET(CMAKE_BUILD_TYPE RELEASE)
+SET(CMAKE_BUILD_TYPE DEBUG)
+#SET(CMAKE_BUILD_TYPE RELEASE)
 
 set(DEBUG TRUE)
 
@@ -43,8 +41,8 @@ if(WIN32)
 
 elseif(APPLE)
 
-  SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
-  SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
+  SET(CMAKE_CXX_FLAGS_DEBUG "-std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
+  SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
 	# RESOURCE FILE LOCATION
 	file(GLOB RESOURCE_FILES

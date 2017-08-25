@@ -78,55 +78,31 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action,
   }
 }
 
-static void key_callback(GLFWwindow *window, int key, int scancode, int action,
-                         int mods) {
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) 
+{
   // TOGGLE SETTINGS UI
-  if (key == GLFW_KEY_I && action == GLFW_PRESS) {
-    if (show_settings)
-      show_settings = false;
-    else
-      show_settings = true;
-  }
+  if (key == GLFW_KEY_I && action == GLFW_PRESS) { show_settings ^= 1; }
 
   // TOGGLE FPS_INFO
-  if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-    if (show_fps_info)
-      show_fps_info = false;
-    else
-      show_fps_info = true;
-  }
+  if (key == GLFW_KEY_F && action == GLFW_PRESS) { show_fps_info ^= 1; }
 
   // TOGGLE VSYNC
-  if (key == GLFW_KEY_L && action == GLFW_PRESS) {
-    if (vsync)
-      vsync = false;
-    else
-      vsync = true;
-  }
+  if (key == GLFW_KEY_L && action == GLFW_PRESS) { vsync ^= 1; }
 
   // TOGGLE DEBUG UI
-  if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-    if (draw_debug)
-      draw_debug = false;
-    else
-      draw_debug = true;
-  }
+  if (key == GLFW_KEY_D && action == GLFW_PRESS) { draw_debug ^= 1; }
 
   // TOGGLE CIRCLE GRAVITY
-  if (key == GLFW_KEY_G && action == GLFW_PRESS) {
-    if (physics_gravity)
-      physics_gravity = false;
-    else
-      physics_gravity = true;
-  }
+  if (key == GLFW_KEY_G && action == GLFW_PRESS) { physics_gravity ^= 1; }
 
   // TOGGLE CIRCLE COLLISIONS
-  if (key == GLFW_KEY_C && action == GLFW_PRESS) {
-    if (circle_collision)
-      circle_collision = false;
-    else
-      circle_collision = true;
-  }
+  if (key == GLFW_KEY_C && action == GLFW_PRESS) { circle_collision ^= 1; }
+
+  // TOGGLE MULTITHREADING
+  if (key == GLFW_KEY_M && action == GLFW_PRESS) { use_multithreading ^= 1; }
+
+  // TOGGLE OPENCL
+  if (key == GLFW_KEY_O && action == GLFW_PRESS) { openCL_active ^= 1; }
 
   // TOGGLE QUADTREE ACTIVE
   if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
@@ -149,29 +125,12 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
     }
   }
 
-  // TOGGLE MULTITHREADING
-  if (key == GLFW_KEY_M && action == GLFW_PRESS) {
-    if (use_multithreading)
-      use_multithreading = false;
-    else
-      use_multithreading = true;
-  }
-
-  // TOGGLE OPENCL
-  if (key == GLFW_KEY_O && action == GLFW_PRESS)
-  {
-    //if (openCL_active) openCL_active = false;
-    //else openCL_active = true;
-  }
-
   if (key == GLFW_KEY_6 && action == GLFW_PRESS && voxelgrid_parts > 4) {
     voxelgrid_parts *= 0.25f;
-    athi_voxelgrid.init();
   }
 
-  if (key == GLFW_KEY_7 && action == GLFW_PRESS && voxelgrid_parts < 64) {
+  if (key == GLFW_KEY_7 && action == GLFW_PRESS && voxelgrid_parts < 512) {
     voxelgrid_parts *= 4;
-    athi_voxelgrid.init();
   }
 
   // TEST

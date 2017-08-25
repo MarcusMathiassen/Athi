@@ -148,7 +148,7 @@ void Athi_Core::start()
   circle_size_slider.max = 0.1f;
   add_slider<f32>(&circle_size_slider);
 
-  Athi_Slider<u32> quadtree_depth_slider;
+  Athi_Slider<int> quadtree_depth_slider;
   quadtree_depth_slider.str = "Quadtree depth: ";
   quadtree_depth_slider.active_if = &quadtree_active;
   quadtree_depth_slider.var = &quadtree_depth;
@@ -156,9 +156,9 @@ void Athi_Core::start()
   quadtree_depth_slider.pos = vec2(LEFT + ROW, TOP - ROW * 8.5f);
   quadtree_depth_slider.min = 0;
   quadtree_depth_slider.max = 10;
-  add_slider<u32>(&quadtree_depth_slider);
+  add_slider<int>(&quadtree_depth_slider);
 
-  Athi_Slider<u32> quadtree_capacity_slider;
+  Athi_Slider<int> quadtree_capacity_slider;
   quadtree_capacity_slider.str = "Quadtree capacity: ";
   quadtree_capacity_slider.active_if = &quadtree_active;
   quadtree_capacity_slider.var = &quadtree_capacity;
@@ -166,7 +166,7 @@ void Athi_Core::start()
   quadtree_capacity_slider.pos = vec2(LEFT + ROW, TOP - ROW * 11.5f);
   quadtree_capacity_slider.min = 0;
   quadtree_capacity_slider.max = 100;
-  add_slider<u32>(&quadtree_capacity_slider);
+  add_slider<int>(&quadtree_capacity_slider);
 
   Athi_Slider<u32> multithreaded_collision_thread_count_slider;
   multithreaded_collision_thread_count_slider.str = "Threads: ";
