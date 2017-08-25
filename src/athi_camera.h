@@ -2,6 +2,7 @@
 
 #include "athi_typedefs.h"
 
+#include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
@@ -11,7 +12,7 @@ struct Camera
   vec3 forward{0.0f, 0.0f, -1.0f};
   vec3 up{0.0f, 1.0f, 0.0f};
 
-  f32 fov{70.0f};
+  f32 fov{75.0f};
   f32 aspect_ratio{1.0f};
   f32 zNear{0.01f};
   f32 zFar{1000.0f};
@@ -27,7 +28,7 @@ struct Camera
   }
   void update_perspective()
   {
-    perspective = glm::ortho(0.0f, window_width, 0.0f, window_height, -1.0f, 1.0f);
+    perspective = glm::perspective(fov * (f32)M_PI / 360.0f, aspect_ratio, zNear, zFar);
   }
 };
 

@@ -1,14 +1,14 @@
 #include "athi_utility.h"
 
 vec4 get_universal_current_color() {
-  if (universal_color_picker > 6)
+  if (universal_color_picker > 5)
     universal_color_picker = 0;
   switch (universal_color_picker) {
   case 0:
     return pastel_red;
     break;
   case 1:
-    return pastel_gray;
+    return pastel_blue;
     break;
   case 2:
     return pastel_green;
@@ -21,9 +21,6 @@ vec4 get_universal_current_color() {
     break;
   case 5:
     return pastel_pink;
-    break;
-  case 6:
-    return pastel_blue;
     break;
   }
   return vec4();

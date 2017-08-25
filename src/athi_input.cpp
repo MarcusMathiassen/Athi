@@ -150,7 +150,7 @@ void mouse_grab() {
   auto mouse_pos = get_mouse_viewspace_pos();
 
   Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
-  //draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
+  if (draw_debug) draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
 
   // If it's released just exit the function
   if (state == GLFW_RELEASE)
@@ -173,13 +173,13 @@ void mouse_grab() {
       {
         attraction_force(*athi_circle_manager->circle_buffer[id], mouse_pos);
         last_state = ATTACHED;
-        draw_line(mouse_pos, athi_circle_manager->circle_buffer[id]->pos, 0.03f, pastel_green);
+        if (draw_debug) draw_line(mouse_pos, athi_circle_manager->circle_buffer[id]->pos, 0.03f, pastel_green);
       }
     }
     else // single
     {
       attraction_force(*athi_circle_manager->circle_buffer[mouse_attached_to_single], mouse_pos);
-      draw_line(mouse_pos, athi_circle_manager->circle_buffer[mouse_attached_to_single]->pos, 0.03f, pastel_green);
+      if (draw_debug) draw_line(mouse_pos, athi_circle_manager->circle_buffer[mouse_attached_to_single]->pos, 0.03f, pastel_green);
     }
     mouse_busy_UI = true;
   }
@@ -220,6 +220,7 @@ void update_inputs() {
   if (glfwGetKey(context, GLFW_KEY_SPACE) == GLFW_PRESS) {
     c.pos = mouse_pos;
     c.radius = circle_size;
+    for (int i = 0; i < 20; ++i)
     add_circle(c);
   }
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
@@ -231,11 +232,13 @@ void update_inputs() {
   if (glfwGetKey(context, GLFW_KEY_2) == GLFW_PRESS) {
     c.pos = mouse_pos;
     c.radius = 0.005f;
+    for (int i = 0; i < 10; ++i)
     add_circle(c);
   }
   if (glfwGetKey(context, GLFW_KEY_3) == GLFW_PRESS) {
     c.pos = mouse_pos;
     c.radius = 0.007f;
+    for (int i = 0; i < 10; ++i)
     add_circle(c);
   }
 

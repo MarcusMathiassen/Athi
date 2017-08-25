@@ -59,10 +59,13 @@ void Quadtree::split() {
   subnodes[2] = Quadtree(level + 1, NW);
   subnodes[3] = Quadtree(level + 1, NE);
 
+  if (draw_debug)
+  {
   subnodes[0].bounds.color = pastel_red;
-  subnodes[1].bounds.color = pastel_gray;
+  subnodes[1].bounds.color = pastel_blue;
   subnodes[2].bounds.color = pastel_orange;
   subnodes[3].bounds.color = pastel_pink;
+  }
 }
 
 void Quadtree::insert(int id)
@@ -156,6 +159,7 @@ void Quadtree::get(std::vector<std::vector<int>> &cont) const {
   }
 
   // Color the balls in the same color as the boundaries
+  if (draw_debug)
   for (const auto &id : index) {
     athi_circle_manager->set_color_circle_id(id, bounds.color);
   }

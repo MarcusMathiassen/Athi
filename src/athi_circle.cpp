@@ -8,9 +8,6 @@
 
 #include <iostream>
 #include <cmath>
-#ifndef M_PI
-  #define M_PI 3.14159265359
-#endif
 #include <glm/gtx/vector_angle.hpp>
 #include <thread>
 
@@ -110,7 +107,7 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_after_vec = norm * scal_norm_1_after;
     const vec2 scal_norm_2_after_vec = norm * scal_norm_2_after;
     const vec2 scal_norm_1_vec = tang * scal_tang_1;
-    const vec2 scal_norm_2_vec = tang * scal_tang_2;
+    const vec2 scal_norm_2_vec = tang * scal_tang_2; 
 
     // Update velocities
     a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
@@ -165,108 +162,68 @@ void Athi_Circle_Manager::init()
   ///////////////////// OPENCL BEGIN /////////////////////
   ///////////////////// OPENCL BEGIN /////////////////////
 
-//  read_file("../Resources/circle_collision_kernel.cl", &kernel_source);
-//
-//  if (kernel_source == nullptr)
-//  {
-//      std::cout << "Error: OpenCL missing kernel source. Load it before calling init().\n";
-//  }
-//
-//  std::cout << "OpenCL initializing..\n";
-//
-//  // Connect to a compute device
-//  //
-//  err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
-//  if (err != CL_SUCCESS)
-//  {
-//      std::cout << "Error: Failed to create a device group!\n";
-//  }
-//
-//  // Create a compute context
-//  //
-//  context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
-//  if (!context)
-//  {
-//      std::cout << "Error: Failed to create a compute context!\n";
-//  }
-//
-//  // Create a command commands
-//  //
-//  commands = clCreateCommandQueue(context, device_id, 0, &err);
-//  if (!commands)
-//  {
-//      std::cout << "Error: Failed to create a command commands!\n";
-//  }
-//
-//  // Create the compute program from the source buffer
-//  //
-//  program = clCreateProgramWithSource(context, 1, (const char **) &kernel_source, NULL, &err);
-//  if (!program)
-//  {
-//      std::cout << "Error: Failed to create compute program!\n";
-//  }
-//
-//  // Build the program executable
-//  //
-//  err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
-//  if (err != CL_SUCCESS)
-//  {
-//      size_t len;
-//      char buffer[2048];
-//
-//      std::cout << "Error: Failed to build program executable!\n";
-//      clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
-//      std::cout << buffer << '\n';
-//  }
-//
-//  // Create the compute kernel in the program we wish to run
-//  //
-//  kernel = clCreateKernel(program, "hello", &err);
-//  if (!kernel || err != CL_SUCCESS)
-//  {
-//      std::cout << "Error: Failed to create compute kernel!\n";
-//  }
+ read_file("../Resources/circle_collision_kernel.cl", &kernel_source);
 
-  // // Create the input and output arrays in device memory for our calculation
-  // //
-  // input = clCreateBuffer(context,  CL_MEM_READ_ONLY,  sizeof(vec2) * count, NULL, NULL);
-  // output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(vec2) * count, NULL, NULL);
-  // if (!input || !output)
-  // {
-  //     std::cout << "Error: Failed to allocate device memory!\n";
-  //     exit(1);
-  // }
+ if (kernel_source == nullptr)
+ {
+     std::cout << "Error: OpenCL missing kernel source. Load it before calling init().\n";
+ }
 
-  // // Write our data set into the input array in device memory
-  // //
-  // err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(vec2) * count, &data[0], 0, NULL, NULL);
-  // if (err != CL_SUCCESS)
-  // {
-  //     printf("Error: Failed to write to source array!\n");
-  //     exit(1);
-  // }
+ std::cout << "OpenCL initializing..\n";
 
-  // // Set the arguments to our compute kernel
-  // //
-  // err = 0;
-  // err  = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
-  // err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
-  // err |= clSetKernelArg(kernel, 2, sizeof(unsigned int), &begin);
-  // err |= clSetKernelArg(kernel, 3, sizeof(unsigned int), &end);
-  // if (err != CL_SUCCESS)
-  // {
-  //     std::cout << "Error: Failed to set kernel arguments! " << err << '\n';
-  //     exit(1);
-  // }
+ // Connect to a compute device
+ //
+ err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
+ if (err != CL_SUCCESS)
+ {
+     std::cout << "Error: Failed to create a device group!\n";
+ }
 
-  // // Get the maximum work group size for executing the kernel on the device
-  // //
-  // err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
-  // if (err != CL_SUCCESS)
-  // {
-  //     std::cout << "Error: Failed to retrieve kernel work group info! " << err << '\n';
-  //     exit(1);
-  // }
+ // Create a compute context
+ //
+ context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
+ if (!context)
+ {
+     std::cout << "Error: Failed to create a compute context!\n";
+ }
+
+ // Create a command commands
+ //
+ commands = clCreateCommandQueue(context, device_id, 0, &err);
+ if (!commands)
+ {
+     std::cout << "Error: Failed to create a command commands!\n";
+ }
+
+ // Create the compute program from the source buffer
+ //
+ program = clCreateProgramWithSource(context, 1, (const char **) &kernel_source, NULL, &err);
+ if (!program)
+ {
+     std::cout << "Error: Failed to create compute program!\n";
+ }
+
+ // Build the program executable
+ //
+ err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+ if (err != CL_SUCCESS)
+ {
+     size_t len;
+     char buffer[2048];
+
+     std::cout << "Error: Failed to build program executable!\n";
+     clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+     std::cout << buffer << '\n';
+ }
+
+ // Create the compute kernel in the program we wish to run
+ //
+ kernel = clCreateKernel(program, "hello", &err);
+ if (!kernel || err != CL_SUCCESS)
+ {
+     std::cout << "Error: Failed to create compute kernel!\n";
+ }
+
   ///////////////////// OPENCL END  /////////////////////
   ///////////////////// OPENCL END  /////////////////////
   ///////////////////// OPENCL END  /////////////////////
@@ -308,7 +265,6 @@ void Athi_Circle_Manager::init()
 
   std::vector<vec2> positions;
   positions.reserve(CIRCLE_NUM_VERTICES);
-  static_assert(M_PI);
   for (u32 i = 0; i < CIRCLE_NUM_VERTICES; ++i) {
     positions.emplace_back(std::cos(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES),
                            std::sin(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES));
@@ -378,17 +334,6 @@ void Athi_Circle_Manager::draw()
 {
   if (circle_buffer.empty()) return;
 
-  if (circle_buffer.size() > transforms.size()) {
-    transforms.resize(circle_buffer.size());
-    colors.resize(circle_buffer.size());
-  }
-
-  u32 i = 0;
-  for (const auto &circle : circle_buffer) {
-    transforms[i] = circle->transform.get_model(); // * camera.get_view_projection();
-    colors[i++] = circle->color;
-  }
-
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
   size_t transform_bytes_needed = sizeof(mat4) * circle_buffer.size();
   if (transform_bytes_needed > transform_bytes_allocated) {
@@ -409,7 +354,7 @@ void Athi_Circle_Manager::draw()
   } else {
     glBufferSubData(GL_ARRAY_BUFFER, 0, color_bytes_allocated, &colors[0]);
   }
-
+  
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
   glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
@@ -559,6 +504,19 @@ void Athi_Circle_Manager::update()
       collision_logNxN(circle_buffer.size(), 0, circle_buffer.size());
     }
   }
+  
+
+  // Update GPU BUFFERS
+  if (circle_buffer.size() > transforms.size()) {
+    transforms.resize(circle_buffer.size());
+    colors.resize(circle_buffer.size());
+  }
+
+  u32 i = 0;
+  for (const auto &circle : circle_buffer) {
+    transforms[i] = circle->transform.get_model() * camera.get_view_projection();
+    colors[i++] = circle->color;
+  }
 }
 
 void Athi_Circle_Manager::collision_logNxN(size_t total, size_t begin, size_t end)
@@ -628,7 +586,6 @@ void Athi_Circle_Manager::draw_circles()
   {
     circle_buffer.clear();
     circle_buffer.shrink_to_fit();
-    
     clear_circles = false;
     reset_quadtree();
     spring_buffer.clear();

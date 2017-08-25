@@ -20,7 +20,7 @@
 
 #include <iostream>
 #include <thread>
-
+ 
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -31,8 +31,8 @@ SMA smooth_physics_rametime_avg(&smoothed_physics_frametime);
 void Athi_Core::init()
 {
   window = std::make_unique<Athi_Window>();
-  window->scene.width = 512;
-  window->scene.height = 512;
+  window->scene.width = 500;
+  window->scene.height = 500;
   window->init();
 
   init_input_manager();
@@ -49,7 +49,7 @@ void Athi_Core::init()
   glEnable(GL_BLEND);
   glDisable(GL_DEPTH_BUFFER);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(4 / 255.0f, 32 / 255.0f, 41 / 255.0f, 1);  
+  glClearColor(0.02, 0.02, 0.02, 1.0);  
 
   cpu_threads = std::thread::hardware_concurrency();
 
@@ -201,10 +201,10 @@ void Athi_Core::start()
 
     window->update();
 
+    update_settings();
     if (show_settings)
     {
       update_UI();
-      update_settings();
     }
 
     glfwPollEvents();
@@ -250,6 +250,8 @@ void Athi_Core::draw_loop()
     draw_springs();
 
     if (show_settings) draw_UI();
+
+    draw_text(std::to_string(framerate) + " FPS " + std::to_string(smoothed_frametime) + " MS", vec2(LEFT, TOP), vec4(0.9, 0.9, 0.9, 0.1));
 
     render();
     glfwSwapBuffers(window_context);

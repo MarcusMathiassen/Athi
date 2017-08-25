@@ -32,7 +32,7 @@ void Athi_Window::init() {
   context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
-  //glfwSetWindowAspectRatio(context, 1, 1);
+  //glfwSetWindowAspectRatio(context, 1,1);
   glfwSetWindowSizeCallback(context, window_size_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 
@@ -65,7 +65,7 @@ GLFWwindow *Athi_Window::get_window_context() { return context; }
 // @Cleanup: this is messy
 void window_size_callback(GLFWwindow *window, int xpos, int ypos)
 {
-
+  std::cout << "Window size: "  << xpos << ":" << ypos << std::endl;
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -75,4 +75,7 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
   camera.window_height = height;
   camera.update_perspective();
   glViewport(0, 0, width, height);
+
+  std::cout << "Framebuffer size: "  << width << ":" << height << std::endl;
+  
 }

@@ -57,11 +57,11 @@ extern bool settings_changed;
 
 extern u32 universal_color_picker;
 
-extern vec4 pastel_red;
-extern vec4 pastel_gray;
-extern vec4 pastel_green;
-extern vec4 pastel_orange;
-extern vec4 pastel_yellow;
-extern vec4 pastel_purple;
-extern vec4 pastel_blue;
-extern vec4 pastel_pink;
+static vec4 pastel_red     (238.0f / 255.0f, 0.0f, 0.0f, 1.0f);
+static vec4 pastel_gray    (85 / 255.0f, 85 / 255.0f, 85 / 255.0f, 1.0f);
+static vec4 pastel_green   (33.0f / 255.0f,176.0f/ 255.0f,1.0/ 255.0f, 1.0f);
+static vec4 pastel_orange  (255.0f/ 255.0f,165.0f/ 255.0f,0.0f, 1.0f);
+static vec4 pastel_yellow  (255.0f/ 255.0f,242.0f/ 255.0f,63.0f/ 255.0f, 1.0f);
+static vec4 pastel_purple  (100 / 255.0f, 20 / 255.0f, 100 / 255.0f, 1.0f);
+static vec4 pastel_blue    (63.0f/ 255.0f,150.0f/ 255.0f,255.0f/ 255.0f, 1.0f);
+static vec4 pastel_pink    (255.0f/ 255.0f, 20.0f/ 255.0f,147.0/ 255.0f, 1.0f);

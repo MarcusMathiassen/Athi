@@ -10,6 +10,7 @@
 
 struct Athi_Core {
   std::unique_ptr<Athi_Window> window;
+  std::unique_ptr<Athi_Window> debug_window;
 
   void window_loop();
   void draw_loop();

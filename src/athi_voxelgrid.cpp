@@ -45,8 +45,11 @@ void VoxelGrid::init() {
   for (f32 y = -1.0f; y < 1.0f; y += row) {
     for (f32 x = -1.0f; x < 1.0f; x += col) {
       Rect bounds(vec2(x, y), vec2(x + col, y + row));
+      if (draw_debug)
+      {
       bounds.color = get_universal_current_color();
       ++universal_color_picker;
+      }
       Node *n = new Node(bounds);
       nodes.emplace_back(n);
     }
@@ -76,7 +79,7 @@ void VoxelGrid::update() {
 void VoxelGrid::get(std::vector<std::vector<int>> &cont) const {
   // Color the objects with the color of the node
   for (const auto &node : nodes) {
-    node->color_objects();
+    if (draw_debug) node->color_objects();
     node->get(cont);
   }
 }
