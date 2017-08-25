@@ -24,18 +24,15 @@ void Athi_Circle::update()
 {
   border_collision();
 
-  if (!kinematic)
-  {
-    if (physics_gravity) vel.y -= 0.000981f * timestep;
+  if (physics_gravity) vel.y -= 0.0009f * timestep;
 
-    vel.x += acc.x * timestep;
-    vel.y += acc.y * timestep;
-    pos.x += vel.x * timestep;
-    pos.y += vel.y * timestep;
-
-    transform.pos = glm::vec3(pos.x, pos.y, 0);
-  }
+  vel.x += acc.x * timestep;
+  vel.y += acc.y * timestep;
+  pos.x += vel.x * timestep;
+  pos.y += vel.y * timestep;
   acc *= 0;
+
+  transform.pos = glm::vec3(pos.x, pos.y, 0);
 }
 
 void Athi_Circle::border_collision()
@@ -162,72 +159,42 @@ void Athi_Circle_Manager::init()
   ///////////////////// OPENCL BEGIN /////////////////////
   ///////////////////// OPENCL BEGIN /////////////////////
 
- read_file("../Resources/circle_collision_kernel.cl", &kernel_source);
+  std::cout << "OpenCL initializing..\n";
 
- if (kernel_source == nullptr)
- {
-     std::cout << "Error: OpenCL missing kernel source. Load it before calling init().\n";
- }
+  read_file("../Resources/circle_collision_kernel.cl", &kernel_source);
+  if (kernel_source == nullptr) std::cout << "Error: OpenCL missing kernel source. Load it before calling init().\n";
 
- std::cout << "OpenCL initializing..\n";
+  // Connect to a compute device
+  err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
+  if (err != CL_SUCCESS) std::cout << "Error: Failed to create a device group!\n";
 
- // Connect to a compute device
- //
- err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
- if (err != CL_SUCCESS)
- {
-     std::cout << "Error: Failed to create a device group!\n";
- }
+  // Create a compute context
+  context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
+  if (!context) std::cout << "Error: Failed to create a compute context!\n";
 
- // Create a compute context
- //
- context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
- if (!context)
- {
-     std::cout << "Error: Failed to create a compute context!\n";
- }
+  // Create a command commands
+  commands = clCreateCommandQueue(context, device_id, 0, &err);
+  if (!commands) std::cout << "Error: Failed to create a command commands!\n";
 
- // Create a command commands
- //
- commands = clCreateCommandQueue(context, device_id, 0, &err);
- if (!commands)
- {
-     std::cout << "Error: Failed to create a command commands!\n";
- }
+  // Create the compute program from the source buffer
+  program = clCreateProgramWithSource(context, 1, (const char **) &kernel_source, NULL, &err);
+  if (!program) std::cout << "Error: Failed to create compute program!\n";
 
- // Create the compute program from the source buffer
- //
- program = clCreateProgramWithSource(context, 1, (const char **) &kernel_source, NULL, &err);
- if (!program)
- {
-     std::cout << "Error: Failed to create compute program!\n";
- }
+  // Build the program executable
+  err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+  if (err != CL_SUCCESS)
+  {
+      size_t len;
+      char buffer[2048];
 
- // Build the program executable
- //
- err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
- if (err != CL_SUCCESS)
- {
-     size_t len;
-     char buffer[2048];
+      std::cout << "Error: Failed to build program executable!\n";
+      clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+      std::cout << buffer << '\n';
+  }
 
-     std::cout << "Error: Failed to build program executable!\n";
-     clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
-     std::cout << buffer << '\n';
- }
-
- // Create the compute kernel in the program we wish to run
- //
- kernel = clCreateKernel(program, "hello", &err);
- if (!kernel || err != CL_SUCCESS)
- {
-     std::cout << "Error: Failed to create compute kernel!\n";
- }
-
-  ///////////////////// OPENCL END  /////////////////////
-  ///////////////////// OPENCL END  /////////////////////
-  ///////////////////// OPENCL END  /////////////////////
-
+  // Create the compute kernel in the program we wish to run
+  kernel = clCreateKernel(program, "hello", &err);
+  if (!kernel || err != CL_SUCCESS) std::cout << "Error: Failed to create compute kernel!\n";
 
 
   ///////////////////// SHADER BEGIN  /////////////////////
@@ -254,11 +221,6 @@ void Athi_Circle_Manager::init()
   glDeleteShader(vs);
   glDeleteShader(fs);
 
-  ///////////////////// SHADER END  /////////////////////
-  ///////////////////// SHADER END  /////////////////////
-  ///////////////////// SHADER END  /////////////////////
-
-
   ///////////////////// MESH BEGIN  /////////////////////
   ///////////////////// MESH BEGIN  /////////////////////
   ///////////////////// MESH BEGIN  /////////////////////
@@ -269,10 +231,6 @@ void Athi_Circle_Manager::init()
     positions.emplace_back(std::cos(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES),
                            std::sin(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES));
   }
-  ///////////////////// MESH END  /////////////////////
-  ///////////////////// MESH END  /////////////////////
-  ///////////////////// MESH END  /////////////////////
-
 
   ////////////////////// VAO/VBO BEGIN  /////////////////////
   ////////////////////// VAO/VBO BEGIN  /////////////////////
@@ -306,10 +264,6 @@ void Athi_Circle_Manager::init()
                           (GLvoid *)(i * sizeof(glm::vec4)));
     glVertexAttribDivisor(2 + i, 1);
   }
-
-  ////////////////////// VAO/VBO END  /////////////////////
-  ////////////////////// VAO/VBO END  /////////////////////
-  ////////////////////// VAO/VBO END  /////////////////////
 }
 
 Athi_Circle_Manager::~Athi_Circle_Manager()
@@ -377,13 +331,31 @@ void Athi_Circle_Manager::update()
       update_voxelgrid();
       get_nodes_voxelgrid(cont);
     }
-
     // Quadtree or Voxelgrid
     if ((quadtree_active || voxelgrid_active) && openCL_active == false)
     {
-      collision_quadtree(cont, 0, cont.size());
-    }
-
+      if (use_multithreading && variable_thread_count != 0)
+      {
+        const u32 thread_count = variable_thread_count;
+        const size_t total = cont.size();
+        const size_t parts = total / thread_count;
+  
+        threads.resize(thread_count);
+  
+        collision_quadtree(cont, parts*thread_count, total);
+  
+        int i = 0;
+        for (auto &thread: threads)
+        {
+          const size_t begin = parts * i;
+          const size_t end   = parts * (i + 1);
+          thread = std::thread(&Athi_Circle_Manager::collision_quadtree, this, cont, begin, end);
+          ++i;
+        }
+        for (auto &thread : threads) thread.join();
+      }
+      else collision_quadtree(cont, 0, cont.size());
+    } 
     else if (use_multithreading && variable_thread_count != 0 && openCL_active == false)
     {
       const u32 thread_count = variable_thread_count;
@@ -410,8 +382,10 @@ void Athi_Circle_Manager::update()
     ////////////////////// OPENCL UPDATE BEGIN  /////////////////////
     else if (openCL_active)
     {
-      const auto count = (u32)circle_buffer.size();
+      const auto count = circle_buffer.size();
 
+      data.clear();
+      results.clear();
       data.resize(count);
       results.resize(count);
 
@@ -423,8 +397,8 @@ void Athi_Circle_Manager::update()
 
       // Create the input and output arrays in device memory for our calculation
       //
-      input  = clCreateBuffer(context, CL_MEM_READ_ONLY,  sizeof(Athi_Circle) * count, NULL, NULL);
-      output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Athi_Circle) * count, NULL, NULL);
+      input  = clCreateBuffer(context, CL_MEM_READ_ONLY,  sizeof(data), NULL, NULL);
+      output = clCreateBuffer(context, CL_MEM_WRITE_ONLY,  sizeof(results), NULL, NULL);
       if (!input || !output)
       {
           std::cout << "Error: Failed to allocate device memory!\n";
@@ -432,23 +406,18 @@ void Athi_Circle_Manager::update()
       }
 
       // Write our data set into the input array in device memory
-      //
-      err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(Athi_Circle) * count, &data[0], 0, NULL, NULL);
-      if (err != CL_SUCCESS)
-      {
-          printf("Error: Failed to write to source array!\n");
-      }
+      err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(data), &data[0], 0, NULL, NULL);
+      if (err != CL_SUCCESS) printf("Error: Failed to write to source array!\n");
 
       // Set the arguments to our compute kernel
-      //
       err = 0;
-      err  = clSetKernelArg(kernel, 0, sizeof(cl_mem),  &input);
-      err |= clSetKernelArg(kernel, 1, sizeof(cl_mem),  &output);
-      err |= clSetKernelArg(kernel, 2, sizeof(cl_uint), &count);
+      err  = clSetKernelArg(kernel, 0, sizeof(input), &input);
+      err |= clSetKernelArg(kernel, 1, sizeof(output), &output);
+      err |= clSetKernelArg(kernel, 2, sizeof(count), &count);
       if (err != CL_SUCCESS)
       {
           std::cout << "Error: Failed to set kernel arguments! " << err << '\n';
-        exit(1);
+          exit(1);
       }
 
       // Get the maximum work group size for executing the kernel o dn the device
@@ -457,7 +426,7 @@ void Athi_Circle_Manager::update()
       if (err != CL_SUCCESS)
       {
           std::cout << "Error: Failed to retrieve kernel work group info! " << err << '\n';
-        exit(1);
+          exit(1);
       }
 
       global = count;
@@ -468,13 +437,12 @@ void Athi_Circle_Manager::update()
         std::cout << "Error: Failed to execute kernel! "<< err << '\n';
         exit(1);
       }
+
       // Wait for the command commands to get serviced before reading back results
-      //
       clFinish(commands);
 
       // Read back the results from the device to verify the output
-      //
-      err = clEnqueueReadBuffer( commands, output, CL_TRUE, 0, sizeof(Athi_Circle) * count, &results[0], 0, NULL, NULL );
+      err = clEnqueueReadBuffer( commands, output, CL_TRUE, 0, sizeof(results), &results[0], 0, NULL, NULL );
       if (err != CL_SUCCESS)
       {
         std::cout << "Error: Failed to read output array! " << err << '\n';
@@ -490,9 +458,6 @@ void Athi_Circle_Manager::update()
         circle_buffer[i]->vel   = results[i].vel;
         circle_buffer[i]->color = results[i].color;
       }
-
-      data.clear();
-      results.clear();
     }
     ////////////////////// OPENCL UPDATE END  /////////////////////
     ////////////////////// OPENCL UPDATE END  /////////////////////
@@ -512,7 +477,7 @@ void Athi_Circle_Manager::update()
     colors.resize(circle_buffer.size());
   }
 
-  u32 i = 0;
+  size_t i = 0;
   for (const auto &circle : circle_buffer) {
     transforms[i] = circle->transform.get_model() * camera.get_view_projection();
     colors[i++] = circle->color;
@@ -521,12 +486,9 @@ void Athi_Circle_Manager::update()
 
 void Athi_Circle_Manager::collision_logNxN(size_t total, size_t begin, size_t end)
 {
-  for (size_t i = begin; i < end; ++i)
-  {
-    for (size_t j = 1 + i; j < total; ++j)
-    {
-      if (collision_detection(*athi_circle_manager->circle_buffer[i], *athi_circle_manager->circle_buffer[j]))
-      {
+  for (size_t i = begin; i < end; ++i) {
+    for (size_t j = 1 + i; j < total; ++j) {
+      if (collision_detection(*athi_circle_manager->circle_buffer[i], *athi_circle_manager->circle_buffer[j])) {
           collision_resolve(*athi_circle_manager->circle_buffer[i], *athi_circle_manager->circle_buffer[j]);
       }
     }
@@ -535,14 +497,10 @@ void Athi_Circle_Manager::collision_logNxN(size_t total, size_t begin, size_t en
 
 void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<int> > &cont, size_t begin, size_t end)
 {
-  for (size_t k = begin; k < end; ++k)
-  {
-    for (size_t i = 0; i < cont[k].size(); ++i)
-    {
-      for (size_t j = i + 1; j < cont[k].size(); ++j)
-      {
-        if (collision_detection(*athi_circle_manager->circle_buffer[cont[k][i]], *athi_circle_manager->circle_buffer[cont[k][j]]))
-        {
+  for (size_t k = begin; k < end; ++k) {
+    for (size_t i = 0; i < cont[k].size(); ++i) {
+      for (size_t j = i + 1; j < cont[k].size(); ++j) {
+        if (collision_detection(*athi_circle_manager->circle_buffer[cont[k][i]], *athi_circle_manager->circle_buffer[cont[k][j]])) {
             collision_resolve(*athi_circle_manager->circle_buffer[cont[k][i]], *athi_circle_manager->circle_buffer[cont[k][j]]);
         }
       }
@@ -616,7 +574,7 @@ void update_circle_call(const std::function<void()>& f)
 void add_circle(Athi_Circle &circle)
 {
   const f32 radi = circle.radius;
-  circle.mass = 1.33333f * M_PI * radi * radi * radi;
+  circle.mass = (1.33333f * M_PI * radi * radi * radi);
   circle.transform.scale = glm::vec3(radi, radi, 0);
   athi_circle_manager->add_circle(circle);
 }

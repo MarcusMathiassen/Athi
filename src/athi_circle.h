@@ -6,7 +6,6 @@
 #include "athi_quadtree.h"
 #include "athi_utility.h"
 #include "athi_voxelgrid.h"
-#include "athi_rigidbody.h"
 
 #include <mutex>
 #include <thread>
@@ -23,9 +22,13 @@
 
 extern vector<std::function<void()> > circle_update_call_buffer;
 
-struct Athi_Circle : public Rigid_Body
+struct Athi_Circle
 {
   u32 id;
+  vec2 pos;
+  vec2 vel;
+  vec2 acc;
+  f32  mass;
   f32 radius{0.001f};
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
   Transform transform;

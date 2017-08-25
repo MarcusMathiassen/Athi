@@ -12,10 +12,11 @@ typedef struct Athi_Circle
   unsigned int id;
   float2 pos;
   float2 vel;
-  float radius;
+  float2 acc;
   float mass;
-  Transform transform;
+  float radius;
   float4 color;
+  Transform transform;
 } Athi_Circle;
 
 void separate_circles( Athi_Circle *a,  Athi_Circle *b);
@@ -146,13 +147,13 @@ __kernel void hello(
 {
   // Get the thread id
   const int g_id = get_global_id(0);
-  const int l_id = get_local_id(0);
-
-  // Athi_Circle buff[count];
+  
+  //Athi_Circle buff[count];
   // for (int i = 0; i < count; ++i)
   // {
-  //   buff[i].pos = input[i].pos;
-  //   buff[i].vel = input[i].vel;
+  //   buff[i].pos   = input[i].pos;
+  //   buff[i].vel   = input[i].vel;
+  //   buff[i].color = input[i].color;
   // }
 
   // for (size_t i = 0; i < count; ++i)
@@ -160,6 +161,7 @@ __kernel void hello(
   //     if (collision_detection(&input[i], &input[j]))
   //         collision_resolve(&input[i], &input[j]);
 
-  //for (int i = 0; i < count; ++i) separate_circles(&input[g_id], &input[i]);
-  output[l_id] = input[l_id];
+  //for (int i = 0; i < count; ++i) separate_circles(&buff[g_id], &buff[i]);
+
+  output[g_id] = input[g_id];
 }
