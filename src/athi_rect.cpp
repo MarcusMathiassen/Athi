@@ -23,6 +23,17 @@ bool Rect::contains(u32 id)
   return false;
 }
 
+bool Rect::contain_rect(const Rect &r) const {
+
+  auto rmin = r.min;
+  auto rmax = r.max;
+  //  basic square collision check
+  if (rmax.x < max.x && rmin.x > min.x && rmax.y < max.y && rmin.y > min.y) {
+    return true;
+  }
+  return false;
+}
+
 Athi_Rect_Manager::~Athi_Rect_Manager()
 {
   glDeleteBuffers(NUM_BUFFERS, VBO);

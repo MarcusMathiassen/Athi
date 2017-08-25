@@ -4,6 +4,7 @@
 #include "athi_line.h"
 #include "athi_spring.h"
 #include "athi_renderer.h"
+#include "athi_quadtree.h"
 
 Athi_Input_Manager athi_input_manager;
 
@@ -186,7 +187,8 @@ void mouse_grab() {
 
 
   // Go through all circles. Return the circle hovered
-  if (last_state != ATTACHED)
+  if (last_state != ATTACHED) {
+  
   for (auto& c: athi_circle_manager->circle_buffer)
   {
     // If the mouse and circle intersect
@@ -202,6 +204,7 @@ void mouse_grab() {
       }
       last_state = ATTACHED;
     }
+  }
   }
 }
 

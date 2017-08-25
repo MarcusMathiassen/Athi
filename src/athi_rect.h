@@ -23,6 +23,7 @@ struct Rect
     max = _max;
     pos = _min;
   }
+  bool contain_rect(const Rect &r) const;    
   bool contains(u32 id);
   Rect() = default;
 };

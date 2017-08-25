@@ -61,10 +61,10 @@ void Quadtree::split() {
 
   if (draw_debug)
   {
-  subnodes[0].bounds.color = pastel_red;
-  subnodes[1].bounds.color = pastel_blue;
-  subnodes[2].bounds.color = pastel_orange;
-  subnodes[3].bounds.color = pastel_pink;
+    subnodes[0].bounds.color = pastel_red;
+    subnodes[1].bounds.color = pastel_blue;
+    subnodes[2].bounds.color = pastel_orange;
+    subnodes[3].bounds.color = pastel_pink;
   }
 }
 
@@ -169,8 +169,30 @@ void Quadtree::get(std::vector<std::vector<int>> &cont) const {
     cont.emplace_back(index); // [2]
 }
 
-bool Quadtree::contains(int id) { return bounds.contains(id); }
 
+void Quadtree::retrieve(std::vector<int> &cont, const Rect &rect) const {
+  //----------------------------------------------------------------
+  // [1] Find the deepest level node.
+  // [2] If there are indexes, add to container.
+  //----------------------------------------------------------------
+
+  // If this subnode has split..
+  if (subnodes)  // [1]
+  {
+    // Continue down the tree
+    if (subnodes[0].contain_rect(rect)) subnodes[0].retrieve(cont, rect);
+    if (subnodes[1].contain_rect(rect)) subnodes[1].retrieve(cont, rect);
+    if (subnodes[2].contain_rect(rect)) subnodes[2].retrieve(cont, rect);
+    if (subnodes[3].contain_rect(rect)) subnodes[3].retrieve(cont, rect);
+    return;
+  }
+
+  // Add all indexes to our container
+  for (const auto &i : index) cont.emplace_back(i);
+}
+
+bool Quadtree::contains(int id) { return bounds.contains(id); }
+bool Quadtree::contain_rect(const Rect &rect) const { return bounds.contain_rect(rect); }
 
 // Go down to the leaf nodes and delete the nodes
 void Quadtree::clear() {
@@ -198,6 +220,11 @@ void update_quadtree()
 void get_nodes_quadtree(std::vector<std::vector<int>> &cont)
 {
   athi_quadtree->get(cont);
+}
+
+void retrieve_nodes_quadtree(std::vector<int> &cont, const Rect &rect)
+{
+  athi_quadtree->retrieve(cont, rect);
 }
 
 void draw_quadtree() { athi_quadtree->draw(); }
