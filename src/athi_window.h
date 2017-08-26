@@ -7,10 +7,10 @@
 #include "athi_typedefs.h"
 
 class Athi_Window {
-private:
+ private:
   GLFWwindow *context{nullptr};
 
-public:
+ public:
   u16 monitor_refreshrate{60};
 
   string title{"Athi"};

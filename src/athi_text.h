@@ -2,16 +2,15 @@
 
 #define GLEW_STATIC
 #include <GL/glew.h>
-
 #include <iostream>
+#include <memory>
+#include <vector>
 
 #include "athi_camera.h"
 #include "athi_texture.h"
 #include "athi_transform.h"
 #include "athi_typedefs.h"
 #include "athi_utility.h"
-#include <memory>
-#include <vector>
 
 #define TOP 0.92f
 #define BOTTOM -1.0f

@@ -1,8 +1,7 @@
 
 #include "athi.h"
 
-int main()
-{
+int main() {
   Athi_Core athi;
   athi.init();
   athi.start();

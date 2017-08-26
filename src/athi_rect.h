@@ -1,13 +1,12 @@
 #pragma once
 
-#include "athi_typedefs.h"
-#include "athi_transform.h"
-
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
 #include <vector>
+
+#include "athi_typedefs.h"
+#include "athi_transform.h"
 
 static constexpr u16 indices[]{0,1,2, 0,2,3};
 

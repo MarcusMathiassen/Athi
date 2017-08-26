@@ -6,8 +6,8 @@
 #include <functional>
 #include <vector>
 
-extern std::vector<std::function<void()> > command_buffer;
+extern std::vector<std::function<void()>> command_buffer;
 
 void render();
 
-void render_call(const std::function<void()>& f);
+void render_call(const std::function<void()> &f);

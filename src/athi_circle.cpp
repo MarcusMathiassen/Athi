@@ -1,27 +1,27 @@
- #include "athi_circle.h"
-#include "athi_camera.h"
-#include "athi_quadtree.h"
-#include "athi_settings.h"
-#include "athi_voxelgrid.h"
-#include "athi_spring.h"
-#include "athi_renderer.h"
 
-#include <iostream>
+#include <dispatch/dispatch.h>
 #include <cmath>
 #include <glm/gtx/vector_angle.hpp>
-#include <thread>
+#include <iostream>
 
 #include <cassert>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-vector<std::function<void()> > circle_update_call_buffer;
-std::vector<std::unique_ptr<Athi_Circle> > circle_buffer;
+#include "athi_camera.h"
+#include "athi_circle.h"
+#include "athi_quadtree.h"
+#include "athi_renderer.h"
+#include "athi_settings.h"
+#include "athi_spring.h"
+#include "athi_voxelgrid.h"
+
+vector<std::function<void()>> circle_update_call_buffer;
+std::vector<std::unique_ptr<Athi_Circle>> circle_buffer;
 std::unique_ptr<Athi_Circle_Manager> athi_circle_manager;
 
-void Athi_Circle::update()
-{
+void Athi_Circle::update() {
   border_collision();
 
   if (physics_gravity) vel.y -= 0.0009f * timestep;
@@ -35,16 +35,26 @@ void Athi_Circle::update()
   transform.pos = glm::vec3(pos.x, pos.y, 0);
 }
 
-void Athi_Circle::border_collision()
-{
-  if (pos.x <= -1.0f + radius && vel.x < 0.0f) { pos.x = -1.0f + radius; vel.x = -vel.x; }
-  if (pos.x >=  1.0f - radius && vel.x > 0.0f) { pos.x =  1.0f - radius; vel.x = -vel.x; }
-  if (pos.y <= -1.0f + radius && vel.y < 0.0f) { pos.y = -1.0f + radius; vel.y = -vel.y; }
-  if (pos.y >=  1.0f - radius && vel.y > 0.0f) { pos.y =  1.0f - radius; vel.y = -vel.y; }
+void Athi_Circle::border_collision() {
+  if (pos.x <= -1.0f + radius && vel.x < 0.0f) {
+    pos.x = -1.0f + radius;
+    vel.x = -vel.x;
+  }
+  if (pos.x >= 1.0f - radius && vel.x > 0.0f) {
+    pos.x = 1.0f - radius;
+    vel.x = -vel.x;
+  }
+  if (pos.y <= -1.0f + radius && vel.y < 0.0f) {
+    pos.y = -1.0f + radius;
+    vel.y = -vel.y;
+  }
+  if (pos.y >= 1.0f - radius && vel.y > 0.0f) {
+    pos.y = 1.0f - radius;
+    vel.y = -vel.y;
+  }
 }
 
-bool collision_detection(const Athi_Circle &a, const Athi_Circle &b)
-{
+bool collision_detection(const Athi_Circle &a, const Athi_Circle &b) {
   const f32 ax = a.pos.x;
   const f32 ay = a.pos.y;
   const f32 bx = b.pos.x;
@@ -53,8 +63,7 @@ bool collision_detection(const Athi_Circle &a, const Athi_Circle &b)
   const f32 br = b.radius;
 
   // square collision check
-  if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br && ay + ar > by - br)
-  {
+  if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br && ay + ar > by - br) {
     // circle collision check
     const f32 dx = bx - ax;
     const f32 dy = by - ay;
@@ -66,13 +75,11 @@ bool collision_detection(const Athi_Circle &a, const Athi_Circle &b)
 
     if (distance_sqr <= sqr_radius) return true;
   }
-
   return false;
 }
 
 // Collisions response between two circles with varying radius and mass.
-void collision_resolve(Athi_Circle &a, Athi_Circle &b)
-{
+void collision_resolve(Athi_Circle &a, Athi_Circle &b) {
   // Local variables
   const f64 dx = b.pos.x - a.pos.x;
   const f64 dy = b.pos.y - a.pos.y;
@@ -83,15 +90,17 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
   const f32 m1 = a.mass;
   const f32 m2 = b.mass;
 
-  // Should the circles intersect. Seperate them. If not the next calculated values will be off.
+  // Should the circles intersect. Seperate them. If not the next
+  // calculated values will be off.
   separate(a, b);
 
-  // A negative 'd' means the circles velocities are in opposite directions
+  // A negative 'd' means the circles velocities are in opposite
+  // directions
   const f64 d = dx * vdx + dy * vdy;
 
-  // And we don't resolve collisions between circles moving away from eachother
-  if (d < 0.0)
-  {
+  // And we don't resolve collisions between circles moving away from
+  // eachother
+  if (d < 0.0) {
     const vec2 norm = glm::normalize(vec2(dx, dy));
     const vec2 tang = vec2(norm.y * -1.0, norm.x);
     const f32 scal_norm_1 = glm::dot(norm, a_vel);
@@ -104,7 +113,7 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
     const vec2 scal_norm_1_after_vec = norm * scal_norm_1_after;
     const vec2 scal_norm_2_after_vec = norm * scal_norm_2_after;
     const vec2 scal_norm_1_vec = tang * scal_tang_1;
-    const vec2 scal_norm_2_vec = tang * scal_tang_2; 
+    const vec2 scal_norm_2_vec = tang * scal_tang_2;
 
     // Update velocities
     a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
@@ -113,8 +122,7 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
 }
 
 // Separates two intersecting circles.
-void separate(Athi_Circle &a, Athi_Circle &b)
-{
+void separate(Athi_Circle &a, Athi_Circle &b) {
   // Local variables
   const vec2 a_pos = a.pos;
   const vec2 b_pos = b.pos;
@@ -131,12 +139,12 @@ void separate(Athi_Circle &a, Athi_Circle &b)
   const f32 cos_angle = cos(collision_angle);
   const f32 sin_angle = sin(collision_angle);
 
-  // @Note: could this be done using a normal vector and just inverting it?
-  // move the balls away from eachother so they dont overlap
+  // @Note: could this be done using a normal vector and just inverting
+  // it? move the balls away from eachother so they dont overlap
   const f32 a_move_x = -collision_depth * 0.5f * cos_angle;
   const f32 a_move_y = -collision_depth * 0.5f * sin_angle;
-  const f32 b_move_x =  collision_depth * 0.5f * cos_angle;
-  const f32 b_move_y =  collision_depth * 0.5f * sin_angle;
+  const f32 b_move_x = collision_depth * 0.5f * cos_angle;
+  const f32 b_move_y = collision_depth * 0.5f * sin_angle;
 
   // store the new move values
   vec2 a_pos_move;
@@ -153,8 +161,7 @@ void separate(Athi_Circle &a, Athi_Circle &b)
   b.pos += b_pos_move;
 }
 
-void Athi_Circle_Manager::init()
-{
+void Athi_Circle_Manager::init() {
   ///////////////////// OPENCL BEGIN /////////////////////
   ///////////////////// OPENCL BEGIN /////////////////////
   ///////////////////// OPENCL BEGIN /////////////////////
@@ -162,7 +169,10 @@ void Athi_Circle_Manager::init()
   std::cout << "OpenCL initializing..\n";
 
   read_file("../Resources/circle_collision_kernel.cl", &kernel_source);
-  if (kernel_source == nullptr) std::cout << "Error: OpenCL missing kernel source. Load it before calling init().\n";
+  if (kernel_source == nullptr)
+    std::cout << "Error: OpenCL missing kernel source. Load it "
+                 "before calling "
+                 "init().\n";
 
   // Connect to a compute device
   err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
@@ -177,33 +187,31 @@ void Athi_Circle_Manager::init()
   if (!commands) std::cout << "Error: Failed to create a command commands!\n";
 
   // Create the compute program from the source buffer
-  program = clCreateProgramWithSource(context, 1, (const char **) &kernel_source, NULL, &err);
+  program = clCreateProgramWithSource(context, 1, (const char **)&kernel_source, NULL, &err);
   if (!program) std::cout << "Error: Failed to create compute program!\n";
 
   // Build the program executable
   err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
-  if (err != CL_SUCCESS)
-  {
-      size_t len;
-      char buffer[2048];
+  if (err != CL_SUCCESS) {
+    size_t len;
+    char buffer[2048];
 
-      std::cout << "Error: Failed to build program executable!\n";
-      clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
-      std::cout << buffer << '\n';
+    std::cout << "Error: Failed to build program executable!\n";
+    clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+    std::cout << buffer << '\n';
   }
 
   // Create the compute kernel in the program we wish to run
   kernel = clCreateKernel(program, "hello", &err);
   if (!kernel || err != CL_SUCCESS) std::cout << "Error: Failed to create compute kernel!\n";
 
-
   ///////////////////// SHADER BEGIN  /////////////////////
   ///////////////////// SHADER BEGIN  /////////////////////
   ///////////////////// SHADER BEGIN  /////////////////////
 
-  shader_program  = glCreateProgram();
-  const u32 vs   = createShader("../Resources/athi_circle_shader.vs", GL_VERTEX_SHADER);
-  const u32 fs   = createShader("../Resources/athi_circle_shader.fs", GL_FRAGMENT_SHADER);
+  shader_program = glCreateProgram();
+  const u32 vs = createShader("../Resources/athi_circle_shader.vs", GL_VERTEX_SHADER);
+  const u32 fs = createShader("../Resources/athi_circle_shader.fs", GL_FRAGMENT_SHADER);
 
   glAttachShader(shader_program, vs);
   glAttachShader(shader_program, fs);
@@ -228,8 +236,7 @@ void Athi_Circle_Manager::init()
   std::vector<vec2> positions;
   positions.reserve(CIRCLE_NUM_VERTICES);
   for (u32 i = 0; i < CIRCLE_NUM_VERTICES; ++i) {
-    positions.emplace_back(std::cos(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES),
-                           std::sin(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES));
+    positions.emplace_back(std::cos(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES), std::sin(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES));
   }
 
   ////////////////////// VAO/VBO BEGIN  /////////////////////
@@ -245,8 +252,7 @@ void Athi_Circle_Manager::init()
 
   // POSITION
   glBindBuffer(GL_ARRAY_BUFFER, VBO[POSITION]);
-  glBufferData(GL_ARRAY_BUFFER, CIRCLE_NUM_VERTICES * sizeof(positions[0]),
-               &positions[0], GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, CIRCLE_NUM_VERTICES * sizeof(positions[0]), &positions[0], GL_DYNAMIC_DRAW);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -260,14 +266,12 @@ void Athi_Circle_Manager::init()
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
   for (u32 i = 0; i < 4; ++i) {
     glEnableVertexAttribArray(2 + i);
-    glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
-                          (GLvoid *)(i * sizeof(glm::vec4)));
+    glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (GLvoid *)(i * sizeof(glm::vec4)));
     glVertexAttribDivisor(2 + i, 1);
   }
 }
 
-Athi_Circle_Manager::~Athi_Circle_Manager()
-{
+Athi_Circle_Manager::~Athi_Circle_Manager() {
   glDeleteBuffers(NUM_BUFFERS, VBO);
   glDeleteVertexArrays(1, &VAO);
 
@@ -284,8 +288,7 @@ Athi_Circle_Manager::~Athi_Circle_Manager()
   std::cout << "OpenCL shutting down..\n";
 }
 
-void Athi_Circle_Manager::draw()
-{
+void Athi_Circle_Manager::draw() {
   if (circle_buffer.empty()) return;
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
@@ -305,80 +308,65 @@ void Athi_Circle_Manager::draw()
   } else {
     glBufferSubData(GL_ARRAY_BUFFER, 0, color_bytes_allocated, &colors[0]);
   }
-  
+
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
   glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, CIRCLE_NUM_VERTICES, (s32)circle_buffer.size());
 }
 
-void Athi_Circle_Manager::update()
-{
+void Athi_Circle_Manager::update() {
   if (circle_buffer.empty()) return;
-  if (circle_collision)
-  {
-    std::vector<std::vector<int> > cont;
+  if (circle_collision) {
+    std::vector<std::vector<int>> cont;
 
-    if (quadtree_active && openCL_active == false)
-    {
+    if (quadtree_active && openCL_active == false) {
       update_quadtree();
       get_nodes_quadtree(cont);
-    }
-    else if (voxelgrid_active && openCL_active == false)
-    {
+    } else if (voxelgrid_active && openCL_active == false) {
       update_voxelgrid();
       get_nodes_voxelgrid(cont);
     }
     // Quadtree or Voxelgrid
-    if ((quadtree_active || voxelgrid_active) && openCL_active == false)
-    {
-      if (use_multithreading && variable_thread_count != 0)
-      {
+    if ((quadtree_active || voxelgrid_active) && openCL_active == false) {
+      if (use_multithreading && variable_thread_count != 0) {
         const u32 thread_count = variable_thread_count;
         const size_t total = cont.size();
         const size_t parts = total / thread_count;
-  
-        threads.resize(thread_count);
-  
-        collision_quadtree(cont, parts*thread_count, total);
-  
-        int i = 0;
-        for (auto &thread: threads)
-        {
+
+        collision_quadtree(cont, parts * thread_count, total);
+
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+        dispatch_apply(thread_count, queue, ^(size_t i) {
           const size_t begin = parts * i;
-          const size_t end   = parts * (i + 1);
-          thread = std::thread(&Athi_Circle_Manager::collision_quadtree, this, cont, begin, end);
+          const size_t end = parts * (i + 1);
+          collision_quadtree(cont, begin, end);
           ++i;
-        }
-        for (auto &thread : threads) thread.join();
-      }
-      else collision_quadtree(cont, 0, cont.size());
-    } 
-    else if (use_multithreading && variable_thread_count != 0 && openCL_active == false)
-    {
+        });
+
+      } else
+        collision_quadtree(cont, 0, cont.size());
+    } else if (use_multithreading && variable_thread_count != 0 && openCL_active == false) {
       const u32 thread_count = variable_thread_count;
       const size_t total = circle_buffer.size();
       const size_t parts = total / thread_count;
 
-      threads.resize(thread_count);
+      collision_logNxN(total, parts * thread_count, total);
 
-      collision_logNxN(total, parts*thread_count, total);
+      dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
-      int i = 0;
-      for (auto &thread: threads)
-      {
+      dispatch_apply(thread_count, queue, ^(size_t i) {
         const size_t begin = parts * i;
-        const size_t end   = parts * (i + 1);
-        thread = std::thread(&Athi_Circle_Manager::collision_logNxN, this, total, begin, end);
+        const size_t end = parts * (i + 1);
+        collision_logNxN(total, begin, end);
         ++i;
-      }
-      for (auto &thread : threads) thread.join();
+      });
     }
 
-    ////////////////////// OPENCL UPDATE BEGIN  /////////////////////
-    ////////////////////// OPENCL UPDATE BEGIN  /////////////////////
-    ////////////////////// OPENCL UPDATE BEGIN  /////////////////////
-    else if (openCL_active)
-    {
+    ////////////////////// OPENCL UPDATE BEGIN /////////////////////
+    ////////////////////// OPENCL UPDATE BEGIN /////////////////////
+    ////////////////////// OPENCL UPDATE BEGIN /////////////////////
+    else if (openCL_active) {
       const auto count = circle_buffer.size();
 
       data.clear();
@@ -387,61 +375,67 @@ void Athi_Circle_Manager::update()
       results.resize(count);
 
       // Copy over the results
-      for (size_t i = 0; i < count; ++i)
-      {
+      for (size_t i = 0; i < count; ++i) {
         data[i] = *circle_buffer[i];
       }
 
-      // Create the input and output arrays in device memory for our calculation
+      // Create the input and output arrays in device memory
+      // for our calculation
       //
-      input  = clCreateBuffer(context, CL_MEM_READ_ONLY,  sizeof(data), NULL, NULL);
-      output = clCreateBuffer(context, CL_MEM_WRITE_ONLY,  sizeof(results), NULL, NULL);
-      if (!input || !output)
-      {
-          std::cout << "Error: Failed to allocate device memory!\n";
-          exit(1);
-      }
-
-      // Write our data set into the input array in device memory
-      err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(data), &data[0], 0, NULL, NULL);
-      if (err != CL_SUCCESS) printf("Error: Failed to write to source array!\n");
-
-      // Set the arguments to our compute kernel
-      err = 0;
-      err  = clSetKernelArg(kernel, 0, sizeof(input), &input);
-      err |= clSetKernelArg(kernel, 1, sizeof(output), &output);
-      err |= clSetKernelArg(kernel, 2, sizeof(count), &count);
-      if (err != CL_SUCCESS)
-      {
-          std::cout << "Error: Failed to set kernel arguments! " << err << '\n';
-          exit(1);
-      }
-
-      // Get the maximum work group size for executing the kernel o dn the device
-      //
-      err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
-      if (err != CL_SUCCESS)
-      {
-          std::cout << "Error: Failed to retrieve kernel work group info! " << err << '\n';
-          exit(1);
-      }
-
-      global = count;
-      //err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, &local, 0, NULL, NULL);
-      err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0, NULL, NULL);
-      if (err)
-      {
-        std::cout << "Error: Failed to execute kernel! "<< err << '\n';
+      input = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(data), NULL, NULL);
+      output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(results), NULL, NULL);
+      if (!input || !output) {
+        std::cout << "Error: Failed to allocate device "
+                     "memory!\n";
         exit(1);
       }
 
-      // Wait for the command commands to get serviced before reading back results
+      // Write our data set into the input array in device
+      // memory
+      err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(data), &data[0], 0, NULL, NULL);
+      if (err != CL_SUCCESS)
+        printf(
+            "Error: Failed to write to source "
+            "array!\n");
+
+      // Set the arguments to our compute kernel
+      err = 0;
+      err = clSetKernelArg(kernel, 0, sizeof(input), &input);
+      err |= clSetKernelArg(kernel, 1, sizeof(output), &output);
+      err |= clSetKernelArg(kernel, 2, sizeof(count), &count);
+      if (err != CL_SUCCESS) {
+        std::cout << "Error: Failed to set kernel arguments! " << err << '\n';
+        exit(1);
+      }
+
+      // Get the maximum work group size for executing the
+      // kernel o dn the device
+      //
+      err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
+      if (err != CL_SUCCESS) {
+        std::cout << "Error: Failed to retrieve kernel "
+                     "work group info! "
+                  << err << '\n';
+        exit(1);
+      }
+
+      global = count;
+      // err = clEnqueueNDRangeKernel(commands, kernel, 1,
+      // NULL, &global, &local, 0, NULL, NULL);
+      err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0, NULL, NULL);
+      if (err) {
+        std::cout << "Error: Failed to execute kernel! " << err << '\n';
+        exit(1);
+      }
+
+      // Wait for the command commands to get serviced before
+      // reading back results
       clFinish(commands);
 
-      // Read back the results from the device to verify the output
-      err = clEnqueueReadBuffer( commands, output, CL_TRUE, 0, sizeof(results), &results[0], 0, NULL, NULL );
-      if (err != CL_SUCCESS)
-      {
+      // Read back the results from the device to verify the
+      // output
+      err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0, sizeof(results), &results[0], 0, NULL, NULL);
+      if (err != CL_SUCCESS) {
         std::cout << "Error: Failed to read output array! " << err << '\n';
         exit(1);
       }
@@ -449,10 +443,9 @@ void Athi_Circle_Manager::update()
       clFinish(commands);
 
       // Copy over the results
-      for (size_t i = 0; i < count; ++i)
-      {
-        circle_buffer[i]->pos   = results[i].pos;
-        circle_buffer[i]->vel   = results[i].vel;
+      for (size_t i = 0; i < count; ++i) {
+        circle_buffer[i]->pos = results[i].pos;
+        circle_buffer[i]->vel = results[i].vel;
         circle_buffer[i]->color = results[i].color;
       }
     }
@@ -461,8 +454,7 @@ void Athi_Circle_Manager::update()
     ////////////////////// OPENCL UPDATE END  /////////////////////
 
     // CPU Singlethreaded
-    else
-    {
+    else {
       collision_logNxN(circle_buffer.size(), 0, circle_buffer.size());
     }
   }
@@ -480,74 +472,65 @@ void Athi_Circle_Manager::update()
   }
 }
 
-void Athi_Circle_Manager::collision_logNxN(size_t total, size_t begin, size_t end)
-{
+void Athi_Circle_Manager::collision_logNxN(size_t total, size_t begin, size_t end) {
   for (size_t i = begin; i < end; ++i) {
     for (size_t j = 1 + i; j < total; ++j) {
       if (collision_detection(*athi_circle_manager->circle_buffer[i], *athi_circle_manager->circle_buffer[j])) {
-          collision_resolve(*athi_circle_manager->circle_buffer[i], *athi_circle_manager->circle_buffer[j]);
+        collision_resolve(*athi_circle_manager->circle_buffer[i], *athi_circle_manager->circle_buffer[j]);
       }
     }
   }
 }
 
-void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<int> > &cont, size_t begin, size_t end)
-{
+void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<int>> &cont, size_t begin, size_t end) {
   for (size_t k = begin; k < end; ++k) {
     for (size_t i = 0; i < cont[k].size(); ++i) {
       for (size_t j = i + 1; j < cont[k].size(); ++j) {
         if (collision_detection(*athi_circle_manager->circle_buffer[cont[k][i]], *athi_circle_manager->circle_buffer[cont[k][j]])) {
-            collision_resolve(*athi_circle_manager->circle_buffer[cont[k][i]], *athi_circle_manager->circle_buffer[cont[k][j]]);
+          collision_resolve(*athi_circle_manager->circle_buffer[cont[k][i]], *athi_circle_manager->circle_buffer[cont[k][j]]);
         }
       }
     }
   }
 }
 
-void Athi_Circle_Manager::add_circle_multiple(Athi_Circle &circle, int num)
-{
+void Athi_Circle_Manager::add_circle_multiple(Athi_Circle &circle, int num) {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
-  for (int i = 0; i < num; ++i)
-  {
-    circle.id = (u32)circle_buffer.size();    
+  for (int i = 0; i < num; ++i) {
+    circle.id = (u32)circle_buffer.size();
     circle_buffer.emplace_back(std::make_unique<Athi_Circle>(circle));
   }
 }
 
-void Athi_Circle_Manager::add_circle(Athi_Circle &circle)
-{
+void Athi_Circle_Manager::add_circle(Athi_Circle &circle) {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
   circle.id = (u32)circle_buffer.size();
   circle_buffer.emplace_back(std::make_unique<Athi_Circle>(circle));
 }
 
-Athi_Circle Athi_Circle_Manager::get_circle(u32 id)
-{
+Athi_Circle Athi_Circle_Manager::get_circle(u32 id) {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
   return *circle_buffer[id];
 }
 
-void Athi_Circle_Manager::update_circles()
-{
+void Athi_Circle_Manager::update_circles() {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
   update();
   for (auto &circle : circle_buffer) circle->update();
   update_springs();
 
-  for (auto &c: circle_update_call_buffer) c();
+  for (auto &c : circle_update_call_buffer) c();
   circle_update_call_buffer.clear();
 }
 
-void Athi_Circle_Manager::draw_circles()
-{
+void Athi_Circle_Manager::draw_circles() {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
 
   draw();
   if (voxelgrid_active && draw_debug) draw_voxelgrid();
-  if (quadtree_active  && draw_debug) draw_quadtree();
+  if (quadtree_active && draw_debug) draw_quadtree();
 
-  if (clear_circles)
-  {
+  if (clear_circles) {
     circle_buffer.clear();
     circle_buffer.shrink_to_fit();
     clear_circles = false;
@@ -556,37 +539,30 @@ void Athi_Circle_Manager::draw_circles()
   }
 }
 
-void Athi_Circle_Manager::set_color_circle_id(u32 id, const vec4 &color)
-{
-  circle_buffer[id]->color = color;
-}
+void Athi_Circle_Manager::set_color_circle_id(u32 id, const vec4 &color) { circle_buffer[id]->color = color; }
 
-void init_circle_manager()
-{
+void init_circle_manager() {
   athi_circle_manager = std::make_unique<Athi_Circle_Manager>();
   athi_circle_manager->init();
 }
 
 void update_circles() { athi_circle_manager->update_circles(); }
-void draw_circles()   { athi_circle_manager->draw_circles();   }
+void draw_circles() { athi_circle_manager->draw_circles(); }
 void delete_circles() { athi_circle_manager->clear_circles = true; }
 
-void update_circle_call(const std::function<void()>& f)
-{
+void update_circle_call(const std::function<void()> &f) {
   std::lock_guard<std::mutex> lock(athi_circle_manager->circle_buffer_function_mutex);
   circle_update_call_buffer.emplace_back(std::move(f));
 }
 
-void add_circle_multiple(Athi_Circle &circle, int num)
-{
+void add_circle_multiple(Athi_Circle &circle, int num) {
   const f32 radi = circle.radius;
   circle.mass = (1.33333f * M_PI * radi * radi * radi);
   circle.transform.scale = glm::vec3(radi, radi, 0);
   athi_circle_manager->add_circle_multiple(circle, num);
 }
 
-void add_circle(Athi_Circle &circle)
-{
+void add_circle(Athi_Circle &circle) {
   const f32 radi = circle.radius;
   circle.mass = (1.33333f * M_PI * radi * radi * radi);
   circle.transform.scale = glm::vec3(radi, radi, 0);

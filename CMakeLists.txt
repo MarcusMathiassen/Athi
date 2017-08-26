@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9.0)
+cmake_minimum_required(VERSION 3.9.1)
 project(athi)
 
 #SET(CMAKE_BUILD_TYPE DEBUG)
@@ -36,8 +36,8 @@ if(WIN32)
 
 elseif(APPLE)
 
-  SET(CMAKE_CXX_FLAGS_DEBUG "-std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
-  SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
+  SET(CMAKE_CXX_FLAGS_DEBUG "-march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
+  SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
 	# RESOURCE FILE LOCATION
 	file(GLOB RESOURCE_FILES
@@ -50,13 +50,13 @@ elseif(APPLE)
 
 	# BUNDLE OPTIONS
 	set_target_properties(${PROJECT_NAME} PROPERTIES
-  MACOSX_BUNDLE FALSE
+  MACOSX_BUNDLE TRUE
   MACOSX_FRAMEWORK_IDENTIFIER org.cmake.${PROJECT_NAME}
   RESOURCE "${RESOURCE_FILES}"
 	)
 
 	# INCLUDE DEPENDENCIES
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS)
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/universal)
 
 	ADD_LIBRARY(glew STATIC IMPORTED)
 	SET_TARGET_PROPERTIES(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GL/libGLEW.a)

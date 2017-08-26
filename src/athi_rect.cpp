@@ -5,7 +5,6 @@
 #include "athi_camera.h"
 #include "athi_transform.h"
 #include "athi_renderer.h"
-
 #include "athi_utility.h"
 
 std::vector<Athi_Rect> rect_immediate_buffer;

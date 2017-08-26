@@ -20,11 +20,11 @@ struct Node {
 };
 
 class VoxelGrid {
-private:
-  std::vector<Node*> nodes;
+ private:
+  std::vector<Node *> nodes;
   int current_voxelgrid_part{4};
 
-public:
+ public:
   void init();
   void update();
   void draw() const;

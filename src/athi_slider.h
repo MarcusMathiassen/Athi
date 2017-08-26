@@ -1,5 +1,11 @@
 #pragma once
 
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <iostream>
+
 #include "athi_camera.h"
 #include "athi_input.h"
 #include "athi_rect.h"
@@ -8,15 +14,9 @@
 #include "athi_typedefs.h"
 #include "athi_ui.h"
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#include <iostream>
-
 template <typename T>
 class Athi_Slider : public Athi_UI {
-private:
+ private:
   f32 box_max_pos;
   f32 box_min_pos;
 
@@ -29,10 +29,9 @@ private:
 
   Athi_Text text;
 
-public:
+ public:
   std::string str;
   vec2 pos{0, 0};
-
 
   T *var{nullptr};
   T *var_indicator{nullptr};
@@ -89,9 +88,9 @@ public:
     }
   }
 
-  void update()
-  {
-    if (active_if != nullptr) if (!(*active_if)) return;
+  void update() {
+    if (active_if != nullptr)
+      if (!(*active_if)) return;
 
     // Update text variable
     std::string temp = str + std::to_string(*var);
@@ -112,25 +111,25 @@ public:
         variable_indicator_box.color = indicator_color;
     }
 
-    if (!mouse_busy_UI)
-    {
+    if (!mouse_busy_UI) {
       last_state = get_status();
       switch (last_state) {
-      case HOVER:
-        slider_knob.color = hover_color;
-        break;
-      case PRESSED:
-        slider_knob.color = pressed_color;
-        break;
-      case NOTHING:
-        slider_knob.color = idle_color;
-        break;
+        case HOVER:
+          slider_knob.color = hover_color;
+          break;
+        case PRESSED:
+          slider_knob.color = pressed_color;
+          break;
+        case NOTHING:
+          slider_knob.color = idle_color;
+          break;
       }
     }
   }
 
   void draw() const {
-    if (active_if != nullptr) if (!(*active_if)) return;
+    if (active_if != nullptr)
+      if (!(*active_if)) return;
     draw_rect(slider_box.pos, slider_box.width, slider_box.height,
               slider_box.color, GL_TRIANGLES);
 
@@ -149,10 +148,8 @@ public:
     slider_knob.pos.x = mouse_x - (slider_knob.width * 0.5f);
 
     // make sure it stays within the border
-    if (slider_knob.pos.x < box_min_pos)
-      slider_knob.pos.x = box_min_pos;
-    if (slider_knob.pos.x > box_max_pos)
-      slider_knob.pos.x = box_max_pos;
+    if (slider_knob.pos.x < box_min_pos) slider_knob.pos.x = box_min_pos;
+    if (slider_knob.pos.x > box_max_pos) slider_knob.pos.x = box_max_pos;
 
     // Get the percentage of box position.
     const f32 box_pos_to_slider_val =
@@ -185,7 +182,8 @@ public:
   }
 };
 
-template <typename T> static void add_slider(Athi_Slider<T> *ui) {
+template <typename T>
+static void add_slider(Athi_Slider<T> *ui) {
   ui->init();
   athi_ui_manager.ui_buffer.emplace_back(ui);
 }

@@ -1,7 +1,6 @@
 #include "athi_settings.h"
 #include "athi_typedefs.h"
 
-
 f32 mouse_size{0.05f};
 bool mouse_busy_UI{false};
 bool mouse_grab_multiple{true};
@@ -44,7 +43,7 @@ u32 physics_FPS_limit{0};
 bool vsync{true};
 
 u32 variable_thread_count;
-bool use_multithreading{true};
+bool use_multithreading{false};
 
 u32 cpu_cores;
 u32 cpu_threads;

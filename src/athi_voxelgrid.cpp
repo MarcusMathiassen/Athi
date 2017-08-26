@@ -16,8 +16,7 @@ void Node::get(std::vector<std::vector<int>> &cont) {
   index.clear();
   index.shrink_to_fit();
 }
-void Node::draw() const
-{
+void Node::draw() const {
   draw_hollow_rect(bounds.min, bounds.max, bounds.color);
 }
 void Node::color_objects() {
@@ -32,8 +31,8 @@ void VoxelGrid::init() {
   //-----------------------------------------------------------------------------------
   // The nodes are cleared and given an element in the grid.
   //-----------------------------------------------------------------------------------
-  
-  for (auto &node: nodes) delete node;
+
+  for (auto &node : nodes) delete node;
 
   nodes.clear();
   nodes.shrink_to_fit();
@@ -41,14 +40,13 @@ void VoxelGrid::init() {
   const f32 sqrtGrid = sqrt(voxelgrid_parts);
   const f32 col = 1.0f / sqrtGrid;
   const f32 row = 1.0f / sqrtGrid;
-  
+
   for (f32 y = -1.0f; y < 1.0f; y += row) {
     for (f32 x = -1.0f; x < 1.0f; x += col) {
       Rect bounds(vec2(x, y), vec2(x + col, y + row));
-      if (draw_debug)
-      {
-      bounds.color = get_universal_current_color();
-      ++universal_color_picker;
+      if (draw_debug) {
+        bounds.color = get_universal_current_color();
+        ++universal_color_picker;
       }
       Node *n = new Node(bounds);
       nodes.emplace_back(n);
@@ -64,15 +62,13 @@ void VoxelGrid::update() {
   // be added to the nodes object-container.
   //-----------------------------------------------------------------------------------
 
-  if (voxelgrid_parts != current_voxelgrid_part)
-    init();
+  if (voxelgrid_parts != current_voxelgrid_part) init();
 
   for (const auto &circle : athi_circle_manager->circle_buffer) {
     const int id = circle->id;
 
     for (const auto &node : nodes)
-      if (node->contains(id))
-        node->insert(id);
+      if (node->contains(id)) node->insert(id);
   }
 }
 

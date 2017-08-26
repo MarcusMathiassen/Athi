@@ -3,11 +3,13 @@
 #include "athi_typedefs.h"
 
 #include <cmath>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 
-struct Camera
-{
+struct Camera {
   vec3 position{0.0f, 0.0f, 3.0f};
   vec3 forward{0.0f, 0.0f, -1.0f};
   vec3 up{0.0f, 1.0f, 0.0f};
@@ -22,13 +24,12 @@ struct Camera
 
   f32 moveSpeed{0.02f};
   Camera() = default;
-  mat4 get_view_projection() const
-  {
+  mat4 get_view_projection() const {
     return perspective * glm::lookAt(position, position + forward, up);
   }
-  void update_perspective()
-  {
-    perspective = glm::perspective(fov * (f32)M_PI / 360.0f, aspect_ratio, zNear, zFar);
+  void update_perspective() {
+    perspective =
+        glm::perspective(fov * (f32)M_PI / 360.0f, aspect_ratio, zNear, zFar);
   }
 };
 

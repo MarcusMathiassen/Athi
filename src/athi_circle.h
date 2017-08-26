@@ -1,5 +1,17 @@
 #pragma once
 
+#include <functional>
+#include <mutex>
+#include <vector>
+
+#ifdef __APPLE__
+#include <OpenCL/OpenCL.h>
+#else
+#include <CL/cl.h>
+#endif
+
+#define CIRCLE_NUM_VERTICES 36
+
 #include "athi_transform.h"
 #include "athi_typedefs.h"
 
@@ -7,28 +19,14 @@
 #include "athi_utility.h"
 #include "athi_voxelgrid.h"
 
-#include <mutex>
-#include <thread>
-#include <vector>
-#include <functional>
+extern vector<std::function<void()>> circle_update_call_buffer;
 
-#ifdef __APPLE__
-  #include <OpenCL/OpenCL.h>
-#else
-  #include <CL/cl.h>
-#endif
-
-#define CIRCLE_NUM_VERTICES 36
-
-extern vector<std::function<void()> > circle_update_call_buffer;
-
-struct Athi_Circle
-{
+struct Athi_Circle {
   u32 id;
   vec2 pos;
   vec2 vel;
   vec2 acc;
-  f32  mass;
+  f32 mass;
   f32 radius{0.001f};
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
   Transform transform;
@@ -40,33 +38,28 @@ struct Athi_Circle
 
 extern std::vector<std::unique_ptr<Athi_Circle>> circle_buffer;
 
-struct Athi_Circle_Manager
-{
-  // OPENCL ////////////////////////////////////////////////////////////////////////////
-  int err;                            // error code returned from api calls
-  char* kernel_source{nullptr};
-  size_t global;                      // global domain size for our calculation
-  size_t local;                       // local domain size for our calculation
+struct Athi_Circle_Manager {
+  // OPENCL
+  // ////////////////////////////////////////////////////////////////////////////
+  int err;  // error code returned from api calls
+  char *kernel_source{nullptr};
+  size_t global;  // global domain size for our calculation
+  size_t local;   // local domain size for our calculation
   unsigned int begin;
   unsigned int end;
   bool gpu{true};
   std::vector<Athi_Circle> data;
   std::vector<Athi_Circle> results;
 
-  cl_device_id device_id;             // compute device id
-  cl_context context;                 // compute context
-  cl_command_queue commands;          // compute command queue
-  cl_program program;                 // compute program
-  cl_kernel kernel;                   // compute kernel
+  cl_device_id device_id;     // compute device id
+  cl_context context;         // compute context
+  cl_command_queue commands;  // compute command queue
+  cl_program program;         // compute program
+  cl_kernel kernel;           // compute kernel
 
-  cl_mem input;                       // device memory used for the input array
-  cl_mem output;                      // device memory used for the output array
+  cl_mem input;   // device memory used for the input array
+  cl_mem output;  // device memory used for the output array
   ////////////////////////////////////////////////////////////////////////////////////////
-
-
-  std::vector<std::thread> threads;
-
-  Semaphore sem;
 
   // Make sure it's thread safe
   bool clear_circles{false};
@@ -74,7 +67,7 @@ struct Athi_Circle_Manager
   std::mutex circle_buffer_mutex;
   std::vector<std::unique_ptr<Athi_Circle>> circle_buffer;
   void add_circle(Athi_Circle &circle);
-  void add_circle_multiple(Athi_Circle &circle, int num);  
+  void add_circle_multiple(Athi_Circle &circle, int num);
   void update_circles();
   void draw_circles();
   Athi_Circle get_circle(u32 id);
@@ -101,10 +94,10 @@ struct Athi_Circle_Manager
   void update();
 
   void collision_logNxN(size_t total, size_t begin, size_t end);
-  void collision_quadtree(const std::vector<std::vector<int> > &cont, size_t begin, size_t end);
+  void collision_quadtree(const std::vector<std::vector<int>> &cont, size_t begin, size_t end);
 };
 
-void update_circle_call(const std::function<void()>& f);
+void update_circle_call(const std::function<void()> &f);
 
 void attach_spring(Athi_Circle &a, Athi_Circle &b);
 void delete_circles();

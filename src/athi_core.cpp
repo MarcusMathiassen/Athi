@@ -1,34 +1,35 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include "athi_core.h"
-#include "athi_camera.h"
-#include "athi_checkbox.h"
-#include "athi_circle.h"
-#include "athi_input.h"
-#include "athi_quadtree.h"
-#include "athi_rect.h"
-#include "athi_settings.h"
-#include "athi_slider.h"
-#include "athi_text.h"
-#include "athi_line.h"
-#include "athi_ui_list.h"
-#include "athi_utility.h"
-#include "athi_softbody.h"
-#include "athi_voxelgrid.h"
-#include "athi_renderer.h"
-#include "athi_spring.h"
 
+#include <dispatch/dispatch.h>
 #include <iostream>
 #include <thread>
- 
+
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "athi_camera.h"
+#include "athi_checkbox.h"
+#include "athi_circle.h"
+#include "athi_core.h"
+#include "athi_input.h"
+#include "athi_line.h"
+#include "athi_quadtree.h"
+#include "athi_rect.h"
+#include "athi_renderer.h"
+#include "athi_settings.h"
+#include "athi_slider.h"
+#include "athi_softbody.h"
+#include "athi_spring.h"
+#include "athi_text.h"
+#include "athi_ui_list.h"
+#include "athi_utility.h"
+#include "athi_voxelgrid.h"
+
 SMA smooth_frametime_avg(&smoothed_frametime);
 SMA smooth_physics_rametime_avg(&smoothed_physics_frametime);
 
-void Athi_Core::init()
-{
+void Athi_Core::init() {
   window = std::make_unique<Athi_Window>();
   window->scene.width = 500;
   window->scene.height = 500;
@@ -43,12 +44,12 @@ void Athi_Core::init()
   init_quadtree();
   init_voxelgrid();
 
-  //glEnable(GL_FRAMEBUFFER_SRGB);
+  // glEnable(GL_FRAMEBUFFER_SRGB);
   glEnable(GL_LINE_SMOOTH);
   glEnable(GL_BLEND);
   glDisable(GL_DEPTH_BUFFER);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(0.15686,  0.17255,  0.20392, 1.0);  
+  glClearColor(0.15686, 0.17255, 0.20392, 1.0);
 
   cpu_threads = std::thread::hardware_concurrency();
 
@@ -62,8 +63,7 @@ void Athi_Core::init()
   variable_thread_count = cpu_threads;
 }
 
-void Athi_Core::start()
-{
+void Athi_Core::start() {
   Athi_Checkbox quadtree_box;
   quadtree_box.pos = vec2(RIGHT - ROW * 7.5f, BOTTOM + ROW);
   quadtree_box.text.str = "quadtree";
@@ -174,7 +174,7 @@ void Athi_Core::start()
   multithreaded_collision_thread_count_slider.pos = vec2(RIGHT - ROW * 7.5f, TOP - ROW * 2.5f);
   multithreaded_collision_thread_count_slider.width = 0.3f;
   multithreaded_collision_thread_count_slider.min = 0;
-  multithreaded_collision_thread_count_slider.max = cpu_threads*4;
+  multithreaded_collision_thread_count_slider.max = cpu_threads * 4;
   add_slider<u32>(&multithreaded_collision_thread_count_slider);
 
   Athi_Slider<f32> mouse_size_slider;
@@ -187,8 +187,8 @@ void Athi_Core::start()
   mouse_size_slider.max = 1.0f;
   add_slider<f32>(&mouse_size_slider);
 
-  auto window_context       = window->get_window_context();
-  auto monitor_refreshrate  = window->monitor_refreshrate;
+  auto window_context = window->get_window_context();
+  auto monitor_refreshrate = window->monitor_refreshrate;
 
 //#define SINGLE_THREADED
 #ifdef SINGLE_THREADED
@@ -197,7 +197,7 @@ void Athi_Core::start()
   add_text(&frametime_text);
 
   Athi_Text physics_frametime_text;
-  physics_frametime_text.pos = vec2(LEFT+ROW, TOP-ROW);
+  physics_frametime_text.pos = vec2(LEFT + ROW, TOP - ROW);
   add_text(&physics_frametime_text);
 
   Athi_Text circle_info_text;
@@ -205,29 +205,28 @@ void Athi_Core::start()
   add_text(&circle_info_text);
 
   glfwMakeContextCurrent(window_context);
-  while (!glfwWindowShouldClose(window_context))
-  {
+  while (!glfwWindowShouldClose(window_context)) {
     const f64 time_start_frame = glfwGetTime();
     update_inputs();
-    
+
     window->update();
 
     update_settings();
-    if (show_settings)
-    {
+    if (show_settings) {
       update_UI();
     }
 
     glfwPollEvents();
- 
-    frametime_text.str         = "Render:  " + std::to_string(framerate) + "fps | " + std::to_string(smoothed_frametime) + "ms";
-    physics_frametime_text.str = "Physics: " + std::to_string(physics_framerate) + "fps | " + std::to_string(smoothed_physics_frametime) + "ms";
-    circle_info_text.str       = "Circles: " + std::to_string(get_num_circles());
+
+    frametime_text.str = "Render:  " + std::to_string(framerate) + "fps | " + std::to_string(smoothed_frametime) + "ms";
+    physics_frametime_text.str =
+        "Physics: " + std::to_string(physics_framerate) + "fps | " + std::to_string(smoothed_physics_frametime) + "ms";
+    circle_info_text.str = "Circles: " + std::to_string(get_num_circles());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     update_circles();
-  
+
     draw_circles();
     draw_rects();
     draw_lines();
@@ -240,31 +239,38 @@ void Athi_Core::start()
     render();
     glfwSwapBuffers(window_context);
 
-    //if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
+    // if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     framerate = (u32)(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
-    
-    //if (physics_FPS_limit != 0) limit_FPS(physics_FPS_limit, time_start_frame);
+
+    // if (physics_FPS_limit != 0) limit_FPS(physics_FPS_limit,
+    // time_start_frame);
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     physics_framerate = (u32)(std::round(1000.0f / smoothed_physics_frametime));
     smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
     timestep = smoothed_physics_frametime / (1000.0 / 60.0);
   }
-#else 
-  std::thread draw_thread(&Athi_Core::draw_loop, this);
-  std::thread physics_thread(&Athi_Core::physics_loop, this);
+#else
+  dispatch_queue_t draw_q = dispatch_queue_create("draw_q", NULL);
+  dispatch_queue_t update_q = dispatch_queue_create("update_q", NULL);
 
-  while (!glfwWindowShouldClose(window_context))
-  {
+  dispatch_async(draw_q, ^{
+    draw_loop();
+  });
+
+  dispatch_async(update_q, ^{
+    physics_loop();
+  });
+
+  while (!glfwWindowShouldClose(window_context)) {
     const f64 time_start_frame = glfwGetTime();
     update_inputs();
 
     window->update();
 
     update_settings();
-    if (show_settings)
-    {
+    if (show_settings) {
       update_UI();
     }
 
@@ -272,21 +278,40 @@ void Athi_Core::start()
     limit_FPS(monitor_refreshrate, time_start_frame);
   }
   app_is_running = false;
-  draw_thread.join();
-  physics_thread.join();
-  
   shutdown();
+
 #endif
 }
 
-void Athi_Core::draw_loop()
-{
+void Athi_Core::window_loop() {
+  auto window_context = window->get_window_context();
+  auto monitor_refreshrate = window->monitor_refreshrate;
+  glfwMakeContextCurrent(window_context);
+  while (!glfwWindowShouldClose(window_context)) {
+    const f64 time_start_frame = glfwGetTime();
+    update_inputs();
+
+    window->update();
+
+    update_settings();
+    if (show_settings) {
+      update_UI();
+    }
+
+    glfwPollEvents();
+    limit_FPS(monitor_refreshrate, time_start_frame);
+  }
+  app_is_running = false;
+  shutdown();
+}
+
+void Athi_Core::draw_loop() {
   Athi_Text frametime_text;
   frametime_text.pos = vec2(LEFT + ROW, TOP);
   add_text(&frametime_text);
 
   Athi_Text physics_frametime_text;
-  physics_frametime_text.pos = vec2(LEFT+ROW, TOP-ROW);
+  physics_frametime_text.pos = vec2(LEFT + ROW, TOP - ROW);
   add_text(&physics_frametime_text);
 
   Athi_Text circle_info_text;
@@ -296,27 +321,33 @@ void Athi_Core::draw_loop()
   auto window_context = window->get_window_context();
   glfwMakeContextCurrent(window_context);
 
-  while (app_is_running)
-  {
+  while (app_is_running) {
     const f64 time_start_frame = glfwGetTime();
-    frametime_text.str         = "Render:  " + std::to_string(framerate) + "fps | " + std::to_string(smoothed_frametime) + "ms";
-    physics_frametime_text.str = "Physics: " + std::to_string(physics_framerate) + "fps | " + std::to_string(smoothed_physics_frametime) + "ms";
-    circle_info_text.str       = "Circles: " + std::to_string(get_num_circles());
+    frametime_text.str = "Render:  " + std::to_string(framerate) + "fps | " + std::to_string(smoothed_frametime) + "ms";
+    physics_frametime_text.str =
+        "Physics: " + std::to_string(physics_framerate) + "iters / frame | " + std::to_string(smoothed_physics_frametime) + "ms";
+    circle_info_text.str = "Circles: " + std::to_string(get_num_circles());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+
     draw_circles();
     draw_rects();
     draw_lines();
     draw_springs();
-    
+
     if (show_settings) draw_UI();
-    if (!show_settings) 
-    {
-      vec4 color = (framerate < 60) ? pastel_red : pastel_green;
-      draw_text(std::to_string(framerate) + " FPS " + std::to_string(smoothed_frametime) + " ms", vec2(LEFT, TOP), color);
+    if (!show_settings) {
+      // FPS info
+      const auto fps_color = (framerate < 60) ? pastel_red : pastel_green;
+      const auto fps_str = std::to_string(framerate) + " FPS " + std::to_string(smoothed_frametime) + " ms";
+      draw_text(fps_str, vec2(LEFT, TOP), fps_color);
+
+      // Physics info
+      const auto physics_iter_color = pastel_yellow;
+      const auto physics_iter_str = std::to_string(physics_framerate) + "iter/f " + std::to_string(smoothed_physics_frametime) + "ms";
+      draw_text(physics_iter_str, vec2(LEFT, TOP - ROW), physics_iter_color);
     }
-    
+
     render();
     glfwSwapBuffers(window_context);
 
@@ -327,15 +358,10 @@ void Athi_Core::draw_loop()
   }
 }
 
-void update_game_state()
-{
-  update_circles();
-}
+void update_game_state() { update_circles(); }
 
-void Athi_Core::physics_loop()
-{
-  while (app_is_running)
-  {
+void Athi_Core::physics_loop() {
+  while (app_is_running) {
     const f64 time_start_frame = glfwGetTime();
 
     update_game_state();
@@ -348,12 +374,6 @@ void Athi_Core::physics_loop()
   }
 }
 
-void Athi_Core::update_settings()
-{ 
-  glfwSwapInterval(vsync); 
-}
+void Athi_Core::update_settings() { glfwSwapInterval(vsync); }
 
-void Athi_Core::shutdown() 
-{
-  glfwTerminate(); 
-}
+void Athi_Core::shutdown() { glfwTerminate(); }

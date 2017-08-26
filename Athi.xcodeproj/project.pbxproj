@@ -27,6 +27,7 @@
 		F2298A4F1F328D67007DCBB3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A4E1F328D67007DCBB3 /* Cocoa.framework */; };
 		F2298A511F328D70007DCBB3 /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A501F328D70007DCBB3 /* libGLEW.a */; };
 		F2298A531F328D78007DCBB3 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A521F328D78007DCBB3 /* libglfw3.a */; };
+		F25C78771F520AD300D9D616 /* athi_task_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F25C78751F520AD300D9D616 /* athi_task_manager.cpp */; };
 		F2820A051F3BAC1C00BD6C76 /* athi_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2820A021F3BAC1B00BD6C76 /* athi_line.cpp */; };
 		F28B69261F3C962C00766125 /* athi_spring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F28B69241F3C962C00766125 /* athi_spring.cpp */; };
 		F2A08A681F3A01B200E2148B /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2A08A671F3A01B200E2148B /* OpenCL.framework */; };
@@ -80,13 +81,16 @@
 		F2298A351F328D00007DCBB3 /* athi_window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_window.cpp; sourceTree = "<group>"; };
 		F2298A361F328D00007DCBB3 /* athi_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_window.h; sourceTree = "<group>"; };
 		F2298A371F328D00007DCBB3 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		F2298A381F328D00007DCBB3 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		F2298A481F328D54007DCBB3 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		F2298A4A1F328D5A007DCBB3 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		F2298A4C1F328D60007DCBB3 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		F2298A4E1F328D67007DCBB3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		F2298A501F328D70007DCBB3 /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = dep/macOS/GL/libGLEW.a; sourceTree = "<group>"; };
 		F2298A521F328D78007DCBB3 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = dep/macOS/GLFW/libglfw3.a; sourceTree = "<group>"; };
+		F25C786B1F51DF9B00D9D616 /* athi_physics_engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_physics_engine.h; sourceTree = "<group>"; };
+		F25C78751F520AD300D9D616 /* athi_task_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_task_manager.cpp; sourceTree = "<group>"; };
+		F25C78761F520AD300D9D616 /* athi_task_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_task_manager.h; sourceTree = "<group>"; };
+		F25C78791F521A3200D9D616 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		F28209FF1F3BAC1B00BD6C76 /* athi_ui_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_ui_list.h; sourceTree = "<group>"; };
 		F2820A011F3BAC1B00BD6C76 /* athi_line.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_line.h; sourceTree = "<group>"; };
 		F2820A021F3BAC1B00BD6C76 /* athi_line.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_line.cpp; sourceTree = "<group>"; };
@@ -139,6 +143,10 @@
 		F2298A151F328D00007DCBB3 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				F25C78781F521A3200D9D616 /* universal */,
+				F25C78751F520AD300D9D616 /* athi_task_manager.cpp */,
+				F25C78761F520AD300D9D616 /* athi_task_manager.h */,
+				F25C786B1F51DF9B00D9D616 /* athi_physics_engine.h */,
 				F2AEF63A1F3E255F00D5000E /* athi_renderer.cpp */,
 				F2AEF6381F3E255F00D5000E /* athi_renderer.h */,
 				F2AEF6371F3E255F00D5000E /* athi_rigidbody.h */,
@@ -183,7 +191,6 @@
 				F2298A351F328D00007DCBB3 /* athi_window.cpp */,
 				F2298A361F328D00007DCBB3 /* athi_window.h */,
 				F2298A371F328D00007DCBB3 /* main.cpp */,
-				F2298A381F328D00007DCBB3 /* stb_image.h */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -201,6 +208,15 @@
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
+		};
+		F25C78781F521A3200D9D616 /* universal */ = {
+			isa = PBXGroup;
+			children = (
+				F25C78791F521A3200D9D616 /* stb_image.h */,
+			);
+			name = universal;
+			path = dep/universal;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -266,6 +282,7 @@
 				F2820A051F3BAC1C00BD6C76 /* athi_line.cpp in Sources */,
 				F28B69261F3C962C00766125 /* athi_spring.cpp in Sources */,
 				F2298A3C1F328D00007DCBB3 /* athi_core.cpp in Sources */,
+				F25C78771F520AD300D9D616 /* athi_task_manager.cpp in Sources */,
 				F2AEF63B1F3E255F00D5000E /* athi_renderer.cpp in Sources */,
 				F2298A3F1F328D00007DCBB3 /* athi_rect.cpp in Sources */,
 				F2298A461F328D00007DCBB3 /* main.cpp in Sources */,
@@ -319,7 +336,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -372,7 +389,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
