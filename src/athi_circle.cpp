@@ -1,4 +1,4 @@
-#include "athi_circle.h"
+ #include "athi_circle.h"
 #include "athi_camera.h"
 #include "athi_quadtree.h"
 #include "athi_settings.h"
@@ -291,19 +291,16 @@ void Athi_Circle_Manager::draw()
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
   size_t transform_bytes_needed = sizeof(mat4) * circle_buffer.size();
   if (transform_bytes_needed > transform_bytes_allocated) {
-    glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &transforms[0],
-                 GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &transforms[0], GL_STREAM_DRAW);
     transform_bytes_allocated = transform_bytes_needed;
   } else {
-    glBufferSubData(GL_ARRAY_BUFFER, 0, transform_bytes_allocated,
-                    &transforms[0]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, transform_bytes_allocated, &transforms[0]);
   }
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO[COLOR]);
   size_t color_bytes_needed = sizeof(vec4) * circle_buffer.size();
   if (color_bytes_needed > color_bytes_allocated) {
-    glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0],
-                 GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0], GL_STREAM_DRAW);
     color_bytes_allocated = color_bytes_needed;
   } else {
     glBufferSubData(GL_ARRAY_BUFFER, 0, color_bytes_allocated, &colors[0]);
@@ -469,7 +466,6 @@ void Athi_Circle_Manager::update()
       collision_logNxN(circle_buffer.size(), 0, circle_buffer.size());
     }
   }
-  
 
   // Update GPU BUFFERS
   if (circle_buffer.size() > transforms.size()) {
@@ -505,6 +501,16 @@ void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<int> 
         }
       }
     }
+  }
+}
+
+void Athi_Circle_Manager::add_circle_multiple(Athi_Circle &circle, int num)
+{
+  std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
+  for (int i = 0; i < num; ++i)
+  {
+    circle.id = (u32)circle_buffer.size();    
+    circle_buffer.emplace_back(std::make_unique<Athi_Circle>(circle));
   }
 }
 
@@ -569,6 +575,14 @@ void update_circle_call(const std::function<void()>& f)
 {
   std::lock_guard<std::mutex> lock(athi_circle_manager->circle_buffer_function_mutex);
   circle_update_call_buffer.emplace_back(std::move(f));
+}
+
+void add_circle_multiple(Athi_Circle &circle, int num)
+{
+  const f32 radi = circle.radius;
+  circle.mass = (1.33333f * M_PI * radi * radi * radi);
+  circle.transform.scale = glm::vec3(radi, radi, 0);
+  athi_circle_manager->add_circle_multiple(circle, num);
 }
 
 void add_circle(Athi_Circle &circle)

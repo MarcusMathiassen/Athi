@@ -16,7 +16,6 @@
 #include "athi_voxelgrid.h"
 #include "athi_renderer.h"
 #include "athi_spring.h"
-#include <functional>
 
 #include <iostream>
 #include <thread>
@@ -44,12 +43,12 @@ void Athi_Core::init()
   init_quadtree();
   init_voxelgrid();
 
-  glEnable(GL_FRAMEBUFFER_SRGB);
+  //glEnable(GL_FRAMEBUFFER_SRGB);
   glEnable(GL_LINE_SMOOTH);
   glEnable(GL_BLEND);
   glDisable(GL_DEPTH_BUFFER);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(0.02, 0.02, 0.02, 1.0);  
+  glClearColor(0.15686,  0.17255,  0.20392, 1.0);  
 
   cpu_threads = std::thread::hardware_concurrency();
 
@@ -236,7 +235,7 @@ void Athi_Core::start()
 
     if (show_settings) draw_UI();
 
-    draw_text(std::to_string(framerate) + " FPS " + std::to_string(smoothed_frametime) + " ms", vec2(LEFT, TOP), vec4(0.9, 0.9, 0.9, 0.1));
+    draw_text(std::to_string(framerate) + " FPS " + std::to_string(smoothed_frametime) + " ms", vec2(LEFT, TOP), pastel_blue);
 
     render();
     glfwSwapBuffers(window_context);
@@ -272,7 +271,6 @@ void Athi_Core::start()
     glfwPollEvents();
     limit_FPS(monitor_refreshrate, time_start_frame);
   }
-
   app_is_running = false;
   draw_thread.join();
   physics_thread.join();
@@ -306,16 +304,19 @@ void Athi_Core::draw_loop()
     circle_info_text.str       = "Circles: " + std::to_string(get_num_circles());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    
     draw_circles();
     draw_rects();
     draw_lines();
     draw_springs();
-
+    
     if (show_settings) draw_UI();
-
-    draw_text(std::to_string(framerate) + " FPS " + std::to_string(smoothed_frametime) + " ms", vec2(LEFT, TOP), vec4(0.9, 0.9, 0.9, 0.1));
-
+    if (!show_settings) 
+    {
+      vec4 color = (framerate < 60) ? pastel_red : pastel_green;
+      draw_text(std::to_string(framerate) + " FPS " + std::to_string(smoothed_frametime) + " ms", vec2(LEFT, TOP), color);
+    }
+    
     render();
     glfwSwapBuffers(window_context);
 

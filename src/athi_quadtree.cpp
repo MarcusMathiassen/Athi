@@ -64,7 +64,7 @@ void Quadtree::split() {
     subnodes[0].bounds.color = pastel_red;
     subnodes[1].bounds.color = pastel_blue;
     subnodes[2].bounds.color = pastel_orange;
-    subnodes[3].bounds.color = pastel_pink;
+    subnodes[3].bounds.color = pastel_purple;
   }
 }
 

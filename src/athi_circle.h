@@ -74,6 +74,7 @@ struct Athi_Circle_Manager
   std::mutex circle_buffer_mutex;
   std::vector<std::unique_ptr<Athi_Circle>> circle_buffer;
   void add_circle(Athi_Circle &circle);
+  void add_circle_multiple(Athi_Circle &circle, int num);  
   void update_circles();
   void draw_circles();
   Athi_Circle get_circle(u32 id);
@@ -110,6 +111,7 @@ void delete_circles();
 u32 get_num_circles();
 void update_circles();
 void draw_circles();
+void add_circle_multiple(Athi_Circle &circle, int num);
 void add_circle(Athi_Circle &circle);
 void init_circle_manager();
 

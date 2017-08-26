@@ -104,6 +104,9 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
   // TOGGLE OPENCL
   if (key == GLFW_KEY_O && action == GLFW_PRESS) { openCL_active ^= 1; }
 
+  // TOGGLE MOUSE GRAB LINES
+  if (key == GLFW_KEY_Y && action == GLFW_PRESS) { show_mouse_grab_lines ^= 1; }
+
   // TOGGLE QUADTREE ACTIVE
   if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
     if (quadtree_active)

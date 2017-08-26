@@ -174,21 +174,21 @@ void mouse_grab() {
       {
         attraction_force(*athi_circle_manager->circle_buffer[id], mouse_pos);
         last_state = ATTACHED;
-        if (draw_debug) draw_line(mouse_pos, athi_circle_manager->circle_buffer[id]->pos, 0.03f, pastel_green);
+        if (show_mouse_grab_lines) draw_line(mouse_pos, athi_circle_manager->circle_buffer[id]->pos, 0.03f, pastel_pink);
       }
     }
     else // single
     {
       attraction_force(*athi_circle_manager->circle_buffer[mouse_attached_to_single], mouse_pos);
-      if (draw_debug) draw_line(mouse_pos, athi_circle_manager->circle_buffer[mouse_attached_to_single]->pos, 0.03f, pastel_green);
+      if (show_mouse_grab_lines) draw_line(mouse_pos, athi_circle_manager->circle_buffer[mouse_attached_to_single]->pos, 0.03f, pastel_pink);
     }
     mouse_busy_UI = true;
   }
 
 
   // Go through all circles. Return the circle hovered
-  if (last_state != ATTACHED) {
-  
+  if (last_state != ATTACHED)
+  {
   for (auto& c: athi_circle_manager->circle_buffer)
   {
     // If the mouse and circle intersect
@@ -223,26 +223,22 @@ void update_inputs() {
   if (glfwGetKey(context, GLFW_KEY_SPACE) == GLFW_PRESS) {
     c.pos = mouse_pos;
     c.radius = circle_size;
-    for (int i = 0; i < 20; ++i)
-    add_circle(c);
+    add_circle_multiple(c, 20);
   }
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
     c.pos = mouse_pos;
     c.radius = 0.003f;
-    for (int i = 0; i < 10; ++i)
-      add_circle(c);
+    add_circle_multiple(c, 20);
   }
   if (glfwGetKey(context, GLFW_KEY_2) == GLFW_PRESS) {
     c.pos = mouse_pos;
     c.radius = 0.005f;
-    for (int i = 0; i < 10; ++i)
-    add_circle(c);
+    add_circle_multiple(c, 20);
   }
   if (glfwGetKey(context, GLFW_KEY_3) == GLFW_PRESS) {
     c.pos = mouse_pos;
     c.radius = 0.007f;
-    for (int i = 0; i < 10; ++i)
-    add_circle(c);
+    add_circle_multiple(c, 20);
   }
 
   //  CAMERA MOVE

@@ -5,6 +5,7 @@
 extern f32 mouse_size;
 extern bool mouse_grab_multiple;
 extern bool mouse_busy_UI;
+extern bool show_mouse_grab_lines;
 
 extern s32 screen_width;
 extern s32 screen_height;
@@ -57,11 +58,11 @@ extern bool settings_changed;
 
 extern u32 universal_color_picker;
 
-static vec4 pastel_red     (238.0f / 255.0f, 0.0f, 0.0f, 1.0f);
-static vec4 pastel_gray    (85 / 255.0f, 85 / 255.0f, 85 / 255.0f, 1.0f);
-static vec4 pastel_green   (33.0f / 255.0f,176.0f/ 255.0f,1.0/ 255.0f, 1.0f);
-static vec4 pastel_orange  (255.0f/ 255.0f,165.0f/ 255.0f,0.0f, 1.0f);
-static vec4 pastel_yellow  (255.0f/ 255.0f,242.0f/ 255.0f,63.0f/ 255.0f, 1.0f);
-static vec4 pastel_purple  (100 / 255.0f, 20 / 255.0f, 100 / 255.0f, 1.0f);
+static vec4 pastel_red     (224.0f   /255.0f,   109.0f    /255.0f,   110.0f    /255.0f, 1.0f);
+static vec4 pastel_green   (152.0f / 255.0f,195.0f/ 255.0f,121.0/ 255.0f, 1.0f);
 static vec4 pastel_blue    (63.0f/ 255.0f,150.0f/ 255.0f,255.0f/ 255.0f, 1.0f);
+static vec4 pastel_yellow  (255.0f/ 255.0f,242.0f/ 255.0f,63.0f/ 255.0f, 1.0f);
+static vec4 pastel_purple  (0.77647,  0.47059,  0.86667, 1.0f);
 static vec4 pastel_pink    (255.0f/ 255.0f, 20.0f/ 255.0f,147.0/ 255.0f, 1.0f);
+static vec4 pastel_orange  (255.0f/ 255.0f,165.0f/ 255.0f,0.0f, 1.0f);
+static vec4 pastel_gray    (85 / 255.0f, 85 / 255.0f, 85 / 255.0f, 1.0f);

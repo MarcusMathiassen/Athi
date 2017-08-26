@@ -20,7 +20,7 @@ vec4 get_universal_current_color() {
     return pastel_yellow;
     break;
   case 5:
-    return pastel_pink;
+    return pastel_purple;
     break;
   }
   return vec4();

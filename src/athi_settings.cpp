@@ -5,6 +5,7 @@
 f32 mouse_size{0.05f};
 bool mouse_busy_UI{false};
 bool mouse_grab_multiple{true};
+bool show_mouse_grab_lines{false};
 
 s32 screen_width;
 s32 screen_height;
