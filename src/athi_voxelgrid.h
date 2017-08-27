@@ -9,9 +9,9 @@
 #include "athi_typedefs.h"
 
 struct Node {
-  Rect bounds;
+  Athi::Rect bounds;
   std::vector<int> index;
-  Node(const Rect &r);
+  Node(const Athi::Rect &r);
   void insert(int id);
   void get(std::vector<std::vector<int>> &cont);
   void draw() const;

@@ -5,7 +5,7 @@
 
 std::unique_ptr<Quadtree> athi_quadtree;
 
-Quadtree::Quadtree(int level, const Rect &bounds) : level(level), bounds(bounds) { index.reserve(quadtree_capacity); }
+Quadtree::Quadtree(int level, const Athi::Rect &bounds) : level(level), bounds(bounds) { index.reserve(quadtree_capacity); }
 
 void Quadtree::init(const vec2 &min, const vec2 &max) {
   bounds.min = min;
@@ -41,10 +41,10 @@ void Quadtree::split() {
   const f32 w = width * 0.5;
   const f32 h = height * 0.5;
 
-  const Rect SW(vec2(x, y), vec2(x + w, y + h));
-  const Rect SE(vec2(x + w, y), vec2(x + width, y + h));
-  const Rect NW(vec2(x, y + h), vec2(x + w, y + height));
-  const Rect NE(vec2(x + w, y + h), vec2(x + width, y + height));
+  const Athi::Rect SW(vec2(x, y), vec2(x + w, y + h));
+  const Athi::Rect SE(vec2(x + w, y), vec2(x + width, y + h));
+  const Athi::Rect NW(vec2(x, y + h), vec2(x + w, y + height));
+  const Athi::Rect NE(vec2(x + w, y + h), vec2(x + width, y + height));
 
   subnodes = new Quadtree[4];
 
@@ -160,7 +160,7 @@ void Quadtree::get(std::vector<std::vector<int>> &cont) const {
   }
 }
 
-void Quadtree::retrieve(std::vector<int> &cont, const Rect &rect) const {
+void Quadtree::retrieve(std::vector<int> &cont, const Athi::Rect &rect) const {
   //----------------------------------------------------------------
   // [1] Find the deepest level node.
   // [2] If there are indexes, add to container.
@@ -182,7 +182,7 @@ void Quadtree::retrieve(std::vector<int> &cont, const Rect &rect) const {
 }
 
 bool Quadtree::contains(int id) { return bounds.contains(id); }
-bool Quadtree::contain_rect(const Rect &rect) const { return bounds.contain_rect(rect); }
+bool Quadtree::contain_rect(const Athi::Rect &rect) const { return bounds.contain_rect(rect); }
 
 // Go down to the leaf nodes and delete the nodes
 void Quadtree::clear() {
@@ -205,7 +205,7 @@ void init_quadtree() {
 void update_quadtree() { athi_quadtree->update(); }
 void get_nodes_quadtree(std::vector<std::vector<int>> &cont) { athi_quadtree->get(cont); }
 
-void retrieve_nodes_quadtree(std::vector<int> &cont, const Rect &rect) { athi_quadtree->retrieve(cont, rect); }
+void retrieve_nodes_quadtree(std::vector<int> &cont, const Athi::Rect &rect) { athi_quadtree->retrieve(cont, rect); }
 
 void draw_quadtree() { athi_quadtree->draw(); }
 

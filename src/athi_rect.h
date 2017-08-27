@@ -5,35 +5,33 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
-#include "athi_typedefs.h"
 #include "athi_transform.h"
+#include "athi_typedefs.h"
 
-static constexpr u16 indices[]{0,1,2, 0,2,3};
+static constexpr u16 indices[]{0, 1, 2, 0, 2, 3};
 
-struct Rect
-{
-  vec2 min,max;
+namespace Athi {
+struct Rect {
+  vec2 min, max;
   vec2 pos;
-  f32 width,height;
-  vec4 color{1.0f,1.0f,1.0f,1.0f};
-  Rect(const vec2& _min, const vec2& _max)
-  {
+  f32 width, height;
+  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+  Rect(const vec2& _min, const vec2& _max) {
     min = _min;
     max = _max;
     pos = _min;
   }
-  bool contain_rect(const Rect &r) const;    
+  bool contain_rect(const Rect& r) const;
   bool contains(u32 id);
   Rect() = default;
 };
-
-struct Athi_Rect
-{
+}  // namespace Athi
+struct Athi_Rect {
   Transform transform;
-  vec2 pos{0,0};
+  vec2 pos{0, 0};
   f32 width;
   f32 height;
-  vec4 color{1.0f,1.0f,1.0f,1.0f};
+  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
 
   GLenum draw_mode{GL_TRIANGLES};
 
@@ -41,10 +39,9 @@ struct Athi_Rect
   void draw() const {}
 };
 
-struct Athi_Rect_Manager
-{
-  enum {TRANSFORM, COLOR, NUM_UNIFORMS};
-  enum {POSITION, INDICES, NUM_BUFFERS};
+struct Athi_Rect_Manager {
+  enum { TRANSFORM, COLOR, NUM_UNIFORMS };
+  enum { POSITION, INDICES, NUM_BUFFERS };
 
   u32 VAO;
   u32 VBO[NUM_BUFFERS];

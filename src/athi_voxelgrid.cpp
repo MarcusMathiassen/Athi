@@ -7,7 +7,7 @@
 
 VoxelGrid athi_voxelgrid;
 
-Node::Node(const Rect &r) : bounds{r} {}
+Node::Node(const Athi::Rect &r) : bounds{r} {}
 
 void Node::insert(int id) { index.emplace_back(id); }
 
@@ -43,7 +43,7 @@ void VoxelGrid::init() {
 
   for (f32 y = -1.0f; y < 1.0f; y += row) {
     for (f32 x = -1.0f; x < 1.0f; x += col) {
-      Rect bounds(vec2(x, y), vec2(x + col, y + row));
+      Athi::Rect bounds(vec2(x, y), vec2(x + col, y + row));
       if (draw_debug) {
         bounds.color = get_universal_current_color();
         ++universal_color_picker;

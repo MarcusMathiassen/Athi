@@ -89,7 +89,7 @@ void mouse_attach_spring() {
   // Get mouse position
   vec2 mouse_pos = get_mouse_viewspace_pos();
 
-  Rect mouse_rect(vec2(mouse_pos.x - mouse_size, mouse_pos.y - mouse_size), vec2(mouse_pos.x + mouse_size, mouse_pos.y + mouse_size));
+  Athi::Rect mouse_rect(vec2(mouse_pos.x - mouse_size, mouse_pos.y - mouse_size), vec2(mouse_pos.x + mouse_size, mouse_pos.y + mouse_size));
 
   s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
@@ -134,7 +134,7 @@ void mouse_grab() {
 
   auto mouse_pos = get_mouse_viewspace_pos();
 
-  Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
+  Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
   if (draw_debug) draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
 
   // If it's released just exit the function

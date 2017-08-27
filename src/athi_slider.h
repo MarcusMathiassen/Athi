@@ -23,9 +23,9 @@ class Athi_Slider : public Athi_UI {
   enum { HOVER, PRESSED, NOTHING };
   u16 last_state{NOTHING};
 
-  Rect slider_box;
-  Rect slider_knob;
-  Rect variable_indicator_box;
+  Athi::Rect slider_box;
+  Athi::Rect slider_knob;
+  Athi::Rect variable_indicator_box;
 
   Athi_Text text;
 

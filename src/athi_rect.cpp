@@ -11,6 +11,7 @@ std::vector<Athi_Rect> rect_immediate_buffer;
 std::vector<Athi_Rect*> rect_buffer;
 Athi_Rect_Manager athi_rect_manager;
 
+namespace Athi {
 bool Rect::contains(u32 id)
 {
   auto circle_pos      = athi_circle_manager->circle_buffer[id]->pos;
@@ -31,6 +32,7 @@ bool Rect::contain_rect(const Rect &r) const {
     return true;
   }
   return false;
+}
 }
 
 Athi_Rect_Manager::~Athi_Rect_Manager()

@@ -90,11 +90,11 @@
 		F25C786B1F51DF9B00D9D616 /* athi_physics_engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_physics_engine.h; sourceTree = "<group>"; };
 		F25C78751F520AD300D9D616 /* athi_task_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_task_manager.cpp; sourceTree = "<group>"; };
 		F25C78761F520AD300D9D616 /* athi_task_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_task_manager.h; sourceTree = "<group>"; };
-		F25C78791F521A3200D9D616 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		F28209FF1F3BAC1B00BD6C76 /* athi_ui_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_ui_list.h; sourceTree = "<group>"; };
 		F2820A011F3BAC1B00BD6C76 /* athi_line.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_line.h; sourceTree = "<group>"; };
 		F2820A021F3BAC1B00BD6C76 /* athi_line.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_line.cpp; sourceTree = "<group>"; };
 		F2820A031F3BAC1B00BD6C76 /* athi_button.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_button.h; sourceTree = "<group>"; };
+		F284F78F1F52714000F2CD2F /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
 		F28B69231F3C962C00766125 /* athi_softbody.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_softbody.h; sourceTree = "<group>"; };
 		F28B69241F3C962C00766125 /* athi_spring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_spring.cpp; sourceTree = "<group>"; };
 		F28B69251F3C962C00766125 /* athi_spring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_spring.h; sourceTree = "<group>"; };
@@ -143,7 +143,7 @@
 		F2298A151F328D00007DCBB3 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				F25C78781F521A3200D9D616 /* universal */,
+				F284F78E1F52714000F2CD2F /* universal */,
 				F25C78751F520AD300D9D616 /* athi_task_manager.cpp */,
 				F25C78761F520AD300D9D616 /* athi_task_manager.h */,
 				F25C786B1F51DF9B00D9D616 /* athi_physics_engine.h */,
@@ -209,10 +209,10 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		F25C78781F521A3200D9D616 /* universal */ = {
+		F284F78E1F52714000F2CD2F /* universal */ = {
 			isa = PBXGroup;
 			children = (
-				F25C78791F521A3200D9D616 /* stb_image.h */,
+				F284F78F1F52714000F2CD2F /* stb_image.h */,
 			);
 			name = universal;
 			path = dep/universal;
@@ -260,6 +260,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = F2298A021F328CDE007DCBB3;
 			productRefGroup = F2298A0C1F328CDE007DCBB3 /* Products */;
