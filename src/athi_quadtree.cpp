@@ -5,7 +5,7 @@
 
 std::unique_ptr<Quadtree> athi_quadtree;
 
-Quadtree::Quadtree(int level, const Athi::Rect &bounds) : level(level), bounds(bounds) { index.reserve(quadtree_capacity); }
+Quadtree::Quadtree(size_t level, const Athi::Rect &bounds) : level(level), bounds(bounds) { index.reserve(quadtree_capacity); }
 
 void Quadtree::init(const vec2 &min, const vec2 &max) {
   bounds.min = min;
@@ -15,11 +15,12 @@ void Quadtree::init(const vec2 &min, const vec2 &max) {
 }
 
 void Quadtree::update() {
+  subnodes[0].reset();
+  subnodes[1].reset();
+  subnodes[2].reset();
+  subnodes[3].reset();
   index.clear();
   index.shrink_to_fit();
-  delete[] subnodes;
-  subnodes = nullptr;
-  clear();
   for (const auto &circle : athi_circle_manager->circle_buffer) {
     insert(circle->id);
   }
@@ -46,18 +47,16 @@ void Quadtree::split() {
   const Athi::Rect NW(vec2(x, y + h), vec2(x + w, y + height));
   const Athi::Rect NE(vec2(x + w, y + h), vec2(x + width, y + height));
 
-  subnodes = new Quadtree[4];
-
-  subnodes[0] = Quadtree(level + 1, SW);
-  subnodes[1] = Quadtree(level + 1, SE);
-  subnodes[2] = Quadtree(level + 1, NW);
-  subnodes[3] = Quadtree(level + 1, NE);
+  subnodes[0] = std::make_unique<Quadtree>(level + 1, SW);
+  subnodes[1] = std::make_unique<Quadtree>(level + 1, SE);
+  subnodes[2] = std::make_unique<Quadtree>(level + 1, NW);
+  subnodes[3] = std::make_unique<Quadtree>(level + 1, NE);
 
   if (draw_debug) {
-    subnodes[0].bounds.color = pastel_red;
-    subnodes[1].bounds.color = pastel_blue;
-    subnodes[2].bounds.color = pastel_orange;
-    subnodes[3].bounds.color = pastel_purple;
+    subnodes[0]->bounds.color = pastel_red;
+    subnodes[1]->bounds.color = pastel_blue;
+    subnodes[2]->bounds.color = pastel_orange;
+    subnodes[3]->bounds.color = pastel_purple;
   }
 }
 
@@ -69,12 +68,12 @@ void Quadtree::insert(int id) {
   //----------------------------------------------------------------
 
   // If this subnodes has split..
-  if (subnodes) {
+  if (subnodes[0]) {
     // Find the subnodes that contain it and insert it there.
-    if (subnodes[0].contains(id)) subnodes[0].insert(id);
-    if (subnodes[1].contains(id)) subnodes[1].insert(id);
-    if (subnodes[2].contains(id)) subnodes[2].insert(id);
-    if (subnodes[3].contains(id)) subnodes[3].insert(id);
+    if (subnodes[0]->contains(id)) subnodes[0]->insert(id);
+    if (subnodes[1]->contains(id)) subnodes[1]->insert(id);
+    if (subnodes[2]->contains(id)) subnodes[2]->insert(id);
+    if (subnodes[3]->contains(id)) subnodes[3]->insert(id);
 
     return;
   }
@@ -84,7 +83,7 @@ void Quadtree::insert(int id) {
 
   // If it has NOT split..and NODE_CAPACITY is reached and we are not at MAX
   // LEVEL..
-  const int index_size = (int)index.size();
+  const size_t index_size = index.size();
   if (index_size > quadtree_capacity && level < quadtree_depth) {
     // Split into subnodes.
     split();
@@ -92,10 +91,10 @@ void Quadtree::insert(int id) {
     // Go through all this nodes objects..
     for (const auto &index : index)  // [2]
     {
-      if (subnodes[0].contains(index)) subnodes[0].insert(index);
-      if (subnodes[1].contains(index)) subnodes[1].insert(index);
-      if (subnodes[2].contains(index)) subnodes[2].insert(index);
-      if (subnodes[3].contains(index)) subnodes[3].insert(index);
+      if (subnodes[0]->contains(index)) subnodes[0]->insert(index);
+      if (subnodes[1]->contains(index)) subnodes[1]->insert(index);
+      if (subnodes[2]->contains(index)) subnodes[2]->insert(index);
+      if (subnodes[3]->contains(index)) subnodes[3]->insert(index);
     }
 
     // Remove all indexes from THIS node
@@ -110,13 +109,13 @@ void Quadtree::draw() {
   // [2] Draw subnodes boundaries.
   //----------------------------------------------------------------
 
-  if (subnodes)  // [2]
+  if (subnodes[0])  // [2]
   {
     // Continue down the tree
-    subnodes[0].draw();
-    subnodes[1].draw();
-    subnodes[2].draw();
-    subnodes[3].draw();
+    subnodes[0]->draw();
+    subnodes[1]->draw();
+    subnodes[2]->draw();
+    subnodes[3]->draw();
 
     return;
   }
@@ -136,13 +135,13 @@ void Quadtree::get(std::vector<std::vector<int>> &cont) const {
   //----------------------------------------------------------------
 
   // If this subnodes has split..
-  if (subnodes)  // [1]
+  if (subnodes[0])  // [1]
   {
     // Continue down the tree
-    subnodes[0].get(cont);
-    subnodes[1].get(cont);
-    subnodes[2].get(cont);
-    subnodes[3].get(cont);
+    subnodes[0]->get(cont);
+    subnodes[1]->get(cont);
+    subnodes[2]->get(cont);
+    subnodes[3]->get(cont);
 
     return;
   }
@@ -167,35 +166,22 @@ void Quadtree::retrieve(std::vector<int> &cont, const Athi::Rect &rect) const {
   //----------------------------------------------------------------
 
   // If this subnode has split..
-  if (subnodes)  // [1]
+  if (subnodes[0])  // [1]
   {
     // Continue down the tree
-    if (subnodes[0].contain_rect(rect)) subnodes[0].retrieve(cont, rect);
-    if (subnodes[1].contain_rect(rect)) subnodes[1].retrieve(cont, rect);
-    if (subnodes[2].contain_rect(rect)) subnodes[2].retrieve(cont, rect);
-    if (subnodes[3].contain_rect(rect)) subnodes[3].retrieve(cont, rect);
+    if (subnodes[0]->contain_rect(rect)) subnodes[0]->retrieve(cont, rect);
+    if (subnodes[1]->contain_rect(rect)) subnodes[1]->retrieve(cont, rect);
+    if (subnodes[2]->contain_rect(rect)) subnodes[2]->retrieve(cont, rect);
+    if (subnodes[3]->contain_rect(rect)) subnodes[3]->retrieve(cont, rect);
     return;
   }
 
   // Add all indexes to our container
-  for (const auto &i : index) cont.emplace_back(i);
+  for (const auto i : index) cont.emplace_back(i);
 }
 
 bool Quadtree::contains(int id) { return bounds.contains(id); }
 bool Quadtree::contain_rect(const Athi::Rect &rect) const { return bounds.contain_rect(rect); }
-
-// Go down to the leaf nodes and delete the nodes
-void Quadtree::clear() {
-  if (subnodes) {
-    // Continue down the tree
-    subnodes[0].clear();
-    subnodes[1].clear();
-    subnodes[2].clear();
-    subnodes[3].clear();
-    return;
-  }
-  delete[] subnodes;
-}
 
 void init_quadtree() {
   athi_quadtree = std::make_unique<Quadtree>();
@@ -207,7 +193,9 @@ void get_nodes_quadtree(std::vector<std::vector<int>> &cont) { athi_quadtree->ge
 
 void retrieve_nodes_quadtree(std::vector<int> &cont, const Athi::Rect &rect) { athi_quadtree->retrieve(cont, rect); }
 
-void draw_quadtree() { athi_quadtree->draw(); }
+void draw_quadtree() {
+   athi_quadtree->draw(); 
+}
 
 void reset_quadtree() {
   //----------------------------------------------------------------
@@ -215,5 +203,8 @@ void reset_quadtree() {
   //----------------------------------------------------------------
   athi_quadtree->index.clear();
   athi_quadtree->index.shrink_to_fit();
-  athi_quadtree->clear();
+  athi_quadtree->subnodes[0].reset();
+  athi_quadtree->subnodes[1].reset();
+  athi_quadtree->subnodes[2].reset();
+  athi_quadtree->subnodes[3].reset();
 }

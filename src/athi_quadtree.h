@@ -5,15 +5,16 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
+#include <array>
 
 #include "athi_circle.h"
 #include "athi_rect.h"
 #include "athi_typedefs.h"
 
 struct Quadtree {
-  Quadtree* subnodes{nullptr};
+  std::array<std::unique_ptr<Quadtree>, 4> subnodes;
 
-  int level{0};
+  size_t level = 0;
   Athi::Rect bounds;
   std::vector<int> index;
 
@@ -27,9 +28,8 @@ struct Quadtree {
   void update();
   void get(std::vector<std::vector<int>>& cont) const;
   void retrieve(std::vector<int>& cont, const Athi::Rect& rect) const;
-  Quadtree(int level, const Athi::Rect& bounds);
+  Quadtree(size_t level, const Athi::Rect& bounds);
   Quadtree() = default;
-  ~Quadtree() { delete[] subnodes; }
 };
 
 extern std::unique_ptr<Quadtree> athi_quadtree;

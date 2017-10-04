@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.9.1)
 project(athi)
 
-#SET(CMAKE_BUILD_TYPE DEBUG)
-SET(CMAKE_BUILD_TYPE RELEASE)
+SET(CMAKE_BUILD_TYPE DEBUG)
+#SET(CMAKE_BUILD_TYPE RELEASE)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
@@ -36,7 +36,7 @@ if(WIN32)
 
 elseif(APPLE)
 
-  SET(CMAKE_CXX_FLAGS_DEBUG "-march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
+  SET(CMAKE_CXX_FLAGS_DEBUG "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
 	# RESOURCE FILE LOCATION

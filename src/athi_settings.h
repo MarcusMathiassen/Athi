@@ -26,8 +26,8 @@ extern int  voxelgrid_parts;
 
 extern bool quadtree_show_only_occupied;
 extern bool quadtree_active;
-extern int quadtree_depth;
-extern int quadtree_capacity;
+extern size_t quadtree_depth;
+extern size_t quadtree_capacity;
 
 extern f64  timestep;
 extern f64  physics_frametime;

@@ -21,7 +21,7 @@ struct Node {
 
 class VoxelGrid {
  private:
-  std::vector<Node *> nodes;
+  std::vector<std::unique_ptr<Node>> nodes;
   int current_voxelgrid_part{4};
 
  public:
