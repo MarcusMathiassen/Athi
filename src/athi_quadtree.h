@@ -37,16 +37,16 @@ public:
 
   void draw()
   {  
-    if (subnodes[0])
+    if (sw)
     {
-      subnodes[0]->bounds.color = pastel_red;
-      subnodes[1]->bounds.color = pastel_blue;
-      subnodes[2]->bounds.color = pastel_orange;
-      subnodes[3]->bounds.color = pastel_purple;
-      subnodes[0]->draw();
-      subnodes[1]->draw();
-      subnodes[2]->draw();
-      subnodes[3]->draw();
+      sw->bounds.color = pastel_red;
+      se->bounds.color = pastel_blue;
+      nw->bounds.color = pastel_orange;
+      ne->bounds.color = pastel_purple;
+      sw->draw();
+      se->draw();
+      nw->draw();
+      ne->draw();
 
       return;
     }
@@ -57,6 +57,23 @@ public:
     else if (!quadtree_show_only_occupied)
       draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
+
+  void color_objects(std::vector<T> &obj) const
+  {
+    if (sw)
+    {
+      sw->draw();
+      se->draw();
+      nw->draw();
+      ne->draw();
+
+      return;
+    }
+
+    for (const auto id : indices)
+      obj[id].color = bounds.color;
+  }
+
   void input(const std::vector<T> &data_)
   {
     data = data_;
@@ -69,12 +86,12 @@ public:
 
   void get(std::vector<std::vector<size_t>> &cont) const
   {
-    if (subnodes[0])
+    if (sw)
     {
-      subnodes[0]->get(cont);
-      subnodes[1]->get(cont);
-      subnodes[2]->get(cont);
-      subnodes[3]->get(cont);
+      sw->get(cont);
+      se->get(cont);
+      nw->get(cont);
+      ne->get(cont);
 
       return;
     }
@@ -103,24 +120,24 @@ private:
     const Rect NW(glm::vec2(x, y + h), glm::vec2(x + w, y + height));
     const Rect NE(glm::vec2(x + w, y + h), glm::vec2(x + width, y + height));
 
-    subnodes[0] = std::make_unique<Quadtree<T>>(level + 1, SW);
-    subnodes[1] = std::make_unique<Quadtree<T>>(level + 1, SE);
-    subnodes[2] = std::make_unique<Quadtree<T>>(level + 1, NW);
-    subnodes[3] = std::make_unique<Quadtree<T>>(level + 1, NE);
+    sw = std::make_unique<Quadtree<T>>(level + 1, SW);
+    se = std::make_unique<Quadtree<T>>(level + 1, SE);
+    nw = std::make_unique<Quadtree<T>>(level + 1, NW);
+    ne = std::make_unique<Quadtree<T>>(level + 1, NE);
   }
 
   void insert(size_t id)
   {
-    if (subnodes[0])
+    if (sw)
     {
-      if (subnodes[0]->contains(id))
-        subnodes[0]->insert(id);
-      if (subnodes[1]->contains(id))
-        subnodes[1]->insert(id);
-      if (subnodes[2]->contains(id))
-        subnodes[2]->insert(id);
-      if (subnodes[3]->contains(id))
-        subnodes[3]->insert(id);
+      if (sw->contains(id))
+        sw->insert(id);
+      if (se->contains(id))
+        se->insert(id);
+      if (nw->contains(id))
+        nw->insert(id);
+      if (ne->contains(id))
+        ne->insert(id);
       return;
     }
 
@@ -132,14 +149,14 @@ private:
 
       for (const auto index : indices)
       {
-        if (subnodes[0]->contains(index))
-          subnodes[0]->insert(index);
-        if (subnodes[1]->contains(index))
-          subnodes[1]->insert(index);
-        if (subnodes[2]->contains(index))
-          subnodes[2]->insert(index);
-        if (subnodes[3]->contains(index))
-          subnodes[3]->insert(index);
+        if (sw->contains(index))
+          sw->insert(index);
+        if (se->contains(index))
+          se->insert(index);
+        if (nw->contains(index))
+          nw->insert(index);
+        if (ne->contains(index))
+          ne->insert(index);
       }
       indices.clear();
     }
@@ -152,7 +169,11 @@ private:
 
   std::vector<size_t> indices;
   static std::vector<T> data;
-  std::array<std::unique_ptr<Quadtree<T>>, 4> subnodes;
+
+  std::unique_ptr<Quadtree<T>> sw;
+  std::unique_ptr<Quadtree<T>> se;
+  std::unique_ptr<Quadtree<T>> nw;
+  std::unique_ptr<Quadtree<T>> ne;
 
   Rect bounds;
   size_t max_depth{5};

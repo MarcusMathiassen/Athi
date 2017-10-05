@@ -74,9 +74,10 @@ void VoxelGrid::update()
   if (voxelgrid_parts != current_voxelgrid_part)
     init();
 
-  for (const auto &circle : athi_circle_manager->circle_buffer)
+  
+  for (const auto &obj : athi_circle_manager->circle_buffer)
   {
-    const size_t id = circle.id;
+    const size_t id = obj.id;
 
     for (const auto &node : nodes)
       if (node->contains(id))

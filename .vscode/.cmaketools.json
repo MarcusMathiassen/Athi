@@ -19,7 +19,7 @@
             "targets": [
               {
                 "artifacts": [
-                  "/Users/marcusmathiassen/Athi/build/athi"
+                  "/Users/marcusmathiassen/Athi/bin/athi"
                 ],
                 "buildDirectory": "/Users/marcusmathiassen/Athi/build",
                 "fileGroups": [
@@ -38,13 +38,13 @@
                     ]
                   },
                   {
-                    "compileFlags": "-Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter   -std=gnu++1z",
+                    "compileFlags": "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter  ",
                     "includePath": [
                       {
                         "path": "/Users/marcusmathiassen/Athi/src"
                       },
                       {
-                        "path": "/Users/marcusmathiassen/Athi/dep/macOS"
+                        "path": "/Users/marcusmathiassen/Athi/dep/universal"
                       }
                     ],
                     "isGenerated": false,
@@ -56,12 +56,12 @@
                       "src/athi_core.cpp",
                       "src/athi_input.cpp",
                       "src/athi_line.cpp",
-                      "src/athi_quadtree.cpp",
                       "src/athi_rect.cpp",
                       "src/athi_renderer.cpp",
                       "src/athi_settings.cpp",
                       "src/athi_slider.cpp",
                       "src/athi_spring.cpp",
+                      "src/athi_task_manager.cpp",
                       "src/athi_text.cpp",
                       "src/athi_utility.cpp",
                       "src/athi_voxelgrid.cpp",
@@ -71,7 +71,7 @@
                   }
                 ],
                 "fullName": "athi",
-                "linkLanguageFlags": "-Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter",
+                "linkLanguageFlags": "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter",
                 "linkLibraries": "../dep/macOS/GL/libGLEW.a ../dep/macOS/GLFW/libglfw3.a -lpthread -framework OpenGL -framework OpenCL -framework Cocoa -framework IOKIT -framework CoreVideo",
                 "linkerLanguage": "CXX",
                 "name": "athi",
@@ -83,7 +83,7 @@
         ]
       }
     ],
-    "cookie": "0.47753673855257794",
+    "cookie": "0.2054377615087657",
     "inReplyTo": "codemodel",
     "type": "reply"
   }
