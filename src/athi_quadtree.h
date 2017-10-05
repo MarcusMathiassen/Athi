@@ -52,8 +52,9 @@ public:
     else if (!quadtree_show_only_occupied)
       draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
-  void input(const std::vector<T> &data)
+  void input(const std::vector<T> &data_)
   {
+    data = data_;
     indices.reserve(max_capacity);
     for (const auto &obj: data)
     {
@@ -141,14 +142,18 @@ private:
 
   bool contains(size_t id) const
   {
-    return bounds.contains(athi_circle_manager->circle_buffer[id].pos, athi_circle_manager->circle_buffer[id].radius);
+    return bounds.contains(data[id].pos, data[id].radius);
   }
 
+  std::vector<size_t> indices;
+  static std::vector<T> data;
   std::array<std::unique_ptr<Quadtree<T>>, 4> subnodes;
 
+  Rect bounds;
   size_t max_depth{5};
   size_t max_capacity{50};
   size_t level = 0;
-  std::vector<size_t> indices;
-  Rect bounds;
 };
+
+template<class T>
+std::vector<T>Quadtree<T>::data;
