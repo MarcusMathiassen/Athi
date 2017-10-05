@@ -7,26 +7,26 @@
 
 #include "athi_circle.h"
 
-struct Rect
-{
-  glm::vec2 min, max;
-  glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
-  Rect() = default;
-  Rect(const glm::vec2 &min, const glm::vec2 &max) : min(min), max(max) {}
-  bool contains(const glm::vec2 &pos, float radius) const
-  {
-    const auto o = pos;
-    const auto r = radius;
-    if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y && o.y + r > min.y)
-      return true;
-    return false;
-  }
-};
-
 template <class T>
 class Quadtree
 {
 public:
+  struct Rect
+  {
+    glm::vec2 min, max;
+    glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+    Rect() = default;
+    Rect(const glm::vec2 &min, const glm::vec2 &max) : min(min), max(max) {}
+    bool contains(const glm::vec2 &pos, float radius) const
+    {
+      const auto o = pos;
+      const auto r = radius;
+      if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y && o.y + r > min.y)
+        return true;
+      return false;
+    }
+  };
+
   Quadtree(size_t level, const Rect &bounds) : level(level), bounds(bounds) {}
   Quadtree(size_t depth, size_t capacity, const glm::vec2 &min, const glm::vec2 &max) : max_depth(depth), max_capacity(capacity)
   {
@@ -34,7 +34,7 @@ public:
     bounds.max = max;
   }
 
-  void draw()
+  void draw() const
   {
     if (subnodes[0])
     {
@@ -52,10 +52,10 @@ public:
     else if (!quadtree_show_only_occupied)
       draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
-  void update()
+  void input(const std::vector<T> &data)
   {
     indices.reserve(max_capacity);
-    for (const auto &obj : athi_circle_manager->circle_buffer)
+    for (const auto &obj: data)
     {
       insert(obj.id);
     }
@@ -78,6 +78,7 @@ public:
   }
 
 private:
+
   void split()
   {
     const glm::vec2 min = bounds.min;
@@ -143,11 +144,10 @@ private:
     return bounds.contains(athi_circle_manager->circle_buffer[id].pos, athi_circle_manager->circle_buffer[id].radius);
   }
 
-  std::vector<T*> data; 
   std::array<std::unique_ptr<Quadtree<T>>, 4> subnodes;
 
-  size_t max_depth;
-  size_t max_capacity;
+  size_t max_depth{5};
+  size_t max_capacity{50};
   size_t level = 0;
   std::vector<size_t> indices;
   Rect bounds;
