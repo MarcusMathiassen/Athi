@@ -15,8 +15,10 @@
 #include "athi_transform.h"
 #include "athi_typedefs.h"
 
+#include "athi_settings.h"
 #include "athi_utility.h"
 #include "athi_voxelgrid.h"
+#include "athi_quadtree.h"
 
 extern vector<std::function<void()>> circle_update_call_buffer;
 
@@ -65,6 +67,9 @@ struct Athi_Circle_Manager {
   std::mutex circle_buffer_function_mutex;
   std::mutex circle_buffer_mutex;
   std::vector<Athi_Circle> circle_buffer;
+
+  Quadtree<Athi_Circle> quadtree = Quadtree<Athi_Circle>(quadtree_depth, quadtree_capacity, glm::vec2(-1, -1), glm::vec2(1, 1));
+
   void add_circle(Athi_Circle &circle);
   void add_circle_multiple(Athi_Circle &circle, int num);
   void update_circles();

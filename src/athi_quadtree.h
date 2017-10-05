@@ -34,8 +34,10 @@ public:
     bounds.max = max;
   }
 
-  void draw() const
+  void draw()
   {
+    bounds.color = pastel_gray;
+
     if (subnodes[0])
     {
       subnodes[0]->draw();

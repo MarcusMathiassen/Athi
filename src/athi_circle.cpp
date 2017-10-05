@@ -358,7 +358,7 @@ void Athi_Circle_Manager::update()
 
     if (quadtree_active && openCL_active == false)
     {
-      auto quadtree = Quadtree<Athi_Circle>(quadtree_depth, quadtree_capacity, vec2(-1, -1), vec2(1, 1));
+      quadtree = Quadtree<Athi_Circle>(quadtree_depth, quadtree_capacity, vec2(-1, -1), vec2(1, 1));
       quadtree.input(circle_buffer);
       quadtree.get(cont);
     }
@@ -602,7 +602,8 @@ void Athi_Circle_Manager::draw_circles()
   draw();
   if (voxelgrid_active && draw_debug)
     draw_voxelgrid();
-  //if (quadtree_active && draw_debug)
+  if (quadtree_active && draw_debug) 
+    quadtree.draw();
 
   if (clear_circles)
   {
