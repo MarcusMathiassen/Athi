@@ -28,7 +28,7 @@ class Quadtree
 {
 public:
   Quadtree(size_t level, const Rect &bounds) : level(level), bounds(bounds) {}
-  Quadtree(size_t depth, size_t capacity, const glm::vec2 &min, const glm::vec2 &max) : max_depth(depth),                                                                                     max_capacity(capacity)
+  Quadtree(size_t depth, size_t capacity, const glm::vec2 &min, const glm::vec2 &max) : max_depth(depth), max_capacity(capacity)
   {
     bounds.min = min;
     bounds.max = max;
@@ -135,7 +135,6 @@ private:
           subnodes[3]->insert(index);
       }
       indices.clear();
-      indices.shrink_to_fit();
     }
   }
 
