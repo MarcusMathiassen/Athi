@@ -131,7 +131,6 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
     if (quadtree_active)
       quadtree_active = false;
     else {
-      reset_quadtree();
       quadtree_active = true;
       voxelgrid_active = false;
     }

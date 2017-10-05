@@ -9,9 +9,9 @@ VoxelGrid athi_voxelgrid;
 
 Node::Node(const Athi::Rect &r) : bounds{r} {}
 
-void Node::insert(int id) { index.emplace_back(id); }
+void Node::insert(size_t id) { index.emplace_back(id); }
 
-void Node::get(std::vector<std::vector<int>> &cont)
+void Node::get(std::vector<std::vector<size_t>> &cont)
 {
   cont.emplace_back(index);
   index.clear();
@@ -29,7 +29,7 @@ void Node::color_objects()
   }
 }
 
-bool Node::contains(int id)
+bool Node::contains(size_t id)
 {
   return bounds.contains(id);
 }
@@ -76,7 +76,7 @@ void VoxelGrid::update()
 
   for (const auto &circle : athi_circle_manager->circle_buffer)
   {
-    const int id = circle->id;
+    const size_t id = circle.id;
 
     for (const auto &node : nodes)
       if (node->contains(id))
@@ -84,7 +84,7 @@ void VoxelGrid::update()
   }
 }
 
-void VoxelGrid::get(std::vector<std::vector<int>> &cont) const
+void VoxelGrid::get(std::vector<std::vector<size_t>> &cont) const
 {
   // Color the objects with the color of the node
   for (const auto &node : nodes)

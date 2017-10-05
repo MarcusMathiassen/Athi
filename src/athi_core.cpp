@@ -14,7 +14,6 @@
 #include "athi_core.h"
 #include "athi_input.h"
 #include "athi_line.h"
-#include "athi_quadtree.h"
 #include "athi_rect.h"
 #include "athi_renderer.h"
 #include "athi_settings.h"
@@ -41,7 +40,6 @@ void Athi_Core::init() {
   init_circle_manager();
   init_line_manager();
 
-  init_quadtree();
   init_voxelgrid();
 
   // glEnable(GL_FRAMEBUFFER_SRGB);

@@ -18,7 +18,7 @@
 #include "athi_voxelgrid.h"
 
 vector<std::function<void()>> circle_update_call_buffer;
-std::vector<std::unique_ptr<Athi_Circle>> circle_buffer;
+//std::vector<std::unique_ptr<Athi_Circle>> circle_buffer;
 std::unique_ptr<Athi_Circle_Manager> athi_circle_manager;
 
 void Athi_Circle::update() {
@@ -317,11 +317,13 @@ void Athi_Circle_Manager::draw() {
 void Athi_Circle_Manager::update() {
   if (circle_buffer.empty()) return;
   if (circle_collision) {
-    std::vector<std::vector<int>> cont;
 
+    std::vector<std::vector<size_t>> cont;
+    
     if (quadtree_active && openCL_active == false) {
-      update_quadtree();
-      get_nodes_quadtree(cont);
+      auto quadtree = Quadtree<Athi_Circle>(quadtree_depth, quadtree_capacity, vec2(-1, -1), vec2(1, 1));
+      quadtree.update();
+      quadtree.get(cont);
     } else if (voxelgrid_active && openCL_active == false) {
       update_voxelgrid();
       get_nodes_voxelgrid(cont);
@@ -376,7 +378,7 @@ void Athi_Circle_Manager::update() {
 
       // Copy over the results
       for (size_t i = 0; i < count; ++i) {
-        data[i] = *circle_buffer[i];
+        data[i] = circle_buffer[i];
       }
 
       // Create the input and output arrays in device memory
@@ -444,9 +446,9 @@ void Athi_Circle_Manager::update() {
 
       // Copy over the results
       for (size_t i = 0; i < count; ++i) {
-        circle_buffer[i]->pos = results[i].pos;
-        circle_buffer[i]->vel = results[i].vel;
-        circle_buffer[i]->color = results[i].color;
+        circle_buffer[i].pos = results[i].pos;
+        circle_buffer[i].vel = results[i].vel;
+        circle_buffer[i].color = results[i].color;
       }
     }
     ////////////////////// OPENCL UPDATE END  /////////////////////
@@ -467,27 +469,27 @@ void Athi_Circle_Manager::update() {
 
   size_t i = 0;
   for (const auto &circle : circle_buffer) {
-    transforms[i] = circle->transform.get_model() * camera.get_view_projection();
-    colors[i++] = circle->color;
+    transforms[i] = circle.transform.get_model() * camera.get_view_projection();
+    colors[i++] = circle.color;
   }
 }
 
 void Athi_Circle_Manager::collision_logNxN(size_t total, size_t begin, size_t end) {
   for (size_t i = begin; i < end; ++i) {
     for (size_t j = 1 + i; j < total; ++j) {
-      if (collision_detection(*athi_circle_manager->circle_buffer[i], *athi_circle_manager->circle_buffer[j])) {
-        collision_resolve(*athi_circle_manager->circle_buffer[i], *athi_circle_manager->circle_buffer[j]);
+      if (collision_detection(athi_circle_manager->circle_buffer[i], athi_circle_manager->circle_buffer[j])) {
+        collision_resolve(athi_circle_manager->circle_buffer[i], athi_circle_manager->circle_buffer[j]);
       }
     }
   }
 }
 
-void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<int>> &cont, size_t begin, size_t end) {
+void Athi_Circle_Manager::collision_quadtree(const std::vector<std::vector<size_t>> &cont, size_t begin, size_t end) {
   for (size_t k = begin; k < end; ++k) {
     for (size_t i = 0; i < cont[k].size(); ++i) {
       for (size_t j = i + 1; j < cont[k].size(); ++j) {
-        if (collision_detection(*athi_circle_manager->circle_buffer[cont[k][i]], *athi_circle_manager->circle_buffer[cont[k][j]])) {
-          collision_resolve(*athi_circle_manager->circle_buffer[cont[k][i]], *athi_circle_manager->circle_buffer[cont[k][j]]);
+        if (collision_detection(athi_circle_manager->circle_buffer[cont[k][i]], athi_circle_manager->circle_buffer[cont[k][j]])) {
+          collision_resolve(athi_circle_manager->circle_buffer[cont[k][i]], athi_circle_manager->circle_buffer[cont[k][j]]);
         }
       }
     }
@@ -498,25 +500,25 @@ void Athi_Circle_Manager::add_circle_multiple(Athi_Circle &circle, int num) {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
   for (int i = 0; i < num; ++i) {
     circle.id = (u32)circle_buffer.size();
-    circle_buffer.emplace_back(std::make_unique<Athi_Circle>(circle));
+    circle_buffer.emplace_back(circle);
   }
 }
 
 void Athi_Circle_Manager::add_circle(Athi_Circle &circle) {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
   circle.id = (u32)circle_buffer.size();
-  circle_buffer.emplace_back(std::make_unique<Athi_Circle>(circle));
+  circle_buffer.emplace_back(circle);
 }
 
 Athi_Circle Athi_Circle_Manager::get_circle(u32 id) {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
-  return *circle_buffer[id];
+  return circle_buffer[id];
 }
 
 void Athi_Circle_Manager::update_circles() {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
   update();
-  for (auto &circle : circle_buffer) circle->update();
+  for (auto &circle : circle_buffer) circle.update();
   update_springs();
 
   for (auto &c : circle_update_call_buffer) c();
@@ -528,18 +530,17 @@ void Athi_Circle_Manager::draw_circles() {
 
   draw();
   if (voxelgrid_active && draw_debug) draw_voxelgrid();
-  if (quadtree_active && draw_debug) draw_quadtree();
+  //if (quadtree_active && draw_debug)
 
   if (clear_circles) {
     circle_buffer.clear();
     circle_buffer.shrink_to_fit();
     clear_circles = false;
-    reset_quadtree();
     spring_buffer.clear();
   }
 }
 
-void Athi_Circle_Manager::set_color_circle_id(u32 id, const vec4 &color) { circle_buffer[id]->color = color; }
+void Athi_Circle_Manager::set_color_circle_id(u32 id, const vec4 &color) { circle_buffer[id].color = color; }
 
 void init_circle_manager() {
   athi_circle_manager = std::make_unique<Athi_Circle_Manager>();

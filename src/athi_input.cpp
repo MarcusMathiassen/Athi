@@ -1,7 +1,6 @@
 #include "athi_input.h"
 #include "athi_circle.h"
 #include "athi_line.h"
-#include "athi_quadtree.h"
 #include "athi_rect.h"
 #include "athi_renderer.h"
 #include "athi_spring.h"
@@ -94,15 +93,15 @@ void mouse_attach_spring() {
   s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
   if (attach) {
-    attach_spring(*athi_circle_manager->circle_buffer[id1], *athi_circle_manager->circle_buffer[id2]);
+    attach_spring(athi_circle_manager->circle_buffer[id1], athi_circle_manager->circle_buffer[id2]);
     attach = false;
   }
 
   // If mouse released and first circle is found
   if (state == GLFW_RELEASE && found) {
     for (auto &c : athi_circle_manager->circle_buffer) {
-      if (mouse_rect.contains(c->id)) {
-        id2 = c->id;
+      if (mouse_rect.contains(c.id)) {
+        id2 = c.id;
         attach = true;
         found = false;
         return;
@@ -112,15 +111,15 @@ void mouse_attach_spring() {
 
   // draw a line while we look for the second circle
   if (state == GLFW_PRESS && found) {
-    draw_line(mouse_pos, athi_circle_manager->circle_buffer[id1]->pos, 0.03f, pastel_pink);
+    draw_line(mouse_pos, athi_circle_manager->circle_buffer[id1].pos, 0.03f, pastel_pink);
     return;
   }
 
   // When the mouse is pressed down, get the first circle id
   if (state == GLFW_PRESS) {
     for (auto &c : athi_circle_manager->circle_buffer) {
-      if (mouse_rect.contains(c->id)) {
-        id1 = c->id;
+      if (mouse_rect.contains(c.id)) {
+        id1 = c.id;
         found = true;
         return;
       }
@@ -152,15 +151,15 @@ void mouse_grab() {
   if (last_state == ATTACHED) {
     if (mouse_grab_multiple) {
       for (auto &id : mouse_attached_to) {
-        attraction_force(*athi_circle_manager->circle_buffer[id], mouse_pos);
+        attraction_force(athi_circle_manager->circle_buffer[id], mouse_pos);
         last_state = ATTACHED;
-        if (show_mouse_grab_lines) draw_line(mouse_pos, athi_circle_manager->circle_buffer[id]->pos, 0.03f, pastel_pink);
+        if (show_mouse_grab_lines) draw_line(mouse_pos, athi_circle_manager->circle_buffer[id].pos, 0.03f, pastel_pink);
       }
     } else  // single
     {
-      attraction_force(*athi_circle_manager->circle_buffer[mouse_attached_to_single], mouse_pos);
+      attraction_force(athi_circle_manager->circle_buffer[mouse_attached_to_single], mouse_pos);
       if (show_mouse_grab_lines)
-        draw_line(mouse_pos, athi_circle_manager->circle_buffer[mouse_attached_to_single]->pos, 0.03f, pastel_pink);
+        draw_line(mouse_pos, athi_circle_manager->circle_buffer[mouse_attached_to_single].pos, 0.03f, pastel_pink);
     }
     mouse_busy_UI = true;
   }
@@ -169,11 +168,11 @@ void mouse_grab() {
   if (last_state != ATTACHED) {
     for (auto &c : athi_circle_manager->circle_buffer) {
       // If the mouse and circle intersect
-      if (mouse_rect.contains(c->id)) {
+      if (mouse_rect.contains(c.id)) {
         if (mouse_grab_multiple) {
-          mouse_attached_to.emplace_back(c->id);
+          mouse_attached_to.emplace_back(c.id);
         } else {
-          mouse_attached_to_single = c->id;
+          mouse_attached_to_single = c.id;
         }
         last_state = ATTACHED;
       }

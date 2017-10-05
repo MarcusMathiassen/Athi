@@ -6,7 +6,6 @@
 #include "athi_checkbox.h"
 #include "athi_circle.h"
 #include "athi_input.h"
-#include "athi_quadtree.h"
 #include "athi_rect.h"
 #include "athi_settings.h"
 #include "athi_slider.h"

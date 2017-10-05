@@ -15,7 +15,6 @@
 #include "athi_transform.h"
 #include "athi_typedefs.h"
 
-#include "athi_quadtree.h"
 #include "athi_utility.h"
 #include "athi_voxelgrid.h"
 
@@ -65,7 +64,7 @@ struct Athi_Circle_Manager {
   bool clear_circles{false};
   std::mutex circle_buffer_function_mutex;
   std::mutex circle_buffer_mutex;
-  std::vector<std::unique_ptr<Athi_Circle>> circle_buffer;
+  std::vector<Athi_Circle> circle_buffer;
   void add_circle(Athi_Circle &circle);
   void add_circle_multiple(Athi_Circle &circle, int num);
   void update_circles();
@@ -94,7 +93,7 @@ struct Athi_Circle_Manager {
   void update();
 
   void collision_logNxN(size_t total, size_t begin, size_t end);
-  void collision_quadtree(const std::vector<std::vector<int>> &cont, size_t begin, size_t end);
+  void collision_quadtree(const std::vector<std::vector<size_t>> &cont, size_t begin, size_t end);
 };
 
 void update_circle_call(const std::function<void()> &f);
