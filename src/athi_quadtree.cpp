@@ -5,7 +5,7 @@
 
 std::unique_ptr<Quadtree> athi_quadtree;
 
-Quadtree::Quadtree(size_t level, const Athi::Rect &bounds) : level(level), bounds(bounds) { index.reserve(quadtree_capacity); }
+Quadtree::Quadtree(size_t level, const Athi::Rect &bounds) : level(level), bounds(bounds) { indices.reserve(quadtree_capacity); }
 
 void Quadtree::init(const vec2 &min, const vec2 &max) {
   bounds.min = min;
