@@ -16,7 +16,7 @@ struct Quadtree {
 
   size_t level = 0;
   Athi::Rect bounds;
-  std::vector<int> index;
+  std::vector<int> indices;
 
   void split();
   void insert(int id);

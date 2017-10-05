@@ -11,7 +11,7 @@ void Quadtree::init(const vec2 &min, const vec2 &max) {
   bounds.min = min;
   bounds.max = max;
   bounds.color = pastel_gray;
-  index.reserve(quadtree_capacity);
+  indices.reserve(quadtree_capacity);
 }
 
 void Quadtree::update() {
@@ -19,8 +19,8 @@ void Quadtree::update() {
   subnodes[1].reset();
   subnodes[2].reset();
   subnodes[3].reset();
-  index.clear();
-  index.shrink_to_fit();
+  indices.clear();
+  indices.shrink_to_fit();
   for (const auto &circle : athi_circle_manager->circle_buffer) {
     insert(circle->id);
   }
@@ -30,7 +30,7 @@ void Quadtree::split() {
   //----------------------------------------------------------------
   // Create subnodes and gives each its own quadrant.
   //----------------------------------------------------------------
-
+  
   const vec2 min = bounds.min;
   const vec2 max = bounds.max;
 
@@ -79,27 +79,27 @@ void Quadtree::insert(int id) {
   }
 
   // Add object to this node
-  index.emplace_back(id);  // [3]
+  indices.emplace_back(id);  // [3]
 
   // If it has NOT split..and NODE_CAPACITY is reached and we are not at MAX
   // LEVEL..
-  const size_t index_size = index.size();
-  if (index_size > quadtree_capacity && level < quadtree_depth) {
+  const size_t indices_size = indices.size();
+  if (indices_size > quadtree_capacity && level < quadtree_depth) {
     // Split into subnodes.
     split();
 
     // Go through all this nodes objects..
-    for (const auto &index : index)  // [2]
+    for (const auto &indices : indices)  // [2]
     {
-      if (subnodes[0]->contains(index)) subnodes[0]->insert(index);
-      if (subnodes[1]->contains(index)) subnodes[1]->insert(index);
-      if (subnodes[2]->contains(index)) subnodes[2]->insert(index);
-      if (subnodes[3]->contains(index)) subnodes[3]->insert(index);
+      if (subnodes[0]->contains(indices)) subnodes[0]->insert(indices);
+      if (subnodes[1]->contains(indices)) subnodes[1]->insert(indices);
+      if (subnodes[2]->contains(indices)) subnodes[2]->insert(indices);
+      if (subnodes[3]->contains(indices)) subnodes[3]->insert(indices);
     }
 
-    // Remove all indexes from THIS node
-    index.clear();
-    index.shrink_to_fit();
+    // Remove all indices from THIS node
+    indices.clear();
+    indices.shrink_to_fit();
   }
 }
 
@@ -121,7 +121,7 @@ void Quadtree::draw() {
   }
 
   // Only draw the nodes with objects in them.
-  if (!index.empty() && quadtree_show_only_occupied) {
+  if (!indices.empty() && quadtree_show_only_occupied) {
     draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   } else if (!quadtree_show_only_occupied) {
     draw_hollow_rect(bounds.min, bounds.max, bounds.color);
@@ -142,27 +142,26 @@ void Quadtree::get(std::vector<std::vector<int>> &cont) const {
     subnodes[1]->get(cont);
     subnodes[2]->get(cont);
     subnodes[3]->get(cont);
-
+    
     return;
   }
 
   // Color the balls in the same color as the boundaries
   if (draw_debug) {
-    for (const auto &id : index) {
+    for (const auto &id : indices) {
       athi_circle_manager->set_color_circle_id(id, bounds.color);
     }
   }
 
-  // Insert indexes into our container
-  if (!index.empty()) {
-    cont.emplace_back(index);  // [2]
+  if (!indices.empty()) {
+    cont.emplace_back(indices);  // [2]
   }
 }
 
 void Quadtree::retrieve(std::vector<int> &cont, const Athi::Rect &rect) const {
   //----------------------------------------------------------------
   // [1] Find the deepest level node.
-  // [2] If there are indexes, add to container.
+  // [2] If there are indices, add to container.
   //----------------------------------------------------------------
 
   // If this subnode has split..
@@ -177,7 +176,7 @@ void Quadtree::retrieve(std::vector<int> &cont, const Athi::Rect &rect) const {
   }
 
   // Add all indexes to our container
-  for (const auto i : index) cont.emplace_back(i);
+  for (const auto i : indices) cont.emplace_back(i);
 }
 
 bool Quadtree::contains(int id) { return bounds.contains(id); }
@@ -201,8 +200,8 @@ void reset_quadtree() {
   //----------------------------------------------------------------
   // Sets bounds to the screens bounds and clears the quadtrees.
   //----------------------------------------------------------------
-  athi_quadtree->index.clear();
-  athi_quadtree->index.shrink_to_fit();
+  athi_quadtree->indices.clear();
+  athi_quadtree->indices.shrink_to_fit();
   athi_quadtree->subnodes[0].reset();
   athi_quadtree->subnodes[1].reset();
   athi_quadtree->subnodes[2].reset();
