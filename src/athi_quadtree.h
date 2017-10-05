@@ -30,16 +30,19 @@ public:
   Quadtree(size_t level, const Rect &bounds) : level(level), bounds(bounds) {}
   Quadtree(size_t depth, size_t capacity, const glm::vec2 &min, const glm::vec2 &max) : max_depth(depth), max_capacity(capacity)
   {
+    bounds.color = pastel_gray;
     bounds.min = min;
     bounds.max = max;
   }
 
   void draw()
-  {
-    bounds.color = pastel_gray;
-
+  {  
     if (subnodes[0])
     {
+      subnodes[0]->bounds.color = pastel_red;
+      subnodes[1]->bounds.color = pastel_blue;
+      subnodes[2]->bounds.color = pastel_orange;
+      subnodes[3]->bounds.color = pastel_purple;
       subnodes[0]->draw();
       subnodes[1]->draw();
       subnodes[2]->draw();
