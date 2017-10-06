@@ -22,7 +22,7 @@ extern bool draw_debug;
 extern bool show_fps_info;
 
 extern bool voxelgrid_active;
-extern int  voxelgrid_parts;
+extern size_t  voxelgrid_parts;
 
 extern bool quadtree_show_only_occupied;
 extern bool quadtree_active;

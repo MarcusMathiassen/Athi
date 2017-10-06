@@ -599,12 +599,12 @@ void Athi_Circle_Manager::draw_circles()
 {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
 
+  draw();
   if (voxelgrid_active && draw_debug)
     draw_voxelgrid();
   if (quadtree_active && draw_debug) 
     quadtree.color_objects(circle_buffer);
-  draw();
-
+    
   if (clear_circles)
   {
     circle_buffer.clear();

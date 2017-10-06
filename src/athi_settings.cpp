@@ -27,7 +27,7 @@ size_t quadtree_depth{5};
 size_t quadtree_capacity{50};
 
 bool voxelgrid_active{false};
-int voxelgrid_parts{4};
+size_t voxelgrid_parts{4};
 
 f64 frametime;
 f64 smoothed_frametime;

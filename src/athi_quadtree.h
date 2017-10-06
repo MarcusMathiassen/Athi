@@ -1,44 +1,40 @@
 #pragma once
 
+#include <array>
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
-#include <array>
 
 #include "athi_circle.h"
 
-template <class T>
-class Quadtree
-{
+template <class T> class Quadtree {
 public:
-  struct Rect
-  {
+  struct Rect {
     glm::vec2 min, max;
     glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
     Rect() = default;
     Rect(const glm::vec2 &min, const glm::vec2 &max) : min(min), max(max) {}
-    bool contains(const glm::vec2 &pos, float radius) const
-    {
+    bool contains(const glm::vec2 &pos, float radius) const {
       const auto o = pos;
       const auto r = radius;
-      if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y && o.y + r > min.y)
+      if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
+          o.y + r > min.y)
         return true;
       return false;
     }
   };
 
-  Quadtree(size_t level, const Rect &bounds) : level(level), bounds(bounds) {}
-  Quadtree(size_t depth, size_t capacity, const glm::vec2 &min, const glm::vec2 &max) : max_depth(depth), max_capacity(capacity)
-  {
+  Quadtree(size_t level, const Rect &bounds) : bounds(bounds), level(level) {}
+  Quadtree(size_t depth, size_t capacity, const glm::vec2 &min,
+           const glm::vec2 &max)
+      : max_depth(depth), max_capacity(capacity) {
     bounds.color = pastel_gray;
     bounds.min = min;
     bounds.max = max;
   }
 
-  void draw()
-  {  
-    if (sw)
-    {
+  void draw() {
+    if (sw) {
       sw->bounds.color = pastel_red;
       se->bounds.color = pastel_blue;
       nw->bounds.color = pastel_orange;
@@ -58,15 +54,12 @@ public:
       draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
 
-  void color_objects(std::vector<T> &obj) const
-  {
-    if (sw)
-    {
+  void color_objects(std::vector<T> &obj) const {
+    if (sw) {
       sw->draw();
       se->draw();
       nw->draw();
       ne->draw();
-
       return;
     }
 
@@ -74,20 +67,16 @@ public:
       obj[id].color = bounds.color;
   }
 
-  void input(const std::vector<T> &data_)
-  {
+  void input(const std::vector<T> &data_) {
     data = data_;
     indices.reserve(max_capacity);
-    for (const auto &obj: data)
-    {
+    for (const auto &obj : data) {
       insert(obj.id);
     }
   }
 
-  void get(std::vector<std::vector<size_t>> &cont) const
-  {
-    if (sw)
-    {
+  void get(std::vector<std::vector<size_t>> &cont) const {
+    if (sw) {
       sw->get(cont);
       se->get(cont);
       nw->get(cont);
@@ -101,9 +90,7 @@ public:
   }
 
 private:
-
-  void split()
-  {
+  void split() {
     const glm::vec2 min = bounds.min;
     const glm::vec2 max = bounds.max;
 
@@ -126,10 +113,8 @@ private:
     ne = std::make_unique<Quadtree<T>>(level + 1, NE);
   }
 
-  void insert(size_t id)
-  {
-    if (sw)
-    {
+  void insert(size_t id) {
+    if (sw) {
       if (sw->contains(id))
         sw->insert(id);
       if (se->contains(id))
@@ -143,12 +128,10 @@ private:
 
     indices.emplace_back(id);
 
-    if (indices.size() > max_capacity && level < max_depth)
-    {
+    if (indices.size() > max_capacity && level < max_depth) {
       split();
 
-      for (const auto index : indices)
-      {
+      for (const auto index : indices) {
         if (sw->contains(index))
           sw->insert(index);
         if (se->contains(index))
@@ -162,8 +145,7 @@ private:
     }
   }
 
-  bool contains(size_t id) const
-  {
+  bool contains(size_t id) const {
     return bounds.contains(data[id].pos, data[id].radius);
   }
 
@@ -178,8 +160,7 @@ private:
   Rect bounds;
   size_t max_depth{5};
   size_t max_capacity{50};
-  size_t level = 0;
+  size_t level{0};
 };
 
-template<class T>
-std::vector<T>Quadtree<T>::data;
+template <class T> std::vector<T> Quadtree<T>::data;
