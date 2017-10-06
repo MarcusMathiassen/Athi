@@ -136,31 +136,31 @@ void collision_resolve(Athi_Circle &a, Athi_Circle &b)
 void separate(Athi_Circle &a, Athi_Circle &b)
 {
   // Local variables
-  const vec2 a_pos = a.pos;
-  const vec2 b_pos = b.pos;
-  const f32 ar = a.radius;
-  const f32 br = b.radius;
+  const glm::vec2 a_pos = a.pos;
+  const glm::vec2 b_pos = b.pos;
+  const float ar = a.radius;
+  const float br = b.radius;
 
-  const f32 collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
+  const float collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
 
-  const f32 dx = b_pos.x - a_pos.x;
-  const f32 dy = b_pos.y - a_pos.y;
+  const float dx = b_pos.x - a_pos.x;
+  const float dy = b_pos.y - a_pos.y;
 
   // contact angle
-  const f32 collision_angle = atan2(dy, dx);
-  const f32 cos_angle = cos(collision_angle);
-  const f32 sin_angle = sin(collision_angle);
+  const float collision_angle = atan2(dy, dx);
+  const float cos_angle = cos(collision_angle);
+  const float sin_angle = sin(collision_angle);
 
-  // @Note: could this be done using a normal vector and just inverting
-  // it? move the balls away from eachother so they dont overlap
-  const f32 a_move_x = -collision_depth * 0.5f * cos_angle;
-  const f32 a_move_y = -collision_depth * 0.5f * sin_angle;
-  const f32 b_move_x = collision_depth * 0.5f * cos_angle;
-  const f32 b_move_y = collision_depth * 0.5f * sin_angle;
+  // @Note: could this be done using a normal vector and just inverting it? 
+  // amount to move each ball
+  const float a_move_x = -collision_depth * 0.5f * cos_angle;
+  const float a_move_y = -collision_depth * 0.5f * sin_angle;
+  const float b_move_x = collision_depth * 0.5f * cos_angle;
+  const float b_move_y = collision_depth * 0.5f * sin_angle;
 
   // store the new move values
-  vec2 a_pos_move;
-  vec2 b_pos_move;
+  glm::vec2 a_pos_move;
+  glm::vec2 b_pos_move;
 
   // Make sure they dont moved beyond the border
   if (a_pos.x + a_move_x >= -1.0f + ar && a_pos.x + a_move_x <= 1.0f - ar)
@@ -179,10 +179,6 @@ void separate(Athi_Circle &a, Athi_Circle &b)
 
 void Athi_Circle_Manager::init()
 {
-  ///////////////////// OPENCL BEGIN /////////////////////
-  ///////////////////// OPENCL BEGIN /////////////////////
-  ///////////////////// OPENCL BEGIN /////////////////////
-
   std::cout << "OpenCL initializing..\n";
 
   read_file("../Resources/circle_collision_kernel.cl", &kernel_source);
@@ -228,10 +224,6 @@ void Athi_Circle_Manager::init()
   if (!kernel || err != CL_SUCCESS)
     std::cout << "Error: Failed to create compute kernel!\n";
 
-  ///////////////////// SHADER BEGIN  /////////////////////
-  ///////////////////// SHADER BEGIN  /////////////////////
-  ///////////////////// SHADER BEGIN  /////////////////////
-
   shader_program = glCreateProgram();
   const u32 vs = createShader("../Resources/athi_circle_shader.vs", GL_VERTEX_SHADER);
   const u32 fs = createShader("../Resources/athi_circle_shader.fs", GL_FRAGMENT_SHADER);
@@ -252,20 +244,12 @@ void Athi_Circle_Manager::init()
   glDeleteShader(vs);
   glDeleteShader(fs);
 
-  ///////////////////// MESH BEGIN  /////////////////////
-  ///////////////////// MESH BEGIN  /////////////////////
-  ///////////////////// MESH BEGIN  /////////////////////
-
   std::vector<vec2> positions;
   positions.reserve(CIRCLE_NUM_VERTICES);
   for (u32 i = 0; i < CIRCLE_NUM_VERTICES; ++i)
   {
     positions.emplace_back(std::cos(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES), std::sin(i * M_PI * 2.0f / CIRCLE_NUM_VERTICES));
   }
-
-  ////////////////////// VAO/VBO BEGIN  /////////////////////
-  ////////////////////// VAO/VBO BEGIN  /////////////////////
-  ////////////////////// VAO/VBO BEGIN  /////////////////////
 
   // VAO
   glGenVertexArrays(1, &VAO);
@@ -602,9 +586,11 @@ void Athi_Circle_Manager::draw_circles()
   draw();
   if (voxelgrid_active && draw_debug)
     draw_voxelgrid();
-  if (quadtree_active && draw_debug) 
+  if (quadtree_active && draw_debug) {
+    quadtree.draw();
     quadtree.color_objects(circle_buffer);
-    
+  }
+
   if (clear_circles)
   {
     circle_buffer.clear();

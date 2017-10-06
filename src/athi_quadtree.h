@@ -56,10 +56,10 @@ public:
 
   void color_objects(std::vector<T> &obj) const {
     if (sw) {
-      sw->draw();
-      se->draw();
-      nw->draw();
-      ne->draw();
+      sw->color_objects(obj);
+      se->color_objects(obj);
+      nw->color_objects(obj);
+      ne->color_objects(obj);
       return;
     }
 
