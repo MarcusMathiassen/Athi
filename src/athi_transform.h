@@ -1,7 +1,7 @@
 #pragma once
 
-#include "athi_typedefs.h"
 #include <glm/gtx/transform.hpp>
+#include "athi_typedefs.h"
 
 struct Transform {
   vec3 pos{0, 0, 0};

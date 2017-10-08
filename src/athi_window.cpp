@@ -62,6 +62,8 @@ void window_size_callback(GLFWwindow *window, int xpos, int ypos) {
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   camera.aspect_ratio = (f32)width / (f32)height;
   camera.window_width = width;
+  screen_width = width;
+  screen_height = height;
   camera.window_height = height;
   camera.update_perspective();
   glViewport(0, 0, width, height);

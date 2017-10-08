@@ -11,31 +11,23 @@ Node::Node(const Athi::Rect &r) : bounds{r} {}
 
 void Node::insert(size_t id) { index.emplace_back(id); }
 
-void Node::get(std::vector<std::vector<size_t>> &cont)
-{
+void Node::get(std::vector<std::vector<size_t>> &cont) {
   cont.emplace_back(index);
   index.clear();
   index.shrink_to_fit();
 }
-void Node::draw() const
-{
+void Node::draw() const {
   draw_hollow_rect(bounds.min, bounds.max, bounds.color);
 }
-void Node::color_objects()
-{
-  for (const auto id : index)
-  {
+void Node::color_objects() {
+  for (const auto id : index) {
     athi_circle_manager->set_color_circle_id(id, bounds.color);
   }
 }
 
-bool Node::contains(size_t id)
-{
-  return bounds.contains(id);
-}
+bool Node::contains(size_t id) { return bounds.contains(id); }
 
-void VoxelGrid::init()
-{
+void VoxelGrid::init() {
   //-----------------------------------------------------------------------------------
   // The nodes are cleared and given an element in the grid.
   //-----------------------------------------------------------------------------------
@@ -47,13 +39,10 @@ void VoxelGrid::init()
   const f32 col = 1.0f / sqrtGrid;
   const f32 row = 1.0f / sqrtGrid;
 
-  for (f32 y = -1.0f; y < 1.0f; y += row)
-  {
-    for (f32 x = -1.0f; x < 1.0f; x += col)
-    {
+  for (f32 y = -1.0f; y < 1.0f; y += row) {
+    for (f32 x = -1.0f; x < 1.0f; x += col) {
       Athi::Rect bounds(vec2(x, y), vec2(x + col, y + row));
-      if (draw_debug)
-      {
+      if (draw_debug) {
         bounds.color = get_universal_current_color();
         ++universal_color_picker;
       }
@@ -63,47 +52,36 @@ void VoxelGrid::init()
   current_voxelgrid_part = voxelgrid_parts;
 }
 
-void VoxelGrid::update()
-{
-  //-----------------------------------------------------------------------------------
-  // Goes through every node and fills it with objects from the
-  // main-container, any object that fits within the nodes boundaries will
-  // be added to the nodes object-container.
-  //-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
+// Goes through every node and fills it with objects from the
+// main-container, any object that fits within the nodes boundaries will
+// be added to the nodes object-container.
+//-----------------------------------------------------------------------------------
+void VoxelGrid::update() {
+  if (voxelgrid_parts != current_voxelgrid_part) init();
 
-  if (voxelgrid_parts != current_voxelgrid_part)
-    init();
-
-  
-  for (const auto &obj : athi_circle_manager->circle_buffer)
-  {
+  for (const auto &obj : athi_circle_manager->circle_buffer) {
     const size_t id = obj.id;
 
     for (const auto &node : nodes)
-      if (node->contains(id))
-        node->insert(id);
+      if (node->contains(id)) node->insert(id);
   }
 }
 
-void VoxelGrid::get(std::vector<std::vector<size_t>> &cont) const
-{
-  // Color the objects with the color of the node
-  for (const auto &node : nodes)
-  {
-    if (draw_debug)
-      node->color_objects();
+// Color the objects with the color of the node
+void VoxelGrid::get(std::vector<std::vector<size_t>> &cont) const {
+  for (const auto &node : nodes) {
+    if (draw_debug) node->color_objects();
     node->get(cont);
   }
 }
 
-void VoxelGrid::draw() const
-{
+void VoxelGrid::draw() const {
   //-----------------------------------------------------------------------------------
   // Draws the nodes boundaries to screen and colors the objects within
   // each node with the nodes color.
   //-----------------------------------------------------------------------------------
-  for (const auto &node : nodes)
-  {
+  for (const auto &node : nodes) {
     node->draw();
   }
 }

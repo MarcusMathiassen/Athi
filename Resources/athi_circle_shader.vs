@@ -3,6 +3,7 @@
 in vec2 position;
 in vec4 color;
 in mat4 transform;
+uniform mat4 ortho_projection;
 
 out Vertex
 {

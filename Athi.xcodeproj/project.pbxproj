@@ -7,13 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		900ADAD31F881933004ED076 /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A501F328D70007DCBB3 /* libGLEW.a */; };
+		900ADAD41F88194F004ED076 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A521F328D78007DCBB3 /* libglfw3.a */; };
 		F203DDEA1F33EA94005A1535 /* athi_utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F203DDE91F33EA94005A1535 /* athi_utility.cpp */; };
 		F2298A391F328D00007DCBB3 /* athi_camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A171F328D00007DCBB3 /* athi_camera.cpp */; };
 		F2298A3A1F328D00007DCBB3 /* athi_checkbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A191F328D00007DCBB3 /* athi_checkbox.cpp */; };
 		F2298A3B1F328D00007DCBB3 /* athi_circle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A1B1F328D00007DCBB3 /* athi_circle.cpp */; };
 		F2298A3C1F328D00007DCBB3 /* athi_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A1D1F328D00007DCBB3 /* athi_core.cpp */; };
 		F2298A3D1F328D00007DCBB3 /* athi_input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A1F1F328D00007DCBB3 /* athi_input.cpp */; };
-		F2298A3E1F328D00007DCBB3 /* athi_quadtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A211F328D00007DCBB3 /* athi_quadtree.cpp */; };
 		F2298A3F1F328D00007DCBB3 /* athi_rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A231F328D00007DCBB3 /* athi_rect.cpp */; };
 		F2298A401F328D00007DCBB3 /* athi_settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A261F328D00007DCBB3 /* athi_settings.cpp */; };
 		F2298A411F328D00007DCBB3 /* athi_slider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A281F328D00007DCBB3 /* athi_slider.cpp */; };
@@ -25,8 +26,6 @@
 		F2298A4B1F328D5A007DCBB3 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A4A1F328D5A007DCBB3 /* IOKit.framework */; };
 		F2298A4D1F328D60007DCBB3 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A4C1F328D60007DCBB3 /* CoreVideo.framework */; };
 		F2298A4F1F328D67007DCBB3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A4E1F328D67007DCBB3 /* Cocoa.framework */; };
-		F2298A511F328D70007DCBB3 /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A501F328D70007DCBB3 /* libGLEW.a */; };
-		F2298A531F328D78007DCBB3 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A521F328D78007DCBB3 /* libglfw3.a */; };
 		F25C78771F520AD300D9D616 /* athi_task_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F25C78751F520AD300D9D616 /* athi_task_manager.cpp */; };
 		F2820A051F3BAC1C00BD6C76 /* athi_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2820A021F3BAC1B00BD6C76 /* athi_line.cpp */; };
 		F28B69261F3C962C00766125 /* athi_spring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F28B69241F3C962C00766125 /* athi_spring.cpp */; };
@@ -60,7 +59,6 @@
 		F2298A1E1F328D00007DCBB3 /* athi_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_core.h; sourceTree = "<group>"; };
 		F2298A1F1F328D00007DCBB3 /* athi_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_input.cpp; sourceTree = "<group>"; };
 		F2298A201F328D00007DCBB3 /* athi_input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_input.h; sourceTree = "<group>"; };
-		F2298A211F328D00007DCBB3 /* athi_quadtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_quadtree.cpp; sourceTree = "<group>"; };
 		F2298A221F328D00007DCBB3 /* athi_quadtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_quadtree.h; sourceTree = "<group>"; };
 		F2298A231F328D00007DCBB3 /* athi_rect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_rect.cpp; sourceTree = "<group>"; };
 		F2298A241F328D00007DCBB3 /* athi_rect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_rect.h; sourceTree = "<group>"; };
@@ -110,9 +108,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				900ADAD41F88194F004ED076 /* libglfw3.a in Frameworks */,
+				900ADAD31F881933004ED076 /* libGLEW.a in Frameworks */,
 				F2A08A681F3A01B200E2148B /* OpenCL.framework in Frameworks */,
-				F2298A531F328D78007DCBB3 /* libglfw3.a in Frameworks */,
-				F2298A511F328D70007DCBB3 /* libGLEW.a in Frameworks */,
 				F2298A4F1F328D67007DCBB3 /* Cocoa.framework in Frameworks */,
 				F2298A4D1F328D60007DCBB3 /* CoreVideo.framework in Frameworks */,
 				F2298A4B1F328D5A007DCBB3 /* IOKit.framework in Frameworks */,
@@ -170,7 +168,6 @@
 				F2298A1E1F328D00007DCBB3 /* athi_core.h */,
 				F2298A1F1F328D00007DCBB3 /* athi_input.cpp */,
 				F2298A201F328D00007DCBB3 /* athi_input.h */,
-				F2298A211F328D00007DCBB3 /* athi_quadtree.cpp */,
 				F2298A221F328D00007DCBB3 /* athi_quadtree.h */,
 				F2298A231F328D00007DCBB3 /* athi_rect.cpp */,
 				F2298A241F328D00007DCBB3 /* athi_rect.h */,
@@ -279,7 +276,6 @@
 			files = (
 				F2298A401F328D00007DCBB3 /* athi_settings.cpp in Sources */,
 				F203DDEA1F33EA94005A1535 /* athi_utility.cpp in Sources */,
-				F2298A3E1F328D00007DCBB3 /* athi_quadtree.cpp in Sources */,
 				F2820A051F3BAC1C00BD6C76 /* athi_line.cpp in Sources */,
 				F28B69261F3C962C00766125 /* athi_spring.cpp in Sources */,
 				F2298A3C1F328D00007DCBB3 /* athi_core.cpp in Sources */,
@@ -406,17 +402,13 @@
 		F2298A131F328CDE007DCBB3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				DEVELOPMENT_TEAM = "";
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				HEADER_SEARCH_PATHS = "/Users/mathiassen/Athi/dep/macOS/**";
-				LIBRARY_SEARCH_PATHS = (
-					"/Users/mathiassen/Athi/dep/macOS/**",
-					"$(PROJECT_DIR)/dep/macOS/GL/**",
-					"$(PROJECT_DIR)/dep/macOS/GLFW/**",
-				);
+				LIBRARY_SEARCH_PATHS = "/Users/mathiassen/Athi/dep/macOS/**";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
@@ -425,17 +417,13 @@
 		F2298A141F328CDE007DCBB3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				DEVELOPMENT_TEAM = "";
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				HEADER_SEARCH_PATHS = "/Users/mathiassen/Athi/dep/macOS/**";
-				LIBRARY_SEARCH_PATHS = (
-					"/Users/mathiassen/Athi/dep/macOS/**",
-					"$(PROJECT_DIR)/dep/macOS/GL/**",
-					"$(PROJECT_DIR)/dep/macOS/GLFW/**",
-				);
+				LIBRARY_SEARCH_PATHS = "/Users/mathiassen/Athi/dep/macOS/**";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 			};

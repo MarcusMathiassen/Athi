@@ -1,14 +1,16 @@
 #pragma once
 
+#include "athi_rect.h"
+#include "athi_settings.h"
+
 #include <array>
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
 
-#include "athi_circle.h"
-
-template <class T> class Quadtree {
-public:
+template <class T>
+class Quadtree {
+ public:
   struct Rect {
     glm::vec2 min, max;
     glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
@@ -56,6 +58,10 @@ public:
 
   void color_objects(std::vector<T> &obj) const {
     if (sw) {
+      sw->bounds.color = pastel_red;
+      se->bounds.color = pastel_blue;
+      nw->bounds.color = pastel_orange;
+      ne->bounds.color = pastel_purple;
       sw->color_objects(obj);
       se->color_objects(obj);
       nw->color_objects(obj);
@@ -63,8 +69,7 @@ public:
       return;
     }
 
-    for (const auto id : indices)
-      obj[id].color = bounds.color;
+    for (const auto id : indices) obj[id].color = bounds.color;
   }
 
   void input(const std::vector<T> &data_) {
@@ -73,6 +78,7 @@ public:
     for (const auto &obj : data) {
       insert(obj.id);
     }
+    data.clear();
   }
 
   void get(std::vector<std::vector<size_t>> &cont) const {
@@ -81,15 +87,12 @@ public:
       se->get(cont);
       nw->get(cont);
       ne->get(cont);
-
       return;
     }
-
-    if (!indices.empty())
-      cont.emplace_back(indices);
+    if (!indices.empty()) cont.emplace_back(indices);
   }
 
-private:
+ private:
   void split() {
     const glm::vec2 min = bounds.min;
     const glm::vec2 max = bounds.max;
@@ -115,14 +118,10 @@ private:
 
   void insert(size_t id) {
     if (sw) {
-      if (sw->contains(id))
-        sw->insert(id);
-      if (se->contains(id))
-        se->insert(id);
-      if (nw->contains(id))
-        nw->insert(id);
-      if (ne->contains(id))
-        ne->insert(id);
+      if (sw->contains(id)) sw->insert(id);
+      if (se->contains(id)) se->insert(id);
+      if (nw->contains(id)) nw->insert(id);
+      if (ne->contains(id)) ne->insert(id);
       return;
     }
 
@@ -132,14 +131,10 @@ private:
       split();
 
       for (const auto index : indices) {
-        if (sw->contains(index))
-          sw->insert(index);
-        if (se->contains(index))
-          se->insert(index);
-        if (nw->contains(index))
-          nw->insert(index);
-        if (ne->contains(index))
-          ne->insert(index);
+        if (sw->contains(index)) sw->insert(index);
+        if (se->contains(index)) se->insert(index);
+        if (nw->contains(index)) nw->insert(index);
+        if (ne->contains(index)) ne->insert(index);
       }
       indices.clear();
     }
@@ -163,4 +158,5 @@ private:
   size_t level{0};
 };
 
-template <class T> std::vector<T> Quadtree<T>::data;
+template <class T>
+std::vector<T> Quadtree<T>::data;
