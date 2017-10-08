@@ -3,15 +3,11 @@
 in vec2 position;
 in vec4 color;
 in mat4 transform;
-uniform mat4 ortho_projection;
 
-out Vertex
-{
-  vec4 color;
-} vertex;
+out Vertex { vec4 color; }
+vertex;
 
-void main()
-{
+void main() {
   gl_Position = transform * vec4(position, 0.0, 1.0);
   vertex.color = color;
 }

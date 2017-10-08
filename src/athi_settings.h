@@ -63,6 +63,6 @@ static const vec4 pastel_green(0.596, 0.764, 0.474, 1.0);
 static const vec4 pastel_blue(0.247, 0.588, 1, 1.0);
 static const vec4 pastel_yellow(1, 0.949, 0.247, 1.0);
 static const vec4 pastel_purple(0.77647, 0.47059, 0.86667, 1.0);
-static const vec4 pastel_pink(1, 0.078, 0.576, 1.0);
+static const vec4 pastel_pink(1, 0.819, 0.862, 1.0);
 static const vec4 pastel_orange(1, 0.647, 0, 1.0);
 static const vec4 pastel_gray(0.333, 0.333, 0.333, 1.0);
