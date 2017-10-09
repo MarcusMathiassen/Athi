@@ -29,24 +29,25 @@ size_t quadtree_capacity{50};
 bool voxelgrid_active{false};
 size_t voxelgrid_parts{4};
 
-f64 frametime;
-f64 smoothed_frametime;
-u32 framerate;
-u32 framerate_limit{0};
+double frametime;
+double smoothed_frametime;
+unsigned int framerate;
+unsigned int framerate_limit{0};
 
-f64 timestep;
-f64 physics_frametime;
-f64 smoothed_physics_frametime;
-u32 physics_framerate;
-u32 physics_FPS_limit{0};
+double timestep;
+double physics_frametime;
+double smoothed_physics_frametime;
+unsigned int physics_framerate;
+unsigned int physics_FPS_limit{0};
 
+bool slowmotion{false};
 bool vsync{true};
 
-u32 variable_thread_count;
+unsigned int variable_thread_count;
 bool use_multithreading{false};
 
-u32 cpu_cores;
-u32 cpu_threads;
+unsigned int cpu_cores;
+unsigned int cpu_threads;
 string cpu_brand;
 
 bool openCL_active{false};
@@ -54,4 +55,4 @@ bool openCL_active{false};
 bool app_is_running{true};
 bool settings_changed{false};
 
-u32 universal_color_picker{0};
+unsigned int universal_color_picker{0};

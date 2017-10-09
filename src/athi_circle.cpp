@@ -24,13 +24,16 @@ void Athi_Circle::update()
 {
   border_collision();
 
+  float slow = 1.0f;
+  if (slowmotion)
+    slow = 0.1f;
   if (physics_gravity)
-    vel.y -= 0.0009f * timestep;
+    vel.y -= 9.81f * mass * slow * timestep;
 
-  vel.x += acc.x * timestep;
-  vel.y += acc.y * timestep;
-  pos.x += vel.x * timestep;
-  pos.y += vel.y * timestep;
+  vel.x += (acc.x * timestep * slow) * 0.99f;
+  vel.y += (acc.y * timestep * slow) * 0.99f;
+  pos.x += (vel.x * timestep * slow) * 0.99f;
+  pos.y += (vel.y * timestep * slow) * 0.99f;
   acc *= 0;
 
   transform.pos = glm::vec3(pos.x, pos.y, 0);
@@ -309,7 +312,7 @@ void Athi_Circle_Manager::draw()
   if (circle_buffer.empty())
     return;
 
-  const std::size_t circles_size = circle_buffer.size();
+  const size_t circles_size = circle_buffer.size();
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TRANSFORM]);
   const size_t transform_bytes_needed = sizeof(mat4) * circles_size;

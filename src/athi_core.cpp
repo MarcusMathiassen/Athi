@@ -28,7 +28,8 @@
 SMA smooth_frametime_avg(&smoothed_frametime);
 SMA smooth_physics_rametime_avg(&smoothed_physics_frametime);
 
-void Athi_Core::init() {
+void Athi_Core::init()
+{
   window = std::make_unique<Athi_Window>();
   window->scene.width = 512;
   window->scene.height = 512;
@@ -61,7 +62,8 @@ void Athi_Core::init() {
   variable_thread_count = cpu_threads;
 }
 
-void Athi_Core::start() {
+void Athi_Core::start()
+{
   Athi_Checkbox quadtree_box;
   quadtree_box.pos = vec2(RIGHT - ROW * 7.5f, BOTTOM + ROW);
   quadtree_box.text.str = "quadtree";
@@ -199,12 +201,14 @@ void Athi_Core::start() {
 
   auto window_context = window->get_window_context();
   auto monitor_refreshrate = window->monitor_refreshrate;
-  while (!glfwWindowShouldClose(window_context)) {
+  while (!glfwWindowShouldClose(window_context))
+  {
     const f64 time_start_frame = glfwGetTime();
     update_inputs();
     window->update();
     update_settings();
-    if (show_settings) {
+    if (show_settings)
+    {
       update_UI();
     }
     glfwPollEvents();
@@ -214,7 +218,8 @@ void Athi_Core::start() {
   shutdown();
 }
 
-void Athi_Core::draw_loop() {
+void Athi_Core::draw_loop()
+{
   Athi_Text frametime_text;
   frametime_text.pos = vec2(LEFT + ROW, TOP);
   add_text(&frametime_text);
@@ -230,7 +235,8 @@ void Athi_Core::draw_loop() {
   auto window_context = window->get_window_context();
   glfwMakeContextCurrent(window_context);
 
-  while (app_is_running) {
+  while (app_is_running)
+  {
     const f64 time_start_frame = glfwGetTime();
     frametime_text.str = "Render:  " + std::to_string(framerate) + "fps | " +
                          std::to_string(smoothed_frametime) + "ms";
@@ -246,8 +252,10 @@ void Athi_Core::draw_loop() {
     draw_lines();
     draw_springs();
 
-    if (show_settings) draw_UI();
-    if (!show_settings) {
+    if (show_settings)
+      draw_UI();
+    if (!show_settings)
+    {
       // FPS info
       const auto fps_color = (framerate < 60) ? pastel_red : pastel_green;
       const auto fps_str = std::to_string(framerate) + " FPS " +
@@ -265,20 +273,24 @@ void Athi_Core::draw_loop() {
     render();
     glfwSwapBuffers(window_context);
 
-    if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
+    if (framerate_limit != 0)
+      limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     framerate = (u32)(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
   }
 }
 
-void Athi_Core::physics_loop() {
-  while (app_is_running) {
+void Athi_Core::physics_loop()
+{
+  while (app_is_running)
+  {
     const f64 time_start_frame = glfwGetTime();
 
     update_circles();
 
-    if (physics_FPS_limit != 0) limit_FPS(physics_FPS_limit, time_start_frame);
+    if (physics_FPS_limit != 0)
+      limit_FPS(physics_FPS_limit, time_start_frame);
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     physics_framerate = (u32)(std::round(1000.0f / smoothed_physics_frametime));
     smooth_physics_rametime_avg.add_new_frametime(physics_frametime);

@@ -44,9 +44,9 @@ public:
     if (sw)
     {
       sw->bounds.color = pastel_red;
-      se->bounds.color = pastel_blue;
+      se->bounds.color = pastel_gray;
       nw->bounds.color = pastel_orange;
-      ne->bounds.color = pastel_purple;
+      ne->bounds.color = pastel_pink;
       sw->draw();
       se->draw();
       nw->draw();
