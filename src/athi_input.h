@@ -73,17 +73,15 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action,
     athi_input_manager.mouse.right_button.state = action;
   }
 
-  vec2 mouse_pos = athi_input_manager.mouse.pos;
-
+  Athi_Circle c;
   s32 width, height;
+  glm::vec2 mouse_pos = athi_input_manager.mouse.pos;
   glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
   mouse_pos.x = -1.0f + 2 * mouse_pos.x / width;
   mouse_pos.y = +1.0f - 2 * mouse_pos.y / height;
-
-  Athi_Circle c;
   if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
   {
-    c.pos = vec2(mouse_pos.x, mouse_pos.y);
+    c.pos = mouse_pos;
     c.radius = circle_size;
     add_circle(c);
   }

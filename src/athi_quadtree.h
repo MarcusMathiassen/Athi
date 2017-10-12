@@ -88,10 +88,9 @@ public:
     {
       insert(obj.id);
     }
-    data.clear();
   }
 
-  void get(std::vector<std::vector<size_t>> &cont) const
+  void get(std::vector<std::vector<int>> &cont) const
   {
     if (sw)
     {
@@ -171,7 +170,7 @@ private:
     return bounds.contains(data[id].pos, data[id].radius);
   }
 
-  std::vector<size_t> indices;
+  std::vector<int> indices;
   static std::vector<T> data;
 
   std::unique_ptr<Quadtree<T>> sw;

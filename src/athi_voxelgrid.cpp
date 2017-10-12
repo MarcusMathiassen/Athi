@@ -9,9 +9,9 @@ VoxelGrid athi_voxelgrid;
 
 Node::Node(const Athi::Rect &r) : bounds{r} {}
 
-void Node::insert(size_t id) { index.emplace_back(id); }
+void Node::insert(int id) { index.emplace_back(id); }
 
-void Node::get(std::vector<std::vector<size_t>> &cont) {
+void Node::get(std::vector<std::vector<int>> &cont) {
   cont.emplace_back(index);
   index.clear();
   index.shrink_to_fit();
@@ -25,13 +25,13 @@ void Node::color_objects() {
   }
 }
 
-bool Node::contains(size_t id) { return bounds.contains(id); }
+bool Node::contains(int id) { return bounds.contains(id); }
 
 void VoxelGrid::init() {
   //-----------------------------------------------------------------------------------
   // The nodes are cleared and given an element in the grid.
   //-----------------------------------------------------------------------------------
-
+  
   nodes.clear();
   nodes.shrink_to_fit();
 
@@ -42,10 +42,8 @@ void VoxelGrid::init() {
   for (f32 y = -1.0f; y < 1.0f; y += row) {
     for (f32 x = -1.0f; x < 1.0f; x += col) {
       Athi::Rect bounds(vec2(x, y), vec2(x + col, y + row));
-      if (draw_debug) {
-        bounds.color = get_universal_current_color();
-        ++universal_color_picker;
-      }
+      bounds.color = get_universal_current_color();
+      ++universal_color_picker;
       nodes.emplace_back(std::make_unique<Node>(bounds));
     }
   }
@@ -61,7 +59,7 @@ void VoxelGrid::update() {
   if (voxelgrid_parts != current_voxelgrid_part) init();
 
   for (const auto &obj : athi_circle_manager->circle_buffer) {
-    const size_t id = obj.id;
+    const auto id = obj.id;
 
     for (const auto &node : nodes)
       if (node->contains(id)) node->insert(id);
@@ -69,7 +67,7 @@ void VoxelGrid::update() {
 }
 
 // Color the objects with the color of the node
-void VoxelGrid::get(std::vector<std::vector<size_t>> &cont) const {
+void VoxelGrid::get(std::vector<std::vector<int>> &cont) const {
   for (const auto &node : nodes) {
     if (draw_debug) node->color_objects();
     node->get(cont);

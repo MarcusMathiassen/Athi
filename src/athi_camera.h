@@ -24,6 +24,9 @@ struct Camera {
 
   f32 moveSpeed{0.02f};
   Camera() = default;
+  mat4 get_view_matrix() const {
+    return glm::lookAt(position, position + forward, up);
+  }
   mat4 get_view_projection() const {
     return perspective * glm::lookAt(position, position + forward, up);
   }

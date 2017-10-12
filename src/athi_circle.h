@@ -10,7 +10,7 @@
 #include <CL/cl.h>
 #endif
 
-#define CIRCLE_NUM_VERTICES 36
+#define CIRCLE_NUM_VERTICES 12
 
 #include "athi_transform.h"
 #include "athi_typedefs.h"
@@ -23,7 +23,7 @@
 extern vector<std::function<void()>> circle_update_call_buffer;
 
 struct Athi_Circle {
-  u32 id;
+  int id;
   vec2 pos;
   vec2 vel;
   vec2 acc;
@@ -99,7 +99,7 @@ struct Athi_Circle_Manager {
   void update();
 
   void collision_logNxN(size_t total, size_t begin, size_t end);
-  void collision_quadtree(const std::vector<std::vector<size_t>> &cont,
+  void collision_quadtree(const std::vector<std::vector<int>> &cont,
                           size_t begin, size_t end);
 };
 
@@ -107,7 +107,7 @@ void update_circle_call(const std::function<void()> &f);
 
 void attach_spring(Athi_Circle &a, Athi_Circle &b);
 void delete_circles();
-u32 get_num_circles();
+int get_num_circles();
 void update_circles();
 void draw_circles();
 void add_circle_multiple(Athi_Circle &circle, int num);

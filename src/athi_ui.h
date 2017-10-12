@@ -11,6 +11,7 @@
 struct Athi_UI {
   virtual void update() {}
   virtual void draw() const {}
+  virtual ~Athi_UI() = default;
 };
 
 struct Athi_UI_Manager {
