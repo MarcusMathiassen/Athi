@@ -18,6 +18,7 @@ TaskManager::~TaskManager() {
     }
   }
 }
+
 void TaskManager::start() {
   while (is_running) {
     for (auto& task : task_queue) {
@@ -26,6 +27,7 @@ void TaskManager::start() {
     is_running = false;
   }
 }
+
 void TaskManager::giveTask(const std::string& desc,
                            const std::function<void()>& task) {
   task_queue.emplace_back(desc, task);

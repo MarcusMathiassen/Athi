@@ -9,17 +9,14 @@
 #include <vector>
 
 template <class T>
-class Quadtree
-{
-public:
-  struct Rect
-  {
+class Quadtree {
+ public:
+  struct Rect {
     glm::vec2 min, max;
     glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
     Rect() = default;
     Rect(const glm::vec2 &min, const glm::vec2 &max) : min(min), max(max) {}
-    bool contains(const glm::vec2 &pos, float radius) const
-    {
+    bool contains(const glm::vec2 &pos, float radius) const {
       const auto o = pos;
       const auto r = radius;
       if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
@@ -32,21 +29,20 @@ public:
   Quadtree(size_t level, const Rect &bounds) : bounds(bounds), level(level) {}
   Quadtree(size_t depth, size_t capacity, const glm::vec2 &min,
            const glm::vec2 &max)
-      : max_depth(depth), max_capacity(capacity)
-  {
+      : max_depth(depth), max_capacity(capacity) {
     bounds.color = pastel_gray;
     bounds.min = min;
     bounds.max = max;
   }
 
-  void draw()
-  {
-    if (sw)
-    {
+  void draw() {
+    if (sw) {
+#ifdef DEBUG
       sw->bounds.color = pastel_red;
       se->bounds.color = pastel_gray;
       nw->bounds.color = pastel_orange;
       ne->bounds.color = pastel_pink;
+#endif
       sw->draw();
       se->draw();
       nw->draw();
@@ -61,10 +57,8 @@ public:
       draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
 
-  void color_objects(std::vector<T> &obj) const
-  {
-    if (sw)
-    {
+  void color_objects(std::vector<T> &obj) const {
+    if (sw) {
       sw->bounds.color = pastel_red;
       se->bounds.color = pastel_gray;
       nw->bounds.color = pastel_orange;
@@ -76,37 +70,34 @@ public:
       return;
     }
 
-    for (const auto id : indices)
-      obj[id].color = bounds.color;
+    for (const auto id : indices) obj[id].color = bounds.color;
   }
 
-  void input(const std::vector<T> &data_)
-  {
+  void input(const std::vector<T> &data_) {
     data = data_;
     indices.reserve(max_capacity);
-    for (const auto &obj : data)
-    {
+    for (const auto &obj : data) {
       insert(obj.id);
     }
   }
 
-  void get(std::vector<std::vector<int>> &cont) const
-  {
-    if (sw)
-    {
+  void get(std::vector<std::vector<int>> &cont) const {
+    if (sw) {
       sw->get(cont);
       se->get(cont);
       nw->get(cont);
       ne->get(cont);
       return;
     }
-    if (!indices.empty())
+
+    if (!indices.empty()) {
       cont.emplace_back(indices);
+    }
   }
 
-private:
-  void split()
-  {
+ private:
+  // This is a comment
+  void split() {
     const glm::vec2 min = bounds.min;
     const glm::vec2 max = bounds.max;
 
@@ -129,44 +120,31 @@ private:
     ne = std::make_unique<Quadtree<T>>(level + 1, NE);
   }
 
-  void insert(size_t id)
-  {
-    if (sw)
-    {
-      if (sw->contains(id))
-        sw->insert(id);
-      if (se->contains(id))
-        se->insert(id);
-      if (nw->contains(id))
-        nw->insert(id);
-      if (ne->contains(id))
-        ne->insert(id);
+  void insert(size_t id) {
+    if (sw) {
+      if (sw->contains(id)) sw->insert(id);
+      if (se->contains(id)) se->insert(id);
+      if (nw->contains(id)) nw->insert(id);
+      if (ne->contains(id)) ne->insert(id);
       return;
     }
 
     indices.emplace_back(id);
 
-    if (indices.size() > max_capacity && level < max_depth)
-    {
+    if (indices.size() > max_capacity && level < max_depth) {
       split();
 
-      for (const auto index : indices)
-      {
-        if (sw->contains(index))
-          sw->insert(index);
-        if (se->contains(index))
-          se->insert(index);
-        if (nw->contains(index))
-          nw->insert(index);
-        if (ne->contains(index))
-          ne->insert(index);
+      for (const auto index : indices) {
+        if (sw->contains(index)) sw->insert(index);
+        if (se->contains(index)) se->insert(index);
+        if (nw->contains(index)) nw->insert(index);
+        if (ne->contains(index)) ne->insert(index);
       }
       indices.clear();
     }
   }
 
-  bool contains(size_t id) const
-  {
+  bool contains(size_t id) const {
     return bounds.contains(data[id].pos, data[id].radius);
   }
 

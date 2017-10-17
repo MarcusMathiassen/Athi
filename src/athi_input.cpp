@@ -88,12 +88,15 @@ void mouse_attach_spring() {
   // Get mouse position
   vec2 mouse_pos = get_mouse_viewspace_pos();
 
-  Athi::Rect mouse_rect(vec2(mouse_pos.x - mouse_size, mouse_pos.y - mouse_size), vec2(mouse_pos.x + mouse_size, mouse_pos.y + mouse_size));
+  Athi::Rect mouse_rect(
+      vec2(mouse_pos.x - mouse_size, mouse_pos.y - mouse_size),
+      vec2(mouse_pos.x + mouse_size, mouse_pos.y + mouse_size));
 
   s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
   if (attach) {
-    attach_spring(athi_circle_manager->circle_buffer[id1], athi_circle_manager->circle_buffer[id2]);
+    attach_spring(athi_circle_manager->circle_buffer[id1],
+                  athi_circle_manager->circle_buffer[id2]);
     attach = false;
   }
 
@@ -111,7 +114,8 @@ void mouse_attach_spring() {
 
   // draw a line while we look for the second circle
   if (state == GLFW_PRESS && found) {
-    draw_line(mouse_pos, athi_circle_manager->circle_buffer[id1].pos, 0.03f, pastel_pink);
+    draw_line(mouse_pos, athi_circle_manager->circle_buffer[id1].pos, 0.03f,
+              pastel_pink);
     return;
   }
 
@@ -134,7 +138,8 @@ void mouse_grab() {
   auto mouse_pos = get_mouse_viewspace_pos();
 
   Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
-  if (draw_debug) draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
+  if (draw_debug)
+    draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
 
   // If it's released just exit the function
   if (state == GLFW_RELEASE) {
@@ -153,13 +158,20 @@ void mouse_grab() {
       for (auto &id : mouse_attached_to) {
         attraction_force(athi_circle_manager->circle_buffer[id], mouse_pos);
         last_state = ATTACHED;
-        if (show_mouse_grab_lines) draw_line(mouse_pos, athi_circle_manager->circle_buffer[id].pos, 0.03f, pastel_pink);
+        if (show_mouse_grab_lines)
+          draw_line(mouse_pos, athi_circle_manager->circle_buffer[id].pos,
+                    0.03f, pastel_pink);
       }
     } else  // single
     {
-      attraction_force(athi_circle_manager->circle_buffer[mouse_attached_to_single], mouse_pos);
+      attraction_force(
+          athi_circle_manager->circle_buffer[mouse_attached_to_single],
+          mouse_pos);
       if (show_mouse_grab_lines)
-        draw_line(mouse_pos, athi_circle_manager->circle_buffer[mouse_attached_to_single].pos, 0.03f, pastel_pink);
+        draw_line(
+            mouse_pos,
+            athi_circle_manager->circle_buffer[mouse_attached_to_single].pos,
+            0.03f, pastel_pink);
     }
     mouse_busy_UI = true;
   }

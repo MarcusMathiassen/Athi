@@ -1,17 +1,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 
-#include <dispatch/dispatch.h>
-#include <iostream>
-#include <thread>
-
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
+#include "athi_core.h"
 #include "athi_camera.h"
 #include "athi_checkbox.h"
 #include "athi_circle.h"
-#include "athi_core.h"
 #include "athi_input.h"
 #include "athi_line.h"
 #include "athi_rect.h"
@@ -24,6 +16,14 @@
 #include "athi_ui_list.h"
 #include "athi_utility.h"
 #include "athi_voxelgrid.h"
+
+#include <dispatch/dispatch.h>
+#include <iostream>
+#include <thread>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 SMA smooth_frametime_avg(&smoothed_frametime);
 SMA smooth_physics_rametime_avg(&smoothed_physics_frametime);

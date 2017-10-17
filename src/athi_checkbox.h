@@ -11,7 +11,6 @@
 #include <memory>
 
 struct Athi_Checkbox : public Athi_UI {
-
   enum { HOVER, PRESSED, IDLE, TOGGLE };
   u16 last_state{IDLE};
 

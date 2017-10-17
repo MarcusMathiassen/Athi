@@ -1,38 +1,40 @@
 
-#include <dispatch/dispatch.h>
-#include <cmath>
-#include <glm/gtx/vector_angle.hpp>
-#include <iostream>
 
-#include <cassert>
-
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-#include "athi_camera.h"
 #include "athi_circle.h"
+#include "athi_camera.h"
 #include "athi_quadtree.h"
 #include "athi_renderer.h"
 #include "athi_settings.h"
 #include "athi_spring.h"
 #include "athi_voxelgrid.h"
 
-vector<std::function<void()>> circle_update_call_buffer;
-std::unique_ptr<Athi_Circle_Manager> athi_circle_manager;
+#include <dispatch/dispatch.h>
+#include <cassert>
+#include <cmath>
+#include <glm/gtx/vector_angle.hpp>
+#include <iostream>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+
+vector<std::function<void()>> circle_update_call_buffer; // HACK
+std::unique_ptr<Athi_Circle_Manager> athi_circle_manager; // HACK
 
 void Athi_Circle::update() {
-  border_collision();
+  border_collision(); // this should be inlined
 
   float slow = 1.0f;
   if (slowmotion) slow = 0.1f;
   if (physics_gravity) vel.y -= 9.81f * mass * slow * timestep;
-
+  
+  // new position and velocity.
   vel.x += (acc.x * timestep * slow) * 0.99f;
   vel.y += (acc.y * timestep * slow) * 0.99f;
   pos.x += (vel.x * timestep * slow) * 0.99f;
   pos.y += (vel.y * timestep * slow) * 0.99f;
   acc *= 0;
-
+  
+  // This should not be needed. DoS.
   transform.pos = glm::vec3(pos.x, pos.y, 0);
 }
 
@@ -274,7 +276,9 @@ void Athi_Circle_Manager::init() {
 Athi_Circle_Manager::~Athi_Circle_Manager() {
   glDeleteBuffers(NUM_BUFFERS, VBO);
   glDeleteVertexArrays(1, &VAO);
-
+  
+  // OpenCL resource cleanup.
+  //
   clReleaseProgram(program);
   clReleaseKernel(kernel);
   clReleaseContext(context);
@@ -473,9 +477,10 @@ void Athi_Circle_Manager::update() {
     transforms.resize(circle_buffer.size());
     colors.resize(circle_buffer.size());
   }
-  
-  //const auto proj = glm::ortho(0.0f, (float)screen_width, (float)screen_height, 0.0f);
-  
+
+  // const auto proj = glm::ortho(0.0f, (float)screen_width,
+  // (float)screen_height, 0.0f);
+
   // Update the buffers with the new data.
   size_t i = 0;
   for (const auto &circle : circle_buffer) {
@@ -532,7 +537,7 @@ Athi_Circle Athi_Circle_Manager::get_circle(u32 id) {
 
 void Athi_Circle_Manager::update_circles() {
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
-  
+
   update();
   if (quadtree_active && draw_debug) {
     quadtree.color_objects(circle_buffer);
@@ -552,7 +557,7 @@ void Athi_Circle_Manager::draw_circles() {
   if (quadtree_active && draw_debug) {
     quadtree.draw();
   }
-  
+
   if (clear_circles) {
     circle_buffer.clear();
     circle_buffer.shrink_to_fit();

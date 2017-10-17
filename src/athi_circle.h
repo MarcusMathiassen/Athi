@@ -1,5 +1,12 @@
 #pragma once
 
+#include "athi_quadtree.h"
+#include "athi_settings.h"
+#include "athi_transform.h"
+#include "athi_typedefs.h"
+#include "athi_utility.h"
+#include "athi_voxelgrid.h"
+
 #include <functional>
 #include <mutex>
 #include <vector>
@@ -11,14 +18,6 @@
 #endif
 
 #define CIRCLE_NUM_VERTICES 12
-
-#include "athi_transform.h"
-#include "athi_typedefs.h"
-
-#include "athi_quadtree.h"
-#include "athi_settings.h"
-#include "athi_utility.h"
-#include "athi_voxelgrid.h"
 
 extern vector<std::function<void()>> circle_update_call_buffer;
 

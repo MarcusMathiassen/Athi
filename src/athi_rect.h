@@ -58,8 +58,10 @@ struct Athi_Rect_Manager {
 
 void add_rect(Athi_Rect* rect);
 void init_rect_manager();
-void draw_rect(const vec2& min, f32 width, f32 height, const vec4& color, GLenum draw_type);
-void draw_rect(const vec2& min, const vec2& max, const vec4& color, GLenum draw_type);
+void draw_rect(const vec2& min, f32 width, f32 height, const vec4& color,
+               GLenum draw_type);
+void draw_rect(const vec2& min, const vec2& max, const vec4& color,
+               GLenum draw_type);
 void draw_hollow_rect(const vec2& min, const vec2& max, const vec4& color);
 void draw_rects();
 

@@ -1,11 +1,10 @@
 #pragma once
 
-#include "athi_typedefs.h"
 #include "athi_rect.h"
 #include "athi_text.h"
+#include "athi_typedefs.h"
 
-struct Athi_Button
-{
+struct Athi_Button {
   vec2 pos;
   vec4 color;
 
@@ -14,8 +13,5 @@ struct Athi_Button
 
   Athi_Button() = default;
 
-  void draw()
-  {
-
-  }
+  void draw() {}
 };
