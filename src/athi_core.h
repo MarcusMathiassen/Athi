@@ -16,6 +16,9 @@ struct Athi_Core {
   PhysicsEngine physics_engine;
   TaskManager thread_manager;
 
+  void update();
+  void draw(GLFWwindow *window);
+  
   void window_loop();
   void draw_loop();
   void physics_loop();

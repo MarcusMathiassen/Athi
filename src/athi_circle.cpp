@@ -17,41 +17,41 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-vector<std::function<void()>> circle_update_call_buffer; // HACK
-std::unique_ptr<Athi_Circle_Manager> athi_circle_manager; // HACK
+vector<std::function<void()>> circle_update_call_buffer;   // @HACK
+std::unique_ptr<Athi_Circle_Manager> athi_circle_manager;  // @HACK
 
 void Athi_Circle::update() {
-  border_collision(); // this should be inlined
+  border_collision();
 
   float slow = 1.0f;
   if (slowmotion) slow = 0.1f;
-  if (physics_gravity) vel.y -= 9.81f * mass * slow * timestep;
-  
+  if (physics_gravity) vel.y -= 0.000981f * slow * timestep;
+
   // new position and velocity.
-  vel.x += (acc.x * timestep * slow) * 0.99f;
-  vel.y += (acc.y * timestep * slow) * 0.99f;
-  pos.x += (vel.x * timestep * slow) * 0.99f;
-  pos.y += (vel.y * timestep * slow) * 0.99f;
+  vel.x += (acc.x * timestep * slow);
+  vel.y += (acc.y * timestep * slow);
+  pos.x += (vel.x * timestep * slow);
+  pos.y += (vel.y * timestep * slow);
   acc *= 0;
-  
+
   // This should not be needed. DoS.
   transform.pos = glm::vec3(pos.x, pos.y, 0);
 }
 
 void Athi_Circle::border_collision() {
-  if (pos.x <= -1.0f + radius && vel.x < 0.0f) {
+  if (pos.x <= -1.0f + radius) {
     pos.x = -1.0f + radius;
     vel.x = -vel.x;
   }
-  if (pos.x >= 1.0f - radius && vel.x > 0.0f) {
+  if (pos.x >= 1.0f - radius) {
     pos.x = 1.0f - radius;
     vel.x = -vel.x;
   }
-  if (pos.y <= -1.0f + radius && vel.y < 0.0f) {
+  if (pos.y <= -1.0f + radius) {
     pos.y = -1.0f + radius;
     vel.y = -vel.y;
   }
-  if (pos.y >= 1.0f - radius && vel.y > 0.0f) {
+  if (pos.y >= 1.0f - radius) {
     pos.y = 1.0f - radius;
     vel.y = -vel.y;
   }
@@ -68,16 +68,17 @@ bool collision_detection(const Athi_Circle &a, const Athi_Circle &b) {
   // square collision check
   if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br &&
       ay + ar > by - br) {
+
     const float dx = bx - ax;
     const float dy = by - ay;
 
     const float sum_radius = ar + br;
     const float sqr_radius = sum_radius * sum_radius;
 
-    const float distance_sqr = (dx * dx) + (dy * dy);
+    const float distance_sqrd = (dx * dx) + (dy * dy);
 
     // circle collision check
-    if (distance_sqr <= sqr_radius) return true;
+    if (distance_sqrd < sqr_radius) return true;
   }
   return false;
 }
@@ -276,7 +277,7 @@ void Athi_Circle_Manager::init() {
 Athi_Circle_Manager::~Athi_Circle_Manager() {
   glDeleteBuffers(NUM_BUFFERS, VBO);
   glDeleteVertexArrays(1, &VAO);
-  
+
   // OpenCL resource cleanup.
   //
   clReleaseProgram(program);
@@ -339,40 +340,39 @@ void Athi_Circle_Manager::update() {
     // Quadtree or Voxelgrid
     if ((quadtree_active || voxelgrid_active) && openCL_active == false) {
       if (use_multithreading && variable_thread_count != 0) {
-        const u32 thread_count = variable_thread_count;
+        const size_t thread_count = variable_thread_count;
         const size_t total = cont.size();
         const size_t parts = total / thread_count;
+        const size_t leftovers = total % thread_count;
 
-        collision_quadtree(cont, parts * thread_count, total);
-
-        dispatch_queue_t queue =
-            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-
-        dispatch_apply(thread_count, queue, ^(size_t i) {
-          const size_t begin = parts * i;
-          const size_t end = parts * (i + 1);
+        dispatch_apply(
+          thread_count, 
+          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), 
+          ^(size_t i) {
+          const int begin = parts * i;
+          int end = parts * (i + 1);
+          if (i == thread_count-1) end += leftovers;
           collision_quadtree(cont, begin, end);
-          ++i;
         });
       } else
         collision_quadtree(cont, 0, cont.size());
     } else if (use_multithreading && variable_thread_count != 0 &&
                openCL_active == false) {
-      const u32 thread_count = variable_thread_count;
-      const size_t total = circle_buffer.size();
+      const size_t thread_count = variable_thread_count;
+      const size_t total = cont.size();
       const size_t parts = total / thread_count;
+      const size_t leftovers = total % thread_count;
 
-      collision_logNxN(total, parts * thread_count, total);
-
-      dispatch_queue_t queue =
-          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-
-      dispatch_apply(thread_count, queue, ^(size_t i) {
-        const size_t begin = parts * i;
-        const size_t end = parts * (i + 1);
-        collision_logNxN(total, begin, end);
-        ++i;
-      });
+      dispatch_apply(
+        thread_count,
+        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+        ^(size_t i) {
+          const size_t begin = parts * i;
+          size_t end = parts * (i + 1);
+          if (i == thread_count-1) end += leftovers;
+          collision_logNxN(total, begin, end);
+        }
+      );
     }
 
     else if (openCL_active) {
@@ -516,8 +516,9 @@ void Athi_Circle_Manager::collision_quadtree(
 }
 
 void Athi_Circle_Manager::add_circle_multiple(Athi_Circle &circle, int num) {
+#ifdef ATHI_MULTITHREADED
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
-
+#endif
   for (int i = 0; i < num; ++i) {
     circle.id = (u32)circle_buffer.size();
     circle_buffer.emplace_back(circle);
@@ -525,7 +526,9 @@ void Athi_Circle_Manager::add_circle_multiple(Athi_Circle &circle, int num) {
 }
 
 void Athi_Circle_Manager::add_circle(Athi_Circle &circle) {
+#ifdef ATHI_MULTITHREADED
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
+#endif
   circle.id = (u32)circle_buffer.size();
   circle_buffer.emplace_back(circle);
 }
@@ -536,13 +539,18 @@ Athi_Circle Athi_Circle_Manager::get_circle(u32 id) {
 }
 
 void Athi_Circle_Manager::update_circles() {
+#ifdef ATHI_MULTITHREADED
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
+#endif
 
   update();
   if (quadtree_active && draw_debug) {
     quadtree.color_objects(circle_buffer);
   }
+
+  // parallel_for_each(circle_buffer.begin(), circle_buffer.end(), update());
   for (auto &circle : circle_buffer) circle.update();
+
   update_springs();
 
   for (auto &c : circle_update_call_buffer) c();
@@ -550,8 +558,9 @@ void Athi_Circle_Manager::update_circles() {
 }
 
 void Athi_Circle_Manager::draw_circles() {
+#ifdef ATHI_MULTITHREADED
   std::lock_guard<std::mutex> lock(circle_buffer_function_mutex);
-
+#endif
   draw();
   if (voxelgrid_active && draw_debug) draw_voxelgrid();
   if (quadtree_active && draw_debug) {

@@ -133,15 +133,25 @@ void draw_rect(const vec2& min, f32 width, f32 height, const vec4& color,
 }
 
 void draw_hollow_rect(const vec2& min, const vec2& max, const vec4& color) {
+
   render_call([min, max, color]() {
     glBindVertexArray(athi_rect_manager.VAO);
     glUseProgram(athi_rect_manager.shader_program);
 
-    Transform temp{vec3(min, 0), vec3(), vec3(1, 1, 1)};
+    auto max_ = max;
+    auto min_ = min;
+
+
+    max_.x -= 0.002f;
+    max_.y -= 0.002f;
+    min_.x += 0.002f;
+    min_.y += 0.002f;
+
+    Transform temp{vec3(min_, 0), vec3(), vec3(1, 1, 1)};
     // const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
 
-    const f32 width = max.x - min.x;
-    const f32 height = max.y - min.y;
+    const f32 width = max_.x - min_.x;
+    const f32 height = max_.y - min_.y;
     temp.scale = vec3(width, height, 0);
     mat4 trans = temp.get_model();
 

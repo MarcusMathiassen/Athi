@@ -1,6 +1,6 @@
 #include "athi_spring.h"
 
-std::vector<std::unique_ptr<Athi_Spring> > spring_buffer;
+std::vector<std::unique_ptr<Athi_Spring>> spring_buffer;
 
 void add_spring(const Athi_Spring &s) {
   spring_buffer.emplace_back(std::make_unique<Athi_Spring>(s));
@@ -19,8 +19,8 @@ void draw_springs() {
 }
 
 void attach_spring(Athi_Circle &a, Athi_Circle &b) {
-  Athi_Spring spring;
 
+  Athi_Spring spring;
   spring.object = &a;
   spring.anchor = &b;
   spring.length = glm::distance(a.pos, b.pos);

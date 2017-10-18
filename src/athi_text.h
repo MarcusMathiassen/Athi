@@ -12,18 +12,17 @@
 #include "athi_typedefs.h"
 #include "athi_utility.h"
 
-#define TOP 0.92f
-#define BOTTOM -1.0f
-#define LEFT -1.0f
-#define RIGHT 1.0f
+constexpr float TOP = 0.92f;
+constexpr float BOTTOM = -1.0f;
+constexpr float LEFT = -1.0f;
+constexpr float RIGHT = 1.0f;
 
-#define ROW 0.06f
-#define DIST_BETW_CHAR 0.06125f * 0.5f
-
-#define FONT_ATLAS_CHARACTERS_ROWS 16
-#define FONT_ATLAS_CHARACTERS_COLS 16
-#define FONT_ATLAS_CHARACTER_WIDTH 0.06125f
-#define FONT_ATLAS_CHARACTER_HEIGHT 0.06125f
+constexpr float ROW = 0.06f;
+constexpr float DIST_BETW_CHAR = 0.06125f * 0.5f;
+constexpr float FONT_ATLAS_CHARACTERS_ROWS = 16.0f;
+constexpr float FONT_ATLAS_CHARACTERS_COLS = 16.0f;
+constexpr float FONT_ATLAS_CHARACTER_WIDTH = 0.06125f;
+constexpr float FONT_ATLAS_CHARACTER_HEIGHT = 0.06125f;
 
 void draw_all_text();
 void init_text_manager();

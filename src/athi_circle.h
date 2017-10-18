@@ -17,17 +17,20 @@
 #include <CL/cl.h>
 #endif
 
-#define CIRCLE_NUM_VERTICES 12
+#include <glm/vec2.hpp> // glm::vec2
+#include <glm/vec4.hpp> // glm::vec4
+
+#define CIRCLE_NUM_VERTICES 36
 
 extern vector<std::function<void()>> circle_update_call_buffer;
 
 struct Athi_Circle {
-  int id;
-  vec2 pos;
-  vec2 vel;
-  vec2 acc;
-  f32 mass;
-  f32 radius{0.001f};
+  int id{0};
+  glm::vec2 pos{0.0f, 0.0f};
+  vec2 vel{0.0f, 0.0f};
+  vec2 acc{0.0f, 0.0f};
+  float mass{0.0f};
+  float radius{0.001f};
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
   Transform transform;
 
@@ -35,8 +38,6 @@ struct Athi_Circle {
   void border_collision();
   Athi_Circle() = default;
 };
-
-extern std::vector<std::unique_ptr<Athi_Circle>> circle_buffer;
 
 struct Athi_Circle_Manager {
   // OPENCL

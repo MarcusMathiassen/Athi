@@ -3,17 +3,17 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
+#include <dispatch/dispatch.h>  // parallel_for_each()
 #include <condition_variable>
 #include <mutex>
 #include <thread>
 
 #ifdef _WIN32
-#include <windows.h>
+  #include <windows.h>
 #elif __APPLE__
-#include <sys/sysctl.h>
-#include <sys/types.h>
-#include <ctime>
+  #include <sys/sysctl.h>
+  #include <sys/types.h>
+  #include <ctime>
 #endif
 
 #include <cstring>
@@ -26,15 +26,31 @@
 #include "athi_typedefs.h"
 
 void read_file(const char *file, char **buffer);
-void limit_FPS(u32 desired_framerate, f64 time_start_frame);
-void validateShader(const char *file, const char *type, u32 shader);
-void validateShaderProgram(const char *name, u32 shaderProgram);
-u32 createShader(const char *file, const GLenum type);
-u32 get_cpu_freq();
-u32 get_cpu_cores();
-u32 get_cpu_threads();
-string get_cpu_brand();
-vec4 get_universal_current_color();
+void limit_FPS(uint32_t desired_framerate, double time_start_frame);
+void validateShader(const char *file, const char *type, uint32_t shader);
+void validateShaderProgram(const char *name, uint32_t shaderProgram);
+uint32_t createShader(const char *file, const GLenum type);
+uint32_t get_cpu_freq();
+uint32_t get_cpu_cores();
+uint32_t get_cpu_threads();
+std::string get_cpu_brand();
+glm::vec4 get_universal_current_color();
+
+
+template <class It, class F>
+inline void parallel_for_each(It a, It b, F &&f) {
+  const size_t count = std::distance(a, b);
+  using data_t = std::pair<It, F>;
+  data_t helper = data_t(a, std::forward<F>(f));
+  dispatch_apply_f(
+    count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+    &helper, [](void *ctx, size_t cnt) {
+      data_t *d = static_cast<data_t *>(ctx);
+      auto elem_it = std::next(d->first, cnt);
+      (*d).second(*(elem_it));
+    });
+}
+
 
 class Semaphore {
  public:
@@ -61,18 +77,20 @@ class Semaphore {
   int count;
 };
 
-struct SMA {
-  SMA(f64 *var) : var(var) {}
-  f64 *var;
-#define SMA_SAMPLES 50
-  u32 tickindex{0};
-  f64 ticksum{0};
-  f64 ticklist[SMA_SAMPLES];
-  void add_new_frametime(f64 newtick) {
-    ticksum -= ticklist[tickindex];
-    ticksum += newtick;
-    ticklist[tickindex] = newtick;
-    if (++tickindex == SMA_SAMPLES) tickindex = 0;
-    *var = ((f64)ticksum / SMA_SAMPLES);
+template <class T, size_t S>
+class Smooth_Average {
+public:
+  Smooth_Average(T *var) : var(var) {}
+  void add_new_frametime(T newtick) {
+    tick_sum -= tick_list[tick_index];
+    tick_sum += newtick;
+    tick_list[tick_index] = newtick;
+    if (++tick_index == S) tick_index = 0;
+    *var = (static_cast<T>(tick_sum) / S);
   }
+private:
+  T *var;
+  size_t tick_index{0};
+  T tick_sum{0};
+  T tick_list[S];
 };
