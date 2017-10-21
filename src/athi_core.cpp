@@ -54,8 +54,6 @@ void Athi_Core::init() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClearColor(0.15686, 0.17255, 0.20392, 1.0);
 
-  cpu_threads = std::thread::hardware_concurrency();
-
   std::cout << "Status: GL_VERSION  " << glGetString(GL_VERSION) << '\n';
   std::cout << "Status: GL_VENDOR   " << glGetString(GL_VENDOR) << '\n';
   std::cout << "Status: GL_RENDERER " << glGetString(GL_RENDERER) << '\n';
@@ -63,7 +61,7 @@ void Athi_Core::init() {
   std::cout << "Status: Using GLEW " << glewGetString(GLEW_VERSION) << '\n';
   std::cout << "Status: Using GLFW " << glfwGetVersionString() << '\n';
 
-  variable_thread_count = cpu_threads;
+  variable_thread_count = std::thread::hardware_concurrency();
 }
 
 void Athi_Core::start() {
@@ -147,7 +145,7 @@ void Athi_Core::start() {
   circle_size_slider.var = &circle_size;
   circle_size_slider.pos = vec2(LEFT + ROW, BOTTOM + ROW);
   circle_size_slider.min = 0.001f;
-  circle_size_slider.max = 10.0f;
+  circle_size_slider.max = 0.5f;
   add_slider<f32>(&circle_size_slider);
 
   Athi_Slider<size_t> quadtree_depth_slider;
@@ -265,7 +263,6 @@ void Athi_Core::update() {
     update_circles();
     particle_manager.update();
 
-
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     physics_framerate = static_cast<unsigned int>(std::round(1000.0f / smoothed_physics_frametime));
     smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
@@ -285,8 +282,6 @@ void Athi_Core::draw(GLFWwindow *window) {
   draw_springs();
 
   particle_manager.draw();
-
-  std::cout << particle_manager.particles.size() << std::endl;
 
   if (show_settings) draw_UI();
   if (!show_settings) {

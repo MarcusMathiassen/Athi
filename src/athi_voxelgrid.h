@@ -8,8 +8,7 @@
 #include "athi_rect.h"
 #include "athi_typedefs.h"
 
-struct Node
-{
+struct Node {
   Athi::Rect bounds;
   std::vector<int> index;
   Node(const Athi::Rect &r);
@@ -20,13 +19,12 @@ struct Node
   bool contains(int id);
 };
 
-class VoxelGrid
-{
-private:
+class VoxelGrid {
+ private:
   std::vector<std::unique_ptr<Node>> nodes;
   size_t current_voxelgrid_part{4};
 
-public:
+ public:
   void init();
   void update();
   void draw() const;
@@ -38,8 +36,7 @@ extern VoxelGrid athi_voxelgrid;
 static void init_voxelgrid() { athi_voxelgrid.init(); }
 
 static void update_voxelgrid() { athi_voxelgrid.update(); }
-static void get_nodes_voxelgrid(std::vector<std::vector<int>> &cont)
-{
+static void get_nodes_voxelgrid(std::vector<std::vector<int>> &cont) {
   athi_voxelgrid.get(cont);
 }
 

@@ -152,7 +152,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
     voxelgrid_parts *= 4;
   }
 
-  // TEST
+  // TEST CIRCLe
   if (key == GLFW_KEY_B && action == GLFW_PRESS) {
     Athi_Circle c;
     c.radius = circle_size;
@@ -162,6 +162,16 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
         add_circle(c);
       }
   }
+
+  // TEST APRTICLE
+  if (key == GLFW_KEY_N && action == GLFW_PRESS) {
+    for (float i = -1 + circle_size; i < 1; i += circle_size * 2) {
+      for (float j = -1 + circle_size; j < 1; j += circle_size * 2) {
+        particle_manager.add(glm::vec2(i, j), circle_size, glm::vec4(1,1,1,1));
+      }
+    }
+  }
+
 
   // ERASE ALL CIRCLES
   if (key == GLFW_KEY_E && action == GLFW_PRESS) {

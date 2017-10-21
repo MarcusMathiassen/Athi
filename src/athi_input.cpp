@@ -22,7 +22,7 @@ vec2 get_mouse_viewspace_pos() {
   return vec2(mouse_pos_x, mouse_pos_y);
 }
 
-u8 get_mouse_button_state(u8 button) {
+uint8_t get_mouse_button_state(uint8_t button) {
   switch (button) {
     case GLFW_MOUSE_BUTTON_LEFT:
       return athi_input_manager.mouse.left_button.state;
@@ -222,6 +222,10 @@ void update_inputs() {
     c.pos = mouse_pos;
     c.radius = 0.007f;
     add_circle_multiple(c, 20);
+  }
+
+  if (glfwGetKey(context, GLFW_KEY_4) == GLFW_PRESS) {
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
   }
 
   //  CAMERA MOVE

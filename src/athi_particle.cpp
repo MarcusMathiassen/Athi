@@ -3,7 +3,10 @@
 #include "athi_utility.h"
 #include "athi_quadtree.h"
 #include "athi_voxelgrid.h"
+#include "athi_settings.h"
 
+#include <iostream>
+#include <dispatch/dispatch.h>
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/glm.hpp>
 
@@ -13,6 +16,48 @@
 ParticleManager particle_manager;
 
 void ParticleManager::init() {
+
+  std::cout << "OpenCL initializing..\n";
+
+  read_file("../Resources/particle_collision.cl", &kernel_source);
+  if (kernel_source == nullptr)
+    std::cout << "Error: OpenCL missing kernel source.\n";
+
+  // Connect to a compute device
+  err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
+  if (err != CL_SUCCESS)
+    std::cout << "Error: Failed to create a device group!\n";
+
+  // Create a compute context
+  context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
+  if (!context) std::cout << "Error: Failed to create a compute context!\n";
+
+  // Create a command commands
+  commands = clCreateCommandQueue(context, device_id, 0, &err);
+  if (!commands) std::cout << "Error: Failed to create a command commands!\n";
+
+  // Create the compute program from the source buffer
+  program = clCreateProgramWithSource(context, 1, (const char **)&kernel_source,
+                                      NULL, &err);
+  if (!program) std::cout << "Error: Failed to create compute program!\n";
+
+  // Build the program executable
+  err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+  if (err != CL_SUCCESS) {
+    size_t len;
+    char buffer[2048];
+
+    std::cout << "Error: Failed to build program executable!\n";
+    clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG,
+                          sizeof(buffer), buffer, &len);
+    std::cout << buffer << '\n';
+  }
+
+  // Create the compute kernel in the program we wish to run
+  kernel = clCreateKernel(program, "particle_collision", &err);
+  if (!kernel || err != CL_SUCCESS)
+    std::cout << "Error: Failed to create compute kernel!\n";
+
 
   shader_program = glCreateProgram();
   const uint32_t vs = createShader("../Resources/athi_circle_shader.vs", GL_VERTEX_SHADER);
@@ -27,7 +72,7 @@ void ParticleManager::init() {
 
   glLinkProgram(shader_program);
   glValidateProgram(shader_program);
-  validateShaderProgram("circle_manager", shader_program);
+  validateShaderProgram("ParticleManager_init", shader_program);
 
   glDetachShader(shader_program, vs);
   glDetachShader(shader_program, fs);
@@ -37,8 +82,8 @@ void ParticleManager::init() {
   std::vector<glm::vec2> positions;
   positions.reserve(num_verts);
   for (uint32_t i = 0; i < num_verts; ++i) {
-    positions.emplace_back(std::cos(i * M_PI * 2.0f / num_verts),
-                           std::sin(i * M_PI * 2.0f / num_verts));
+    positions.emplace_back(cos(i * M_PI * 2.0f / num_verts),
+                           sin(i * M_PI * 2.0f / num_verts));
   }
 
   // vao
@@ -74,21 +119,137 @@ void ParticleManager::update() {
   if (particles.empty()) return;
 
   if (circle_collision) {
-    const size_t thread_count = variable_thread_count;
-    const size_t total = particles.size();
-    const size_t parts = total / thread_count;
-    const size_t leftovers = total % thread_count;
+    std::vector<std::vector<int>> cont;
 
-    dispatch_apply(
-      thread_count,
-      dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-      ^(size_t i) {
-        const size_t begin = parts * i;
-        size_t end = parts * (i + 1);
-        if (i == thread_count-1) end += leftovers;
-        collision_logNxN(total, begin, end);
+    if (quadtree_active && openCL_active == false) {
+      quadtree = Quadtree<Particle>(quadtree_depth, quadtree_capacity,
+                                       vec2(-1, -1), vec2(1, 1));
+      quadtree.input(particles);
+      quadtree.get(cont);
+    } else if (voxelgrid_active && openCL_active == false) {
+      update_voxelgrid();
+      get_nodes_voxelgrid(cont);
+    }
+    // Quadtree or Voxelgrid
+    if ((quadtree_active || voxelgrid_active) && openCL_active == false) {
+      if (use_multithreading && variable_thread_count != 0) {
+        const size_t thread_count = variable_thread_count;
+        const size_t total = cont.size();
+        const size_t parts = total / thread_count;
+        const size_t leftovers = total % thread_count;
+
+        dispatch_apply(
+          thread_count, 
+          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), 
+          ^(size_t i) {
+          const size_t begin = parts * i;
+          size_t end = parts * (i + 1);
+          if (i == thread_count-1) end += leftovers;
+          collision_quadtree(cont, begin, end);
+        });
+      } else
+        collision_quadtree(cont, 0, cont.size());
+    } else if (use_multithreading && variable_thread_count != 0 &&
+               openCL_active == false) {
+      const size_t thread_count = variable_thread_count;
+      const size_t total = cont.size();
+      const size_t parts = total / thread_count;
+      const size_t leftovers = total % thread_count;
+
+      dispatch_apply(
+        thread_count,
+        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+        ^(size_t i) {
+          const size_t begin = parts * i;
+          size_t end = parts * (i + 1);
+          if (i == thread_count-1) end += leftovers;
+          collision_logNxN(total, begin, end);
+        }
+      );
+    }
+
+    else if (openCL_active) {
+      const unsigned int count = particles.size();
+
+      data.clear();
+      results.clear();
+      data.resize(count);
+      results.resize(count);
+
+      data = particles;
+
+      // Create the input and output arrays in device memory
+      // for our calculation
+      //
+      input  = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * count, NULL, NULL);
+      output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Particle) * count, NULL, NULL);
+      if (!input || !output) {
+        std::cout << "Error: Failed to allocate device "
+                     "memory!\n";
+        exit(1);
       }
-    );
+
+      // Write our data set into the input array in device
+      // memory
+      err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(Particle) * count, &data[0], 0, NULL, NULL);
+      if (err != CL_SUCCESS)
+        printf(
+            "Error: Failed to write to source "
+            "array!\n");
+
+      // Set the arguments to our compute kernel
+      err = 0;
+      err =  clSetKernelArg(kernel, 0, sizeof(cl_mem),       &input);
+      err |= clSetKernelArg(kernel, 1, sizeof(cl_mem),       &output);
+      err |= clSetKernelArg(kernel, 2, sizeof(unsigned int), &count);
+      if (err != CL_SUCCESS) {
+        std::cout << "Error: Failed to set kernel arguments! " << err << '\n';
+        exit(1);
+      }
+
+      // Get the maximum work group size for executing the
+      // kernel o dn the device
+      //
+      err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
+      if (err != CL_SUCCESS) {
+        std::cout << "Error: Failed to retrieve kernel "
+                     "work group info! "
+                  << err << '\n';
+        exit(1);
+      }
+
+      global = count;
+      // err = clEnqueueNDRangeKernel(commands, kernel, 1,
+      // NULL, &global, &local, 0, NULL, NULL);
+      err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0,
+                                   NULL, NULL);
+      if (err) {
+        std::cout << "Error: Failed to execute kernel! " << err << '\n';
+        exit(1);
+      }
+
+      // Wait for the command commands to get serviced before
+      // reading back results
+      clFinish(commands);
+
+      // Read back the results from the device to verify the
+      // output
+      err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0, sizeof(Particle) * count,
+                                &results[0], 0, NULL, NULL);
+      if (err != CL_SUCCESS) {
+        std::cout << "Error: Failed to read output array! " << err << '\n';
+        exit(1);
+      }
+
+      clFinish(commands);
+
+      particles = results;
+    }
+
+    // CPU Singlethreaded
+    else {
+      collision_logNxN(particles.size(), 0, particles.size());
+    }
   }
 
 
@@ -108,7 +269,6 @@ void ParticleManager::update() {
   }
 
   // Update the buffers with the new data.
-  size_t i = 0;
   for (const auto &p : particles) {
     models[p.id] = transforms[p.id].get_model();
   }
@@ -142,16 +302,16 @@ void ParticleManager::draw() const {
 void ParticleManager::add(const glm::vec2 &pos, float radius, const glm::vec4 &color) {
   Particle p;
   p.pos = pos;
+  p.radius = radius;
   p.mass = 1.33333f * M_PI * radius * radius * radius;
   p.id = static_cast<int32_t>(particles.size());
+  particles.emplace_back(p);
 
   Transform t;
   t.pos = glm::vec3(pos.x, pos.y, 0);
   t.scale = glm::vec3(radius, radius, 0);
-  
-  particles.emplace_back(p);
-  radii.emplace_back(radius);
   transforms.emplace_back(t);
+  
   colors.emplace_back(color);
 }
 
@@ -164,8 +324,8 @@ bool ParticleManager::collision_check(const Particle &a, const Particle &b) cons
   const float ay = a.pos.y;
   const float bx = b.pos.x;
   const float by = b.pos.y;
-  const float ar = radii[a.id];
-  const float br = radii[b.id];
+  const float ar = a.radius;
+  const float br = b.radius;
 
   // square collision check
   if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br &&
@@ -225,8 +385,8 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b) {
     const glm::vec2 scal_norm_2_vec = tang * scal_tang_2;
 
     // Update velocities
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.99f;
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec);
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec);
   }
 }
 
@@ -235,8 +395,8 @@ void ParticleManager::separate(Particle &a, Particle &b) {
   // Local variables
   const glm::vec2 a_pos = a.pos;
   const glm::vec2 b_pos = b.pos;
-  const float ar = radii[a.id];
-  const float br = radii[b.id];
+  const float ar = a.radius;
+  const float br = b.radius;
 
   const float collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
 
