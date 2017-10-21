@@ -36,6 +36,8 @@ void Athi_Core::init() {
   window->scene.height = 500;
   window->init();
 
+  particle_manager.init();
+
   // @Cleanup: This is messy. Remove all global variables.
   init_input_manager();
   init_text_manager();
@@ -261,6 +263,8 @@ void Athi_Core::update() {
     const double time_start_frame = glfwGetTime();
 
     update_circles();
+    particle_manager.update();
+
 
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     physics_framerate = static_cast<unsigned int>(std::round(1000.0f / smoothed_physics_frametime));
@@ -279,6 +283,10 @@ void Athi_Core::draw(GLFWwindow *window) {
   draw_rects();
   draw_lines();
   draw_springs();
+
+  particle_manager.draw();
+
+  std::cout << particle_manager.particles.size() << std::endl;
 
   if (show_settings) draw_UI();
   if (!show_settings) {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "athi_particle.h"
 #include "athi_physics_engine.h"
 #include "athi_settings.h"
 #include "athi_slider.h"

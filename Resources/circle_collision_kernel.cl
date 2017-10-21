@@ -9,7 +9,7 @@ typedef struct Transform
 
 typedef struct Athi_Circle
 {
-  unsigned int id;
+  int id;
   float2 pos;
   float2 vel;
   float2 acc;
@@ -134,8 +134,8 @@ void collision_resolve( Athi_Circle *a,  Athi_Circle *b)
     const float2 scal_norm_1_vec = tang * scal_tang_1;
     const float2 scal_norm_2_vec = tang * scal_tang_2;
 
-    a->vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.95f;
-    b->vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.95f;
+    a->vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
+    b->vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.99f;
   }
 }
 
@@ -145,23 +145,7 @@ __kernel void hello(
   __global Athi_Circle* output,
    const unsigned int count)
 {
-  // Get the thread id
-  const int g_id = get_global_id(0);
+  const unsigned int g_id = get_global_id(0);
   
-  //Athi_Circle buff[count];
-  // for (int i = 0; i < count; ++i)
-  // {
-  //   buff[i].pos   = input[i].pos;
-  //   buff[i].vel   = input[i].vel;
-  //   buff[i].color = input[i].color;
-  // }
-
-  // for (size_t i = 0; i < count; ++i)
-  //   for (size_t j = 1 + i; j < count; ++j)
-  //     if (collision_detection(&input[i], &input[j]))
-  //         collision_resolve(&input[i], &input[j]);
-
-  //for (int i = 0; i < count; ++i) separate_circles(&buff[g_id], &buff[i]);
-
   output[g_id] = input[g_id];
 }

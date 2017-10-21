@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include "athi_particle.h"
 #include "athi_camera.h"
 #include "athi_circle.h"
 #include "athi_rect.h"
@@ -43,20 +44,17 @@ struct Athi_Input_Manager {
 
 extern Athi_Input_Manager athi_input_manager;
 
-static void scroll_callback(GLFWwindow *window, double xoffset,
-                            double yoffset) {
+static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
   mouse_size -= yoffset * 0.001f;
   if (mouse_size < 0.000f) mouse_size = 0.001f;
 }
 
-static void cursor_position_callback(GLFWwindow *window, double xpos,
-                                     double ypos) {
+static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
   athi_input_manager.mouse.pos.x = xpos;
   athi_input_manager.mouse.pos.y = ypos;
 }
 
-static void mouse_button_callback(GLFWwindow *window, int button, int action,
-                                  int mods) {
+static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
   switch (button) {
     case GLFW_MOUSE_BUTTON_LEFT:
       athi_input_manager.mouse.left_button.state = action;
@@ -64,16 +62,13 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action,
       athi_input_manager.mouse.right_button.state = action;
   }
 
-  Athi_Circle c;
   s32 width, height;
   glm::vec2 mouse_pos = athi_input_manager.mouse.pos;
   glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
   mouse_pos.x = -1.0f + 2 * mouse_pos.x / width;
   mouse_pos.y = +1.0f - 2 * mouse_pos.y / height;
   if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-    c.pos = mouse_pos;
-    c.radius = circle_size;
-    add_circle(c);
+    particle_manager.add(mouse_pos, circle_size, glm::vec4(1,1,1,1));
   }
 }
 

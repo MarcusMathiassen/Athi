@@ -8,6 +8,7 @@
 #include "athi_spring.h"
 #include "athi_voxelgrid.h"
 
+#include <algorithm>
 #include <dispatch/dispatch.h>
 #include <cassert>
 #include <cmath>
@@ -180,8 +181,7 @@ void Athi_Circle_Manager::init() {
     std::cout << "Error: OpenCL missing kernel source.\n";
 
   // Connect to a compute device
-  err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1,
-                       &device_id, NULL);
+  err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
   if (err != CL_SUCCESS)
     std::cout << "Error: Failed to create a device group!\n";
 
@@ -376,25 +376,20 @@ void Athi_Circle_Manager::update() {
     }
 
     else if (openCL_active) {
-      const auto count = circle_buffer.size();
+      const unsigned int count = circle_buffer.size();
 
       data.clear();
       results.clear();
       data.resize(count);
       results.resize(count);
 
-      // Copy over the results
-      for (size_t i = 0; i < count; ++i) {
-        data[i] = circle_buffer[i];
-      }
+      data = circle_buffer;
 
       // Create the input and output arrays in device memory
       // for our calculation
       //
-      input =
-          clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(data), NULL, NULL);
-      output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(results), NULL,
-                              NULL);
+      input  = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Athi_Circle) * count, NULL, NULL);
+      output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Athi_Circle) * count, NULL, NULL);
       if (!input || !output) {
         std::cout << "Error: Failed to allocate device "
                      "memory!\n";
@@ -403,8 +398,7 @@ void Athi_Circle_Manager::update() {
 
       // Write our data set into the input array in device
       // memory
-      err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(data),
-                                 &data[0], 0, NULL, NULL);
+      err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(Athi_Circle) * count, &data[0], 0, NULL, NULL);
       if (err != CL_SUCCESS)
         printf(
             "Error: Failed to write to source "
@@ -412,9 +406,9 @@ void Athi_Circle_Manager::update() {
 
       // Set the arguments to our compute kernel
       err = 0;
-      err = clSetKernelArg(kernel, 0, sizeof(input), &input);
-      err |= clSetKernelArg(kernel, 1, sizeof(output), &output);
-      err |= clSetKernelArg(kernel, 2, sizeof(count), &count);
+      err =  clSetKernelArg(kernel, 0, sizeof(cl_mem),       &input);
+      err |= clSetKernelArg(kernel, 1, sizeof(cl_mem),       &output);
+      err |= clSetKernelArg(kernel, 2, sizeof(unsigned int), &count);
       if (err != CL_SUCCESS) {
         std::cout << "Error: Failed to set kernel arguments! " << err << '\n';
         exit(1);
@@ -423,9 +417,7 @@ void Athi_Circle_Manager::update() {
       // Get the maximum work group size for executing the
       // kernel o dn the device
       //
-      err =
-          clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE,
-                                   sizeof(local), &local, NULL);
+      err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
       if (err != CL_SUCCESS) {
         std::cout << "Error: Failed to retrieve kernel "
                      "work group info! "
@@ -449,7 +441,7 @@ void Athi_Circle_Manager::update() {
 
       // Read back the results from the device to verify the
       // output
-      err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0, sizeof(results),
+      err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0, sizeof(Athi_Circle) * count,
                                 &results[0], 0, NULL, NULL);
       if (err != CL_SUCCESS) {
         std::cout << "Error: Failed to read output array! " << err << '\n';
@@ -458,12 +450,7 @@ void Athi_Circle_Manager::update() {
 
       clFinish(commands);
 
-      // Copy over the results
-      for (size_t i = 0; i < count; ++i) {
-        circle_buffer[i].pos = results[i].pos;
-        circle_buffer[i].vel = results[i].vel;
-        circle_buffer[i].color = results[i].color;
-      }
+      circle_buffer = results;
     }
 
     // CPU Singlethreaded
