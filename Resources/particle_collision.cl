@@ -9,7 +9,7 @@ typedef struct Particle
   float radius;
 } Particle;
 
-void separate_circles( Particle *a,  Particle *b);
+void separate_circles( Particle *a, Particle *b);
 bool collision_detection( const Particle *a,  const Particle *b);
 void collision_resolve( Particle *a,  Particle *b);
 
@@ -25,7 +25,7 @@ void separate_circles( Particle *a,  Particle *b)
   // distance
   const float distx = pow(b_pos.x - a_pos.x, 2);
   const float disty = pow(b_pos.y - a_pos.y, 2);
-  const float dist = sqrt(distx - disty);
+  const float dist  = sqrt(distx - disty);
   const float collision_depth = (ar + br) - dist;
 
   const float dx = b_pos.x - a_pos.x;
@@ -130,12 +130,16 @@ void collision_resolve( Particle *a,  Particle *b)
 }
 
 // Kernel particle_collision
-__kernel void particle_collision(
-  __global Particle* input,
-  __global Particle* output,
-   const unsigned int count)
+__kernel void particle_collision(__global Particle* input, __global Particle* output, const unsigned int count)
 {
   const unsigned int g_id = get_global_id(0);
+  Particle *p = &input[g_id];
+
+  unsigned int i = 0;
+  for (; i < count; ++i) {
+    Particle *d = &input[i];
+    separate_circles(p, d);
+  }
   
   output[g_id] = input[g_id];
 }

@@ -120,10 +120,11 @@ void ParticleManager::init() {
 
 void ParticleManager::update() {
 
+  // just exit when no particles are present.
   if (particles.empty()) return;
 
   if (circle_collision) {
-    std::vector<std::vector<int>> cont;
+    std::vector<std::vector<int>> cont; // nodes with vec of particle.id's 
 
     if (quadtree_active && openCL_active == false) {
       quadtree = Quadtree<Particle>(quadtree_depth, quadtree_capacity, glm::vec2(-1, -1), glm::vec2(1, 1));

@@ -27,15 +27,15 @@ void collision_resolve( Athi_Circle *a,  Athi_Circle *b);
 void separate_circles( Athi_Circle *a,  Athi_Circle *b)
 {
   // local variables
-  const float2 a_pos = a->pos;
-  const float2 b_pos = b->pos;
-  const float  ar  = a->radius;
-  const float  br  = b->radius;
+  const float2 a_pos =  a->pos;
+  const float2 b_pos =  b->pos;
+  const float  ar    =  a->radius;
+  const float  br    =  b->radius;
 
   // distance
   const float distx = pow(b_pos.x - a_pos.x, 2);
   const float disty = pow(b_pos.y - a_pos.y, 2);
-  const float dist = sqrt(distx - disty);
+  const float dist  = sqrt(distx - disty);
   const float collision_depth = (ar + br) - dist;
 
   const float dx = b_pos.x - a_pos.x;

@@ -4,39 +4,44 @@
 #include "athi_settings.h"
 
 #include <array>
-#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 #include <memory>
 #include <vector>
 
 template <class T>
-class Quadtree {
+class Quadtree
+{
  public:
-  struct Rect {
-    glm::vec2 min, max;
+  struct Rect
+  {
+    glm::vec2 min{0.0f, 0.0f}, max{0.0f, 0.0f};
     glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
     Rect() = default;
-    Rect(const glm::vec2 &min, const glm::vec2 &max) : min(min), max(max) {}
-    bool contains(const glm::vec2 &pos, float radius) const {
-      const auto o = pos;
-      const auto r = radius;
-      if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
-          o.y + r > min.y)
+    Rect(const glm::vec2& min, const glm::vec2& max) : min(min), max(max) {}
+    bool contains(const glm::vec2& pos, float radius) const
+    {
+      if (pos.x - radius < max.x && pos.x + radius > min.x && 
+          pos.y - radius < max.y && pos.y + radius > min.y)
         return true;
       return false;
     }
   };
 
-  Quadtree(size_t level, const Rect &bounds) : bounds(bounds), level(level) {}
-  Quadtree(size_t depth, size_t capacity, const glm::vec2 &min,
-           const glm::vec2 &max)
-      : max_depth(depth), max_capacity(capacity) {
+  Quadtree(size_t level, const Rect& bounds) : bounds(bounds), level(level) {}
+  Quadtree(size_t depth, size_t capacity, const glm::vec2& min, const glm::vec2& max) 
+  : max_depth(depth),
+    max_capacity(capacity)
+  {
     bounds.color = pastel_gray;
     bounds.min = min;
     bounds.max = max;
   }
 
-  void draw_bounds() {
-    if (sw) {
+  void draw_bounds() 
+  {
+    if (sw)
+    {
       sw->bounds.color = pastel_red;
       se->bounds.color = pastel_gray;
       nw->bounds.color = pastel_orange;
@@ -48,15 +53,16 @@ class Quadtree {
       return;
     }
 
-    // Only draw the nodes with objects in them.
     if (!indices.empty() && quadtree_show_only_occupied)
       draw_hollow_rect(bounds.min, bounds.max, bounds.color);
     else if (!quadtree_show_only_occupied)
       draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
 
-  void color_objects(std::vector<glm::vec4> &color) const {
-    if (sw) {
+  void color_objects(std::vector<glm::vec4>& color) const
+  {
+    if (sw)
+    {
       sw->bounds.color = pastel_red;
       se->bounds.color = pastel_gray;
       nw->bounds.color = pastel_orange;
@@ -68,19 +74,24 @@ class Quadtree {
       return;
     }
 
-    for (const auto id : indices) color[id] = bounds.color;
+    for (const auto id : indices) 
+      color[id] = bounds.color;
   }
 
-  void input(const std::vector<T> &data_) {
+  void input(const std::vector<T>& data_)
+  {
     data = data_;
     indices.reserve(max_capacity);
-    for (const auto &obj : data) {
+    for (const auto& obj : data)
+    {
       insert(obj.id);
     }
   }
 
-  void get(std::vector<std::vector<int>> &cont) const {
-    if (sw) {
+  void get(std::vector<std::vector<int>>& cont) const
+  {
+    if (sw)
+    {
       sw->get(cont);
       se->get(cont);
       nw->get(cont);
@@ -88,14 +99,15 @@ class Quadtree {
       return;
     }
 
-    if (!indices.empty()) {
+    if (!indices.empty())
+    {
       cont.emplace_back(indices);
     }
   }
 
  private:
-  // This is a comment
-  void split() {
+  void split()
+  {
     const glm::vec2 min = bounds.min;
     const glm::vec2 max = bounds.max;
 
@@ -118,8 +130,10 @@ class Quadtree {
     ne = std::make_unique<Quadtree<T>>(level + 1, NE);
   }
 
-  void insert(size_t id) {
-    if (sw) {
+  void insert(size_t id)
+  {
+    if (sw)
+    {
       if (sw->contains(id)) sw->insert(id);
       if (se->contains(id)) se->insert(id);
       if (nw->contains(id)) nw->insert(id);
@@ -129,10 +143,12 @@ class Quadtree {
 
     indices.emplace_back(id);
 
-    if (indices.size() > max_capacity && level < max_depth) {
+    if (indices.size() > max_capacity && level < max_depth)
+    {
       split();
 
-      for (const auto index : indices) {
+      for (const auto index : indices)
+      {
         if (sw->contains(index)) sw->insert(index);
         if (se->contains(index)) se->insert(index);
         if (nw->contains(index)) nw->insert(index);
@@ -142,7 +158,8 @@ class Quadtree {
     }
   }
 
-  bool contains(size_t id) const {
+  bool contains(size_t id) const
+  {
     return bounds.contains(data[id].pos, data[id].radius);
   }
 

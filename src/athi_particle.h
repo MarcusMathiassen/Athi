@@ -13,7 +13,6 @@
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
-#include <glm/glm.hpp>
 #include <vector>
 
 struct Particle {
@@ -25,7 +24,6 @@ struct Particle {
   float radius{0.0f};
 
   void update() {
-
     float slow = 1.0f;
     if (slowmotion) slow = 0.1f;
 
@@ -84,9 +82,8 @@ struct ParticleManager {
   char *kernel_source{nullptr};
   size_t global;  // global domain size for our calculation
   size_t local;   // local domain size for our calculation
-  // unsigned int begin;
-  // unsigned int end;
-  bool gpu{true};
+
+  static constexpr bool gpu{true};
   std::vector<Particle> data;
   std::vector<Particle> results;
 
