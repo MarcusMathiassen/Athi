@@ -71,6 +71,7 @@ struct Athi_Circle_Manager {
   Quadtree<Athi_Circle> quadtree = Quadtree<Athi_Circle>(
       quadtree_depth, quadtree_capacity, glm::vec2(-1, -1), glm::vec2(1, 1));
 
+  VoxelGrid<Athi_Circle> voxelgrid = VoxelGrid<Athi_Circle>();
   void add_circle(Athi_Circle &circle);
   void add_circle_multiple(Athi_Circle &circle, int num);
   void update_circles();

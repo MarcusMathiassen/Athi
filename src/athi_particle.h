@@ -7,19 +7,20 @@
 
 #ifdef __APPLE__
 #include <OpenCL/OpenCL.h>
-#else 
+#else
 #include <CL/cl.h>
 #endif
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
+#include <glm/mat4.hpp>
 #include <vector>
 
 struct Particle {
-  int32_t id;               
-  glm::vec2 pos{0.0f, 0.0f}; 
-  glm::vec2 vel{0.0f, 0.0f}; 
-  glm::vec2 acc{0.0f, 0.0f}; 
+  int32_t id;
+  glm::vec2 pos{0.0f, 0.0f};
+  glm::vec2 vel{0.0f, 0.0f};
+  glm::vec2 acc{0.0f, 0.0f};
   float mass;
   float radius;
 
@@ -59,12 +60,14 @@ struct ParticleManager {
 
   static constexpr int32_t num_verts{36};
 
-  std::vector<Particle>   particles;   
-  std::vector<Transform>  transforms;   
-  std::vector<glm::vec4>  colors;      
-  std::vector<glm::mat4>  models;       
+  std::vector<Particle>   particles;
+  std::vector<Transform>  transforms;
+  std::vector<glm::vec4>  colors;
+  std::vector<glm::mat4>  models;
+
 
   Quadtree<Particle> quadtree = Quadtree<Particle>(quadtree_depth, quadtree_capacity, glm::vec2(-1, -1), glm::vec2(1, 1));
+  VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
 
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
   uint32_t vao;

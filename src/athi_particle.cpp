@@ -127,8 +127,8 @@ void ParticleManager::update() {
       quadtree.input(particles);
       quadtree.get(cont);
     } else if (voxelgrid_active && openCL_active == false) {
-      update_voxelgrid();
-      get_nodes_voxelgrid(cont);
+      voxelgrid.input(particles);
+      voxelgrid.get(cont);
     }
     // Quadtree or Voxelgrid
     if ((quadtree_active || voxelgrid_active) && openCL_active == false) {
@@ -139,8 +139,8 @@ void ParticleManager::update() {
         const size_t leftovers = total % thread_count;
 
         dispatch_apply(
-          thread_count, 
-          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), 
+          thread_count,
+          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
           ^(size_t i) {
           const size_t begin = parts * i;
           size_t end = parts * (i + 1);
@@ -311,7 +311,7 @@ void ParticleManager::add(const glm::vec2 &pos, float radius, const glm::vec4 &c
   t.pos = glm::vec3(pos.x, pos.y, 0);
   t.scale = glm::vec3(radius, radius, 0);
   transforms.emplace_back(t);
-  
+
   colors.emplace_back(color);
 }
 

@@ -16,7 +16,6 @@
 #include "athi_text.h"
 #include "athi_ui_list.h"
 #include "athi_utility.h"
-#include "athi_voxelgrid.h"
 
 #include <dispatch/dispatch.h>
 #include <iostream>
@@ -29,7 +28,7 @@
 Smooth_Average<double, 50> smooth_frametime_avg(&smoothed_frametime);
 Smooth_Average<double, 50> smooth_physics_rametime_avg(&smoothed_physics_frametime);
 
-void Athi_Core::init() {  
+void Athi_Core::init() {
 
   window = std::make_unique<Athi_Window>();
   window->scene.width = 500;
@@ -44,7 +43,6 @@ void Athi_Core::init() {
   init_rect_manager();
   init_circle_manager();
   init_line_manager();
-  init_voxelgrid();
 
   //glEnable(GL_FRAMEBUFFER_SRGB);
   //glEnable(GL_LINE_SMOOTH);

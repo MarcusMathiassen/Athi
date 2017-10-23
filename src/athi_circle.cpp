@@ -334,8 +334,8 @@ void Athi_Circle_Manager::update() {
       quadtree.input(circle_buffer);
       quadtree.get(cont);
     } else if (voxelgrid_active && openCL_active == false) {
-      update_voxelgrid();
-      get_nodes_voxelgrid(cont);
+      voxelgrid.input(circle_buffer);
+      voxelgrid.get(cont);
     }
     // Quadtree or Voxelgrid
     if ((quadtree_active || voxelgrid_active) && openCL_active == false) {
@@ -346,8 +346,8 @@ void Athi_Circle_Manager::update() {
         const size_t leftovers = total % thread_count;
 
         dispatch_apply(
-          thread_count, 
-          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), 
+          thread_count,
+          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
           ^(size_t i) {
           const int begin = parts * i;
           int end = parts * (i + 1);
