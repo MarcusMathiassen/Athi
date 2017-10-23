@@ -5,6 +5,7 @@
 #include "athi_renderer.h"
 #include "athi_transform.h"
 #include "athi_utility.h"
+#include "athi_particle.h"
 
 #include <iostream>
 
@@ -14,8 +15,8 @@ Athi_Rect_Manager athi_rect_manager;
 
 namespace Athi {
 bool Rect::contains(u32 id) {
-  auto circle_pos = athi_circle_manager->circle_buffer[id].pos;
-  auto circle_radius = athi_circle_manager->circle_buffer[id].radius;
+  auto circle_pos = particle_manager.particles[id].pos;
+  auto circle_radius = particle_manager.particles[id].radius;
 
   const vec2 o = circle_pos;
   const f32 r = circle_radius;

@@ -1,5 +1,6 @@
 #include "athi_input.h"
 #include "athi_circle.h"
+#include "athi_particle.h"
 #include "athi_line.h"
 #include "athi_rect.h"
 #include "athi_renderer.h"
@@ -33,7 +34,7 @@ uint8_t get_mouse_button_state(uint8_t button) {
 }
 
 // Adds force to the object 'a'
-void gravitational_force(Athi_Circle &a, const vec2 &point) {
+void gravitational_force(Particle &a, const vec2 &point) {
   // Set up variables
   const f32 x1 = a.pos.x;
   const f32 y1 = a.pos.y;
@@ -57,7 +58,7 @@ void gravitational_force(Athi_Circle &a, const vec2 &point) {
   }
 }
 
-void attraction_force(Athi_Circle &a, const vec2 &point) {
+void attraction_force(Particle &a, const vec2 &point) {
   // Set up variables
   const f32 x1 = a.pos.x;
   const f32 y1 = a.pos.y;
@@ -95,14 +96,14 @@ void mouse_attach_spring() {
   s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
   if (attach) {
-    attach_spring(athi_circle_manager->circle_buffer[id1],
-                  athi_circle_manager->circle_buffer[id2]);
+    attach_spring(particle_manager.particles[id1],
+                  particle_manager.particles[id2]);
     attach = false;
   }
 
   // If mouse released and first circle is found
   if (state == GLFW_RELEASE && found) {
-    for (auto &c : athi_circle_manager->circle_buffer) {
+    for (auto &c : particle_manager.particles) {
       if (mouse_rect.contains(c.id)) {
         id2 = c.id;
         attach = true;
@@ -114,14 +115,14 @@ void mouse_attach_spring() {
 
   // draw a line while we look for the second circle
   if (state == GLFW_PRESS && found) {
-    draw_line(mouse_pos, athi_circle_manager->circle_buffer[id1].pos, 0.03f,
+    draw_line(mouse_pos, particle_manager.particles[id1].pos, 0.03f,
               pastel_pink);
     return;
   }
 
   // When the mouse is pressed down, get the first circle id
   if (state == GLFW_PRESS) {
-    for (auto &c : athi_circle_manager->circle_buffer) {
+    for (auto &c : particle_manager.particles) {
       if (mouse_rect.contains(c.id)) {
         id1 = c.id;
         found = true;
@@ -156,21 +157,21 @@ void mouse_grab() {
   if (last_state == ATTACHED) {
     if (mouse_grab_multiple) {
       for (auto &id : mouse_attached_to) {
-        attraction_force(athi_circle_manager->circle_buffer[id], mouse_pos);
+        attraction_force(particle_manager.particles[id], mouse_pos);
         last_state = ATTACHED;
         if (show_mouse_grab_lines)
-          draw_line(mouse_pos, athi_circle_manager->circle_buffer[id].pos,
+          draw_line(mouse_pos, particle_manager.particles[id].pos,
                     0.03f, pastel_pink);
       }
     } else  // single
     {
       attraction_force(
-          athi_circle_manager->circle_buffer[mouse_attached_to_single],
+          particle_manager.particles[mouse_attached_to_single],
           mouse_pos);
       if (show_mouse_grab_lines)
         draw_line(
             mouse_pos,
-            athi_circle_manager->circle_buffer[mouse_attached_to_single].pos,
+            particle_manager.particles[mouse_attached_to_single].pos,
             0.03f, pastel_pink);
     }
     mouse_busy_UI = true;
@@ -178,7 +179,7 @@ void mouse_grab() {
 
   // Go through all circles. Return the circle hovered
   if (last_state != ATTACHED) {
-    for (auto &c : athi_circle_manager->circle_buffer) {
+    for (auto &c : particle_manager.particles) {
       // If the mouse and circle intersect
       if (mouse_rect.contains(c.id)) {
         if (mouse_grab_multiple) {
@@ -202,29 +203,19 @@ void update_inputs() {
   } else
     mouse_grab();
 
-  Athi_Circle c;
-  if (glfwGetKey(context, GLFW_KEY_SPACE) == GLFW_PRESS) {
-    c.pos = mouse_pos;
-    c.radius = circle_size;
-    add_circle_multiple(c, 20);
-  }
-  if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
-    c.pos = mouse_pos;
-    c.radius = 0.003f;
-    add_circle_multiple(c, 20);
-  }
-  if (glfwGetKey(context, GLFW_KEY_2) == GLFW_PRESS) {
-    c.pos = mouse_pos;
-    c.radius = 0.005f;
-    add_circle_multiple(c, 20);
-  }
-  if (glfwGetKey(context, GLFW_KEY_3) == GLFW_PRESS) {
-    c.pos = mouse_pos;
-    c.radius = 0.007f;
-    add_circle_multiple(c, 20);
-  }
-
   if (glfwGetKey(context, GLFW_KEY_4) == GLFW_PRESS) {
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
     particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
   }
 

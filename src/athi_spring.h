@@ -1,6 +1,7 @@
 #pragma once
 
 #include "athi_circle.h"
+#include "athi_particle.h"
 #include "athi_line.h"
 #include "athi_settings.h"
 #include "athi_typedefs.h"
@@ -11,8 +12,8 @@
 #include <iostream>
 
 struct Athi_Spring {
-  Athi_Circle *object;
-  Athi_Circle *anchor;
+  Particle *object;
+  Particle *anchor;
   float length;
   float k{0.2f};
   float b{1.0f};
@@ -46,7 +47,7 @@ struct Athi_Spring {
 };
 
 extern std::vector<std::unique_ptr<Athi_Spring>> spring_buffer;
-void attach_spring(Athi_Circle &a, Athi_Circle &b);
+void attach_spring(Particle &a, Particle &b);
 void draw_springs();
 void update_springs();
 void add_spring(const Athi_Spring &s);

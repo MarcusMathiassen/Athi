@@ -242,7 +242,7 @@ void Athi_Core::start() {
     frametime_text.str = "Renderer: " + std::to_string(smoothed_frametime) + "ms";
     physics_frametime_text.str =
         "Physics: " + std::to_string(physics_framerate) + "iters / frame | " + std::to_string(smoothed_physics_frametime) + "ms";
-    circle_info_text.str = "Circles: " + std::to_string(get_num_circles());
+    circle_info_text.str = "Circles: " + std::to_string(particle_manager.particles.size());
     draw(window_context);
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
@@ -258,7 +258,6 @@ void Athi_Core::update() {
   while (time_passed < 1000.0/60.0) {
     const double time_start_frame = glfwGetTime();
 
-    update_circles();
     particle_manager.update();
 
     physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
@@ -274,7 +273,6 @@ void Athi_Core::draw(GLFWwindow *window) {
   const double time_start_frame = glfwGetTime();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  draw_circles();
   draw_rects();
   draw_lines();
   draw_springs();
@@ -325,7 +323,7 @@ void Athi_Core::draw_loop() {
     frametime_text.str = "Render:  " + std::to_string(framerate) + "fps | " + std::to_string(smoothed_frametime) + "ms";
     physics_frametime_text.str =
         "Physics: " + std::to_string(physics_framerate) + "iters / frame | " + std::to_string(smoothed_physics_frametime) + "ms";
-    circle_info_text.str = "Circles: " + std::to_string(get_num_circles());
+    circle_info_text.str = "Circles: " + std::to_string(particle_manager.particles.size());
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

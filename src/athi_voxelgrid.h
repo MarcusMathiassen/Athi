@@ -1,27 +1,59 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 #include "athi_settings.h"
 #include "athi_rect.h"
+#include "athi_utility.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-struct Node;
+struct Rect {
+  glm::vec2 min{0.0f, 0.0f}, max{0.0f, 0.0f};
+  glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+  Rect(const glm::vec2 &min, const glm::vec2 &max) : min(min), max(max) {}
+  bool contains(const glm::vec2 &pos, float radius) const {
+    if (pos.x - radius < max.x && pos.x + radius > min.x && 
+        pos.y - radius < max.y && pos.y + radius > min.y)
+      return true;
+    return false;
+  }
+};
 
 template <class T>
 class VoxelGrid {
 protected:
   static std::vector<T> data;
 private:
+  struct Node : public VoxelGrid {
+    Rect bounds;
+    std::vector<int> index;
+    Node(const Rect &r) : bounds{r} {}
+    void insert(int id) { 
+      index.emplace_back(id); 
+    }
+    void get(std::vector<std::vector<int>> &cont) {
+      cont.emplace_back(index);
+    }
+    void draw_bounds() const {
+        draw_hollow_rect(bounds.min, bounds.max, bounds.color);
+    }
+    void color_objects(std::vector<glm::vec4> &color) const {
+      for (const auto i : index) {
+        color[i] = bounds.color;
+      }
+    }
+
+    bool contains(int id) { return bounds.contains(this->data[id].pos, this->data[id].radius); }
+  };
+
   std::vector<std::unique_ptr<Node>> nodes;
-  size_t current_voxelgrid_part{4};
+  static size_t current_voxelgrid_part;
+
  public:
   void init() {
-    //-----------------------------------------------------------------------------------
-    // The nodes are cleared and given an element in the grid.
-    //-----------------------------------------------------------------------------------
     nodes.clear();
 
     const float sqrtGrid = sqrt(voxelgrid_parts);
@@ -39,11 +71,6 @@ private:
     current_voxelgrid_part = voxelgrid_parts;
   };
 
-  //-----------------------------------------------------------------------------------
-  // Goes through every node and fills it with objects from the
-  // main-container, any object that fits within the nodes boundaries will
-  // be added to the nodes object-container.
-  //-----------------------------------------------------------------------------------
   void input(const std::vector<T> &objects) {
     if (voxelgrid_parts != current_voxelgrid_part) init();
     data = objects;
@@ -51,17 +78,21 @@ private:
     for (const auto &obj : data) {
       const auto id = obj.id;
 
-    for (const auto &node : nodes)
-        if (node->contains(id)) node->insert(id);
+      for (auto &node : nodes) {
+        if (node->contains(id)) {
+          node->insert(id);
+        }
+      }
     }
   }
-  void draw() const {
-    //-----------------------------------------------------------------------------------
-    // Draws the nodes boundaries to screen and colors the objects within
-    // each node with the nodes color.
-    //-----------------------------------------------------------------------------------
+  void color_objects(std::vector<glm::vec4> &color) const {
     for (const auto &node : nodes) {
-      node->draw();
+      node->color_objects(color);
+    }
+  }
+  void draw_bounds() const {
+    for (const auto &node : nodes) {
+      node->draw_bounds();
     }
   }
   void get(std::vector<std::vector<int>> &cont) const {
@@ -69,39 +100,14 @@ private:
         node->get(cont);
     }
   }
-};
-
-
-struct Node : public VoxelGrid {
-  struct Rect {
-    glm::vec2 min, max;
-    glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
-    Rect() = default;
-    Rect(const glm::vec2 &min, const glm::vec2 &max) : min(min), max(max) {}
-    bool contains(const glm::vec2 &pos, float radius) const {
-      const auto o = pos;
-      const auto r = radius;
-      if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
-          o.y + r > min.y)
-        return true;
-      return false;
-    }
-  };
-
-  Rect bounds;
-  std::vector<int> index;
-  Node(const Rect &r) : bounds{r} {}
-  void insert(int id) { index.emplace_back(id); }
-  void get(std::vector<std::vector<int>> &cont) {
-    cont.emplace_back(index);
-    index.clear();
+  void reset() {
+    for (auto &node : nodes)
+      node->index.clear();
   }
-  void draw() const {
-      draw_hollow_rect(bounds.min, bounds.max, bounds.color);
-  }
-
-  bool contains(int id) { return bounds.contains(this->data[id].pos, this->data[id].radius); }
 };
 
 template <class T>
 std::vector<T> VoxelGrid<T>::data;
+
+template <class T>
+size_t VoxelGrid<T>::current_voxelgrid_part{0};

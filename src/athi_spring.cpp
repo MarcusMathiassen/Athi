@@ -18,7 +18,7 @@ void draw_springs() {
   }
 }
 
-void attach_spring(Athi_Circle &a, Athi_Circle &b) {
+void attach_spring(Particle &a, Particle &b) {
 
   Athi_Spring spring;
   spring.object = &a;

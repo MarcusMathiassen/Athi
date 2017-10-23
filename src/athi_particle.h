@@ -13,27 +13,30 @@
 
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
-#include <glm/mat4.hpp>
+#include <glm/glm.hpp>
 #include <vector>
 
 struct Particle {
-  int32_t id;
+  int32_t id{0};
   glm::vec2 pos{0.0f, 0.0f};
   glm::vec2 vel{0.0f, 0.0f};
   glm::vec2 acc{0.0f, 0.0f};
-  float mass;
-  float radius;
+  float mass{0.0f};
+  float radius{0.0f};
 
   void update() {
 
+    float slow = 1.0f;
+    if (slowmotion) slow = 0.1f;
+
     // Apply gravity
-    if (physics_gravity) vel.y -= 0.000981f * timestep;
+    if (physics_gravity) vel.y -= 0.000981f  * timestep;
 
     // Update pos/vel/acc
-    vel.x += (acc.x * timestep);
-    vel.y += (acc.y * timestep);
-    pos.x += (vel.x * timestep);
-    pos.y += (vel.y * timestep);
+    vel.x += (acc.x * timestep * slow);
+    vel.y += (acc.y * timestep * slow);
+    pos.x += (vel.x * timestep * slow);
+    pos.y += (vel.y * timestep * slow);
     acc *= 0;
 
     // Border collision
@@ -65,7 +68,6 @@ struct ParticleManager {
   std::vector<glm::vec4>  colors;
   std::vector<glm::mat4>  models;
 
-
   Quadtree<Particle> quadtree = Quadtree<Particle>(quadtree_depth, quadtree_capacity, glm::vec2(-1, -1), glm::vec2(1, 1));
   VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
 
@@ -82,8 +84,8 @@ struct ParticleManager {
   char *kernel_source{nullptr};
   size_t global;  // global domain size for our calculation
   size_t local;   // local domain size for our calculation
-  unsigned int begin;
-  unsigned int end;
+  // unsigned int begin;
+  // unsigned int end;
   bool gpu{true};
   std::vector<Particle> data;
   std::vector<Particle> results;

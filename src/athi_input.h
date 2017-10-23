@@ -7,7 +7,6 @@
 #include <iostream>
 #include "athi_particle.h"
 #include "athi_camera.h"
-#include "athi_circle.h"
 #include "athi_rect.h"
 #include "athi_settings.h"
 #include "athi_typedefs.h"
@@ -152,17 +151,6 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
     voxelgrid_parts *= 4;
   }
 
-  // TEST CIRCLe
-  if (key == GLFW_KEY_B && action == GLFW_PRESS) {
-    Athi_Circle c;
-    c.radius = circle_size;
-    for (float i = -1 + c.radius; i < 1; i += c.radius * 2)
-      for (float j = -1 + c.radius; j < 1; j += c.radius * 2) {
-        c.pos = vec2(i, j);
-        add_circle(c);
-      }
-  }
-
   // TEST APRTICLE
   if (key == GLFW_KEY_N && action == GLFW_PRESS) {
     for (float i = -1 + circle_size; i < 1; i += circle_size * 2) {
@@ -175,6 +163,6 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
   // ERASE ALL CIRCLES
   if (key == GLFW_KEY_E && action == GLFW_PRESS) {
-    delete_circles();
+    particle_manager.erase_all();
   }
 }

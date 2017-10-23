@@ -35,18 +35,16 @@ class Quadtree {
     bounds.max = max;
   }
 
-  void draw() {
+  void draw_bounds() {
     if (sw) {
-#ifdef DEBUG
       sw->bounds.color = pastel_red;
       se->bounds.color = pastel_gray;
       nw->bounds.color = pastel_orange;
       ne->bounds.color = pastel_pink;
-#endif
-      sw->draw();
-      se->draw();
-      nw->draw();
-      ne->draw();
+      sw->draw_bounds();
+      se->draw_bounds();
+      nw->draw_bounds();
+      ne->draw_bounds();
       return;
     }
 
@@ -57,20 +55,20 @@ class Quadtree {
       draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
 
-  void color_objects(std::vector<T> &obj) const {
+  void color_objects(std::vector<glm::vec4> &color) const {
     if (sw) {
       sw->bounds.color = pastel_red;
       se->bounds.color = pastel_gray;
       nw->bounds.color = pastel_orange;
       ne->bounds.color = pastel_pink;
-      sw->color_objects(obj);
-      se->color_objects(obj);
-      nw->color_objects(obj);
-      ne->color_objects(obj);
+      sw->color_objects(color);
+      se->color_objects(color);
+      nw->color_objects(color);
+      ne->color_objects(color);
       return;
     }
 
-    for (const auto id : indices) obj[id].color = bounds.color;
+    for (const auto id : indices) color[id] = bounds.color;
   }
 
   void input(const std::vector<T> &data_) {

@@ -17,10 +17,11 @@ ParticleManager particle_manager;
 
 void ParticleManager::init() {
 
+  // OpenCL init
+  //
   std::cout << "OpenCL initializing..\n";
-
   read_file("../Resources/particle_collision.cl", &kernel_source);
-  if (kernel_source == nullptr)
+  if (!kernel_source)
     std::cout << "Error: OpenCL missing kernel source.\n";
 
   // Connect to a compute device
@@ -58,7 +59,10 @@ void ParticleManager::init() {
   if (!kernel || err != CL_SUCCESS)
     std::cout << "Error: Failed to create compute kernel!\n";
 
+  ///////////////////////////
 
+
+  // Shaders
   shader_program = glCreateProgram();
   const uint32_t vs = createShader("../Resources/athi_circle_shader.vs", GL_VERTEX_SHADER);
   const uint32_t fs = createShader("../Resources/athi_circle_shader.fs", GL_FRAGMENT_SHADER);
@@ -122,11 +126,11 @@ void ParticleManager::update() {
     std::vector<std::vector<int>> cont;
 
     if (quadtree_active && openCL_active == false) {
-      quadtree = Quadtree<Particle>(quadtree_depth, quadtree_capacity,
-                                       vec2(-1, -1), vec2(1, 1));
+      quadtree = Quadtree<Particle>(quadtree_depth, quadtree_capacity, glm::vec2(-1, -1), glm::vec2(1, 1));
       quadtree.input(particles);
       quadtree.get(cont);
     } else if (voxelgrid_active && openCL_active == false) {
+      voxelgrid.reset();
       voxelgrid.input(particles);
       voxelgrid.get(cont);
     }
@@ -140,7 +144,7 @@ void ParticleManager::update() {
 
         dispatch_apply(
           thread_count,
-          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
           ^(size_t i) {
           const size_t begin = parts * i;
           size_t end = parts * (i + 1);
@@ -158,7 +162,7 @@ void ParticleManager::update() {
 
       dispatch_apply(
         thread_count,
-        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
         ^(size_t i) {
           const size_t begin = parts * i;
           size_t end = parts * (i + 1);
@@ -252,6 +256,14 @@ void ParticleManager::update() {
     }
   }
 
+  if (quadtree_active && draw_debug) {
+    quadtree.color_objects(colors);
+    quadtree.draw_bounds();
+  }
+  if (voxelgrid_active && draw_debug) {
+    voxelgrid.color_objects(colors);
+    voxelgrid.draw_bounds();
+  }
 
   for (auto &p : particles) {
 
@@ -317,6 +329,8 @@ void ParticleManager::add(const glm::vec2 &pos, float radius, const glm::vec4 &c
 
 void ParticleManager::erase_all() {
   particles.clear();
+  colors.clear();
+  transforms.clear();
 }
 
 bool ParticleManager::collision_check(const Particle &a, const Particle &b) const {
@@ -385,8 +399,8 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b) {
     const glm::vec2 scal_norm_2_vec = tang * scal_tang_2;
 
     // Update velocities
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec);
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec);
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.99f;
   }
 }
 
