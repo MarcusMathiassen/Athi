@@ -22,12 +22,12 @@ extern bool draw_debug;
 extern bool show_fps_info;
 
 extern bool voxelgrid_active;
-extern size_t voxelgrid_parts;
+extern int32_t voxelgrid_parts;
 
 extern bool quadtree_show_only_occupied;
 extern bool quadtree_active;
-extern size_t quadtree_depth;
-extern size_t quadtree_capacity;
+extern int32_t quadtree_depth;
+extern int32_t quadtree_capacity;
 
 extern double timestep;
 extern double physics_frametime;

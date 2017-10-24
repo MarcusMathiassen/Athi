@@ -47,13 +47,13 @@ void Athi_Core::init() {
 
   variable_thread_count = std::thread::hardware_concurrency();  
 
-  int width, height;
-  glfwGetFramebufferSize(window.get_window_context(), &width, &height);
-  const float font_retina_scale = static_cast<float>(width) / static_cast<float>(height);
+  //int width, height;
+  //glfwGetFramebufferSize(window.get_window_context(), &width, &height);
+  //const float font_retina_scale = static_cast<float>(width) / static_cast<float>(height);
   ImGui_ImplGlfwGL3_Init(window.get_window_context(), false);
-  ImGuiIO& io = ImGui::GetIO();
-  io.FontGlobalScale = 1.0f / font_retina_scale;
-  io.Fonts->AddFontFromFileTTF("../Resources/DroidSans.ttf", 12 * font_retina_scale , NULL, io.Fonts->GetGlyphRangesJapanese());
+  //ImGuiIO& io = ImGui::GetIO();
+  //io.FontGlobalScale = 1.0f / font_retina_scale;
+  //io.Fonts->AddFontFromFileTTF("../Resources/DroidSans.ttf", 12 * font_retina_scale , NULL, io.Fonts->GetGlyphRangesJapanese());
 
   auto console = spd::stdout_color_mt("Athi");
   console->info("Initializing Athi..");
@@ -104,22 +104,45 @@ void Athi_Core::draw(GLFWwindow *window) {
   if (show_settings)
   {
     ImGui_ImplGlfwGL3_NewFrame();    
-    ImGui::Begin("Menu");
-    ImGui::Text("total     %d fps %.3f ms", framerate, smoothed_frametime); ImGui::SameLine(); ImGui::Checkbox("VSync", &vsync);
-    ImGui::Text("rendering %d fps %.3f ms", render_framerate, smoothed_render_frametime);
-    ImGui::Text("updating  %d fps %.3f ms", physics_framerate, smoothed_physics_frametime);   
-    ImGui::Checkbox("Use Multithreading", &use_multithreading);
-    ImGui::Checkbox("Draw debug", &draw_debug);
-
-    ImGui::InputInt("Number of threads", &variable_thread_count);
+    ImGui::Begin("Settings");
+    ImGui::Text("Particles: %lu", particle_manager.particles.size());
+    ImGui::Text("Total: %d fps %.3f ms", framerate, smoothed_frametime); ImGui::SameLine(); ImGui::Checkbox("VSync", &vsync);
+    ImGui::Text("Rendering: %d fps %.3f ms", render_framerate, smoothed_render_frametime);
+    ImGui::Text("Updating:  %d fps %.3f ms", physics_framerate, smoothed_physics_frametime);   
+    ImGui::Checkbox("Gravity", &physics_gravity);
+    ImGui::Checkbox("Collision", &circle_collision);
+    ImGui::Checkbox("OpenCL", &openCL_active);
+    ImGui::Checkbox("Multithreaded", &use_multithreading); ImGui::SameLine(); ImGui::InputInt("", &variable_thread_count);
+    ImGui::Checkbox("Debug", &draw_debug);
     if (variable_thread_count < 0) variable_thread_count = 0;
 
-    ImGui::RadioButton("Quadtree", &optimizer_used, 0); ImGui::SameLine();
-    ImGui::RadioButton("Voxelgrid", &optimizer_used, 1); ImGui::SameLine();
+    int prev_optimizer_used = optimizer_used;
+    if (quadtree_active)optimizer_used = 0;
+    else if (voxelgrid_active) optimizer_used = 1;
+    else optimizer_used = 2;
+
+    ImGui::Separator();
+    ImGui::RadioButton("Quadtree", &optimizer_used, 0);
+    ImGui::SliderInt("depth", &quadtree_depth, 0, 10);
+    ImGui::SliderInt("capacity", &quadtree_capacity, 0, 100);
+    ImGui::Separator();
+    ImGui::RadioButton("Voxelgrid", &optimizer_used, 1);
+    ImGui::SliderInt("nodes", &voxelgrid_parts, 0, 256);
+    ImGui::RadioButton("None", &optimizer_used, 2);
+    
 
     switch(optimizer_used) {
-      case 0: quadtree_active = true; voxelgrid_active = false; break;
-      case 1: quadtree_active = false; voxelgrid_active = true; break;
+      case 0: quadtree_active = true; 
+              voxelgrid_active = false; 
+              break;
+      case 1: 
+              voxelgrid_active = true;
+              quadtree_active = false;
+              break; 
+      case 2: 
+              voxelgrid_active = false;
+              quadtree_active = false;
+              break; 
       default: break;
     }
 
@@ -135,20 +158,14 @@ void Athi_Core::draw(GLFWwindow *window) {
 }
 
 void Athi_Core::update() {
-  int32_t iter = 0;
-  double time_passed = 0.0;
-  // while (iter < 60.0) {
-    const double time_start_frame = glfwGetTime();
+  const double time_start_frame = glfwGetTime();
 
-    particle_manager.update();
+  particle_manager.update();
 
-    physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-    physics_framerate = static_cast<unsigned int>(std::round(1000.0f / smoothed_physics_frametime));
-    smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
-    timestep = smoothed_physics_frametime / (1000.0 / 60.0);
-    time_passed += physics_frametime;
-    ++iter;
-  // }
+  physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
+  physics_framerate = static_cast<unsigned int>(std::round(1000.0f / smoothed_physics_frametime));
+  smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
+  timestep = smoothed_physics_frametime / (1000.0 / 60.0);
 }
 
 void Athi_Core::update_settings() { glfwSwapInterval(vsync); }

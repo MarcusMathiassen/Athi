@@ -23,11 +23,11 @@ bool show_fps_info{true};
 
 bool quadtree_show_only_occupied{true};
 bool quadtree_active{false};
-size_t quadtree_depth{5};
-size_t quadtree_capacity{50};
+int32_t quadtree_depth{5};
+int32_t quadtree_capacity{50};
 
 bool voxelgrid_active{false};
-size_t voxelgrid_parts{4};
+int32_t voxelgrid_parts{4};
 
 double frametime;
 double smoothed_frametime;

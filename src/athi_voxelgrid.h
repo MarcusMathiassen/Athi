@@ -50,7 +50,7 @@ private:
   };
 
   std::vector<std::unique_ptr<Node>> nodes;
-  static size_t current_voxelgrid_part;
+  static int32_t current_voxelgrid_part;
 
  public:
   void init() {
@@ -110,4 +110,4 @@ template <class T>
 std::vector<T> VoxelGrid<T>::data;
 
 template <class T>
-size_t VoxelGrid<T>::current_voxelgrid_part{0};
+int32_t VoxelGrid<T>::current_voxelgrid_part{0};

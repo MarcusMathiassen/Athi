@@ -5,7 +5,6 @@
 #include "athi_voxelgrid.h"
 #include "athi_settings.h"
 
-#include <iostream>
 #include <dispatch/dispatch.h>
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/glm.hpp>
@@ -21,25 +20,26 @@ void ParticleManager::init() {
   //
   read_file("../Resources/particle_collision.cl", &kernel_source);
   if (!kernel_source)
-    std::cout << "Error: OpenCL missing kernel source.\n";
+    console->error("Error: OpenCL missing kernel source");
+    
 
   // Connect to a compute device
   err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
   if (err != CL_SUCCESS)
-    std::cout << "Error: Failed to create a device group!\n";
+    console->error("Error: Failed to create a device group!");
 
   // Create a compute context
   context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
-  if (!context) std::cout << "Error: Failed to create a compute context!\n";
+  if (!context) console->error("Error: Failed to create a compute context!");
 
   // Create a command commands
   commands = clCreateCommandQueue(context, device_id, 0, &err);
-  if (!commands) std::cout << "Error: Failed to create a command commands!\n";
+  if (!commands) console->error("Error: Failed to create a command commands!");
 
   // Create the compute program from the source buffer
   program = clCreateProgramWithSource(context, 1, (const char **)&kernel_source,
                                       NULL, &err);
-  if (!program) std::cout << "Error: Failed to create compute program!\n";
+  if (!program) console->error("Error: Failed to create compute program!");
 
   // Build the program executable
   err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
@@ -47,16 +47,16 @@ void ParticleManager::init() {
     size_t len;
     char buffer[2048];
 
-    std::cout << "Error: Failed to build program executable!\n";
+    console->error("Error: Failed to build program executable!");
     clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG,
                           sizeof(buffer), buffer, &len);
-    std::cout << buffer << '\n';
+    console->error(buffer);
   }
 
   // Create the compute kernel in the program we wish to run
   kernel = clCreateKernel(program, "particle_collision", &err);
   if (!kernel || err != CL_SUCCESS)
-    std::cout << "Error: Failed to create compute kernel!\n";
+    console->error("Error: Failed to create compute kernel!");
 
   ///////////////////////////
 
@@ -156,7 +156,7 @@ void ParticleManager::update() {
     } else if (use_multithreading && variable_thread_count != 0 &&
                openCL_active == false) {
       const size_t thread_count = variable_thread_count;
-      const size_t total = cont.size();
+      const size_t total = particles.size();
       const size_t parts = total / thread_count;
       const size_t leftovers = total % thread_count;
 
@@ -188,8 +188,7 @@ void ParticleManager::update() {
       input  = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * count, NULL, NULL);
       output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Particle) * count, NULL, NULL);
       if (!input || !output) {
-        std::cout << "Error: Failed to allocate device "
-                     "memory!\n";
+        console->error("Error: Failed to allocate device memory!");
         exit(1);
       }
 
@@ -197,9 +196,7 @@ void ParticleManager::update() {
       // memory
       err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(Particle) * count, &data[0], 0, NULL, NULL);
       if (err != CL_SUCCESS)
-        printf(
-            "Error: Failed to write to source "
-            "array!\n");
+        console->error("Error: Failed to write to source array!");
 
       // Set the arguments to our compute kernel
       err = 0;
@@ -207,7 +204,7 @@ void ParticleManager::update() {
       err |= clSetKernelArg(kernel, 1, sizeof(cl_mem),       &output);
       err |= clSetKernelArg(kernel, 2, sizeof(unsigned int), &count);
       if (err != CL_SUCCESS) {
-        std::cout << "Error: Failed to set kernel arguments! " << err << '\n';
+        console->error("Error: Failed to set kernel arguments! {}", err);
         exit(1);
       }
 
@@ -216,9 +213,7 @@ void ParticleManager::update() {
       //
       err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
       if (err != CL_SUCCESS) {
-        std::cout << "Error: Failed to retrieve kernel "
-                     "work group info! "
-                  << err << '\n';
+        console->error("Error: Failed to retrieve kernel work group info! {}", err);
         exit(1);
       }
 
@@ -228,7 +223,7 @@ void ParticleManager::update() {
       err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0,
                                    NULL, NULL);
       if (err) {
-        std::cout << "Error: Failed to execute kernel! " << err << '\n';
+        console->error("Error: Failed to execute kernel! {}", err);
         exit(1);
       }
 
@@ -241,7 +236,7 @@ void ParticleManager::update() {
       err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0, sizeof(Particle) * count,
                                 &results[0], 0, NULL, NULL);
       if (err != CL_SUCCESS) {
-        std::cout << "Error: Failed to read output array! " << err << '\n';
+        console->error("Error: Failed to read output array! {}", err);
         exit(1);
       }
 
