@@ -1,5 +1,4 @@
 #include "athi_input.h"
-#include "athi_circle.h"
 #include "athi_particle.h"
 #include "athi_line.h"
 #include "athi_rect.h"
@@ -10,48 +9,45 @@ Athi_Input_Manager athi_input_manager;
 
 void init_input_manager() { athi_input_manager.init(); }
 
-vec2 get_mouse_viewspace_pos() {
+glm::vec2 get_mouse_viewspace_pos() {
   auto context = glfwGetCurrentContext();
   double mouse_pos_x, mouse_pos_y;
   glfwGetCursorPos(context, &mouse_pos_x, &mouse_pos_y);
 
-  s32 width, height;
+  int32_t width, height;
   glfwGetWindowSize(context, &width, &height);
   mouse_pos_x = -1.0f + 2 * mouse_pos_x / width;
   mouse_pos_y = 1.0f - 2 * mouse_pos_y / height;
 
-  return vec2(mouse_pos_x, mouse_pos_y);
+  return glm::vec2(mouse_pos_x, mouse_pos_y);
 }
 
-uint8_t get_mouse_button_state(uint8_t button) {
-  switch (button) {
-    case GLFW_MOUSE_BUTTON_LEFT:
-      return athi_input_manager.mouse.left_button.state;
-    case GLFW_MOUSE_BUTTON_RIGHT:
-      return athi_input_manager.mouse.right_button.state;
-  }
-  return 2;
+int32_t get_mouse_button_state(int32_t button) {
+  const int state = glfwGetMouseButton(glfwGetCurrentContext(), button);
+  if (state == GLFW_PRESS)
+      return GLFW_PRESS;
+  return GLFW_RELEASE;
 }
 
 // Adds force to the object 'a'
 void gravitational_force(Particle &a, const vec2 &point) {
   // Set up variables
-  const f32 x1 = a.pos.x;
-  const f32 y1 = a.pos.y;
-  const f32 x2 = point.x;
-  const f32 y2 = point.y;
-  const f32 m1 = a.mass;
-  const f32 m2 = 10.0f;
+  const float x1 = a.pos.x;
+  const float y1 = a.pos.y;
+  const float x2 = point.x;
+  const float y2 = point.y;
+  const float m1 = a.mass;
+  const float m2 = 10.0f;
 
   // Get distance between balls.
-  const f32 dx = x2 - x1;
-  const f32 dy = y2 - y1;
-  const f32 d = sqrt(dx * dx + dy * dy);
+  const float dx = x2 - x1;
+  const float dy = y2 - y1;
+  const float d = sqrt(dx * dx + dy * dy);
 
   if (d != 0.0f) {
-    const f32 angle = atan2(dy, dx);
-    const f32 G = 6.674f;
-    const f32 F = G * m1 * m2 / d * d;
+    const float angle = atan2(dy, dx);
+    const float G = 6.674f;
+    const float F = G * m1 * m2 / d * d;
 
     a.vel.x += F * cos(angle);
     a.vel.y += F * sin(angle);
@@ -60,28 +56,28 @@ void gravitational_force(Particle &a, const vec2 &point) {
 
 void attraction_force(Particle &a, const vec2 &point) {
   // Set up variables
-  const f32 x1 = a.pos.x;
-  const f32 y1 = a.pos.y;
-  const f32 x2 = point.x;
-  const f32 y2 = point.y;
+  const float x1 = a.pos.x;
+  const float y1 = a.pos.y;
+  const float x2 = point.x;
+  const float y2 = point.y;
 
   // Get distance between balls.
-  const f32 dx = x2 - x1;
-  const f32 dy = y2 - y1;
-  const f32 d = sqrt(dx * dx + dy * dy);
+  const float dx = x2 - x1;
+  const float dy = y2 - y1;
+  const float d = sqrt(dx * dx + dy * dy);
 
-  const f32 angle = atan2(dy, dx);
+  const float angle = atan2(dy, dx);
   a.vel.x += 0.1f * d * cos(angle);
   a.vel.y += 0.1f * d * sin(angle);
   a.vel *= 0.7f;
 }
 
-vector<u32> mouse_attached_to;
-s32 mouse_attached_to_single{-1};
+vector<int32_t> mouse_attached_to;
+int32_t mouse_attached_to_single{-1};
 enum { ATTACHED, PRESSED, NOTHING };
-u16 last_state{NOTHING};
+uint16_t last_state{NOTHING};
 
-s32 id1, id2;
+int32_t id1, id2;
 bool found{false};
 bool attach{false};
 void mouse_attach_spring() {
@@ -93,7 +89,7 @@ void mouse_attach_spring() {
       vec2(mouse_pos.x - mouse_size, mouse_pos.y - mouse_size),
       vec2(mouse_pos.x + mouse_size, mouse_pos.y + mouse_size));
 
-  s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
+  int32_t state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
   if (attach) {
     attach_spring(particle_manager.particles[id1],
@@ -134,7 +130,7 @@ void mouse_attach_spring() {
 
 void mouse_grab() {
   // Get the mouse state
-  s32 state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
+  int32_t state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
   auto mouse_pos = get_mouse_viewspace_pos();
 
@@ -203,6 +199,22 @@ void update_inputs() {
   } else
     mouse_grab();
 
+  if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+  }
+
   if (glfwGetKey(context, GLFW_KEY_4) == GLFW_PRESS) {
     particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
     particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
@@ -218,30 +230,4 @@ void update_inputs() {
     particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
     particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
   }
-
-  //  CAMERA MOVE
-  if (glfwGetKey(context, GLFW_KEY_LEFT) == GLFW_PRESS) {
-    camera.position.x -= 1;
-  }
-  //  CAMERA MOVE
-  if (glfwGetKey(context, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-    camera.position.x += 1;
-  }
-  //  CAMERA MOVE
-  if (glfwGetKey(context, GLFW_KEY_DOWN) == GLFW_PRESS) {
-    camera.position.y -= 1;
-  }
-  //  CAMERA MOVE
-  if (glfwGetKey(context, GLFW_KEY_UP) == GLFW_PRESS) {
-    camera.position.y += 1;
-  }
-
-  if (glfwGetKey(context, GLFW_KEY_A) == GLFW_PRESS) {
-    camera.zoom -= 0.01f;
-  }
-  //  CAMERA MOVE
-  if (glfwGetKey(context, GLFW_KEY_S) == GLFW_PRESS) {
-    camera.zoom += 0.01f;
-  }
-  camera.update_perspective();
 }

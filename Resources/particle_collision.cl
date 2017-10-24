@@ -9,12 +9,12 @@ typedef struct Particle
   float radius;
 } Particle;
 
-void separate_circles( Particle *a, Particle *b);
+void separate_circles(Particle *a, Particle *b);
 bool collision_detection( const Particle *a,  const Particle *b);
-void collision_resolve( Particle *a,  Particle *b);
+void collision_resolve( Particle *a, Particle *b);
 
 // Separates two intersecting circles.
-void separate_circles( Particle *a,  Particle *b)
+void separate_circles( Particle *a, Particle *b)
 {
   // local variables
   const float2 a_pos = a->pos;
@@ -133,12 +133,12 @@ void collision_resolve( Particle *a,  Particle *b)
 __kernel void particle_collision(__global Particle* input, __global Particle* output, const unsigned int count)
 {
   const unsigned int g_id = get_global_id(0);
-  Particle *p = &input[g_id];
+   __global Particle *a = &input[g_id];
 
   unsigned int i = 0;
   for (; i < count; ++i) {
-    Particle *d = &input[i];
-    separate_circles(p, d);
+    if (i == g_id) continue;
+    __global Particle *b = &input[i];
   }
   
   output[g_id] = input[g_id];

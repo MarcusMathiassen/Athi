@@ -19,7 +19,6 @@ void ParticleManager::init() {
 
   // OpenCL init
   //
-  std::cout << "OpenCL initializing..\n";
   read_file("../Resources/particle_collision.cl", &kernel_source);
   if (!kernel_source)
     std::cout << "Error: OpenCL missing kernel source.\n";

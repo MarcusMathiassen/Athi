@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		901213161F8AE54800370145 /* libGLEW.2.1.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 901213151F8AE54800370145 /* libGLEW.2.1.0.dylib */; };
-		901213181F8AE55500370145 /* libglfw.3.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 901213171F8AE55500370145 /* libglfw.3.2.dylib */; };
 		90726D481F9ACFBA006C170B /* athi_particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90726D471F9ACFBA006C170B /* athi_particle.cpp */; };
+		909D42811F9EA7E800EAD422 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A521F328D78007DCBB3 /* libglfw3.a */; };
+		909D42821F9EAAFC00EAD422 /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A501F328D70007DCBB3 /* libGLEW.a */; };
 		F203DDEA1F33EA94005A1535 /* athi_utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F203DDE91F33EA94005A1535 /* athi_utility.cpp */; };
 		F2298A391F328D00007DCBB3 /* athi_camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A171F328D00007DCBB3 /* athi_camera.cpp */; };
 		F2298A3A1F328D00007DCBB3 /* athi_checkbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A191F328D00007DCBB3 /* athi_checkbox.cpp */; };
@@ -113,8 +113,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				901213181F8AE55500370145 /* libglfw.3.2.dylib in Frameworks */,
-				901213161F8AE54800370145 /* libGLEW.2.1.0.dylib in Frameworks */,
+				909D42821F9EAAFC00EAD422 /* libGLEW.a in Frameworks */,
+				909D42811F9EA7E800EAD422 /* libglfw3.a in Frameworks */,
 				F2A08A681F3A01B200E2148B /* OpenCL.framework in Frameworks */,
 				F2298A4F1F328D67007DCBB3 /* Cocoa.framework in Frameworks */,
 				F2298A4D1F328D60007DCBB3 /* CoreVideo.framework in Frameworks */,
@@ -423,17 +423,8 @@
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_UNUSED_FUNCTION = NO;
-				HEADER_SEARCH_PATHS = (
-					/usr/local/include/GL,
-					/usr/local/include/GLFW,
-					/usr/local/Cellar/glm/0.9.8.5/include,
-					/usr/local/Cellar/glew/2.1.0/include,
-					/usr/local/Cellar/glfw/3.2.1/include,
-				);
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/Cellar/glfw/3.2.1/lib,
-					/usr/local/Cellar/glew/2.1.0/lib,
-				);
+				HEADER_SEARCH_PATHS = "/Users/marcusmathiassen/Documents/GitHub/Athi/dep/macOS/**";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/dep/macOS/**";
 				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -455,17 +446,8 @@
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_UNUSED_FUNCTION = NO;
-				HEADER_SEARCH_PATHS = (
-					/usr/local/include/GL,
-					/usr/local/include/GLFW,
-					/usr/local/Cellar/glm/0.9.8.5/include,
-					/usr/local/Cellar/glew/2.1.0/include,
-					/usr/local/Cellar/glfw/3.2.1/include,
-				);
-				LIBRARY_SEARCH_PATHS = (
-					/usr/local/Cellar/glfw/3.2.1/lib,
-					/usr/local/Cellar/glew/2.1.0/lib,
-				);
+				HEADER_SEARCH_PATHS = "/Users/marcusmathiassen/Documents/GitHub/Athi/dep/macOS/**";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/dep/macOS/**";
 				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";

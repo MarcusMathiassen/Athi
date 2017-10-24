@@ -118,7 +118,6 @@ u32 createShader(const char *file, const GLenum type)
     validateShader(file, "GEOMETRY", shader);
     break;
   }
-  printf("Shader loaded: %s\n", file);
   return shader;
 }
 #ifdef __APPLE__

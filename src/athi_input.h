@@ -12,19 +12,16 @@
 #include "athi_typedefs.h"
 
 void init_input_manager();
-vec2 get_mouse_viewspace_pos();
-u8 get_mouse_button_state(u8 button);
+glm::vec2 get_mouse_viewspace_pos();
+int32_t get_mouse_button_state(int32_t button);
 void update_inputs();
-static void mouse_button_callback(GLFWwindow *window, int button, int action,
-                                  int mods);
-static void cursor_position_callback(GLFWwindow *window, double xpos,
-                                     double ypos);
-static void key_callback(GLFWwindow *window, int key, int scancode, int action,
-                         int mods);
+static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
+static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
 struct Mouse {
-  vec2 pos;
+  glm::vec2 pos;
   struct Button {
     bool state;
   } left_button, right_button;
@@ -34,10 +31,10 @@ struct Athi_Input_Manager {
   Mouse mouse;
   void init() {
     auto context = glfwGetCurrentContext();
-    glfwSetMouseButtonCallback(context, mouse_button_callback);
+    //glfwSetMouseButtonCallback(context, mouse_button_callback);
     glfwSetKeyCallback(context, key_callback);
-    glfwSetCursorPosCallback(context, cursor_position_callback);
-    glfwSetScrollCallback(context, scroll_callback);
+    //glfwSetCursorPosCallback(context, cursor_position_callback);
+    //glfwSetScrollCallback(context, scroll_callback);
   }
 };
 
@@ -159,7 +156,6 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
       }
     }
   }
-
 
   // ERASE ALL CIRCLES
   if (key == GLFW_KEY_E && action == GLFW_PRESS) {

@@ -349,8 +349,8 @@ void Athi_Circle_Manager::update() {
           thread_count,
           dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
           ^(size_t i) {
-          const int begin = parts * i;
-          int end = parts * (i + 1);
+          const size_t begin = parts * i;
+          size_t end = parts * (i + 1);
           if (i == thread_count-1) end += leftovers;
           collision_quadtree(cont, begin, end);
         });
