@@ -11,6 +11,9 @@
 #include "athi_settings.h"
 #include "athi_typedefs.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw_gl3.h"
+
 void init_input_manager();
 glm::vec2 get_mouse_viewspace_pos();
 int32_t get_mouse_button_state(int32_t button);
@@ -19,7 +22,7 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action, in
 static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-
+static void char_callback(GLFWwindow*, unsigned int c);
 struct Mouse {
   glm::vec2 pos;
   struct Button {
@@ -31,10 +34,11 @@ struct Athi_Input_Manager {
   Mouse mouse;
   void init() {
     auto context = glfwGetCurrentContext();
-    //glfwSetMouseButtonCallback(context, mouse_button_callback);
+    glfwSetMouseButtonCallback(context, mouse_button_callback);
     glfwSetKeyCallback(context, key_callback);
-    //glfwSetCursorPosCallback(context, cursor_position_callback);
-    //glfwSetScrollCallback(context, scroll_callback);
+    glfwSetCharCallback(context, char_callback);    
+    glfwSetCursorPosCallback(context, cursor_position_callback);
+    glfwSetScrollCallback(context, scroll_callback);
   }
 };
 
@@ -43,6 +47,7 @@ extern Athi_Input_Manager athi_input_manager;
 static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
   mouse_size -= yoffset * 0.001f;
   if (mouse_size < 0.000f) mouse_size = 0.001f;
+  g_MouseWheel += (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.  
 }
 
 static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
@@ -50,7 +55,18 @@ static void cursor_position_callback(GLFWwindow *window, double xpos, double ypo
   athi_input_manager.mouse.pos.y = ypos;
 }
 
+static void char_callback(GLFWwindow*, unsigned int c)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    if (c > 0 && c < 0x10000)
+        io.AddInputCharacter((unsigned short)c);
+}
+
 static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
+
+  if (action == GLFW_PRESS && button >= 0 && button < 3)
+    g_MouseJustPressed[button] = true;
+
   switch (button) {
     case GLFW_MOUSE_BUTTON_LEFT:
       athi_input_manager.mouse.left_button.state = action;
@@ -70,6 +86,23 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action, in
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods) {
+
+  // IMGUI 
+  ImGuiIO& io = ImGui::GetIO();
+  if (action == GLFW_PRESS)
+      io.KeysDown[key] = true;
+  if (action == GLFW_RELEASE)
+      io.KeysDown[key] = false;
+
+  (void)mods; // Modifiers are not reliable across systems
+  io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
+  io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
+  io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+  io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+
+  //
+
+
   // TOGGLE SETTINGS UI
   if (key == GLFW_KEY_I && action == GLFW_PRESS) {
     show_settings ^= 1;

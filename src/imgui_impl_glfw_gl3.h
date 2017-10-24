@@ -23,3 +23,13 @@ IMGUI_API void        ImGui_ImplGlfwGL3_MouseButtonCallback(GLFWwindow* window, 
 IMGUI_API void        ImGui_ImplGlfwGL3_ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 IMGUI_API void        ImGui_ImplGlfwGL3_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 IMGUI_API void        ImGui_ImplGlfwGL3_CharCallback(GLFWwindow* window, unsigned int c);
+
+extern GLFWwindow*  g_Window;
+extern double       g_Time;
+extern bool         g_MouseJustPressed[3];
+extern float        g_MouseWheel;
+extern uint32_t       g_FontTexture;
+extern int          g_ShaderHandle, g_VertHandle, g_FragHandle;
+extern int          g_AttribLocationTex, g_AttribLocationProjMtx;
+extern int          g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor;
+extern unsigned int g_VboHandle, g_VaoHandle, g_ElementsHandle;

@@ -8,8 +8,12 @@
 
 #include <memory>
 
-struct Athi_Core {
-  std::unique_ptr<Athi_Window> window;
+struct Athi_Core {  
+
+  int optimizer_used{3};    
+  
+
+  Athi_Window window;
   TaskManager thread_manager;
 
   void update();

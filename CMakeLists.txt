@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.9.1)
 project(athi)
 
-option(MT "multithreading" ON)
-
-if (MT)
-  add_definitions(-DATHI_MULTITHREADED)
-endif()
-
 SET(CMAKE_BUILD_TYPE DEBUG)
 #SET(CMAKE_BUILD_TYPE RELEASE)
 

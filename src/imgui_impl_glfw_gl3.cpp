@@ -6,7 +6,7 @@
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 // https://github.com/ocornut/imgui
 
-#include <imgui.h>
+#include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
 #include "athi_input.h"
 
@@ -22,15 +22,15 @@
 #endif
 
 // Data
-static GLFWwindow*  g_Window = NULL;
-static double       g_Time = 0.0f;
-static bool         g_MouseJustPressed[3] = { false, false, false };
-static float        g_MouseWheel = 0.0f;
-static GLuint       g_FontTexture = 0;
-static int          g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
-static int          g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
-static int          g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
-static unsigned int g_VboHandle = 0, g_VaoHandle = 0, g_ElementsHandle = 0;
+GLFWwindow*  g_Window = NULL;
+double       g_Time = 0.0f;
+bool         g_MouseJustPressed[3] = { false, false, false };
+float        g_MouseWheel = 0.0f;
+GLuint       g_FontTexture = 0;
+int          g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
+int          g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
+int          g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
+unsigned int g_VboHandle = 0, g_VaoHandle = 0, g_ElementsHandle = 0;
 
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
 // Note that this implementation is little overcomplicated because we are saving/setting up/restoring every OpenGL state explicitly, in order to be able to run within any OpenGL engine that doesn't do so. 
@@ -153,12 +153,6 @@ void ImGui_ImplGlfwGL3_MouseButtonCallback(GLFWwindow*, int button, int action, 
 {
     if (action == GLFW_PRESS && button >= 0 && button < 3)
         g_MouseJustPressed[button] = true;
-    switch (button) {
-    case GLFW_MOUSE_BUTTON_LEFT:
-      athi_input_manager.mouse.left_button.state = action;
-    case GLFW_MOUSE_BUTTON_RIGHT:
-      athi_input_manager.mouse.right_button.state = action;
-  }
 }
 
 void ImGui_ImplGlfwGL3_ScrollCallback(GLFWwindow*, double /*xoffset*/, double yoffset)
