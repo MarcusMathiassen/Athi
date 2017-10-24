@@ -86,7 +86,6 @@ struct ParticleManager {
   size_t local;   // local domain size for our calculation
 
   static constexpr bool gpu{true};
-  std::vector<Particle> data;
   std::vector<Particle> results;
 
   cl_device_id device_id;     // compute device id

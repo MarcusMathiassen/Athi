@@ -173,14 +173,11 @@ void ParticleManager::update() {
     }
 
     else if (openCL_active) {
+
       const unsigned int count = particles.size();
 
-      data.clear();
       results.clear();
-      data.resize(count);
       results.resize(count);
-
-      data = particles;
 
       // Create the input and output arrays in device memory
       // for our calculation
@@ -194,7 +191,7 @@ void ParticleManager::update() {
 
       // Write our data set into the input array in device
       // memory
-      err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(Particle) * count, &data[0], 0, NULL, NULL);
+      err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(Particle) * count, &particles[0], 0, NULL, NULL);
       if (err != CL_SUCCESS)
         console->error("Error: Failed to write to source array!");
 
@@ -240,8 +237,6 @@ void ParticleManager::update() {
         exit(1);
       }
 
-      clFinish(commands);
-
       particles = results;
     }
 
@@ -252,12 +247,12 @@ void ParticleManager::update() {
   }
 
   if (quadtree_active && draw_debug) {
-    quadtree.color_objects(colors);
-    quadtree.draw_bounds();
+    if (color_particles) quadtree.color_objects(colors);
+    if (draw_nodes) quadtree.draw_bounds();
   }
   if (voxelgrid_active && draw_debug) {
-    voxelgrid.color_objects(colors);
-    voxelgrid.draw_bounds();
+    if (color_particles) voxelgrid.color_objects(colors);
+    if (draw_nodes) voxelgrid.draw_bounds();
   }
 
   for (auto &p : particles) {
@@ -303,7 +298,7 @@ void ParticleManager::update() {
 void ParticleManager::draw() const {
   glBindVertexArray(vao);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts, particles.size());
+  glDrawArraysInstanced(GL_LINE_LOOP, 0, num_verts, particles.size());
 }
 
 void ParticleManager::add(const glm::vec2 &pos, float radius, const glm::vec4 &color) {
@@ -443,24 +438,30 @@ void ParticleManager::separate(Particle &a, Particle &b) {
   b.pos += b_pos_move;
 }
 
-void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end) {
+inline void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end) {
+  int32_t counter = 0;
   for (size_t i = begin; i < end; ++i) {
     for (size_t j = 1 + i; j < total; ++j) {
+      ++counter;
       if (collision_check(particles[i], particles[j])) {
         collision_resolve(particles[i], particles[j]);
       }
     }
   }
+  comparisons += counter;
 }
 
-void ParticleManager::collision_quadtree(const std::vector<std::vector<int>> &cont, size_t begin, size_t end) {
+inline void ParticleManager::collision_quadtree(const std::vector<std::vector<int>> &cont, size_t begin, size_t end) {
+  int32_t counter = 0;  
   for (size_t k = begin; k < end; ++k) {
     for (size_t i = 0; i < cont[k].size(); ++i) {
       for (size_t j = i + 1; j < cont[k].size(); ++j) {
+        ++counter;
         if (collision_check(particles[cont[k][i]], particles[cont[k][j]])) {
           collision_resolve(particles[cont[k][i]], particles[cont[k][j]]);
         }
       }
     }
   }
+  comparisons += counter;  
 }

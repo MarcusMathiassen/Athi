@@ -16,9 +16,11 @@ bool circle_collision{true};
 float circle_size{0.03f};
 glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
-int32_t comparisons{0};
+std::atomic<int32_t> comparisons{0};
 
 bool draw_debug{false};
+bool color_particles{false};
+bool draw_nodes{false};
 bool show_fps_info{true};
 
 bool quadtree_show_only_occupied{true};

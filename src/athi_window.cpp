@@ -13,12 +13,11 @@ void Athi_Window::init() {
     std::cerr << "Error initializing GLFW!\n";
   }
 
-  // glfwWindowHint(GLFW_SAMPLES, 4);
+  glfwWindowHint(GLFW_SAMPLES, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-// Apple specific options
 #if __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
@@ -27,7 +26,7 @@ void Athi_Window::init() {
       glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
-  //glfwSetWindowAspectRatio(context, 1, 1);
+  glfwSetWindowAspectRatio(context, 1, 1);
   glfwSetWindowSizeCallback(context, window_size_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 

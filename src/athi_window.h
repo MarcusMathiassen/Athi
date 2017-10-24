@@ -23,4 +23,5 @@ class Athi_Window {
   void update();
 
   GLFWwindow *get_window_context();
+
 };

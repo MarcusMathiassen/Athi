@@ -1,6 +1,7 @@
 #pragma once
 
 #include "athi_typedefs.h"
+#include <atomic>
 
 extern float mouse_size;
 extern bool mouse_grab_multiple;
@@ -16,9 +17,11 @@ extern bool circle_collision;
 
 extern float circle_size;
 extern glm::vec4 circle_color;
-extern int32_t comparisons;
+extern std::atomic<int32_t> comparisons;
 
 extern bool draw_debug;
+extern bool color_particles;
+extern bool draw_nodes;
 extern bool show_fps_info;
 
 extern bool voxelgrid_active;
