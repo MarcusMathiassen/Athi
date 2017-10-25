@@ -12,12 +12,16 @@ float px_scale{1.0f};
 
 bool show_settings{false};
 bool physics_gravity{false};
+float gravity_force{9.81f};
 bool circle_collision{true};
+
+int32_t physics_samples{1};
 
 float circle_size{3.0f};
 glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
-std::atomic<int32_t> comparisons{0};
+std::atomic<uint64_t> comparisons{0};
+std::atomic<uint64_t> resolutions{0};
 
 bool draw_debug{false};
 bool color_particles{true};
@@ -30,7 +34,7 @@ int32_t quadtree_depth{5};
 int32_t quadtree_capacity{50};
 
 bool voxelgrid_active{false};
-int32_t voxelgrid_parts{4};
+int32_t voxelgrid_parts{16};
 
 double frametime;
 double smoothed_frametime;
@@ -56,7 +60,7 @@ bool use_multithreading{false};
 
 int32_t cpu_cores;
 int32_t cpu_threads;
-string cpu_brand;
+std::string cpu_brand;
 
 bool openCL_active{false};
 

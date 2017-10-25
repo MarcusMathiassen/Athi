@@ -254,7 +254,7 @@ void ParticleManager::update() {
   if (voxelgrid_active && draw_debug) {
     if (color_particles) voxelgrid.color_objects(colors);
     if (draw_nodes) voxelgrid.draw_bounds();
-  }
+  }  
 
   for (auto &p : particles) {
 
@@ -296,6 +296,7 @@ void ParticleManager::update() {
   } else {
     glBufferSubData(GL_ARRAY_BUFFER, 0, color_bytes_allocated, &colors[0]);
   }
+  
 }
 
 void ParticleManager::draw() const {
@@ -441,31 +442,37 @@ void ParticleManager::separate(Particle &a, Particle &b) {
   b.pos += b_pos_move;
 }
 
-inline void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end) {
-  int32_t counter = 0;
-
+// (N-1)*N/2
+void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end) {
+  uint64_t comp_counter = 0;
+  uint64_t res_counter = 0;
   for (size_t i = begin; i < end; ++i) {
     for (size_t j = 1 + i; j < total; ++j) {
-      ++counter;
+      ++comp_counter;
       if (collision_check(particles[i], particles[j])) {
         collision_resolve(particles[i], particles[j]);
+        ++res_counter;
       }
     }
   }
-  comparisons += counter;
+  comparisons += comp_counter;  
+  resolutions += res_counter; 
 }
 
-inline void ParticleManager::collision_quadtree(const std::vector<std::vector<int>> &cont, size_t begin, size_t end) {
-  int32_t counter = 0;  
+void ParticleManager::collision_quadtree(const std::vector<std::vector<int>> &cont, size_t begin, size_t end) {
+  uint64_t comp_counter = 0;
+  uint64_t res_counter = 0;
   for (size_t k = begin; k < end; ++k) {
     for (size_t i = 0; i < cont[k].size(); ++i) {
       for (size_t j = i + 1; j < cont[k].size(); ++j) {
-        ++counter;
+        ++comp_counter;
         if (collision_check(particles[cont[k][i]], particles[cont[k][j]])) {
           collision_resolve(particles[cont[k][i]], particles[cont[k][j]]);
+          ++res_counter;
         }
       }
     }
   }
-  comparisons += counter;  
+  comparisons += comp_counter;  
+  resolutions += res_counter;  
 }

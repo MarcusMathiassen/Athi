@@ -143,10 +143,10 @@ void draw_hollow_rect(const vec2& min, const vec2& max, const vec4& color) {
     auto min_ = min;
     const auto proj = camera.get_ortho_projection();
 
-    max_.x -= 0.002f;
-    max_.y -= 0.002f;
-    min_.x += 0.002f;
-    min_.y += 0.002f;
+    max_.x -= 0.7f;
+    max_.y -= 0.7f;
+    min_.x += 0.7f;
+    min_.y += 0.7f;
 
     Transform temp{vec3(min_, 0), vec3(), vec3(1, 1, 1)};
 

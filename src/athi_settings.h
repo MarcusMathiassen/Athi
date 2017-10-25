@@ -15,11 +15,16 @@ extern float px_scale;
 
 extern bool show_settings;
 extern bool physics_gravity;
+extern float gravity_force;
+
 extern bool circle_collision;
+
+extern int32_t physics_samples;
 
 extern float circle_size;
 extern glm::vec4 circle_color;
-extern std::atomic<int32_t> comparisons;
+extern std::atomic<uint64_t> comparisons;
+extern std::atomic<uint64_t> resolutions;
 
 extern bool draw_debug;
 extern bool color_particles;

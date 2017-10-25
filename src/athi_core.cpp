@@ -101,8 +101,8 @@ void SetupImGuiStyle( bool bStyleDark_, float alpha_  ) {
 
 void Athi_Core::init() {
 
-  window.scene.width = 512;
-  window.scene.height = 512;
+  window.scene.width = 1280;
+  window.scene.height = 800;
   window.init();
 
   particle_manager.init();
@@ -115,7 +115,7 @@ void Athi_Core::init() {
   glDisable(GL_DEPTH_BUFFER);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClearColor(0.15686, 0.17255, 0.20392, 1.0);
-  // glClearColor(0,0,0,1.0);
+  //glClearColor(0,0,0,0.0);
 
   variable_thread_count = std::thread::hardware_concurrency();  
 
@@ -160,7 +160,6 @@ void Athi_Core::start() {
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     framerate = static_cast<uint32_t>(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
-    comparisons = 0;
   }
 
   app_is_running = false;
@@ -171,22 +170,30 @@ void Athi_Core::draw(GLFWwindow *window) {
   const double time_start_frame = glfwGetTime();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  draw_rects();
-
   particle_manager.draw();
-
+  draw_rects();
   render();
-
+  
   if (show_settings) {
+
     ImGui_ImplGlfwGL3_NewFrame();    
     ImGui::Begin("Settings");
     ImGui::Text("Particles: %lu", particle_manager.particles.size());
-    ImGui::Text("Comparisons: %d", static_cast<int32_t>(comparisons));
-    ImGui::SliderFloat("Particle size", &circle_size, 1.0f, 100.0f);
-    ImGui::SliderFloat("Mouse size", &mouse_size, 1.0f, 100.0f);ImGui::SameLine();
+    ImGui::Text("Comparisons: %llu", static_cast<uint64_t>(comparisons)/physics_samples);ImGui::SameLine();
+    ImGui::Text("| %llu", static_cast<uint64_t>(resolutions));ImGui::SameLine();
+
+
+    ImGui::Text("(%.4f%%)", 100.0f * static_cast<float>(resolutions) / static_cast<float>(comparisons));
+    comparisons = 0;    
+    resolutions = 0;    
+    ImGui::SliderFloat("Particle size", &circle_size, 1.0f, 50.0f);
+    ImGui::SliderFloat("Mouse size", &mouse_size, 1.0f, 500.0f);ImGui::SameLine();
     ImGui::Checkbox("Grab", &mouse_grab);
+    ImGui::SliderInt("Physics samples", &physics_samples, 1, 64);
     ImGui::Checkbox("VSync", &vsync);
-    ImGui::Checkbox("Gravity", &physics_gravity);
+    ImGui::Checkbox("Gravity", &physics_gravity);ImGui::SameLine();
+    ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);
+
     ImGui::Checkbox("Collision", &circle_collision);
     ImGui::Checkbox("OpenCL", &openCL_active);
     ImGui::Checkbox("Multithreaded", &use_multithreading); ImGui::SameLine(); ImGui::InputInt("", &variable_thread_count);
@@ -225,10 +232,9 @@ void Athi_Core::draw(GLFWwindow *window) {
               break; 
       default: break;
     }
-
-    ImGui::Separator();
-
-    ImGui::Text("Profiler");
+    ImGui::End();
+    
+    ImGui::Begin("Profiler");
     ImGui::Columns(3, "mycolumns"); // 3-ways, with border
     ImGui::Separator();
     ImGui::Text("Component"); ImGui::NextColumn();
@@ -282,13 +288,15 @@ void Athi_Core::draw(GLFWwindow *window) {
 
 void Athi_Core::update() {
   const double time_start_frame = glfwGetTime();
-
-  particle_manager.update();
-
+  int iter = 0;
+  while (iter++ < physics_samples) {
+    const double start = glfwGetTime();
+    particle_manager.update();
+    timestep =  (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) / physics_samples;
+  }
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
   physics_framerate = static_cast<uint32_t>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
-  timestep = smoothed_physics_frametime / (1000.0 / 60.0);
 }
 
 void Athi_Core::update_settings() { glfwSwapInterval(vsync); }

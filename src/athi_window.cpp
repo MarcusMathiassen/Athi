@@ -10,6 +10,7 @@ void window_size_callback(GLFWwindow *window, int xpos, int ypos);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 void Athi_Window::init() {
+  
   if (!glfwInit()) {
     std::cerr << "Error initializing GLFW!\n";
   }

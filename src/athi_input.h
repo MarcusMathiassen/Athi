@@ -184,8 +184,8 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
   // TEST APRTICLE
   if (key == GLFW_KEY_N && action == GLFW_PRESS) {
-    for (float i = -1 + circle_size; i < 1; i += circle_size * 2) {
-      for (float j = -1 + circle_size; j < 1; j += circle_size * 2) {
+    for (float i = 0.0f + circle_size; i < screen_width; i += circle_size * 2) {
+      for (float j = 0.0f + circle_size; j < screen_height; j += circle_size * 2) {
         particle_manager.add(glm::vec2(i, j), circle_size, glm::vec4(1,1,1,1));
       }
     }

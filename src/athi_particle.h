@@ -30,7 +30,7 @@ struct Particle {
     if (slowmotion) slow = 0.1f;
 
     // Apply gravity
-    if (physics_gravity) vel.y -= 9.81f  * timestep;
+    if (physics_gravity) vel.y -= gravity_force * mass * timestep;
 
     // Update pos/vel/acc
     vel.x += (acc.x * timestep * slow);
