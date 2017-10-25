@@ -81,7 +81,7 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action, in
   //mouse_pos.y = mouse_pos.y;
 
   if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 10.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, circle_size, glm::vec4(1,1,1,1));
   }
 }
 

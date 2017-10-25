@@ -292,13 +292,18 @@ void Athi_Core::draw(GLFWwindow *window) {
 
 void Athi_Core::update() {
   const double time_start_frame = glfwGetTime();
-
-  particle_manager.update();
+  int iter = 0;
+  double timepassed = 0.0;
+  while (timepassed < (1000.0 / 60.0)) {
+    const double time_start_frame = glfwGetTime();    
+    particle_manager.update();
 
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
   physics_framerate = static_cast<uint32_t>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
   timestep = smoothed_physics_frametime / (1000.0 / 60.0);
+  timepassed += physics_frametime;
+  }
 }
 
 void Athi_Core::update_settings() { glfwSwapInterval(vsync); }

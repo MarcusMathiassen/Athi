@@ -4,8 +4,8 @@
 float mouse_size{5.0f};
 bool mouse_busy_UI{false};
 bool mouse_grab_multiple{true};
-bool show_mouse_grab_lines{false};
-bool mouse_grab{false};
+bool show_mouse_grab_lines{true};
+bool mouse_grab{true};
 int32_t screen_width;
 int32_t screen_height;
 
