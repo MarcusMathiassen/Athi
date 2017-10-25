@@ -1,4 +1,5 @@
 #include "athi_particle.h"
+#include "athi_camera.h"
 #include "athi_transform.h"
 #include "athi_utility.h"
 #include "athi_quadtree.h"
@@ -126,7 +127,7 @@ void ParticleManager::update() {
     std::vector<std::vector<int>> cont; // nodes with vec of particle.id's 
 
     if (quadtree_active && openCL_active == false) {
-      quadtree = Quadtree<Particle>(quadtree_depth, quadtree_capacity, glm::vec2(-1, -1), glm::vec2(1, 1));
+      quadtree = Quadtree<Particle>(quadtree_depth, quadtree_capacity, glm::vec2(0.0f, 0.0f), glm::vec2(screen_width, screen_height));
       quadtree.input(particles);
       quadtree.get(cont);
     } else if (voxelgrid_active && openCL_active == false) {
@@ -270,9 +271,11 @@ void ParticleManager::update() {
     models.resize(particles_size);
   }
 
+  const auto proj = camera.get_ortho_projection();
+
   // Update the buffers with the new data.
   for (const auto &p : particles) {
-    models[p.id] = transforms[p.id].get_model();
+    models[p.id] = proj * transforms[p.id].get_model();
   }
 
   // Update the shader buffers incase of more particles..
@@ -298,7 +301,7 @@ void ParticleManager::update() {
 void ParticleManager::draw() const {
   glBindVertexArray(vao);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_LINE_LOOP, 0, num_verts, particles.size());
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts, particles.size());
 }
 
 void ParticleManager::add(const glm::vec2 &pos, float radius, const glm::vec4 &color) {
@@ -424,13 +427,13 @@ void ParticleManager::separate(Particle &a, Particle &b) {
   glm::vec2 b_pos_move;
 
   // Make sure they dont moved beyond the border
-  if (a_pos.x + a_move_x >= -1.0f + ar && a_pos.x + a_move_x <= 1.0f - ar)
+  if (a_pos.x + a_move_x >= 0.0f + ar && a_pos.x + a_move_x <= screen_width - ar)
     a_pos_move.x += a_move_x;
-  if (a_pos.y + a_move_y >= -1.0f + ar && a_pos.y + a_move_y <= 1.0f - ar)
+  if (a_pos.y + a_move_y >= 0.0f + ar && a_pos.y + a_move_y <= screen_height - ar)
     a_pos_move.y += a_move_y;
-  if (b_pos.x + b_move_x >= -1.0f + br && b_pos.x + b_move_x <= 1.0f - br)
+  if (b_pos.x + b_move_x >= 0.0f + br && b_pos.x + b_move_x <= screen_width - br)
     b_pos_move.x += b_move_x;
-  if (b_pos.y + b_move_y >= -1.0f + br && b_pos.y + b_move_y <= 1.0f - br)
+  if (b_pos.y + b_move_y >= 0.0f + br && b_pos.y + b_move_y <= screen_height - br)
     b_pos_move.y += b_move_y;
 
   // Update positions

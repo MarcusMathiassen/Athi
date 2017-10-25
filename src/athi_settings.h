@@ -7,6 +7,7 @@ extern float mouse_size;
 extern bool mouse_grab_multiple;
 extern bool mouse_busy_UI;
 extern bool show_mouse_grab_lines;
+extern bool mouse_grab;
 
 extern int32_t screen_width;
 extern int32_t screen_height;

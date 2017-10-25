@@ -6,7 +6,6 @@
 #include "athi_input.h"
 #include "athi_rect.h"
 #include "athi_settings.h"
-#include "athi_text.h"
 #include "athi_line.h"
 #include "athi_utility.h"
 #include "athi_voxelgrid.h"

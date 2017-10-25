@@ -4,6 +4,7 @@
 #include "athi_rect.h"
 #include "athi_renderer.h"
 #include "athi_spring.h"
+#include "athi_settings.h"
 
 Athi_Input_Manager athi_input_manager;
 
@@ -29,9 +30,7 @@ int32_t get_mouse_button_state(int32_t button) {
   return GLFW_RELEASE;
 }
 
-// Adds force to the object 'a'
 void gravitational_force(Particle &a, const vec2 &point) {
-  // Set up variables
   const float x1 = a.pos.x;
   const float y1 = a.pos.y;
   const float x2 = point.x;
@@ -39,12 +38,11 @@ void gravitational_force(Particle &a, const vec2 &point) {
   const float m1 = a.mass;
   const float m2 = 10.0f;
 
-  // Get distance between balls.
   const float dx = x2 - x1;
   const float dy = y2 - y1;
   const float d = sqrt(dx * dx + dy * dy);
 
-  if (d != 0.0f) {
+  if (d > 1e-4f) {
     const float angle = atan2(dy, dx);
     const float G = 6.674f;
     const float F = G * m1 * m2 / d * d;
@@ -128,11 +126,11 @@ void mouse_attach_spring() {
   }
 }
 
-void mouse_grab() {
+void mouse_grab_particles() {
   // Get the mouse state
   int32_t state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
-  auto mouse_pos = get_mouse_viewspace_pos();
+  auto mouse_pos = athi_input_manager.mouse.pos;
 
   Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
   if (draw_debug)
@@ -190,44 +188,80 @@ void mouse_grab() {
 }
 
 void update_inputs() {
-  auto mouse_pos = get_mouse_viewspace_pos();
+  auto mouse_pos = athi_input_manager.mouse.pos;
   auto context = glfwGetCurrentContext();
 
   // Find the circle you're over
   if (glfwGetKey(context, GLFW_KEY_S) == GLFW_PRESS) {
     mouse_attach_spring();
-  } else
-    mouse_grab();
+  } 
+  if (mouse_grab)
+    mouse_grab_particles();
 
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.003f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+  }
+
+  if (glfwGetKey(context, GLFW_KEY_2) == GLFW_PRESS) {
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+  }
+
+  if (glfwGetKey(context, GLFW_KEY_3) == GLFW_PRESS) {
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
   }
 
   if (glfwGetKey(context, GLFW_KEY_4) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 0.007f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+  }
+  if (glfwGetKey(context, GLFW_KEY_5) == GLFW_PRESS) {
+    particle_manager.add(mouse_pos, circle_size, glm::vec4(1,1,1,1));
   }
 }

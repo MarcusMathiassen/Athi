@@ -95,9 +95,9 @@ typedef unsigned long long ImU64;   // 64-bit unsigned integer
 
 struct ImVec2
 {
-    float x, y;
-    ImVec2() { x = y = 0.0f; }
-    ImVec2(float _x, float _y) { x = _x; y = _y; }
+    float x{0}, y{0};
+    constexpr ImVec2() = default;
+    constexpr ImVec2(float _x, float _y) { x = _x; y = _y; }
 #ifdef IM_VEC2_CLASS_EXTRA          // Define constructor and implicit cast operators in imconfig.h to convert back<>forth from your math types and ImVec2.
     IM_VEC2_CLASS_EXTRA
 #endif
@@ -105,9 +105,9 @@ struct ImVec2
 
 struct ImVec4
 {
-    float x, y, z, w;
-    ImVec4() { x = y = z = w = 0.0f; }
-    ImVec4(float _x, float _y, float _z, float _w) { x = _x; y = _y; z = _z; w = _w; }
+    float x{0}, y{0}, z{0}, w{0};
+    constexpr ImVec4() = default;
+    constexpr ImVec4(float _x, float _y, float _z, float _w) { x = _x; y = _y; z = _z; w = _w; }
 #ifdef IM_VEC4_CLASS_EXTRA          // Define constructor and implicit cast operators in imconfig.h to convert back<>forth from your math types and ImVec4.
     IM_VEC4_CLASS_EXTRA
 #endif

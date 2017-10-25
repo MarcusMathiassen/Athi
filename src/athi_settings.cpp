@@ -1,11 +1,11 @@
 #include "athi_settings.h"
 #include "athi_typedefs.h"
 
-float mouse_size{0.05f};
+float mouse_size{5.0f};
 bool mouse_busy_UI{false};
 bool mouse_grab_multiple{true};
 bool show_mouse_grab_lines{false};
-
+bool mouse_grab{false};
 int32_t screen_width;
 int32_t screen_height;
 
@@ -13,14 +13,14 @@ bool show_settings{false};
 bool physics_gravity{false};
 bool circle_collision{true};
 
-float circle_size{0.03f};
+float circle_size{3.0f};
 glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
 std::atomic<int32_t> comparisons{0};
 
 bool draw_debug{false};
-bool color_particles{false};
-bool draw_nodes{false};
+bool color_particles{true};
+bool draw_nodes{true};
 bool show_fps_info{true};
 
 bool quadtree_show_only_occupied{true};

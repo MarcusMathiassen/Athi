@@ -45,14 +45,15 @@ struct Athi_Input_Manager {
 extern Athi_Input_Manager athi_input_manager;
 
 static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-  mouse_size -= yoffset * 0.001f;
-  if (mouse_size < 0.000f) mouse_size = 0.001f;
+  mouse_size -= yoffset * 0.5f;
+  if (mouse_size < 0.000f) mouse_size = 0.5f;
   g_MouseWheel += (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.  
 }
 
 static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
-  athi_input_manager.mouse.pos.x = xpos;
-  athi_input_manager.mouse.pos.y = ypos;
+  athi_input_manager.mouse.pos.x = xpos * 2.0f;
+  athi_input_manager.mouse.pos.y = screen_height - (ypos * 2.0f);
+
 }
 
 static void char_callback(GLFWwindow*, unsigned int c)
@@ -74,13 +75,13 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action, in
       athi_input_manager.mouse.right_button.state = action;
   }
 
-  s32 width, height;
   glm::vec2 mouse_pos = athi_input_manager.mouse.pos;
-  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-  mouse_pos.x = -1.0f + 2 * mouse_pos.x / width;
-  mouse_pos.y = +1.0f - 2 * mouse_pos.y / height;
+  //mouse_pos.x = -1.0f + 2 * mouse_pos.x / width;
+  //mouse_pos.y = +1.0f - 2 * mouse_pos.y / height;
+  //mouse_pos.y = mouse_pos.y;
+
   if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, circle_size, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 10.0f, glm::vec4(1,1,1,1));
   }
 }
 

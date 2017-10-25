@@ -53,15 +53,15 @@ private:
   static int32_t current_voxelgrid_part;
 
  public:
-  void init() {
+  void init(float width, float height) {
     nodes.clear();
 
     const float sqrtGrid = sqrt(voxelgrid_parts);
-    const float col = 1.0f / sqrtGrid;
-    const float row = 1.0f / sqrtGrid;
+    const float col = width / sqrtGrid;
+    const float row = height / sqrtGrid;
 
-    for (float y = -1.0f; y < 1.0f; y += row) {
-      for (float x = -1.0f; x < 1.0f; x += col) {
+    for (float y = 0.0f; y < height; y += row) {
+      for (float x = 0.0f; x < width; x += col) {
         Rect bounds(glm::vec2(x, y), glm::vec2(x + col, y + row));
         bounds.color = get_universal_current_color();
         ++universal_color_picker;
@@ -72,7 +72,7 @@ private:
   };
 
   void input(const std::vector<T> &objects) {
-    if (voxelgrid_parts != current_voxelgrid_part) init();
+    if (voxelgrid_parts != current_voxelgrid_part) init(screen_width, screen_height);
     data = objects;
 
     for (const auto &obj : data) {

@@ -77,13 +77,13 @@ void Athi_Rect_Manager::draw() {
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
 
-  const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
-
+  const auto proj = camera.get_ortho_projection();
+  
   for (auto& rect : rect_buffer) {
     rect->transform.pos = vec3(rect->pos, 0.0f);
-    rect->transform.scale = vec3(rect->width * inverse_aspect, rect->height, 0);
+    rect->transform.scale = vec3(rect->width, rect->height, 0);
 
-    mat4 trans = rect->transform.get_model();
+    mat4 trans = proj * rect->transform.get_model();
 
     glUniform4f(uniform[COLOR], rect->color.r, rect->color.g, rect->color.b,
                 rect->color.a);
@@ -93,9 +93,9 @@ void Athi_Rect_Manager::draw() {
 
   for (auto& rect : rect_immediate_buffer) {
     rect.transform.pos = vec3(rect.pos, 0.0f);
-    rect.transform.scale = vec3(rect.width * inverse_aspect, rect.height, 0);
+    rect.transform.scale = vec3(rect.width, rect.height, 0);
 
-    mat4 trans = rect.transform.get_model();
+    mat4 trans = proj * rect.transform.get_model();
 
     glUniform4f(uniform[COLOR], rect.color.r, rect.color.g, rect.color.b,
                 rect.color.a);
@@ -134,14 +134,14 @@ void draw_rect(const vec2& min, f32 width, f32 height, const vec4& color,
 }
 
 void draw_hollow_rect(const vec2& min, const vec2& max, const vec4& color) {
-
+  
   render_call([min, max, color]() {
     glBindVertexArray(athi_rect_manager.VAO);
     glUseProgram(athi_rect_manager.shader_program);
 
     auto max_ = max;
     auto min_ = min;
-
+    const auto proj = camera.get_ortho_projection();
 
     max_.x -= 0.002f;
     max_.y -= 0.002f;
@@ -149,12 +149,11 @@ void draw_hollow_rect(const vec2& min, const vec2& max, const vec4& color) {
     min_.y += 0.002f;
 
     Transform temp{vec3(min_, 0), vec3(), vec3(1, 1, 1)};
-    // const f32 inverse_aspect = 1.0f / (f32)camera.aspect_ratio;
 
     const f32 width = max_.x - min_.x;
     const f32 height = max_.y - min_.y;
     temp.scale = vec3(width, height, 0);
-    mat4 trans = temp.get_model();
+    mat4 trans = proj *  temp.get_model();
 
     glUniform4f(athi_rect_manager.uniform[athi_rect_manager.COLOR], color.r,
                 color.g, color.b, color.a);

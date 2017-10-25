@@ -26,7 +26,7 @@ void Athi_Window::init() {
       glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
-  glfwSetWindowAspectRatio(context, 1, 1);
+  // glfwSetWindowAspectRatio(context, 1, 1);
   glfwSetWindowSizeCallback(context, window_size_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 
@@ -35,9 +35,9 @@ void Athi_Window::init() {
   glViewport(0, 0, width, height);
   screen_width = width;
   screen_height = height;
-  camera.aspect_ratio = (f32)width / (f32)height;
-  camera.update_perspective();
-
+  camera.update_projection(width, height); 
+  camera.update();
+  
   // Gather monitor info
   s32 count;
   auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
@@ -61,13 +61,11 @@ void window_size_callback(GLFWwindow *window, int xpos, int ypos) {
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-  camera.aspect_ratio = (f32)width / (f32)height;
-  camera.window_width = width;
   screen_width = width;
   screen_height = height;
-  camera.window_height = height;
-  camera.update_perspective();
-  glViewport(0, 0, width, height);
+  camera.update_projection(static_cast<float>(width), static_cast<float>(height)); 
+  camera.update();
+  glViewport(0.0f, 0.0f, width, height);
 
   std::cout << "Framebuffer size: " << width << ":" << height << std::endl;
 }

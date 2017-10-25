@@ -8,7 +8,6 @@
 #include "athi_renderer.h"
 #include "athi_settings.h"
 #include "athi_spring.h"
-#include "athi_text.h"
 #include "athi_utility.h"
 
 #include <array>
@@ -139,7 +138,7 @@ void Athi_Core::init() {
   ImGuiIO& io = ImGui::GetIO();
   io.FontGlobalScale = 1.0f / font_retina_scale;
   io.Fonts->AddFontFromFileTTF("../Resources/Andale Mono.ttf", 12 * font_retina_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
-  SetupImGuiStyle(true, 0.4f);
+  SetupImGuiStyle(true, 0.6f);
 
   auto console = spdlog::stdout_color_mt("Athi");
   console->info("Initializing Athi..");
@@ -188,12 +187,14 @@ void Athi_Core::draw(GLFWwindow *window) {
 
   render();
 
-  if (show_settings)
-  {
+  if (show_settings) {
     ImGui_ImplGlfwGL3_NewFrame();    
     ImGui::Begin("Settings");
     ImGui::Text("Particles: %lu", particle_manager.particles.size());
     ImGui::Text("Comparisons: %d", static_cast<int32_t>(comparisons));
+    ImGui::SliderFloat("Particle size", &circle_size, 1.0f, 100.0f);
+    ImGui::SliderFloat("Mouse size", &mouse_size, 1.0f, 100.0f);ImGui::SameLine();
+    ImGui::Checkbox("Grab", &mouse_grab);
     ImGui::Checkbox("VSync", &vsync);
     ImGui::Checkbox("Gravity", &physics_gravity);
     ImGui::Checkbox("Collision", &circle_collision);
@@ -216,7 +217,7 @@ void Athi_Core::draw(GLFWwindow *window) {
     ImGui::SliderInt("capacity", &quadtree_capacity, 0, 100);
     ImGui::Separator();
     ImGui::RadioButton("Voxelgrid", &optimizer_used, 1);
-    ImGui::SliderInt("nodes", &voxelgrid_parts, 0, 256);
+    ImGui::SliderInt("nodes", &voxelgrid_parts, 0, 1024);
     ImGui::RadioButton("None", &optimizer_used, 2);
     
 

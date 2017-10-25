@@ -30,7 +30,7 @@ struct Particle {
     if (slowmotion) slow = 0.1f;
 
     // Apply gravity
-    if (physics_gravity) vel.y -= 0.000981f  * timestep;
+    if (physics_gravity) vel.y -= 9.81f  * timestep;
 
     // Update pos/vel/acc
     vel.x += (acc.x * timestep * slow);
@@ -40,20 +40,20 @@ struct Particle {
     acc *= 0;
 
     // Border collision
-    if (pos.x < -1.0f + radius) {
-      pos.x = -1.0f + radius;
+    if (pos.x < 0 + radius) {
+      pos.x = 0 + radius;
       vel.x = -vel.x;
     }
-    if (pos.x > 1.0f - radius) {
-      pos.x = 1.0f - radius;
+    if (pos.x > screen_width - radius) {
+      pos.x = screen_width - radius;
       vel.x = -vel.x;
     }
-    if (pos.y < -1.0f + radius) {
-      pos.y = -1.0f + radius;
+    if (pos.y < 0 + radius) {
+      pos.y = 0 + radius;
       vel.y = -vel.y;
     }
-    if (pos.y > 1.0f - radius) {
-      pos.y = 1.0f - radius;
+    if (pos.y > screen_height - radius) {
+      pos.y = screen_height - radius;
       vel.y = -vel.y;
     }
   }
