@@ -12,7 +12,7 @@ float px_scale{1.0f};
 
 bool show_settings{false};
 bool physics_gravity{false};
-float gravity_force{9.81f};
+float gravity_force{0.21f};
 bool circle_collision{true};
 
 int32_t physics_samples{1};
@@ -68,3 +68,8 @@ bool app_is_running{true};
 bool settings_changed{false};
 
 std::atomic<int32_t> universal_color_picker{0};
+ImVec4 background_color = ImColor(0.15686f, 0.17255f, 0.20392f, 1.0f);
+ImVec4 sw_color = ImColor(pastel_red.r, pastel_red.g, pastel_red.b, 1.0f);
+ImVec4 se_color = ImColor(pastel_gray.r, pastel_gray.g, pastel_gray.b, 1.0f);
+ImVec4 nw_color = ImColor(pastel_orange.r, pastel_orange.g, pastel_orange.b, 1.0f);
+ImVec4 ne_color = ImColor(pastel_pink.r, pastel_pink.g, pastel_pink.b, 1.0f);

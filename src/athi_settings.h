@@ -1,6 +1,7 @@
 #pragma once
 
 #include "athi_typedefs.h"
+#include "imgui.h"
 #include <atomic>
 
 extern float mouse_size;
@@ -73,6 +74,14 @@ extern bool app_is_running;
 extern bool settings_changed;
 
 extern std::atomic<int32_t> universal_color_picker;
+
+extern ImVec4 sw_color;
+extern ImVec4 se_color;
+extern ImVec4 nw_color;
+extern ImVec4 ne_color;
+
+
+extern ImVec4 background_color;
 
 static const glm::vec4 pastel_red(1, 0.411, 0.380, 1.0);
 static const glm::vec4 pastel_green(0.466, 0.745, 0.466, 1.0);

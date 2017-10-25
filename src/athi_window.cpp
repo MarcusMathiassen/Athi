@@ -10,12 +10,13 @@ void window_size_callback(GLFWwindow *window, int xpos, int ypos);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
 void Athi_Window::init() {
-  
+
   if (!glfwInit()) {
     std::cerr << "Error initializing GLFW!\n";
   }
 
   glfwWindowHint(GLFW_SAMPLES, 4);
+  glfwWindowHint(GLFW_TRANSPARENT, GLFW_TRUE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);

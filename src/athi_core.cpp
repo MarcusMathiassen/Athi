@@ -126,7 +126,7 @@ void Athi_Core::init() {
   ImGuiIO& io = ImGui::GetIO();
   io.FontGlobalScale = 1.0f / font_retina_scale;
   io.Fonts->AddFontFromFileTTF("../Resources/Andale Mono.ttf", 12 * font_retina_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
-  SetupImGuiStyle(true, 0.8f);
+  SetupImGuiStyle(true, 1.0f);
 
   px_scale = font_retina_scale;
 
@@ -168,6 +168,7 @@ void Athi_Core::start() {
 
 void Athi_Core::draw(GLFWwindow *window) {
   const double time_start_frame = glfwGetTime();
+  glClearColor(background_color.x,background_color.y,background_color.z,background_color.w);  
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   particle_manager.draw();
@@ -189,18 +190,21 @@ void Athi_Core::draw(GLFWwindow *window) {
     ImGui::SliderFloat("Particle size", &circle_size, 1.0f, 50.0f);
     ImGui::SliderFloat("Mouse size", &mouse_size, 1.0f, 500.0f);ImGui::SameLine();
     ImGui::Checkbox("Grab", &mouse_grab);
-    ImGui::SliderInt("Physics samples", &physics_samples, 1, 64);
+    ImGui::InputInt("Physics samples", &physics_samples);
+    if (physics_samples < 1) physics_samples = 1;
+    
     ImGui::Checkbox("VSync", &vsync);
     ImGui::Checkbox("Gravity", &physics_gravity);ImGui::SameLine();
     ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);
 
     ImGui::Checkbox("Collision", &circle_collision);
     ImGui::Checkbox("OpenCL", &openCL_active);
-    ImGui::Checkbox("Multithreaded", &use_multithreading); ImGui::SameLine(); ImGui::InputInt("", &variable_thread_count);
+    ImGui::Checkbox("Multithreaded", &use_multithreading); ImGui::SameLine(); 
+    ImGui::InputInt("", &variable_thread_count);
+    if (variable_thread_count < 0) variable_thread_count = 0;
     ImGui::Checkbox("Debug", &draw_debug);ImGui::SameLine();
     ImGui::Checkbox("Nodes", &draw_nodes);ImGui::SameLine();
     ImGui::Checkbox("color particles", &color_particles);
-    if (variable_thread_count < 0) variable_thread_count = 0;
 
     int prev_optimizer_used = optimizer_used;
     if (quadtree_active)optimizer_used = 0;
@@ -209,7 +213,23 @@ void Athi_Core::draw(GLFWwindow *window) {
 
     ImGui::Separator();
     ImGui::RadioButton("Quadtree", &optimizer_used, 0);ImGui::SameLine();
-    ImGui::Checkbox("Occupied only", &quadtree_show_only_occupied);   
+    ImGui::Checkbox("Occupied only", &quadtree_show_only_occupied);
+    ImGui::SameLine();
+
+    const int color_flags = ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoTooltip | ImGuiColorEditFlags_NoOptions | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoSmallPreview;
+
+    ImGui::PushItemWidth(5.0f);
+    ImGui::ColorPicker3("##sw", (float*)&sw_color,color_flags);   ImGui::SameLine();
+    ImGui::ColorPicker3("##se", (float*)&se_color,color_flags);   ImGui::SameLine();
+    ImGui::ColorPicker3("##nw", (float*)&nw_color,color_flags);   ImGui::SameLine();
+    ImGui::ColorPicker3("##ne", (float*)&ne_color,color_flags);   
+    ImGui::PopItemWidth();
+
+    ImGui::PushItemWidth(100.0f);    
+    ImGui::Text("Background Color"); ImGui::SameLine();    
+    ImGui::ColorPicker4("##Background", (float*)&background_color);   
+    ImGui::PopItemWidth();
+    
     ImGui::SliderInt("depth", &quadtree_depth, 0, 10);
     ImGui::SliderInt("capacity", &quadtree_capacity, 0, 100);
     ImGui::Separator();

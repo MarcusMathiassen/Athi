@@ -65,8 +65,8 @@ void attraction_force(Particle &a, const vec2 &point) {
   const float d = sqrt(dx * dx + dy * dy);
 
   const float angle = atan2(dy, dx);
-  a.vel.x += 0.1f * d * cos(angle);
-  a.vel.y += 0.1f * d * sin(angle);
+  a.vel.x += d * cos(angle);
+  a.vel.y += d * sin(angle);
   a.vel *= 0.7f;
 }
 
@@ -133,8 +133,8 @@ void mouse_grab_particles() {
   auto mouse_pos = athi_input_manager.mouse.pos;
 
   Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
-  if (draw_debug)
-    draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
+  //if (draw_debug)
+  //  draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
 
   // If it's released just exit the function
   if (state == GLFW_RELEASE) {
