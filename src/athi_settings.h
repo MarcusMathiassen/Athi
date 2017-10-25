@@ -11,6 +11,7 @@ extern bool mouse_grab;
 
 extern int32_t screen_width;
 extern int32_t screen_height;
+extern float px_scale;
 
 extern bool show_settings;
 extern bool physics_gravity;
@@ -66,7 +67,7 @@ extern bool openCL_active;
 extern bool app_is_running;
 extern bool settings_changed;
 
-extern int32_t universal_color_picker;
+extern std::atomic<int32_t> universal_color_picker;
 
 static const glm::vec4 pastel_red(1, 0.411, 0.380, 1.0);
 static const glm::vec4 pastel_green(0.466, 0.745, 0.466, 1.0);

@@ -443,6 +443,7 @@ void ParticleManager::separate(Particle &a, Particle &b) {
 
 inline void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end) {
   int32_t counter = 0;
+
   for (size_t i = begin; i < end; ++i) {
     for (size_t j = 1 + i; j < total; ++j) {
       ++counter;

@@ -1,6 +1,7 @@
 
 #include <iostream>
 
+#include "imgui.h"
 #include "athi_camera.h"
 #include "athi_settings.h"
 #include "athi_window.h"
@@ -57,7 +58,6 @@ void Athi_Window::update() {}
 GLFWwindow *Athi_Window::get_window_context() { return context; }
 
 void window_size_callback(GLFWwindow *window, int xpos, int ypos) {
-  std::cout << "Window size: " << xpos << ":" << ypos << std::endl;
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
@@ -67,5 +67,14 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   camera.update();
   glViewport(0.0f, 0.0f, width, height);
 
-  std::cout << "Framebuffer size: " << width << ":" << height << std::endl;
+  // HACKS
+  if (voxelgrid_parts != 4) voxelgrid_parts = 4; // hack
+  else voxelgrid_parts = 16;
+  int w,h;
+  glfwGetWindowSize(window, &w, &h);
+  px_scale = static_cast<float>(width) / static_cast<float>(w);
+
+  ImGuiIO& io = ImGui::GetIO();
+  io.FontGlobalScale = 1.0f / px_scale;  
+  //
 }

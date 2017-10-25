@@ -8,6 +8,7 @@ bool show_mouse_grab_lines{true};
 bool mouse_grab{true};
 int32_t screen_width;
 int32_t screen_height;
+float px_scale{1.0f};
 
 bool show_settings{false};
 bool physics_gravity{false};
@@ -62,4 +63,4 @@ bool openCL_active{false};
 bool app_is_running{true};
 bool settings_changed{false};
 
-int32_t universal_color_picker{0};
+std::atomic<int32_t> universal_color_picker{0};

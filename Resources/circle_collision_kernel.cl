@@ -20,7 +20,7 @@ typedef struct Athi_Circle
 } Athi_Circle;
 
 void separate_circles( Athi_Circle *a,  Athi_Circle *b);
-bool collision_detection( const Athi_Circle *a,  const Athi_Circle *b);
+bool collision_detection( const Athi_Circle *a, const Athi_Circle *b);
 void collision_resolve( Athi_Circle *a,  Athi_Circle *b);
 
 // Separates two intersecting circles.

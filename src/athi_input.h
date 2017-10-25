@@ -51,8 +51,8 @@ static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) 
 }
 
 static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
-  athi_input_manager.mouse.pos.x = xpos * 2.0f;
-  athi_input_manager.mouse.pos.y = screen_height - (ypos * 2.0f);
+  athi_input_manager.mouse.pos.x = xpos * px_scale;
+  athi_input_manager.mouse.pos.y = screen_height - (ypos * px_scale);
 
 }
 
