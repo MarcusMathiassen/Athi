@@ -9,41 +9,34 @@
 #include <memory>
 #include <vector>
 
-template <class T>
-class Quadtree
-{
- public:
-  struct Rect
-  {
+template <class T> class Quadtree {
+public:
+  struct Rect {
     glm::vec2 min{0.0f, 0.0f}, max{0.0f, 0.0f};
     glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
     Rect() = default;
-    Rect(const glm::vec2& min, const glm::vec2& max) : min(min), max(max) {}
-    bool contains(const glm::vec2& pos, float radius) const
-    {
-      if (pos.x - radius < max.x && pos.x + radius > min.x && 
+    Rect(const glm::vec2 &min, const glm::vec2 &max) : min(min), max(max) {}
+    bool contains(const glm::vec2 &pos, float radius) const {
+      if (pos.x - radius < max.x && pos.x + radius > min.x &&
           pos.y - radius < max.y && pos.y + radius > min.y)
         return true;
       return false;
     }
   };
 
-  Quadtree(int32_t level, const Rect& bounds) : bounds(bounds), level(level) {}
-  Quadtree(int32_t depth, int32_t capacity, const glm::vec2& min, const glm::vec2& max)
-  {
+  constexpr Quadtree(int32_t level, const Rect &bounds) noexcept : bounds(bounds), level(level) {}
+  constexpr Quadtree(const glm::vec2 &min, const glm::vec2 &max) noexcept {
     bounds.color = pastel_gray;
     bounds.min = min;
     bounds.max = max;
   }
 
-  void draw_bounds() 
-  {
-    if (sw)
-    {
-      sw->bounds.color = glm::vec4(sw_color.x,sw_color.y,sw_color.z,sw_color.w);
-      se->bounds.color = glm::vec4(se_color.x,se_color.y,se_color.z,se_color.w);
-      nw->bounds.color = glm::vec4(nw_color.x,nw_color.y,nw_color.z,nw_color.w);
-      ne->bounds.color = glm::vec4(ne_color.x,ne_color.y,ne_color.z,ne_color.w);
+  void draw_bounds() {
+    if (sw) {
+      sw->bounds.color = glm::vec4(sw_color.x, sw_color.y, sw_color.z, sw_color.w);
+      se->bounds.color = glm::vec4(se_color.x, se_color.y, se_color.z, se_color.w);
+      nw->bounds.color = glm::vec4(nw_color.x, nw_color.y, nw_color.z, nw_color.w);
+      ne->bounds.color = glm::vec4(ne_color.x, ne_color.y, ne_color.z, ne_color.w);
       sw->draw_bounds();
       se->draw_bounds();
       nw->draw_bounds();
@@ -57,14 +50,16 @@ class Quadtree
       draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
 
-  void color_objects(std::vector<glm::vec4>& color) const
-  {
-    if (sw)
-    {
-      sw->bounds.color = glm::vec4(sw_color.x,sw_color.y,sw_color.z,sw_color.w);
-      se->bounds.color = glm::vec4(se_color.x,se_color.y,se_color.z,se_color.w);
-      nw->bounds.color = glm::vec4(nw_color.x,nw_color.y,nw_color.z,nw_color.w);
-      ne->bounds.color = glm::vec4(ne_color.x,ne_color.y,ne_color.z,ne_color.w);
+  void color_objects(std::vector<glm::vec4> &color) const {
+    if (sw) {
+      sw->bounds.color =
+          glm::vec4(sw_color.x, sw_color.y, sw_color.z, sw_color.w);
+      se->bounds.color =
+          glm::vec4(se_color.x, se_color.y, se_color.z, se_color.w);
+      nw->bounds.color =
+          glm::vec4(nw_color.x, nw_color.y, nw_color.z, nw_color.w);
+      ne->bounds.color =
+          glm::vec4(ne_color.x, ne_color.y, ne_color.z, ne_color.w);
       sw->color_objects(color);
       se->color_objects(color);
       nw->color_objects(color);
@@ -72,24 +67,20 @@ class Quadtree
       return;
     }
 
-    for (const auto id : indices) 
+    for (const auto id : indices)
       color[id] = bounds.color;
   }
 
-  void input(const std::vector<T>& data_)
-  {
+  void input(const std::vector<T> &data_) {
     data = data_;
     indices.reserve(quadtree_capacity);
-    for (const auto& obj : data)
-    {
+    for (const auto &obj : data) {
       insert(obj.id);
     }
   }
 
-  void get(std::vector<std::vector<int>>& cont) const
-  {
-    if (sw)
-    {
+  void get(std::vector<std::vector<int>> &cont) const {
+    if (sw) {
       sw->get(cont);
       se->get(cont);
       nw->get(cont);
@@ -97,13 +88,12 @@ class Quadtree
       return;
     }
 
-    if (!indices.empty())
-    {
+    if (!indices.empty()) {
       cont.emplace_back(indices);
     }
   }
 
- private:
+private:
   void split() {
     const glm::vec2 min = bounds.min;
     const glm::vec2 max = bounds.max;
@@ -129,23 +119,32 @@ class Quadtree
 
   void insert(int32_t id) {
     if (sw) {
-      if (sw->contains(id)) sw->insert(id);
-      if (se->contains(id)) se->insert(id);
-      if (nw->contains(id)) nw->insert(id);
-      if (ne->contains(id)) ne->insert(id);
+      if (sw->contains(id))
+        sw->insert(id);
+      if (se->contains(id))
+        se->insert(id);
+      if (nw->contains(id))
+        nw->insert(id);
+      if (ne->contains(id))
+        ne->insert(id);
       return;
     }
 
     indices.emplace_back(id);
 
-    if (static_cast<int32_t>(indices.size()) > quadtree_capacity && level < quadtree_depth) {
+    if (static_cast<int32_t>(indices.size()) > quadtree_capacity &&
+        level < quadtree_depth) {
       split();
 
       for (const auto index : indices) {
-        if (sw->contains(index)) sw->insert(index);
-        if (se->contains(index)) se->insert(index);
-        if (nw->contains(index)) nw->insert(index);
-        if (ne->contains(index)) ne->insert(index);
+        if (sw->contains(index))
+          sw->insert(index);
+        if (se->contains(index))
+          se->insert(index);
+        if (nw->contains(index))
+          nw->insert(index);
+        if (ne->contains(index))
+          ne->insert(index);
       }
       indices.clear();
     }
@@ -167,5 +166,4 @@ class Quadtree
   int32_t level{0};
 };
 
-template <class T>
-std::vector<T> Quadtree<T>::data;
+template <class T> std::vector<T> Quadtree<T>::data;

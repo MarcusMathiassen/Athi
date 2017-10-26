@@ -33,10 +33,10 @@ struct Particle {
     if (physics_gravity) vel.y -= gravity_force * mass * timestep;
 
     // Update pos/vel/acc
-    vel.x += (acc.x * timestep * slow * 0.99f);
-    vel.y += (acc.y * timestep * slow * 0.99f);
-    pos.x += (vel.x * timestep * slow * 0.99f);
-    pos.y += (vel.y * timestep * slow * 0.99f);
+    vel.x += acc.x * timestep * slow;
+    vel.y += acc.y * timestep * slow;
+    pos.x += vel.x * timestep * slow;
+    pos.y += vel.y * timestep * slow;
     acc *= 0;
 
     // Border collision
@@ -68,7 +68,7 @@ struct ParticleManager {
   std::vector<glm::vec4>  colors;
   std::vector<glm::mat4>  models;
 
-  Quadtree<Particle> quadtree = Quadtree<Particle>(quadtree_depth, quadtree_capacity, glm::vec2(-1, -1), glm::vec2(1, 1));
+  Quadtree<Particle> quadtree = Quadtree<Particle>(glm::vec2(-1, -1), glm::vec2(1, 1));
   VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
 
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };

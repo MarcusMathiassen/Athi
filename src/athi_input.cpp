@@ -6,6 +6,8 @@
 #include "athi_spring.h"
 #include "athi_settings.h"
 
+#include <glm/vec2.hpp>
+
 Athi_Input_Manager athi_input_manager;
 
 void init_input_manager() { athi_input_manager.init(); }
@@ -78,54 +80,6 @@ uint16_t last_state{NOTHING};
 int32_t id1, id2;
 bool found{false};
 bool attach{false};
-void mouse_attach_spring() {
-  // Drag a spring from one circle to the other
-  // Get mouse position
-  vec2 mouse_pos = get_mouse_viewspace_pos();
-
-  Athi::Rect mouse_rect(
-      vec2(mouse_pos.x - mouse_size, mouse_pos.y - mouse_size),
-      vec2(mouse_pos.x + mouse_size, mouse_pos.y + mouse_size));
-
-  int32_t state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
-
-  if (attach) {
-    attach_spring(particle_manager.particles[id1],
-                  particle_manager.particles[id2]);
-    attach = false;
-  }
-
-  // If mouse released and first circle is found
-  if (state == GLFW_RELEASE && found) {
-    for (auto &c : particle_manager.particles) {
-      if (mouse_rect.contains(c.id)) {
-        id2 = c.id;
-        attach = true;
-        found = false;
-        return;
-      }
-    }
-  }
-
-  // draw a line while we look for the second circle
-  if (state == GLFW_PRESS && found) {
-    draw_line(mouse_pos, particle_manager.particles[id1].pos, 0.03f,
-              pastel_pink);
-    return;
-  }
-
-  // When the mouse is pressed down, get the first circle id
-  if (state == GLFW_PRESS) {
-    for (auto &c : particle_manager.particles) {
-      if (mouse_rect.contains(c.id)) {
-        id1 = c.id;
-        found = true;
-        return;
-      }
-    }
-  }
-}
-
 void mouse_grab_particles() {
   // Get the mouse state
   int32_t state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
@@ -153,7 +107,7 @@ void mouse_grab_particles() {
       for (auto &id : mouse_attached_to) {
         attraction_force(particle_manager.particles[id], mouse_pos);
         last_state = ATTACHED;
-        if (show_mouse_grab_lines)
+        if (draw_debug)
           draw_line(mouse_pos, particle_manager.particles[id].pos,
                     0.03f, pastel_pink);
       }
@@ -162,11 +116,11 @@ void mouse_grab_particles() {
       attraction_force(
           particle_manager.particles[mouse_attached_to_single],
           mouse_pos);
-      if (show_mouse_grab_lines)
+      if (draw_debug)
         draw_line(
             mouse_pos,
             particle_manager.particles[mouse_attached_to_single].pos,
-            0.03f, pastel_pink);
+            3.0f, pastel_pink);
     }
     mouse_busy_UI = true;
   }
@@ -191,77 +145,73 @@ void update_inputs() {
   auto mouse_pos = athi_input_manager.mouse.pos;
   auto context = glfwGetCurrentContext();
 
-  // Find the circle you're over
-  if (glfwGetKey(context, GLFW_KEY_S) == GLFW_PRESS) {
-    mouse_attach_spring();
-  } 
   if (mouse_grab)
     mouse_grab_particles();
 
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 1.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_manager.add(mouse_pos, 1.0f, circle_color);
   }
 
   if (glfwGetKey(context, GLFW_KEY_2) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 2.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_manager.add(mouse_pos, 2.0f, circle_color);
   }
 
   if (glfwGetKey(context, GLFW_KEY_3) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 3.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_manager.add(mouse_pos, 3.0f, circle_color);
   }
 
   if (glfwGetKey(context, GLFW_KEY_4) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
-    particle_manager.add(mouse_pos, 5.0f, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 5.0f, circle_color);
   }
   if (glfwGetKey(context, GLFW_KEY_5) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, circle_size, glm::vec4(1,1,1,1));
+    particle_manager.add(mouse_pos, circle_size, circle_color);
   }
 }

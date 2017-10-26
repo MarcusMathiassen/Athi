@@ -5,7 +5,7 @@ float mouse_size{5.0f};
 bool mouse_busy_UI{false};
 bool mouse_grab_multiple{true};
 bool show_mouse_grab_lines{true};
-bool mouse_grab{true};
+bool mouse_grab{false};
 int32_t screen_width;
 int32_t screen_height;
 float px_scale{1.0f};
@@ -23,13 +23,13 @@ glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 std::atomic<uint64_t> comparisons{0};
 std::atomic<uint64_t> resolutions{0};
 
-bool draw_debug{false};
+bool draw_debug{true};
 bool color_particles{true};
 bool draw_nodes{true};
 bool show_fps_info{true};
 
 bool quadtree_show_only_occupied{true};
-bool quadtree_active{false};
+bool quadtree_active{true};
 int32_t quadtree_depth{5};
 int32_t quadtree_capacity{50};
 

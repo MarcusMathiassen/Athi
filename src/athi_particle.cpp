@@ -127,7 +127,7 @@ void ParticleManager::update() {
     std::vector<std::vector<int>> cont; // nodes with vec of particle.id's 
 
     if (quadtree_active && openCL_active == false) {
-      quadtree = Quadtree<Particle>(quadtree_depth, quadtree_capacity, glm::vec2(0.0f, 0.0f), glm::vec2(screen_width, screen_height));
+      quadtree = Quadtree<Particle>(glm::vec2(0.0f, 0.0f), glm::vec2(screen_width, screen_height));
       quadtree.input(particles);
       quadtree.get(cont);
     } else if (voxelgrid_active && openCL_active == false) {

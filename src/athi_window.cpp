@@ -25,14 +25,13 @@ void Athi_Window::init() {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-  context =
-      glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
+  context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
   // glfwSetWindowAspectRatio(context, 1, 1);
   glfwSetWindowSizeCallback(context, window_size_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
-
+  
   int width, height;
   glfwGetFramebufferSize(context, &width, &height);
   glViewport(0, 0, width, height);

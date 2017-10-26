@@ -1,30 +1,26 @@
 #pragma once
 
-#include "athi_circle.h"
-#include "athi_particle.h"
 #include "athi_line.h"
 #include "athi_settings.h"
-#include "athi_typedefs.h"
-#include "athi_utility.h"
 
+#include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
-#include <cmath>
-#include <iostream>
 
+template <class T>
 struct Athi_Spring {
-  Particle *object;
-  Particle *anchor;
+  T *object;
+  T *anchor;
   float length;
   float k{0.2f};
   float b{1.0f};
   glm::vec4 color{pastel_green};
 
   void update() {
-    // Local variables
-    const vec2 p1 = object->pos;
-    const vec2 p2 = anchor->pos;
-    const vec2 v1 = object->vel;
-    const vec2 v2 = anchor->vel;
+
+    const glm::vec2 p1 = object->pos;
+    const glm::vec2 p2 = anchor->pos;
+    const glm::vec2 v1 = object->vel;
+    const glm::vec2 v2 = anchor->vel;
     const auto m1 = object->mass;
     const auto m2 = anchor->mass;
 
@@ -45,9 +41,3 @@ struct Athi_Spring {
 
   void draw() const { draw_line(object->pos, anchor->pos, 0.3f, color); }
 };
-
-extern std::vector<std::unique_ptr<Athi_Spring>> spring_buffer;
-void attach_spring(Particle &a, Particle &b);
-void draw_springs();
-void update_springs();
-void add_spring(const Athi_Spring &s);

@@ -1,7 +1,6 @@
 
 #include "athi_rect.h"
 #include "athi_camera.h"
-#include "athi_circle.h"
 #include "athi_renderer.h"
 #include "athi_transform.h"
 #include "athi_utility.h"
@@ -18,8 +17,8 @@ bool Rect::contains(u32 id) {
   auto circle_pos = particle_manager.particles[id].pos;
   auto circle_radius = particle_manager.particles[id].radius;
 
-  const vec2 o = circle_pos;
-  const f32 r = circle_radius;
+  const glm::vec2 o = circle_pos;
+  const float r = circle_radius;
   if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y && o.y + r > min.y)
     return true;
   return false;
