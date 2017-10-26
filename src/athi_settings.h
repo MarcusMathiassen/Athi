@@ -59,6 +59,7 @@ extern double frametime;
 extern double smoothed_frametime;
 
 extern bool slowmotion;
+extern float slow_amount;
 extern bool vsync;
 
 extern int32_t variable_thread_count;
@@ -75,13 +76,13 @@ extern bool settings_changed;
 
 extern std::atomic<int32_t> universal_color_picker;
 
-extern ImVec4 sw_color;
-extern ImVec4 se_color;
-extern ImVec4 nw_color;
-extern ImVec4 ne_color;
+extern glm::vec4 sw_color;
+extern glm::vec4 se_color;
+extern glm::vec4 nw_color;
+extern glm::vec4 ne_color;
 
 
-extern ImVec4 background_color;
+extern glm::vec4 background_color;
 
 static const glm::vec4 pastel_red(1, 0.411, 0.380, 1.0);
 static const glm::vec4 pastel_green(0.466, 0.745, 0.466, 1.0);

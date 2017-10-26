@@ -33,10 +33,10 @@ public:
 
   void draw_bounds() {
     if (sw) {
-      sw->bounds.color = glm::vec4(sw_color.x, sw_color.y, sw_color.z, sw_color.w);
-      se->bounds.color = glm::vec4(se_color.x, se_color.y, se_color.z, se_color.w);
-      nw->bounds.color = glm::vec4(nw_color.x, nw_color.y, nw_color.z, nw_color.w);
-      ne->bounds.color = glm::vec4(ne_color.x, ne_color.y, ne_color.z, ne_color.w);
+      sw->bounds.color = sw_color;
+      se->bounds.color = se_color;
+      nw->bounds.color = nw_color;
+      ne->bounds.color = ne_color;
       sw->draw_bounds();
       se->draw_bounds();
       nw->draw_bounds();
@@ -52,14 +52,10 @@ public:
 
   void color_objects(std::vector<glm::vec4> &color) const {
     if (sw) {
-      sw->bounds.color =
-          glm::vec4(sw_color.x, sw_color.y, sw_color.z, sw_color.w);
-      se->bounds.color =
-          glm::vec4(se_color.x, se_color.y, se_color.z, se_color.w);
-      nw->bounds.color =
-          glm::vec4(nw_color.x, nw_color.y, nw_color.z, nw_color.w);
-      ne->bounds.color =
-          glm::vec4(ne_color.x, ne_color.y, ne_color.z, ne_color.w);
+      sw->bounds.color = sw_color;
+      se->bounds.color = se_color;
+      nw->bounds.color = nw_color;
+      ne->bounds.color = ne_color;
       sw->color_objects(color);
       se->color_objects(color);
       nw->color_objects(color);

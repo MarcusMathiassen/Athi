@@ -124,6 +124,10 @@ void ParticleManager::update() {
   if (particles.empty()) return;
 
   if (circle_collision) {
+
+    comparisons = 0;
+    resolutions = 0;
+
     std::vector<std::vector<int>> cont; // nodes with vec of particle.id's 
 
     if (quadtree_active && openCL_active == false) {

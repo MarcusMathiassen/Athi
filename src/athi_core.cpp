@@ -102,9 +102,7 @@ void Athi_Core::draw(GLFWwindow *window) {
   draw_lines();
   render();
 
-  if (show_settings) {
-    gui_render();
-  }
+  if (show_settings) gui_render();
 
   render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
   render_framerate =

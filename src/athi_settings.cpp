@@ -53,6 +53,7 @@ int32_t physics_framerate;
 int32_t physics_FPS_limit{0};
 
 bool slowmotion{false};
+float slow_amount{1.0f};
 bool vsync{true};
 
 int32_t variable_thread_count;
@@ -68,8 +69,8 @@ bool app_is_running{true};
 bool settings_changed{false};
 
 std::atomic<int32_t> universal_color_picker{0};
-ImVec4 background_color = ImColor(0.15686f, 0.17255f, 0.20392f, 1.0f);
-ImVec4 sw_color = ImColor(pastel_red.r, pastel_red.g, pastel_red.b, 1.0f);
-ImVec4 se_color = ImColor(pastel_gray.r, pastel_gray.g, pastel_gray.b, 1.0f);
-ImVec4 nw_color = ImColor(pastel_orange.r, pastel_orange.g, pastel_orange.b, 1.0f);
-ImVec4 ne_color = ImColor(pastel_pink.r, pastel_pink.g, pastel_pink.b, 1.0f);
+glm::vec4 background_color = glm::vec4(0.15686f, 0.17255f, 0.20392f, 1.0f);
+glm::vec4 sw_color{pastel_red};
+glm::vec4 se_color{pastel_gray};
+glm::vec4 nw_color{pastel_orange};
+glm::vec4 ne_color{pastel_pink};

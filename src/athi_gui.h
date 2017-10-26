@@ -9,7 +9,7 @@
 #include <sstream>
 #include <iostream>
 
-static int optimizer_used{3};
+static int optimizer_used{2};
 static bool open_settings = false;
 static bool open_profiler = false;
 
@@ -66,98 +66,68 @@ static void menu_profiler() {
 static void menu_settings() {
 
   ImGui::Begin("Settings", NULL,  ImGuiWindowFlags_AlwaysAutoResize);
-  ImGui::Text("Particles: %lu", particle_manager.particles.size());
-  ImGui::Text("Comparisons: %llu",
-              static_cast<uint64_t>(comparisons) / physics_samples);
-  ImGui::SameLine();
-  ImGui::Text("| %llu", static_cast<uint64_t>(resolutions));
-  ImGui::SameLine();
-
-  ImGui::Text("(%.4f%%)", 100.0f * static_cast<float>(resolutions) /
-                              static_cast<float>(comparisons));
-  comparisons = 0;
-  resolutions = 0;
-  ImGui::SliderFloat("Particle size", &circle_size, 1.0f, 50.0f);
-  ImGui::SliderFloat("Mouse size", &mouse_size, 1.0f, 500.0f);
-  ImGui::SameLine();
-  ImGui::Checkbox("Grab", &mouse_grab);
   ImGui::InputInt("Physics samples", &physics_samples);
-  if (physics_samples < 1)
-    physics_samples = 1;
+  if (physics_samples < 1) physics_samples = 1;
 
-  ImGui::Checkbox("VSync", &vsync);
-  ImGui::Checkbox("Gravity", &physics_gravity);
-  ImGui::SameLine();
-  ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);
-
-  ImGui::Checkbox("Collision", &circle_collision);
+  ImGui::Checkbox("VSync", &vsync); ImGui::SameLine();
+  ImGui::Checkbox("Collision", &circle_collision); ImGui::SameLine();
   ImGui::Checkbox("OpenCL", &openCL_active);
-  ImGui::Checkbox("Multithreaded", &use_multithreading);
-  ImGui::SameLine();
+  ImGui::SliderFloat("time scale", &slow_amount, 0.0001f, 10.0f);
+  
+  ImGui::Checkbox("gravity", &physics_gravity); ImGui::SameLine();
+  ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);
+  
+  ImGui::Checkbox("multithreaded", &use_multithreading); ImGui::SameLine();
   ImGui::InputInt("", &variable_thread_count);
-  if (variable_thread_count < 0)
-    variable_thread_count = 0;
-  ImGui::Checkbox("Debug", &draw_debug);
-  ImGui::SameLine();
-  ImGui::Checkbox("Nodes", &draw_nodes);
-  ImGui::SameLine();
-  ImGui::Checkbox("color particles", &color_particles);
+  if (variable_thread_count < 0) variable_thread_count = 0;
+  ImGui::Checkbox("draw nodes ", &draw_nodes); ImGui::SameLine();
+  ImGui::Checkbox("color particles based on node", &color_particles);
 
-  if (quadtree_active)
-    optimizer_used = 0;
-  else if (voxelgrid_active)
-    optimizer_used = 1;
-  else
-    optimizer_used = 2;
 
-  ImGui::RadioButton("Quadtree", &optimizer_used, 0);   ImGui::SameLine();  
   if (ImGui::CollapsingHeader("quadtree options"))
   {
     ImGui::Checkbox("Occupied only", &quadtree_show_only_occupied);
     ImGui::SliderInt("depth", &quadtree_depth, 0, 10);
     ImGui::SliderInt("capacity", &quadtree_capacity, 0, 100);
   }
-  ImGui::RadioButton("uniform grid", &optimizer_used, 1);   ImGui::SameLine();  
   if (ImGui::CollapsingHeader("uniform grid options"))
   { 
     ImGui::SliderInt("nodes", &voxelgrid_parts, 4, 1024);
   }
-  ImGui::RadioButton("None", &optimizer_used, 2);
 
-  switch (optimizer_used) {
-  case 0:
-    quadtree_active = true;
-    voxelgrid_active = false;
-    break;
-  case 1:
-    voxelgrid_active = true;
-    quadtree_active = false;
-    break;
-  case 2:
-    voxelgrid_active = false;
-    quadtree_active = false;
-    break;
-  default:
-    break;
-  }
 
   if (ImGui::CollapsingHeader("color options"))
   {
     ImGui::PushItemWidth(100.0f);
     ImGui::Text("particle color");
-    ImGui::ColorPicker4("##particle", (float *)&circle_color);
-
+    ImGui::SameLine();    
+    if (ImGui::Button("apply to all")) {
+      for (auto& p: particle_manager.particles)
+        particle_manager.colors[p.id] = circle_color;
+    }
+    ImGui::SameLine(200);    
     ImGui::Text("background color");
+
+    ImGui::ColorPicker4("##particle", (float *)&circle_color);
+    ImGui::SameLine();    
     ImGui::ColorPicker4("##Background", (float *)&background_color);
     
-    ImGui::Text("quadtree colors sw,se,nw,ne");
-    ImGui::ColorPicker3("##sw", (float *)&sw_color);
+    ImGui::Text("quadtree colors");
+    ImGui::Text("sw");
+    ImGui::SameLine(200);    
+    ImGui::Text("se");
+    ImGui::SameLine(400);    
+    ImGui::Text("nw");
+    ImGui::SameLine(600);    
+    ImGui::Text("ne");
+    
+    ImGui::ColorPicker4("##sw", (float *)&sw_color);
     ImGui::SameLine();
-    ImGui::ColorPicker3("##se", (float *)&se_color);
+    ImGui::ColorPicker4("##se", (float *)&se_color);
     ImGui::SameLine();
-    ImGui::ColorPicker3("##nw", (float *)&nw_color);
+    ImGui::ColorPicker4("##nw", (float *)&nw_color);
     ImGui::SameLine();
-    ImGui::ColorPicker3("##ne", (float *)&ne_color);
+    ImGui::ColorPicker4("##ne", (float *)&ne_color);
 
     ImGui::PopItemWidth();
   }
@@ -176,9 +146,13 @@ void gui_render() {
 
     const auto yellow = ImVec4(0.1f, 8.0f, 0.8f, 1.0f);    
     ImGui::PushStyleColor(ImGuiCol_Text, yellow);
-    ImGui::Text("%lu", particle_manager.particles.size());
+    ImGui::Text("particles: %lu", particle_manager.particles.size());
     ImGui::PopStyleColor();
     ImGui::SameLine();
+
+    ImGui::Text("comparisons: %llu", static_cast<uint64_t>(comparisons) / physics_samples);
+    ImGui::SameLine();
+    ImGui::Text("resolution: %llu (%.4f%%)", static_cast<uint64_t>(resolutions), 100.0f * static_cast<float>(resolutions)/static_cast<float>(comparisons)); ImGui::SameLine();
 
     const auto red = ImVec4(1.0f, 0.1, 0.1f, 1.0f);
     const auto green = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
@@ -186,6 +160,40 @@ void gui_render() {
     ImGui::Text("FPS %d", framerate);
     ImGui::PopStyleColor();
     ImGui::SameLine();
+
+    ImGui::PushItemWidth(100.0f);    
+    ImGui::SliderFloat("particle size", &circle_size, 1.0f, 100.0f); ImGui::SameLine();     
+    ImGui::SliderFloat("mouse size", &mouse_size, 1.0f, 500.0f); ImGui::SameLine();
+    ImGui::PopItemWidth();    
+    ImGui::Checkbox("grab", &mouse_grab); ImGui::SameLine();
+
+    if (quadtree_active)
+      optimizer_used = 0;
+    else if (voxelgrid_active)
+      optimizer_used = 1;
+    else
+      optimizer_used = 2;
+
+    ImGui::RadioButton("quadtree", &optimizer_used, 0);   ImGui::SameLine();      
+    ImGui::RadioButton("uniform grid", &optimizer_used, 1);   ImGui::SameLine();      
+    ImGui::RadioButton("none", &optimizer_used, 2);
+    
+      switch (optimizer_used) {
+      case 0:
+        quadtree_active = true;
+        voxelgrid_active = false;
+        break;
+      case 1:
+        voxelgrid_active = true;
+        quadtree_active = false;
+        break;
+      case 2:
+        voxelgrid_active = false;
+        quadtree_active = false;
+        break;
+      default:
+        break;
+      }
     
     ImGui::EndMainMenuBar();
   }

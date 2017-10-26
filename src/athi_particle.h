@@ -26,17 +26,15 @@ struct Particle {
   float radius{0.0f};
 
   void update() {
-    float slow = 1.0f;
-    if (slowmotion) slow = 0.1f;
 
     // Apply gravity
     if (physics_gravity) vel.y -= gravity_force * mass * timestep;
 
     // Update pos/vel/acc
-    vel.x += acc.x * timestep * slow;
-    vel.y += acc.y * timestep * slow;
-    pos.x += vel.x * timestep * slow;
-    pos.y += vel.y * timestep * slow;
+    vel.x += acc.x * timestep * slow_amount;
+    vel.y += acc.y * timestep * slow_amount;
+    pos.x += vel.x * timestep * slow_amount;
+    pos.y += vel.y * timestep * slow_amount;
     acc *= 0;
 
     // Border collision
