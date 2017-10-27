@@ -12,12 +12,12 @@ float px_scale{1.0f};
 
 bool show_settings{false};
 bool physics_gravity{false};
-float gravity_force{0.21f};
+float gravity_force{9.81f};
 bool circle_collision{true};
 
 int32_t physics_samples{1};
 
-float circle_size{3.0f};
+float circle_size{10.0f};
 glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
 std::atomic<uint64_t> comparisons{0};

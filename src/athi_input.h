@@ -47,8 +47,7 @@ struct Athi_Input_Manager {
 
 extern Athi_Input_Manager athi_input_manager;
 
-static void scroll_callback(GLFWwindow *window, double xoffset,
-                            double yoffset) {
+static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
   mouse_size -= yoffset * 0.5f;
   if (mouse_size < 0.000f)
     mouse_size = 0.5f;
