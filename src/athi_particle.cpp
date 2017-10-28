@@ -16,7 +16,6 @@
 ParticleManager particle_manager;
 
 void ParticleManager::init() {
-
   // OpenCL init
   //
   read_file("../Resources/particle_collision.cl", &kernel_source);
@@ -119,11 +118,13 @@ void ParticleManager::init() {
 }
 
 void ParticleManager::update() {
+  profile p("ParticleManager::update");
 
   // just exit when no particles are present.
   if (particles.empty()) return;
 
   if (circle_collision) {
+    profile p("ParticleManager::circle_collision");
 
     comparisons = 0;
     resolutions = 0;
@@ -250,7 +251,8 @@ void ParticleManager::update() {
       collision_logNxN(particles.size(), 0, particles.size());
     }
   }
-
+ {
+  profile p("ParticleManager::update(draw nodes/color quadtree/voxelgrid)");
   if (quadtree_active && draw_debug) {
     if (color_particles) quadtree.color_objects(colors);
     if (draw_nodes) quadtree.draw_bounds();
@@ -259,48 +261,58 @@ void ParticleManager::update() {
     if (color_particles) voxelgrid.color_objects(colors);
     if (draw_nodes) voxelgrid.draw_bounds();
   }  
+ }
 
-  for (auto &p : particles) {
+  {
+    profile p("ParticleManager::update(particles update)");
+    for (auto &p : particles) {
 
-    p.update();
+      p.update();
 
-    // Update the transform
-    transforms[p.id].pos = glm::vec3(p.pos.x, p.pos.y, 0);
+      // Update the transform
+      transforms[p.id].pos = glm::vec3(p.pos.x, p.pos.y, 0);
+    }
   }
 
-  const size_t particles_size = particles.size();
+    const size_t particles_size = particles.size();
 
-  // Check if buffers need resizing
-  if (particles_size > models.size()) {
-    models.resize(particles_size);
+    // Check if buffers need resizing
+    if (particles_size > models.size()) {
+      models.resize(particles_size);
+    }
+
+    const auto proj = camera.get_ortho_projection();
+     {
+      // THIS IS THE SLOWEST THING EVER.
+      // #WHATISCHACHELOCALITY #WHATAREYOUDOING
+      profile p("ParticleManager::update(update buffers with new data)");
+      // Update the buffers with the new data.
+      for (const auto &p : particles) {
+        models[p.id] = proj * transforms[p.id].get_model();
+      }
+     }
+
+  {
+    profile p("ParticleManager::update(GPU buffer update)");
+    // Update the shader buffers incase of more particles..
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
+    const size_t transform_bytes_needed = sizeof(glm::mat4) * particles_size;
+    if (transform_bytes_needed > model_bytes_allocated) {
+      glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &models[0], GL_STREAM_DRAW);
+      model_bytes_allocated = transform_bytes_needed;
+    } else {
+      glBufferSubData(GL_ARRAY_BUFFER, 0, model_bytes_allocated, &models[0]);
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[COLOR]);
+    const size_t color_bytes_needed = sizeof(glm::vec4) * particles_size;
+    if (color_bytes_needed > color_bytes_allocated) {
+      glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0], GL_STREAM_DRAW);
+      color_bytes_allocated = color_bytes_needed;
+    } else {
+      glBufferSubData(GL_ARRAY_BUFFER, 0, color_bytes_allocated, &colors[0]);
+    }
   }
-
-  const auto proj = camera.get_ortho_projection();
-
-  // Update the buffers with the new data.
-  for (const auto &p : particles) {
-    models[p.id] = proj * transforms[p.id].get_model();
-  }
-
-  // Update the shader buffers incase of more particles..
-  glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
-  const size_t transform_bytes_needed = sizeof(glm::mat4) * particles_size;
-  if (transform_bytes_needed > model_bytes_allocated) {
-    glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &models[0], GL_STREAM_DRAW);
-    model_bytes_allocated = transform_bytes_needed;
-  } else {
-    glBufferSubData(GL_ARRAY_BUFFER, 0, model_bytes_allocated, &models[0]);
-  }
-
-  glBindBuffer(GL_ARRAY_BUFFER, vbo[COLOR]);
-  const size_t color_bytes_needed = sizeof(glm::vec4) * particles_size;
-  if (color_bytes_needed > color_bytes_allocated) {
-    glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0], GL_STREAM_DRAW);
-    color_bytes_allocated = color_bytes_needed;
-  } else {
-    glBufferSubData(GL_ARRAY_BUFFER, 0, color_bytes_allocated, &colors[0]);
-  }
-  
 }
 
 void ParticleManager::draw() const {

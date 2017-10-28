@@ -5,6 +5,7 @@
 #include "athi_renderer.h"
 #include "athi_spring.h"
 #include "athi_settings.h"
+#include "athi_utility.h"
 
 #include <glm/vec2.hpp>
 
@@ -142,11 +143,14 @@ void mouse_grab_particles() {
 }
 
 void update_inputs() {
+  profile p("update_inputs");
+
   auto mouse_pos = athi_input_manager.mouse.pos;
   auto context = glfwGetCurrentContext();
 
-  if (mouse_grab)
+  if (mouse_grab) {
     mouse_grab_particles();
+  }
 
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
     particle_manager.add(mouse_pos, 1.0f, circle_color);

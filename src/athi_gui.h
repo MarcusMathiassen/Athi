@@ -23,6 +23,7 @@ static void menu_profiler();
 static void menu_settings();
 
 static void menu_profiler() {
+  profile p("menu_profiler");
 
   ImGui::Begin("Profiler");
   ImGui::Columns(3, "mycolumns");
@@ -36,25 +37,16 @@ static void menu_profiler() {
 
   ImGui::Separator();
 
-  const std::array<std::string, 3> components{{"Total", "Render", "Update"}};
-  const std::array<double, 3> times{{smoothed_frametime,
-                                     smoothed_render_frametime,
-                                     smoothed_physics_frametime}};
+  const auto col = ImVec4(0.5f, 0.5f, 1.0f, 1.0f);
 
-  const std::array<double, 3> of_total{
-      {100.0 * smoothed_frametime / smoothed_frametime,
-       100.0 * smoothed_render_frametime / smoothed_frametime,
-       100.0 * smoothed_physics_frametime / smoothed_frametime}};
-
-  const auto col = ImVec4(1.0f, 0.5f, 1.0f, 1.0f);
-  for (int i = 0; i < 3; i++) {
+  for (const auto &[id, time]: time_taken_by) {
     ImGui::PushStyleColor(ImGuiCol_Text, col);
-    ImGui::Text("%s", components[i].c_str());
+    ImGui::Text("%s", id.c_str());
     ImGui::NextColumn();
     ImGui::PopStyleColor();
-    ImGui::Text("%f", times[i]);
+    ImGui::Text("%f", time);
     ImGui::NextColumn();
-    ImGui::Text("%.3f", of_total[i]);
+    ImGui::Text("%.3f", 100.0 * time / frametime);
     ImGui::NextColumn();
   }
   ImGui::Columns(1);
@@ -64,6 +56,7 @@ static void menu_profiler() {
 }
 
 static void menu_settings() {
+  profile p("menu_settings");
 
   ImGui::Begin("Settings", NULL,  ImGuiWindowFlags_AlwaysAutoResize);
   ImGui::InputInt("Physics samples", &physics_samples);
@@ -135,6 +128,8 @@ static void menu_settings() {
 }
 
 void gui_render() {
+  profile p("gui_render");
+
   ImGui_ImplGlfwGL3_NewFrame();
 
   if (ImGui::BeginMainMenuBar()) {

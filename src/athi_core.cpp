@@ -24,13 +24,10 @@
 #include "imgui_impl_glfw_gl3.h"
 
 Smooth_Average<double, 30> smooth_frametime_avg(&smoothed_frametime);
-Smooth_Average<double, 30>
-    smooth_physics_rametime_avg(&smoothed_physics_frametime);
-Smooth_Average<double, 30>
-    smooth_render_rametime_avg(&smoothed_render_frametime);
+Smooth_Average<double, 30> smooth_physics_rametime_avg(&smoothed_physics_frametime);
+Smooth_Average<double, 30> smooth_render_rametime_avg(&smoothed_render_frametime);
 
 void Athi_Core::init() {
-
   window.scene.width = 1280;
   window.scene.height = 800;
   window.init();
@@ -71,14 +68,28 @@ void Athi_Core::start() {
   glfwMakeContextCurrent(window_context);
   while (!glfwWindowShouldClose(window_context)) {
     const double time_start_frame = glfwGetTime();
+    profile p("Frame total");
 
-    glfwPollEvents();
+    // Frame begin
+
+    // Input
+    {
+      profile p("glfwPollEvents");
+      glfwPollEvents();
+    }
     update_inputs();
-    window.update();
-    update_settings();
 
+    // Update
     update();
+
+    // Draw
     draw(window_context);
+
+    // Frame End
+    {
+      profile p("glfwSwapBuffers");
+      glfwSwapBuffers(window_context);
+    }
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
@@ -92,37 +103,51 @@ void Athi_Core::start() {
 
 
 void Athi_Core::draw(GLFWwindow *window) {
+  profile p("Athi_Core::draw");
+
   const double time_start_frame = glfwGetTime();
   glClearColor(background_color.x, background_color.y, background_color.z,
                background_color.w);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  particle_manager.draw();
-  draw_rects();
-  draw_lines();
-  render();
+  {
+    profile p("ParticleManager::draw");
+    particle_manager.draw();
+  }
+  {
+    profile p("draw_rects");
+    draw_rects();
+  }
+  {
+    profile p("draw_rects");
+    draw_lines();
+  }
+  {
+    profile p("render");
+    render();
+  }
 
-  if (show_settings) gui_render();
+  if (show_settings) {
+    update_settings();
+    gui_render();
+  }
 
   render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  render_framerate =
-      static_cast<uint32_t>(std::round(1000.0f / smoothed_render_frametime));
+  render_framerate = static_cast<uint32_t>(std::round(1000.0f / smoothed_render_frametime));
   smooth_render_rametime_avg.add_new_frametime(render_frametime);
-
-  glfwSwapBuffers(window);
 }
 
 void Athi_Core::update() {
+  profile p("Athi_Core::update");
   const double time_start_frame = glfwGetTime();
   int iter = 0;
   while (iter++ < physics_samples) {
     const double start = glfwGetTime();
     particle_manager.update();
-    timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) / physics_samples;
+    timestep = ((glfwGetTime() - start) / 60.0)/physics_samples;
   }
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  physics_framerate =
-      static_cast<uint32_t>(std::round(1000.0f / smoothed_physics_frametime));
+  physics_framerate = static_cast<uint32_t>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
 }
 

@@ -1,6 +1,8 @@
 #include "athi_settings.h"
 #include "athi_typedefs.h"
 
+double frame_budget{1000.0/60.0};
+
 float mouse_size{5.0f};
 bool mouse_busy_UI{false};
 bool mouse_grab_multiple{true};
@@ -17,7 +19,7 @@ bool circle_collision{true};
 
 int32_t physics_samples{1};
 
-float circle_size{10.0f};
+float circle_size{5.0f};
 glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
 std::atomic<uint64_t> comparisons{0};

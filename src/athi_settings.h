@@ -4,6 +4,8 @@
 #include "imgui.h"
 #include <atomic>
 
+extern double frame_budget;
+
 extern float mouse_size;
 extern bool mouse_grab_multiple;
 extern bool mouse_busy_UI;

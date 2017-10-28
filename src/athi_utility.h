@@ -7,6 +7,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <thread>
+#include <unordered_map>
 
 #ifdef _WIN32
   #include <windows.h>
@@ -50,6 +51,19 @@ inline void parallel_for_each(It a, It b, F &&f) {
       (*d).second(*(elem_it));
     });
 }
+
+extern std::unordered_map<std::string, f64> time_taken_by;
+struct profile {
+  f64 start{0.0};
+  std::string id;
+
+  profile(const char* id_) : id(id_) {
+    start = glfwGetTime();
+  }
+  ~profile() {
+    time_taken_by[id] = (glfwGetTime() - start) * 1000.0;
+  }
+};
 
 
 class Semaphore {
