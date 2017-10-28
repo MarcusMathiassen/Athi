@@ -49,6 +49,7 @@ static void menu_profiler() {
     ImGui::Text("%.3f", 100.0 * time / frametime);
     ImGui::NextColumn();
   }
+  
   ImGui::Columns(1);
   ImGui::Separator();
 

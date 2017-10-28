@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.9.1)
 project(athi)
 
-#SET(CMAKE_BUILD_TYPE DEBUG)
-SET(CMAKE_BUILD_TYPE RELEASE)
+SET(CMAKE_BUILD_TYPE DEBUG)
+#SET(CMAKE_BUILD_TYPE RELEASE)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
@@ -43,7 +43,7 @@ elseif(APPLE)
 	file(GLOB RESOURCE_FILES
   "./Resources/*.png"
   "./Resources/*.vs"
-  "./Resources/*.fs"
+  "./Resources/*.fs" 
   "./Resources/*.ttf"
   "./Resources/*.cl"
 	)
@@ -52,7 +52,7 @@ elseif(APPLE)
 
 	# BUNDLE OPTIONS
 	set_target_properties(${PROJECT_NAME} PROPERTIES
-	MACOSX_BUNDLE true
+	MACOSX_BUNDLE false
 	MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Resources/info.plist
 	#MACOSX_BUNDLE_ICON_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon_16.png
   MACOSX_FRAMEWORK_IDENTIFIER org.cmake.${PROJECT_NAME}
