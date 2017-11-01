@@ -5,8 +5,9 @@
 #include "athi_quadtree.h"
 #include "athi_voxelgrid.h"
 #include "athi_settings.h"
-
-#include <dispatch/dispatch.h>
+#ifdef __APPLE__
+  #include <dispatch/dispatch.h>
+#endif
 #include <glm/gtx/vector_angle.hpp>
 #include <glm/glm.hpp>
 
@@ -63,8 +64,8 @@ void ParticleManager::init() {
 
   // Shaders
   shader_program = glCreateProgram();
-  const uint32_t vs = createShader("../Resources/athi_circle_shader.vs", GL_VERTEX_SHADER);
-  const uint32_t fs = createShader("../Resources/athi_circle_shader.fs", GL_FRAGMENT_SHADER);
+  const u32 vs = createShader("../Resources/athi_circle_shader.vs", GL_VERTEX_SHADER);
+  const u32 fs = createShader("../Resources/athi_circle_shader.fs", GL_FRAGMENT_SHADER);
 
   glAttachShader(shader_program, vs);
   glAttachShader(shader_program, fs);
@@ -84,9 +85,9 @@ void ParticleManager::init() {
 
   std::vector<glm::vec2> positions;
   positions.reserve(num_verts);
-  for (uint32_t i = 0; i < num_verts; ++i) {
-    positions.emplace_back(cos(i * M_PI * 2.0f / num_verts),
-                           sin(i * M_PI * 2.0f / num_verts));
+  for (u32 i = 0; i < num_verts; ++i) {
+    positions.emplace_back(cos(i * PI * 2.0f / num_verts),
+                           sin(i * PI * 2.0f / num_verts));
   }
 
   // vao
@@ -110,7 +111,7 @@ void ParticleManager::init() {
 
   // TRANSFORM
   glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
-  for (uint32_t i = 0; i < 4; ++i) {
+  for (u32 i = 0; i < 4; ++i) {
     glEnableVertexAttribArray(2 + i);
     glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(i * sizeof(glm::vec4)));
     glVertexAttribDivisor(2 + i, 1);
@@ -148,7 +149,7 @@ void ParticleManager::update() {
         const size_t parts = total / thread_count;
         const size_t leftovers = total % thread_count;
 
-        dispatch_apply(
+/*         dispatch_apply(
           thread_count,
           dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
           ^(size_t i) {
@@ -156,7 +157,7 @@ void ParticleManager::update() {
           size_t end = parts * (i + 1);
           if (i == thread_count-1) end += leftovers;
           collision_quadtree(cont, begin, end);
-        });
+        }); */
       } else
         collision_quadtree(cont, 0, cont.size());
     } else if (use_multithreading && variable_thread_count != 0 &&
@@ -166,7 +167,7 @@ void ParticleManager::update() {
       const size_t parts = total / thread_count;
       const size_t leftovers = total % thread_count;
 
-      dispatch_apply(
+/*       dispatch_apply(
         thread_count,
         dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
         ^(size_t i) {
@@ -175,7 +176,7 @@ void ParticleManager::update() {
           if (i == thread_count-1) end += leftovers;
           collision_logNxN(total, begin, end);
         }
-      );
+      ); */
     }
 
     else if (openCL_active) {
@@ -325,7 +326,7 @@ void ParticleManager::add(const glm::vec2 &pos, float radius, const glm::vec4 &c
   Particle p;
   p.pos = pos;
   p.radius = radius;
-  p.mass = 1.33333f * M_PI * radius * radius * radius;
+  p.mass = 1.33333f * PI * radius * radius * radius;
   p.id = static_cast<int32_t>(particles.size());
   particles.emplace_back(p);
 
@@ -352,8 +353,7 @@ bool ParticleManager::collision_check(const Particle &a, const Particle &b) cons
   const float br = b.radius;
 
   // square collision check
-  if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br &&
-      ay + ar > by - br) {
+  if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br && ay + ar > by - br) {
 
     const float dx = bx - ax;
     const float dy = by - ay;
@@ -399,10 +399,8 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b) {
     const float scal_tang_1 = glm::dot(tang, a_vel);
     const float scal_tang_2 = glm::dot(tang, b_vel);
 
-    const float scal_norm_1_after =
-        (scal_norm_1 * (m1 - m2) + 2.0f * m2 * scal_norm_2) / (m1 + m2);
-    const float scal_norm_2_after =
-        (scal_norm_2 * (m2 - m1) + 2.0f * m1 * scal_norm_1) / (m1 + m2);
+    const float scal_norm_1_after = (scal_norm_1 * (m1 - m2) + 2.0f * m2 * scal_norm_2) / (m1 + m2);
+    const float scal_norm_2_after = (scal_norm_2 * (m2 - m1) + 2.0f * m1 * scal_norm_1) / (m1 + m2);
     const glm::vec2 scal_norm_1_after_vec = norm * scal_norm_1_after;
     const glm::vec2 scal_norm_2_after_vec = norm * scal_norm_2_after;
     const glm::vec2 scal_norm_1_vec = tang * scal_tang_1;

@@ -3,7 +3,7 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <dispatch/dispatch.h>  // parallel_for_each()
+
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -12,6 +12,7 @@
 #ifdef _WIN32
   #include <windows.h>
 #elif __APPLE__
+#include <dispatch/dispatch.h>
   #include <sys/sysctl.h>
   #include <sys/types.h>
   #include <ctime>
@@ -27,13 +28,13 @@
 #include "athi_typedefs.h"
 
 void read_file(const char *file, char **buffer);
-void limit_FPS(uint32_t desired_framerate, double time_start_frame);
-void validateShader(const char *file, const char *type, uint32_t shader);
-void validateShaderProgram(const char *name, uint32_t shaderProgram);
-uint32_t createShader(const char *file, const GLenum type);
-uint32_t get_cpu_freq();
-uint32_t get_cpu_cores();
-uint32_t get_cpu_threads();
+void limit_FPS(u32 desired_framerate, double time_start_frame);
+void validateShader(const char *file, const char *type, u32 shader);
+void validateShaderProgram(const char *name, u32 shaderProgram);
+u32 createShader(const char *file, const GLenum type);
+u32 get_cpu_freq();
+u32 get_cpu_cores();
+u32 get_cpu_threads();
 std::string get_cpu_brand();
 glm::vec4 get_universal_current_color();
 

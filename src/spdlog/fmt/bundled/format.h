@@ -306,7 +306,7 @@ typedef __int64          intmax_t;
 namespace fmt {
 namespace internal {
 # pragma intrinsic(_BitScanReverse)
-inline uint32_t clz(uint32_t x) {
+inline u32 clz(u32 x) {
   unsigned long r = 0;
   _BitScanReverse(&r, x);
 
@@ -323,17 +323,17 @@ inline uint32_t clz(uint32_t x) {
 #  pragma intrinsic(_BitScanReverse64)
 # endif
 
-inline uint32_t clzll(uint64_t x) {
+inline u32 clzll(uint64_t x) {
   unsigned long r = 0;
 # ifdef _WIN64
   _BitScanReverse64(&r, x);
 # else
   // Scan the high 32 bits.
-  if (_BitScanReverse(&r, static_cast<uint32_t>(x >> 32)))
+  if (_BitScanReverse(&r, static_cast<u32>(x >> 32)))
     return 63 - (r + 32);
 
   // Scan the low 32 bits.
-  _BitScanReverse(&r, static_cast<uint32_t>(x));
+  _BitScanReverse(&r, static_cast<u32>(x));
 # endif
 
   assert(x != 0);
@@ -903,7 +903,7 @@ inline bool is_negative(T value) {
 
 // Selects uint32_t if FitsIn32Bits is true, uint64_t otherwise.
 template <bool FitsIn32Bits>
-struct TypeSelector { typedef uint32_t Type; };
+struct TypeSelector { typedef u32 Type; };
 
 template <>
 struct TypeSelector<false> { typedef uint64_t Type; };
@@ -922,7 +922,7 @@ FMT_API void report_unknown_type(char code, const char *type);
 // configuration.
 template <typename T = void>
 struct FMT_API BasicData {
-  static const uint32_t POWERS_OF_10_32[];
+  static const u32 POWERS_OF_10_32[];
   static const uint64_t POWERS_OF_10_64[];
   static const char DIGITS[];
 };
@@ -962,7 +962,7 @@ inline unsigned count_digits(uint64_t n) {
 
 #ifdef FMT_BUILTIN_CLZ
 // Optional version of count_digits for better performance on 32-bit platforms.
-inline unsigned count_digits(uint32_t n) {
+inline unsigned count_digits(u32 n) {
   int t = (32 - FMT_BUILTIN_CLZ(n | 1)) * 1233 >> 12;
   return to_unsigned(t) - (n < Data::POWERS_OF_10_32[t]) + 1;
 }

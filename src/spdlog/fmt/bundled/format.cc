@@ -270,7 +270,7 @@ const char internal::BasicData<T>::DIGITS[] =
   factor * 1000000000
 
 template <typename T>
-const uint32_t internal::BasicData<T>::POWERS_OF_10_32[] = {
+const u32 internal::BasicData<T>::POWERS_OF_10_32[] = {
   0, FMT_POWERS_OF_10(1)
 };
 

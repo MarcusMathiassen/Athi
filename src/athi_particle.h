@@ -1,5 +1,6 @@
 #pragma once
 
+#include "athi_typedefs.h"
 #include "athi_transform.h"
 #include "athi_settings.h"
 #include "athi_quadtree.h"
@@ -8,9 +9,9 @@
 #include "spdlog/spdlog.h"
 
 #ifdef __APPLE__
-#include <OpenCL/OpenCL.h>
+	#include <OpenCL/OpenCL.h>
 #else
-#include <CL/cl.h>
+	#include <CL/cl.h>
 #endif
 
 #include <glm/vec2.hpp>
@@ -18,7 +19,7 @@
 #include <vector>
 
 struct Particle {
-  int32_t id{0};
+  s32 id{0};
   glm::vec2 pos{0.0f, 0.0f};
   glm::vec2 vel{0.0f, 0.0f};
   glm::vec2 acc{0.0f, 0.0f};
@@ -70,9 +71,9 @@ struct ParticleManager {
   VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
 
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
-  uint32_t vao;
-  uint32_t vbo[NUM_BUFFERS];
-  uint32_t shader_program;
+  u32 vao;
+  u32 vbo[NUM_BUFFERS];
+  u32 shader_program;
   size_t model_bytes_allocated{0};
   size_t color_bytes_allocated{0};
 

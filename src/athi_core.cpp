@@ -12,7 +12,6 @@
 #include "athi_gui.h"
 
 #include <array>
-#include <dispatch/dispatch.h>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -41,7 +40,7 @@ void Athi_Core::init() {
   glEnable(GL_BLEND);
   glDisable(GL_DEPTH_BUFFER);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(0.15686, 0.17255, 0.20392, 1.0);
+  glClearColor(0.15686f, 0.17255f, 0.20392f, 1.0f);
 
   variable_thread_count = std::thread::hardware_concurrency();
 
@@ -93,7 +92,7 @@ void Athi_Core::start() {
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-    framerate = static_cast<uint32_t>(std::round(1000.0f / smoothed_frametime));
+    framerate = static_cast<u32>(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
   }
 
@@ -106,8 +105,7 @@ void Athi_Core::draw(GLFWwindow *window) {
   profile p("Athi_Core::draw");
 
   const double time_start_frame = glfwGetTime();
-  glClearColor(background_color.x, background_color.y, background_color.z,
-               background_color.w);
+  glClearColor(background_color.x, background_color.y, background_color.z, background_color.w);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   {
@@ -133,7 +131,7 @@ void Athi_Core::draw(GLFWwindow *window) {
   }
 
   render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  render_framerate = static_cast<uint32_t>(std::round(1000.0f / smoothed_render_frametime));
+  render_framerate = static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
   smooth_render_rametime_avg.add_new_frametime(render_frametime);
 }
 
@@ -147,7 +145,7 @@ void Athi_Core::update() {
     timestep = ((glfwGetTime() - start) / 60.0)/physics_samples;
   }
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  physics_framerate = static_cast<uint32_t>(std::round(1000.0f / smoothed_physics_frametime));
+  physics_framerate = static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
 }
 

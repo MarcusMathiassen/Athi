@@ -12,13 +12,13 @@
 template <class T> class Quadtree {
 public:
   struct Rect {
-    glm::vec2 min{0.0f, 0.0f}, max{0.0f, 0.0f};
+    glm::vec2 min_pos{0.0f, 0.0f}, max_pos{0.0f, 0.0f};
     glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
     Rect() = default;
-    Rect(const glm::vec2 &min, const glm::vec2 &max) : min(min), max(max) {}
+    Rect(const glm::vec2 &min, const glm::vec2 &max) : min_pos(min), max_pos(max) {}
     bool contains(const glm::vec2 &pos, float radius) const {
-      if (pos.x - radius < max.x && pos.x + radius > min.x &&
-          pos.y - radius < max.y && pos.y + radius > min.y)
+      if (pos.x - radius < max_pos.x && pos.x + radius > min_pos.x &&
+          pos.y - radius < max_pos.y && pos.y + radius > min_pos.y)
         return true;
       return false;
     }
@@ -27,8 +27,8 @@ public:
   constexpr Quadtree(int32_t level, const Rect &bounds) noexcept : bounds(bounds), level(level) {}
   constexpr Quadtree(const glm::vec2 &min, const glm::vec2 &max) noexcept {
     bounds.color = pastel_gray;
-    bounds.min = min;
-    bounds.max = max;
+    bounds.min_pos = min;
+    bounds.max_pos = max;
   }
 
   void draw_bounds() {
@@ -45,9 +45,9 @@ public:
     }
 
     if (!indices.empty() && quadtree_show_only_occupied)
-      draw_hollow_rect(bounds.min, bounds.max, bounds.color);
+      draw_hollow_rect(bounds.min_pos, bounds.max_pos, bounds.color);
     else if (!quadtree_show_only_occupied)
-      draw_hollow_rect(bounds.min, bounds.max, bounds.color);
+      draw_hollow_rect(bounds.min_pos, bounds.max_pos, bounds.color);
   }
 
   void color_objects(std::vector<glm::vec4> &color) const {
@@ -91,8 +91,8 @@ public:
 
 private:
   void split() {
-    const glm::vec2 min = bounds.min;
-    const glm::vec2 max = bounds.max;
+    const glm::vec2 min = bounds.min_pos;
+    const glm::vec2 max = bounds.max_pos;
 
     const float x = min.x;
     const float y = min.y;

@@ -6,6 +6,8 @@
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 // https://github.com/ocornut/imgui
 
+#include "athi_typedefs.h"
+
 struct GLFWwindow;
 
 IMGUI_API bool        ImGui_ImplGlfwGL3_Init(GLFWwindow* window, bool install_callbacks);
@@ -28,7 +30,7 @@ extern GLFWwindow*  g_Window;
 extern double       g_Time;
 extern bool         g_MouseJustPressed[3];
 extern float        g_MouseWheel;
-extern uint32_t       g_FontTexture;
+extern u32			g_FontTexture;
 extern int          g_ShaderHandle, g_VertHandle, g_FragHandle;
 extern int          g_AttribLocationTex, g_AttribLocationProjMtx;
 extern int          g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor;

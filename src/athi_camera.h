@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 enum Camera_Movement {
   FORWARD,
@@ -19,18 +20,19 @@ const float SPEED      =  4.5f;
 const float SENSITIVTY =  0.1f;
 const float ZOOM       =  45.0f;
 
+struct Camera {
 
-struct Camera
-{
   // Camera Attributes
   glm::vec3 position{0.0f, 0.0f, 0.0f};
   glm::vec3 front{0.0f, 0.0f, -1.0f};
   glm::vec3 up{0, 1, 0};
   glm::vec3 right;
   glm::vec3 world_up{0, 1, 0};
+
   // Eular Angles
   float yaw{YAW};
   float pitch{PITCH};
+
   // Camera options
   float movement_speed{SPEED};
   float mouse_sensitivity{SENSITIVTY};

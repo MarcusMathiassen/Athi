@@ -150,7 +150,7 @@ void gui_render() {
     ImGui::SameLine();
     ImGui::Text("resolved: %llu (%.4f%%)", static_cast<uint64_t>(resolutions), 100.0f * static_cast<float>(resolutions)/static_cast<float>(comparisons)); ImGui::SameLine();
 
-    const auto red = ImVec4(1.0f, 0.1, 0.1f, 1.0f);
+    const auto red = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
     const auto green = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
     ImGui::PushStyleColor(ImGuiCol_Text, (framerate >= 60) ? green : red);
     ImGui::Text("FPS %d", framerate);
