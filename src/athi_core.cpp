@@ -52,8 +52,10 @@ void Athi_Core::init() {
 
   auto console = spdlog::stdout_color_mt("Athi");
   console->info("Initializing Athi..");
+  #ifdef __APPLE__
   console->info("CPU: {}", get_cpu_brand());
   console->info("Threads available: {}", get_cpu_threads());
+  #endif
   console->info("IMGUI VERSION {}", ImGui::GetVersion());
   console->info("GL_VERSION {}", glGetString(GL_VERSION));
   console->info("GL_VENDOR {}", glGetString(GL_VENDOR));

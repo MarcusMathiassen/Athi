@@ -64,8 +64,8 @@ void ParticleManager::init() {
 
   // Shaders
   shader_program = glCreateProgram();
-  const u32 vs = createShader("../Resources/athi_circle_shader.vs", GL_VERTEX_SHADER);
-  const u32 fs = createShader("../Resources/athi_circle_shader.fs", GL_FRAGMENT_SHADER);
+  const u32 vs = createShader("../Resources/athi_particle_shader.vs", GL_VERTEX_SHADER);
+  const u32 fs = createShader("../Resources/athi_particle_shader.fs", GL_FRAGMENT_SHADER);
 
   glAttachShader(shader_program, vs);
   glAttachShader(shader_program, fs);
@@ -187,7 +187,7 @@ void ParticleManager::update() {
     else if (openCL_active) {
 
 
-	  const unsigned int count = particles.size();
+	  const u32 count = static_cast<u32>(particles.size());
 
       results.clear();
       results.resize(count);
@@ -212,7 +212,7 @@ void ParticleManager::update() {
       err = 0;
       err =  clSetKernelArg(kernel, 0, sizeof(cl_mem),       &input);
       err |= clSetKernelArg(kernel, 1, sizeof(cl_mem),       &output);
-      err |= clSetKernelArg(kernel, 2, sizeof(unsigned int), &count);
+      err |= clSetKernelArg(kernel, 2, sizeof(u32), &count);
       if (err != CL_SUCCESS) {
         console->error("Error: Failed to set kernel arguments! {}", err);
         exit(1);
@@ -325,7 +325,7 @@ void ParticleManager::update() {
 void ParticleManager::draw() const {
   glBindVertexArray(vao);
   glUseProgram(shader_program);
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts, particles.size());
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts, static_cast<s32>(particles.size()));
 }
 
 void ParticleManager::add(const glm::vec2 &pos, float radius, const glm::vec4 &color) {

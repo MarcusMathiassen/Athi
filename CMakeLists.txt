@@ -4,8 +4,6 @@ project(athi)
 SET(CMAKE_BUILD_TYPE DEBUG)
 #SET(CMAKE_BUILD_TYPE RELEASE)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-
 # Load headers
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
 
@@ -16,12 +14,15 @@ set (SOURCE_FILES ${CPP_FILES} ${H_FILES})
 
 if(WIN32)
 
-	SET(CMAKE_CXX_FLAGS "/std:c++latest -W3 /wd4530 /wd4005 /wd4996 /wd4244")
+	SET(CMAKE_CXX_FLAGS "/std:c++latest -Ox -W3 /wd4530 /wd4005 /wd4996 /wd4244 /MP8")
 	set(CMAKE_GENERATOR "Visual Studio 15 2017 Win64")
+	
+	message("-- flags ${CMAKE_CXX_FLAGS}")
 	message("-- Generator set to ${CMAKE_GENERATOR}")
 	add_executable(${PROJECT_NAME} ${SOURCES})
 
-  # INCLUDE DEPENDENCIES
+	# INCLUDE DEPENDENCIES
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/universal)
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows)
 	
 	ADD_LIBRARY(opencl STATIC IMPORTED)
@@ -35,6 +36,8 @@ if(WIN32)
 	target_link_libraries(${PROJECT_NAME} opencl glew glfw opengl32.lib user32.lib gdi32.lib kernel32.lib)
 
 elseif(APPLE)
+
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
   SET(CMAKE_CXX_FLAGS_DEBUG "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
