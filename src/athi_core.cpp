@@ -83,12 +83,12 @@ void Athi_Core::init() {
 
   auto console = spdlog::stdout_color_mt("Athi");
   console->info("Initializing Athi..");
-  #ifdef __UNIX__
-  console->info("CPU: {}", get_cpu_brand());
-  console->info("Threads available: {}", get_cpu_threads());
-  #else
+  #ifdef _WIN32
   console->info("CPU: {}", CPUBrandString);
   console->info("Threads available: {}", sysInfo.dwNumberOfProcessors);
+  #else
+  console->info("CPU: {}", get_cpu_brand());
+  console->info("Threads available: {}", get_cpu_threads());
   #endif
   console->info("IMGUI VERSION {}", ImGui::GetVersion());
   console->info("GL_VERSION {}", glGetString(GL_VERSION));
