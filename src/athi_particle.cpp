@@ -149,7 +149,9 @@ void ParticleManager::update() {
         const size_t parts = total / thread_count;
         const size_t leftovers = total % thread_count;
 
-/*         dispatch_apply(
+
+#ifdef __APPLE__
+        dispatch_apply(
           thread_count,
           dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
           ^(size_t i) {
@@ -157,7 +159,8 @@ void ParticleManager::update() {
           size_t end = parts * (i + 1);
           if (i == thread_count-1) end += leftovers;
           collision_quadtree(cont, begin, end);
-        }); */
+        });
+#endif
       } else
         collision_quadtree(cont, 0, cont.size());
     } else if (use_multithreading && variable_thread_count != 0 &&
@@ -167,7 +170,8 @@ void ParticleManager::update() {
       const size_t parts = total / thread_count;
       const size_t leftovers = total % thread_count;
 
-/*       dispatch_apply(
+#ifdef __APPLE__
+       dispatch_apply(
         thread_count,
         dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
         ^(size_t i) {
@@ -176,12 +180,14 @@ void ParticleManager::update() {
           if (i == thread_count-1) end += leftovers;
           collision_logNxN(total, begin, end);
         }
-      ); */
+      ); 
+#endif
     }
 
     else if (openCL_active) {
 
-      const unsigned int count = particles.size();
+
+	  const unsigned int count = particles.size();
 
       results.clear();
       results.resize(count);
