@@ -3,16 +3,16 @@
 
 double frame_budget{1000.0/60.0};
 
-float mouse_size{5.0f};
+float mouse_size{10.0f};
 bool mouse_busy_UI{false};
 bool mouse_grab_multiple{true};
 bool show_mouse_grab_lines{true};
-bool mouse_grab{false};
+bool mouse_grab{true};
 int32_t screen_width;
 int32_t screen_height;
 float px_scale{1.0f};
 
-bool show_settings{false};
+bool show_settings{true};
 bool physics_gravity{false};
 float gravity_force{9.81f};
 bool circle_collision{true};

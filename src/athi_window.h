@@ -9,8 +9,12 @@
 class Athi_Window {
  private:
   GLFWwindow *context{nullptr};
-
+  
  public:
+
+  static void window_size_callback(GLFWwindow *window, int xpos, int ypos);
+  static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+
   u16 monitor_refreshrate{60};
 
   string title{"Athi"};
@@ -23,5 +27,4 @@ class Athi_Window {
   void update();
 
   GLFWwindow *get_window_context();
-
 };

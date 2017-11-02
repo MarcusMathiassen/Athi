@@ -6,9 +6,6 @@
 #include "athi_settings.h"
 #include "athi_window.h"
 
-void window_size_callback(GLFWwindow *window, int xpos, int ypos);
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-
 void Athi_Window::init() {
 
   if (!glfwInit()) {
@@ -58,15 +55,18 @@ void Athi_Window::update() {}
 
 GLFWwindow *Athi_Window::get_window_context() { return context; }
 
-void window_size_callback(GLFWwindow *window, int xpos, int ypos) {
+void Athi_Window::window_size_callback(GLFWwindow *window, int xpos, int ypos) {
+  std::cout << "window size: " << xpos << "x" << ypos << '\n';
 }
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+void Athi_Window::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   screen_width = width;
   screen_height = height;
   camera.update_projection(static_cast<float>(width), static_cast<float>(height)); 
   camera.update();
   glViewport(0.0f, 0.0f, width, height);
+
+  std::cout << "framebuffer: " << width << "x" << height << '\n';
 
   // HACKS
   if (voxelgrid_parts != 4) voxelgrid_parts = 4; // hack
