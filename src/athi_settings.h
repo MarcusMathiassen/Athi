@@ -61,7 +61,7 @@ extern double frametime;
 extern double smoothed_frametime;
 
 extern bool slowmotion;
-extern float slow_amount;
+extern float time_scale;
 extern bool vsync;
 
 extern int32_t variable_thread_count;

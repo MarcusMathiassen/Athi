@@ -55,8 +55,8 @@ int32_t physics_framerate;
 int32_t physics_FPS_limit{0};
 
 bool slowmotion{false};
-float slow_amount{1.0f};
-bool vsync{true};
+float time_scale{1.0f};
+bool vsync{false};
 
 int32_t variable_thread_count;
 bool use_multithreading{false};

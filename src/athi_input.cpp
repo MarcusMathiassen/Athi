@@ -108,20 +108,20 @@ void mouse_grab_particles() {
       for (auto &id : mouse_attached_to) {
         attraction_force(particle_manager.particles[id], mouse_pos);
         last_state = ATTACHED;
-        if (draw_debug)
-          draw_line(mouse_pos, particle_manager.particles[id].pos,
-                    0.03f, pastel_pink);
+        //if (draw_debug)
+         // draw_line(mouse_pos, particle_manager.particles[id].pos,
+          //          0.03f, pastel_pink);
       }
     } else  // single
     {
       attraction_force(
           particle_manager.particles[mouse_attached_to_single],
           mouse_pos);
-      if (draw_debug)
-        draw_line(
-            mouse_pos,
-            particle_manager.particles[mouse_attached_to_single].pos,
-            3.0f, pastel_pink);
+     // if (draw_debug)
+      //  draw_line(
+       //     mouse_pos,
+        //    particle_manager.particles[mouse_attached_to_single].pos,
+         //   3.0f, pastel_pink);
     }
     mouse_busy_UI = true;
   }

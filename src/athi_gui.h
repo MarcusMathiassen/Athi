@@ -66,7 +66,7 @@ static void menu_settings() {
   ImGui::Checkbox("VSync", &vsync); ImGui::SameLine();
   ImGui::Checkbox("Collision", &circle_collision); ImGui::SameLine();
   ImGui::Checkbox("OpenCL", &openCL_active);
-  ImGui::SliderFloat("time scale", &slow_amount, 0.0001f, 10.0f);
+  ImGui::SliderFloat("time scale", &time_scale, 0.0001f, 10.0f);
   
   ImGui::Checkbox("gravity", &physics_gravity); ImGui::SameLine();
   ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);

@@ -32,10 +32,10 @@ struct Particle {
     if (physics_gravity) vel.y -= gravity_force * mass * timestep;
 
     // Update pos/vel/acc
-    vel.x += acc.x * timestep * slow_amount;
-    vel.y += acc.y * timestep * slow_amount;
-    pos.x += vel.x * timestep * slow_amount;
-    pos.y += vel.y * timestep * slow_amount;
+    vel.x += acc.x * timestep * time_scale * 0.99f;
+    vel.y += acc.y * timestep * time_scale * 0.99f;
+    pos.x += vel.x * timestep * time_scale * 0.99f;
+    pos.y += vel.y * timestep * time_scale * 0.99f;
     acc *= 0;
 
     // Border collision

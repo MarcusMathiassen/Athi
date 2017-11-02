@@ -17,30 +17,35 @@
 ParticleManager particle_manager;
 
 void ParticleManager::init() {
+
+  #ifdef _WIN32
+    console->warn("WIN32: Multithreaded collisions not available.");
+  #endif
+
   // OpenCL init
   //
   read_file("../Resources/particle_collision.cl", &kernel_source);
   if (!kernel_source)
-    console->error("Error: OpenCL missing kernel source");
+    console->error("OpenCL missing kernel source");
     
 
   // Connect to a compute device
   err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
   if (err != CL_SUCCESS)
-    console->error("Error: Failed to create a device group!");
+    console->error("Failed to create a device group!");
 
   // Create a compute context
   context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
-  if (!context) console->error("Error: Failed to create a compute context!");
+  if (!context) console->error("Failed to create a compute context!");
 
   // Create a command commands
   commands = clCreateCommandQueue(context, device_id, 0, &err);
-  if (!commands) console->error("Error: Failed to create a command commands!");
+  if (!commands) console->error("Failed to create a command commands!");
 
   // Create the compute program from the source buffer
   program = clCreateProgramWithSource(context, 1, (const char **)&kernel_source,
                                       NULL, &err);
-  if (!program) console->error("Error: Failed to create compute program!");
+  if (!program) console->error("Failed to create compute program!");
 
   // Build the program executable
   err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
@@ -48,7 +53,7 @@ void ParticleManager::init() {
     size_t len;
     char buffer[2048];
 
-    console->error("Error: Failed to build program executable!");
+    console->error("Failed to build program executable!");
     clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG,
                           sizeof(buffer), buffer, &len);
     console->error(buffer);
@@ -57,7 +62,7 @@ void ParticleManager::init() {
   // Create the compute kernel in the program we wish to run
   kernel = clCreateKernel(program, "particle_collision", &err);
   if (!kernel || err != CL_SUCCESS)
-    console->error("Error: Failed to create compute kernel!");
+    console->error("Failed to create compute kernel!");
 
   ///////////////////////////
 
@@ -198,7 +203,7 @@ void ParticleManager::update() {
       input  = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * count, NULL, NULL);
       output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Particle) * count, NULL, NULL);
       if (!input || !output) {
-        console->error("Error: Failed to allocate device memory!");
+        console->error("Failed to allocate device memory!");
         exit(1);
       }
 
@@ -206,7 +211,7 @@ void ParticleManager::update() {
       // memory
       err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(Particle) * count, &particles[0], 0, NULL, NULL);
       if (err != CL_SUCCESS)
-        console->error("Error: Failed to write to source array!");
+        console->error("Failed to write to source array!");
 
       // Set the arguments to our compute kernel
       err = 0;
@@ -214,7 +219,7 @@ void ParticleManager::update() {
       err |= clSetKernelArg(kernel, 1, sizeof(cl_mem),       &output);
       err |= clSetKernelArg(kernel, 2, sizeof(u32), &count);
       if (err != CL_SUCCESS) {
-        console->error("Error: Failed to set kernel arguments! {}", err);
+        console->error("Failed to set kernel arguments! {}", err);
         exit(1);
       }
 
@@ -223,7 +228,7 @@ void ParticleManager::update() {
       //
       err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, NULL);
       if (err != CL_SUCCESS) {
-        console->error("Error: Failed to retrieve kernel work group info! {}", err);
+        console->error("Failed to retrieve kernel work group info! {}", err);
         exit(1);
       }
 
@@ -233,7 +238,7 @@ void ParticleManager::update() {
       err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0,
                                    NULL, NULL);
       if (err) {
-        console->error("Error: Failed to execute kernel! {}", err);
+        console->error("Failed to execute kernel! {}", err);
         exit(1);
       }
 
@@ -246,7 +251,7 @@ void ParticleManager::update() {
       err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0, sizeof(Particle) * count,
                                 &results[0], 0, NULL, NULL);
       if (err != CL_SUCCESS) {
-        console->error("Error: Failed to read output array! {}", err);
+        console->error("Failed to read output array! {}", err);
         exit(1);
       }
 
