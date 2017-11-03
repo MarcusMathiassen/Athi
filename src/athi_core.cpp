@@ -2,6 +2,7 @@
 
 #include "athi_core.h"
 #include "athi_camera.h"
+#include "athi_gui.h"
 #include "athi_input.h"
 #include "athi_line.h"
 #include "athi_rect.h"
@@ -9,7 +10,6 @@
 #include "athi_settings.h"
 #include "athi_spring.h"
 #include "athi_utility.h"
-#include "athi_gui.h"
 
 #include <array>
 #include <iostream>
@@ -28,12 +28,14 @@
 #include "imgui_impl_glfw_gl3.h"
 
 Smooth_Average<double, 30> smooth_frametime_avg(&smoothed_frametime);
-Smooth_Average<double, 30> smooth_physics_rametime_avg(&smoothed_physics_frametime);
-Smooth_Average<double, 30> smooth_render_rametime_avg(&smoothed_render_frametime);
+Smooth_Average<double, 30> smooth_physics_rametime_avg(
+    &smoothed_physics_frametime);
+Smooth_Average<double, 30> smooth_render_rametime_avg(
+    &smoothed_render_frametime);
 
 void Athi_Core::init() {
-  window.scene.width = 1280;
-  window.scene.height = 800;
+  window.scene.width = 1000;
+  window.scene.height = 500;
   window.init();
 
   particle_manager.init();
@@ -55,41 +57,39 @@ void Athi_Core::init() {
 
   gui_init(window.get_window_context(), px_scale);
 
-
-  // Move this to Utility.h
-  #ifdef _WIN32
+// Move this to Utility.h
+#ifdef _WIN32
   int CPUInfo[4] = {-1};
-  unsigned   nExIds, i =  0;
+  unsigned nExIds, i = 0;
   char CPUBrandString[0x40];
   // Get the information associated with each extended ID.
   __cpuid(CPUInfo, 0x80000000);
   nExIds = CPUInfo[0];
-  for (i=0x80000000; i<=nExIds; ++i)
-  {
-      __cpuid(CPUInfo, i);
-      // Interpret CPU brand string
-      if  (i == 0x80000002)
-          memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
-      else if  (i == 0x80000003)
-          memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
-      else if  (i == 0x80000004)
-          memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
+  for (i = 0x80000000; i <= nExIds; ++i) {
+    __cpuid(CPUInfo, i);
+    // Interpret CPU brand string
+    if (i == 0x80000002)
+      memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
+    else if (i == 0x80000003)
+      memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
+    else if (i == 0x80000004)
+      memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
   }
-  //string includes manufacturer, model and clockspeed
+  // string includes manufacturer, model and clockspeed
 
   SYSTEM_INFO sysInfo;
   GetSystemInfo(&sysInfo);
-  #endif
+#endif
 
   auto console = spdlog::stdout_color_mt("Athi");
   console->info("Initializing Athi..");
-  #ifdef _WIN32
+#ifdef _WIN32
   console->info("CPU: {}", CPUBrandString);
   console->info("Threads available: {}", sysInfo.dwNumberOfProcessors);
-  #else
+#else
   console->info("CPU: {}", get_cpu_brand());
   console->info("Threads available: {}", get_cpu_threads());
-  #endif
+#endif
   console->info("IMGUI VERSION {}", ImGui::GetVersion());
   console->info("GL_VERSION {}", glGetString(GL_VERSION));
   console->info("GL_VENDOR {}", glGetString(GL_VENDOR));
@@ -136,12 +136,12 @@ void Athi_Core::start() {
   shutdown();
 }
 
-
 void Athi_Core::draw(GLFWwindow *window) {
   profile p("Athi_Core::draw");
 
   const double time_start_frame = glfwGetTime();
-  glClearColor(background_color.x, background_color.y, background_color.z, background_color.w);
+  glClearColor(background_color.x, background_color.y, background_color.z,
+               background_color.w);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   {
@@ -167,7 +167,8 @@ void Athi_Core::draw(GLFWwindow *window) {
   }
 
   render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  render_framerate = static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
+  render_framerate =
+      static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
   smooth_render_rametime_avg.add_new_frametime(render_frametime);
 }
 
@@ -178,10 +179,12 @@ void Athi_Core::update() {
   while (iter++ < physics_samples) {
     const double start = glfwGetTime();
     particle_manager.update();
-    timestep = (((glfwGetTime() - start) * 1000.0) /  (1000.0/60.0))/physics_samples;
+    timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) /
+               physics_samples;
   }
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  physics_framerate = static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
+  physics_framerate =
+      static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
 }
 

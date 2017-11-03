@@ -1,33 +1,33 @@
 #pragma once
 
+#include <atomic>
 #include "athi_typedefs.h"
 #include "imgui.h"
-#include <atomic>
 
-extern double frame_budget;
+extern f64 frame_budget;
 
-extern float mouse_size;
+extern f32 mouse_size;
 extern bool mouse_grab_multiple;
 extern bool mouse_busy_UI;
 extern bool show_mouse_grab_lines;
 extern bool mouse_grab;
 
-extern int32_t screen_width;
-extern int32_t screen_height;
-extern float px_scale;
+extern s32 screen_width;
+extern s32 screen_height;
+extern f32 px_scale;
 
 extern bool show_settings;
 extern bool physics_gravity;
-extern float gravity_force;
+extern f32 gravity_force;
 
 extern bool circle_collision;
 
-extern int32_t physics_samples;
+extern s32 physics_samples;
 
-extern float circle_size;
+extern f32 circle_size;
 extern glm::vec4 circle_color;
-extern std::atomic<uint64_t> comparisons;
-extern std::atomic<uint64_t> resolutions;
+extern std::atomic<u64> comparisons;
+extern std::atomic<u64> resolutions;
 
 extern bool draw_debug;
 extern bool color_particles;
@@ -35,40 +35,40 @@ extern bool draw_nodes;
 extern bool show_fps_info;
 
 extern bool voxelgrid_active;
-extern int32_t voxelgrid_parts;
+extern s32 voxelgrid_parts;
 
 extern bool quadtree_show_only_occupied;
 extern bool quadtree_active;
-extern int32_t quadtree_depth;
-extern int32_t quadtree_capacity;
+extern s32 quadtree_depth;
+extern s32 quadtree_capacity;
 
-extern double timestep;
-extern double physics_frametime;
-extern double smoothed_physics_frametime;
-extern int32_t physics_framerate;
-extern int32_t physics_FPS_limit;
+extern f64 timestep;
+extern f64 physics_frametime;
+extern f64 smoothed_physics_frametime;
+extern s32 physics_framerate;
+extern s32 physics_FPS_limit;
 
-extern double render_frametime;
-extern double smoothed_render_frametime;
-extern int32_t render_framerate;
-extern int32_t render_framerate_limit;
+extern f64 render_frametime;
+extern f64 smoothed_render_frametime;
+extern s32 render_framerate;
+extern s32 render_framerate_limit;
 
-extern int32_t framerate;
-extern int32_t framerate_limit;
+extern s32 framerate;
+extern s32 framerate_limit;
 
-extern double deltatime;
-extern double frametime;
-extern double smoothed_frametime;
+extern f64 deltatime;
+extern f64 frametime;
+extern f64 smoothed_frametime;
 
 extern bool slowmotion;
-extern float time_scale;
+extern f32 time_scale;
 extern bool vsync;
 
-extern int32_t variable_thread_count;
+extern s32 variable_thread_count;
 extern bool use_multithreading;
 
-extern int32_t cpu_cores;
-extern int32_t cpu_threads;
+extern s32 cpu_cores;
+extern s32 cpu_threads;
 extern string cpu_brand;
 
 extern bool openCL_active;
@@ -76,13 +76,12 @@ extern bool openCL_active;
 extern bool app_is_running;
 extern bool settings_changed;
 
-extern std::atomic<int32_t> universal_color_picker;
+extern std::atomic<s32> universal_color_picker;
 
 extern glm::vec4 sw_color;
 extern glm::vec4 se_color;
 extern glm::vec4 nw_color;
 extern glm::vec4 ne_color;
-
 
 extern glm::vec4 background_color;
 

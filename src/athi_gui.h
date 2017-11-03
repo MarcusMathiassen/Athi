@@ -1,13 +1,14 @@
 #pragma once
 
+#include "athi_particle.h"
 #include "athi_settings.h"
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
 
 #include <array>
-#include <string>
-#include <sstream>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 static int optimizer_used{2};
 static bool open_settings = false;
@@ -39,7 +40,7 @@ static void menu_profiler() {
 
   const auto col = ImVec4(0.5f, 0.5f, 1.0f, 1.0f);
 
-  for (const auto &[id, time]: time_taken_by) {
+  for (const auto & [ id, time ] : time_taken_by) {
     ImGui::PushStyleColor(ImGuiCol_Text, col);
     ImGui::Text("%s", id.c_str());
     ImGui::NextColumn();
@@ -49,7 +50,7 @@ static void menu_profiler() {
     ImGui::Text("%.3f", 100.0 * time / frametime);
     ImGui::NextColumn();
   }
-  
+
   ImGui::Columns(1);
   ImGui::Separator();
 
@@ -59,62 +60,62 @@ static void menu_profiler() {
 static void menu_settings() {
   profile p("menu_settings");
 
-  ImGui::Begin("Settings", NULL,  ImGuiWindowFlags_AlwaysAutoResize);
+  ImGui::Begin("Settings", NULL, ImGuiWindowFlags_AlwaysAutoResize);
   ImGui::InputInt("Physics samples", &physics_samples);
   if (physics_samples < 1) physics_samples = 1;
 
-  ImGui::Checkbox("VSync", &vsync); ImGui::SameLine();
-  ImGui::Checkbox("Collision", &circle_collision); ImGui::SameLine();
+  ImGui::Checkbox("VSync", &vsync);
+  ImGui::SameLine();
+  ImGui::Checkbox("Collision", &circle_collision);
+  ImGui::SameLine();
   ImGui::Checkbox("OpenCL", &openCL_active);
   ImGui::SliderFloat("time scale", &time_scale, 0.0001f, 10.0f);
-  
-  ImGui::Checkbox("gravity", &physics_gravity); ImGui::SameLine();
+
+  ImGui::Checkbox("gravity", &physics_gravity);
+  ImGui::SameLine();
   ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);
-  
-  ImGui::Checkbox("multithreaded", &use_multithreading); ImGui::SameLine();
+
+  ImGui::Checkbox("multithreaded", &use_multithreading);
+  ImGui::SameLine();
   ImGui::InputInt("", &variable_thread_count);
   if (variable_thread_count < 0) variable_thread_count = 0;
-  ImGui::Checkbox("draw nodes ", &draw_nodes); ImGui::SameLine();
+  ImGui::Checkbox("draw nodes ", &draw_nodes);
+  ImGui::SameLine();
   ImGui::Checkbox("color particles based on node", &color_particles);
 
-
-  if (ImGui::CollapsingHeader("quadtree options"))
-  {
+  if (ImGui::CollapsingHeader("quadtree options")) {
     ImGui::Checkbox("Occupied only", &quadtree_show_only_occupied);
     ImGui::SliderInt("depth", &quadtree_depth, 0, 10);
     ImGui::SliderInt("capacity", &quadtree_capacity, 0, 100);
   }
-  if (ImGui::CollapsingHeader("uniform grid options"))
-  { 
+  if (ImGui::CollapsingHeader("uniform grid options")) {
     ImGui::SliderInt("nodes", &voxelgrid_parts, 4, 1024);
   }
 
-
-  if (ImGui::CollapsingHeader("color options"))
-  {
+  if (ImGui::CollapsingHeader("color options")) {
     ImGui::PushItemWidth(100.0f);
     ImGui::Text("particle color");
-    ImGui::SameLine();    
+    ImGui::SameLine();
     if (ImGui::Button("apply to all")) {
-      for (auto& p: particle_manager.particles)
+      for (auto &p : particle_manager.particles)
         particle_manager.colors[p.id] = circle_color;
     }
-    ImGui::SameLine(200);    
+    ImGui::SameLine(200);
     ImGui::Text("background color");
 
     ImGui::ColorPicker4("##particle", (float *)&circle_color);
-    ImGui::SameLine();    
+    ImGui::SameLine();
     ImGui::ColorPicker4("##Background", (float *)&background_color);
-    
+
     ImGui::Text("quadtree colors");
     ImGui::Text("sw");
-    ImGui::SameLine(200);    
+    ImGui::SameLine(200);
     ImGui::Text("se");
-    ImGui::SameLine(400);    
+    ImGui::SameLine(400);
     ImGui::Text("nw");
-    ImGui::SameLine(600);    
+    ImGui::SameLine(600);
     ImGui::Text("ne");
-    
+
     ImGui::ColorPicker4("##sw", (float *)&sw_color);
     ImGui::SameLine();
     ImGui::ColorPicker4("##se", (float *)&se_color);
@@ -140,15 +141,19 @@ void gui_render() {
       ImGui::EndMenu();
     }
 
-    const auto yellow = ImVec4(0.1f, 8.0f, 0.8f, 1.0f);    
+    const auto yellow = ImVec4(0.1f, 8.0f, 0.8f, 1.0f);
     ImGui::PushStyleColor(ImGuiCol_Text, yellow);
     ImGui::Text("particles: %lu", particle_manager.particles.size());
     ImGui::PopStyleColor();
     ImGui::SameLine();
 
-    ImGui::Text("comparisons: %llu", static_cast<uint64_t>(comparisons) / physics_samples);
+    ImGui::Text("comparisons: %llu",
+                static_cast<uint64_t>(comparisons) / physics_samples);
     ImGui::SameLine();
-    ImGui::Text("resolved: %llu (%.4f%%)", static_cast<uint64_t>(resolutions), 100.0f * static_cast<float>(resolutions)/static_cast<float>(comparisons)); ImGui::SameLine();
+    ImGui::Text("resolved: %llu (%.4f%%)", static_cast<uint64_t>(resolutions),
+                100.0f * static_cast<float>(resolutions) /
+                    static_cast<float>(comparisons));
+    ImGui::SameLine();
 
     const auto red = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
     const auto green = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
@@ -157,11 +162,14 @@ void gui_render() {
     ImGui::PopStyleColor();
     ImGui::SameLine();
 
-    ImGui::PushItemWidth(100.0f);    
-    ImGui::SliderFloat("particle size", &circle_size, 1.0f, 100.0f); ImGui::SameLine();     
-    ImGui::SliderFloat("mouse size", &mouse_size, 1.0f, 500.0f); ImGui::SameLine();
-    ImGui::PopItemWidth();    
-    ImGui::Checkbox("grab", &mouse_grab); ImGui::SameLine();
+    ImGui::PushItemWidth(100.0f);
+    ImGui::SliderFloat("particle size", &circle_size, 1.0f, 100.0f);
+    ImGui::SameLine();
+    ImGui::SliderFloat("mouse size", &mouse_size, 1.0f, 500.0f);
+    ImGui::SameLine();
+    ImGui::PopItemWidth();
+    ImGui::Checkbox("grab", &mouse_grab);
+    ImGui::SameLine();
 
     if (quadtree_active)
       optimizer_used = 0;
@@ -170,11 +178,13 @@ void gui_render() {
     else
       optimizer_used = 2;
 
-    ImGui::RadioButton("quadtree", &optimizer_used, 0);   ImGui::SameLine();      
-    ImGui::RadioButton("uniform grid", &optimizer_used, 1);   ImGui::SameLine();      
+    ImGui::RadioButton("quadtree", &optimizer_used, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("uniform grid", &optimizer_used, 1);
+    ImGui::SameLine();
     ImGui::RadioButton("none", &optimizer_used, 2);
-    
-      switch (optimizer_used) {
+
+    switch (optimizer_used) {
       case 0:
         quadtree_active = true;
         voxelgrid_active = false;
@@ -189,8 +199,8 @@ void gui_render() {
         break;
       default:
         break;
-      }
-    
+    }
+
     ImGui::EndMainMenuBar();
   }
 
@@ -206,21 +216,18 @@ void gui_init(GLFWwindow *window, float px_scale) {
 #ifdef __WINDOWS__
 #else
   io.FontGlobalScale = 1.0f / px_scale;
-  io.Fonts->AddFontFromFileTTF("../Resources/DroidSans.ttf",
-            12 * px_scale, NULL,
-            io.Fonts->GetGlyphRangesJapanese());
+  io.Fonts->AddFontFromFileTTF("../Resources/DroidSans.ttf", 12 * px_scale,
+                               NULL, io.Fonts->GetGlyphRangesJapanese());
 #endif
-  //SetupImGuiStyle(true, 0.9f);
+  // SetupImGuiStyle(true, 0.9f);
   new_style();
 }
 
-void gui_shutdown() {
-  ImGui_ImplGlfwGL3_Shutdown();
-}
+void gui_shutdown() { ImGui_ImplGlfwGL3_Shutdown(); }
 
 static void new_style() {
-  ImGuiStyle * style = &ImGui::GetStyle();
-  
+  ImGuiStyle *style = &ImGui::GetStyle();
+
   style->WindowPadding = ImVec2(15, 15);
   style->WindowRounding = 5.0f;
   style->FramePadding = ImVec2(5, 5);
@@ -249,8 +256,10 @@ static void new_style() {
   style->Colors[ImGuiCol_MenuBarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
   style->Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
   style->Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
-  style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-  style->Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+  style->Colors[ImGuiCol_ScrollbarGrabHovered] =
+      ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+  style->Colors[ImGuiCol_ScrollbarGrabActive] =
+      ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
   style->Colors[ImGuiCol_ComboBg] = ImVec4(0.19f, 0.18f, 0.21f, 1.00f);
   style->Colors[ImGuiCol_CheckMark] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
   style->Colors[ImGuiCol_SliderGrab] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
@@ -265,17 +274,22 @@ static void new_style() {
   style->Colors[ImGuiCol_ColumnHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
   style->Colors[ImGuiCol_ColumnActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
   style->Colors[ImGuiCol_ResizeGrip] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-  style->Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+  style->Colors[ImGuiCol_ResizeGripHovered] =
+      ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
   style->Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
   style->Colors[ImGuiCol_CloseButton] = ImVec4(0.40f, 0.39f, 0.38f, 0.16f);
-  style->Colors[ImGuiCol_CloseButtonHovered] = ImVec4(0.40f, 0.39f, 0.38f, 0.39f);
-  style->Colors[ImGuiCol_CloseButtonActive] = ImVec4(0.40f, 0.39f, 0.38f, 1.00f);
+  style->Colors[ImGuiCol_CloseButtonHovered] =
+      ImVec4(0.40f, 0.39f, 0.38f, 0.39f);
+  style->Colors[ImGuiCol_CloseButtonActive] =
+      ImVec4(0.40f, 0.39f, 0.38f, 1.00f);
   style->Colors[ImGuiCol_PlotLines] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
   style->Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
   style->Colors[ImGuiCol_PlotHistogram] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
-  style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+  style->Colors[ImGuiCol_PlotHistogramHovered] =
+      ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
   style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
-  style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
+  style->Colors[ImGuiCol_ModalWindowDarkening] =
+      ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
 }
 
 static void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
@@ -304,8 +318,10 @@ static void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
   style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 0.53f);
   style.Colors[ImGuiCol_ScrollbarGrab] = imgui_pastel_red;
-  style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
-  style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
+  style.Colors[ImGuiCol_ScrollbarGrabHovered] =
+      ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
+  style.Colors[ImGuiCol_ScrollbarGrabActive] =
+      ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
   style.Colors[ImGuiCol_ComboBg] = ImVec4(0.86f, 0.86f, 0.86f, 0.99f);
   style.Colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_SliderGrab] = imgui_pastel_red;
@@ -323,25 +339,26 @@ static void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
   style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
   style.Colors[ImGuiCol_CloseButton] = imgui_pastel_red;
-  style.Colors[ImGuiCol_CloseButtonHovered] = ImVec4(0.98f, 0.39f, 0.36f, 1.00f);
+  style.Colors[ImGuiCol_CloseButtonHovered] =
+      ImVec4(0.98f, 0.39f, 0.36f, 1.00f);
   style.Colors[ImGuiCol_CloseButtonActive] = ImVec4(0.98f, 0.39f, 0.36f, 1.00f);
   style.Colors[ImGuiCol_PlotLines] = imgui_pastel_red;
   style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
   style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-  style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+  style.Colors[ImGuiCol_PlotHistogramHovered] =
+      ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
   style.Colors[ImGuiCol_TextSelectedBg] = imgui_pastel_red;
-  style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+  style.Colors[ImGuiCol_ModalWindowDarkening] =
+      ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 
   if (bStyleDark_) {
     for (int i = 0; i <= ImGuiCol_COUNT; i++) {
       ImVec4 &col = style.Colors[i];
       float H, S, V;
       ImGui::ColorConvertRGBtoHSV(col.x, col.y, col.z, H, S, V);
-      if (S < 0.1f)
-        V = 1.0f - V;
+      if (S < 0.1f) V = 1.0f - V;
       ImGui::ColorConvertHSVtoRGB(H, S, V, col.x, col.y, col.z);
-      if (col.w < 1.00f)
-        col.w *= alpha_;
+      if (col.w < 1.00f) col.w *= alpha_;
     }
   } else {
     for (int i = 0; i <= ImGuiCol_COUNT; i++) {

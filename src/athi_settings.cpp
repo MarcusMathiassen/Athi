@@ -1,29 +1,29 @@
 #include "athi_settings.h"
 #include "athi_typedefs.h"
 
-double frame_budget{1000.0/60.0};
+f64 frame_budget{1000.0 / 60.0};
 
-float mouse_size{10.0f};
+f32 mouse_size{10.0f};
 bool mouse_busy_UI{false};
 bool mouse_grab_multiple{true};
 bool show_mouse_grab_lines{true};
 bool mouse_grab{true};
-int32_t screen_width;
-int32_t screen_height;
-float px_scale{1.0f};
+s32 screen_width;
+s32 screen_height;
+f32 px_scale{1.0f};
 
 bool show_settings{true};
 bool physics_gravity{false};
-float gravity_force{9.81f};
+f32 gravity_force{9.81f};
 bool circle_collision{true};
 
-int32_t physics_samples{1};
+s32 physics_samples{1};
 
-float circle_size{5.0f};
+f32 circle_size{5.0f};
 glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
-std::atomic<uint64_t> comparisons{0};
-std::atomic<uint64_t> resolutions{0};
+std::atomic<u64> comparisons{0};
+std::atomic<u64> resolutions{0};
 
 bool draw_debug{true};
 bool color_particles{true};
@@ -32,37 +32,37 @@ bool show_fps_info{true};
 
 bool quadtree_show_only_occupied{true};
 bool quadtree_active{true};
-int32_t quadtree_depth{5};
-int32_t quadtree_capacity{50};
+s32 quadtree_depth{5};
+s32 quadtree_capacity{50};
 
 bool voxelgrid_active{false};
-int32_t voxelgrid_parts{16};
+s32 voxelgrid_parts{16};
 
-double frametime;
-double smoothed_frametime;
-int32_t framerate;
-int32_t framerate_limit{0};
+f64 frametime;
+f64 smoothed_frametime;
+s32 framerate;
+s32 framerate_limit{0};
 
-double render_frametime;
-double smoothed_render_frametime;
-int32_t render_framerate;
-int32_t render_framerate_limit{0};
+f64 render_frametime;
+f64 smoothed_render_frametime;
+s32 render_framerate;
+s32 render_framerate_limit{0};
 
-double timestep;
-double physics_frametime;
-double smoothed_physics_frametime;
-int32_t physics_framerate;
-int32_t physics_FPS_limit{0};
+f64 timestep;
+f64 physics_frametime;
+f64 smoothed_physics_frametime;
+s32 physics_framerate;
+s32 physics_FPS_limit{0};
 
 bool slowmotion{false};
-float time_scale{1.0f};
+f32 time_scale{1.0f};
 bool vsync{false};
 
-int32_t variable_thread_count;
+s32 variable_thread_count;
 bool use_multithreading{false};
 
-int32_t cpu_cores;
-int32_t cpu_threads;
+s32 cpu_cores;
+s32 cpu_threads;
 std::string cpu_brand;
 
 bool openCL_active{false};
@@ -70,7 +70,7 @@ bool openCL_active{false};
 bool app_is_running{true};
 bool settings_changed{false};
 
-std::atomic<int32_t> universal_color_picker{0};
+std::atomic<s32> universal_color_picker{0};
 glm::vec4 background_color = glm::vec4(0.15686f, 0.17255f, 0.20392f, 1.0f);
 glm::vec4 sw_color{pastel_red};
 glm::vec4 se_color{pastel_gray};
