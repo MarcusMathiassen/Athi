@@ -179,9 +179,12 @@ void Athi_Core::update() {
   while (iter++ < physics_samples) {
     const double start = glfwGetTime();
     particle_manager.update();
-    timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) /
-               physics_samples;
+    timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) / physics_samples;
   }
+
+  // Update GPU buffers
+  particle_manager.update_gpu_buffers();
+
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
   physics_framerate =
       static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));

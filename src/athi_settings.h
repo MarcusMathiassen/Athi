@@ -21,6 +21,7 @@ extern bool physics_gravity;
 extern f32 gravity_force;
 
 extern bool circle_collision;
+extern bool border_collision;
 
 extern s32 physics_samples;
 

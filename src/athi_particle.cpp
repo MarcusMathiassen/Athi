@@ -17,6 +17,7 @@
 ParticleManager particle_manager;
 
 void ParticleManager::init() {
+
 #ifdef _WIN32
   console->warn("WIN32: Multithreaded collisions not available.");
 #endif
@@ -277,10 +278,21 @@ void ParticleManager::update() {
     }
   }
 
+  {
+    profile p("ParticleManager::update(particles update)");
+    for (auto &p : particles) {
+      p.update();
+    }
+  }
+}
+
+void ParticleManager::update_gpu_buffers() noexcept 
+{
   const size_t particles_size = particles.size();
 
   // Check if buffers need resizing
-  if (particles_size > models.size()) {
+  if (particles_size > models.size())
+  {
     models.resize(particles_size);
   }
 
@@ -290,7 +302,10 @@ void ParticleManager::update() {
     // #WHATISCHACHELOCALITY #WHATAREYOUDOING
     profile p("ParticleManager::update(update buffers with new data)");
     // Update the buffers with the new data.
-    for (const auto &p : particles) {
+    for (const auto &p : particles)
+    {
+      // Update the transform
+      transforms[p.id].pos = glm::vec3(p.pos.x, p.pos.y, 0);
       models[p.id] = proj * transforms[p.id].get_model();
     }
   }
@@ -300,32 +315,28 @@ void ParticleManager::update() {
     // Update the shader buffers incase of more particles..
     glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
     const size_t transform_bytes_needed = sizeof(glm::mat4) * particles_size;
-    if (transform_bytes_needed > model_bytes_allocated) {
+    if (transform_bytes_needed > model_bytes_allocated)
+    {
       glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &models[0],
                    GL_STREAM_DRAW);
       model_bytes_allocated = transform_bytes_needed;
-    } else {
+    }
+    else
+    {
       glBufferSubData(GL_ARRAY_BUFFER, 0, model_bytes_allocated, &models[0]);
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo[COLOR]);
     const size_t color_bytes_needed = sizeof(glm::vec4) * particles_size;
-    if (color_bytes_needed > color_bytes_allocated) {
+    if (color_bytes_needed > color_bytes_allocated)
+    {
       glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0],
                    GL_STREAM_DRAW);
       color_bytes_allocated = color_bytes_needed;
-    } else {
-      glBufferSubData(GL_ARRAY_BUFFER, 0, color_bytes_allocated, &colors[0]);
     }
-  }
-
-  {
-    profile p("ParticleManager::update(particles update)");
-    for (auto &p : particles) {
-      p.update();
-
-      // Update the transform
-      transforms[p.id].pos = glm::vec3(p.pos.x, p.pos.y, 0);
+    else
+    {
+      glBufferSubData(GL_ARRAY_BUFFER, 0, color_bytes_allocated, &colors[0]);
     }
   }
 }

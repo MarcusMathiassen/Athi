@@ -32,28 +32,30 @@ struct Particle {
     if (physics_gravity) vel.y -= gravity_force * mass * timestep;
 
     // Update pos/vel/acc
-    vel.x += acc.x * timestep * time_scale * 0.99f;
-    vel.y += acc.y * timestep * time_scale * 0.99f;
-    pos.x += vel.x * timestep * time_scale * 0.99f;
-    pos.y += vel.y * timestep * time_scale * 0.99f;
+    vel.x += acc.x * timestep * time_scale;
+    vel.y += acc.y * timestep * time_scale;
+    pos.x += vel.x * timestep * time_scale;
+    pos.y += vel.y * timestep * time_scale;
     acc *= 0;
 
-    // Border collision
-    if (pos.x < 0 + radius) {
-      pos.x = 0 + radius;
-      vel.x = -vel.x;
-    }
-    if (pos.x > screen_width - radius) {
-      pos.x = screen_width - radius;
-      vel.x = -vel.x;
-    }
-    if (pos.y < 0 + radius) {
-      pos.y = 0 + radius;
-      vel.y = -vel.y;
-    }
-    if (pos.y > screen_height - radius) {
-      pos.y = screen_height - radius;
-      vel.y = -vel.y;
+    if(border_collision) {
+      // Border collision
+      if (pos.x < 0 + radius) {
+        pos.x = 0 + radius;
+        vel.x = -vel.x;
+      }
+      if (pos.x > screen_width - radius) {
+        pos.x = screen_width - radius;
+        vel.x = -vel.x;
+      }
+      if (pos.y < 0 + radius) {
+        pos.y = 0 + radius;
+        vel.y = -vel.y;
+      }
+      if (pos.y > screen_height - radius) {
+        pos.y = screen_height - radius;
+        vel.y = -vel.y;
+      }
     }
   }
 };
@@ -100,6 +102,7 @@ struct ParticleManager {
   void init();
   void update();
   void draw() const;
+  void update_gpu_buffers() noexcept;
   bool collision_check(const Particle &a, const Particle &b) const;
   void collision_resolve(Particle &a, Particle &b);
   void separate(Particle &a, Particle &b);

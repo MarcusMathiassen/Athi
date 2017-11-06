@@ -14,10 +14,11 @@ f32 px_scale{1.0f};
 
 bool show_settings{true};
 bool physics_gravity{false};
-f32 gravity_force{9.81f};
+f32 gravity_force{0.10f};
 bool circle_collision{true};
+bool border_collision{true};
 
-s32 physics_samples{1};
+s32 physics_samples{8};
 
 f32 circle_size{5.0f};
 glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
