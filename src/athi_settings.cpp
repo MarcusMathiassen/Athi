@@ -14,7 +14,7 @@ f32 px_scale{1.0f};
 
 bool show_settings{true};
 bool physics_gravity{false};
-f32 gravity_force{0.10f};
+f32 gravity_force{9.81f};
 bool circle_collision{true};
 bool border_collision{true};
 

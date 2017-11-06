@@ -29,7 +29,8 @@ struct Particle {
   void update() {
 
     // Apply gravity
-    if (physics_gravity) vel.y -= gravity_force * mass * timestep;
+    if (physics_gravity)
+      vel.y -= gravity_force * timestep;
 
     // Update pos/vel/acc
     vel.x += acc.x * timestep * time_scale;

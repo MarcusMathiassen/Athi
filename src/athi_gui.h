@@ -215,12 +215,10 @@ void gui_render() {
 void gui_init(GLFWwindow *window, float px_scale) {
   ImGui_ImplGlfwGL3_Init(window, false);
   ImGuiIO &io = ImGui::GetIO();
-#ifdef __WINDOWS__
-#else
+
   io.FontGlobalScale = 1.0f / px_scale;
   io.Fonts->AddFontFromFileTTF("../Resources/DroidSans.ttf", 12 * px_scale,
                                NULL, io.Fonts->GetGlyphRangesJapanese());
-#endif
   // SetupImGuiStyle(true, 0.9f);
   new_style();
 }
