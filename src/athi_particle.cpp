@@ -163,7 +163,7 @@ void ParticleManager::update() {
         const size_t parts = total / thread_count;
         const size_t leftovers = total % thread_count;
 
-#ifdef __APPLE__
+#if __has_include(<dispatch/dispatch.h>)
         dispatch_apply(
             thread_count,
             dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
@@ -174,7 +174,6 @@ void ParticleManager::update() {
               collision_quadtree(cont, begin, end);
             });
 #elif _WIN32
-
         std::vector<std::future<void>> results(thread_count);
         for (int i = 0; i < thread_count; ++i)
         {
@@ -197,15 +196,16 @@ void ParticleManager::update() {
       const size_t parts = total / thread_count;
       const size_t leftovers = total % thread_count;
 
-#ifdef __APPLE__
+#if __has_include(<dispatch/dispatch.h>)
       dispatch_apply(thread_count,
-        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-        ^(size_t i) {
-          const size_t begin = parts * i;
-          size_t end = parts * (i + 1);
-          if (i == thread_count - 1) end += leftovers;
-            collision_logNxN(total, begin, end);
-        });
+                     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+                     ^(size_t i) {
+                       const size_t begin = parts * i;
+                       size_t end = parts * (i + 1);
+                       if (i == thread_count - 1)
+                         end += leftovers;
+                       collision_logNxN(total, begin, end);
+                     });
 #elif _WIN32
       std::vector<std::future<void>> results(thread_count);
       for (int i = 0; i < thread_count; ++i)
