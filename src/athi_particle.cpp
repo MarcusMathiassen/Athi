@@ -8,6 +8,11 @@
 #ifdef __APPLE__
 #include <dispatch/dispatch.h>
 #endif
+
+#include <array>
+#include <future>
+
+#include "ThreadPool.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
@@ -17,6 +22,8 @@
 ParticleManager particle_manager;
 
 void ParticleManager::init() {
+
+  pool = std::make_unique<ThreadPool>(std::thread::hardware_concurrency());
 
 #ifdef _WIN32
   console->warn("WIN32: Multithreaded collisions not available.");
@@ -166,6 +173,20 @@ void ParticleManager::update() {
               if (i == thread_count - 1) end += leftovers;
               collision_quadtree(cont, begin, end);
             });
+#elif _WIN32
+
+        std::vector<std::future<void>> results(thread_count);
+        for (int i = 0; i < thread_count; ++i)
+        {
+          const size_t begin = parts * i;
+          size_t end = parts * (i + 1);
+          if (i == thread_count - 1)
+            end += leftovers;
+          results[i] = pool->enqueue(&ParticleManager::collision_quadtree, this, cont, begin, end);
+        }
+
+        for (auto&& res : results)
+          res.get();
 #endif
       } else
         collision_quadtree(cont, 0, cont.size());
@@ -178,13 +199,26 @@ void ParticleManager::update() {
 
 #ifdef __APPLE__
       dispatch_apply(thread_count,
-                     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-                     ^(size_t i) {
-                       const size_t begin = parts * i;
-                       size_t end = parts * (i + 1);
-                       if (i == thread_count - 1) end += leftovers;
-                       collision_logNxN(total, begin, end);
-                     });
+        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+        ^(size_t i) {
+          const size_t begin = parts * i;
+          size_t end = parts * (i + 1);
+          if (i == thread_count - 1) end += leftovers;
+            collision_logNxN(total, begin, end);
+        });
+#elif _WIN32
+      std::vector<std::future<void>> results(thread_count);
+      for (int i = 0; i < thread_count; ++i)
+      {
+        const size_t begin = parts * i;
+        size_t end = parts * (i + 1);
+        if (i == thread_count - 1)
+          end += leftovers;
+        results[i] = pool->enqueue(&ParticleManager::collision_logNxN, this, total, begin, end);
+      }
+
+      for (auto&& res: results) 
+        res.get();
 #endif
     }
 
@@ -491,7 +525,8 @@ void ParticleManager::separate(Particle &a, Particle &b) {
 }
 
 // (N-1)*N/2
-void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end) {
+void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end)
+{
   u64 comp_counter = 0;
   u64 res_counter = 0;
   for (size_t i = begin; i < end; ++i) {

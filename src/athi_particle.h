@@ -14,6 +14,7 @@
 	#include <CL/cl.h>
 #endif
 
+#include "ThreadPool.h"
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 #include <vector>
@@ -69,6 +70,8 @@ struct ParticleManager {
   std::vector<Transform>  transforms;
   std::vector<glm::vec4>  colors;
   std::vector<glm::mat4>  models;
+
+  std::unique_ptr<ThreadPool> pool;
 
   Quadtree<Particle> quadtree = Quadtree<Particle>(glm::vec2(-1, -1), glm::vec2(1, 1));
   VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
