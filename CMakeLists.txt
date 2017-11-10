@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9.1)
+cmake_minimum_required(VERSION 3.5.1)
 project(athi)
 
 #SET(CMAKE_BUILD_TYPE DEBUG)
