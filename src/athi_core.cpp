@@ -86,7 +86,7 @@ void Athi_Core::init() {
 #ifdef _WIN32
   console->info("CPU: {}", CPUBrandString);
   console->info("Threads available: {}", sysInfo.dwNumberOfProcessors);
-#else
+#else 
   console->info("CPU: {}", get_cpu_brand());
   console->info("Threads available: {}", get_cpu_threads());
 #endif

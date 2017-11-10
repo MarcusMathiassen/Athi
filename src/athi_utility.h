@@ -35,7 +35,7 @@ void limit_FPS(u32 desired_framerate, double time_start_frame);
 void validateShader(const char *file, const char *type, u32 shader);
 void validateShaderProgram(const char *name, u32 shaderProgram);
 u32 createShader(const char *file, const GLenum type);
-#ifdef __APPLE__
+#ifdef __APPLE__ || __linux__
 u32 get_cpu_freq();
 u32 get_cpu_cores();
 u32 get_cpu_threads();
