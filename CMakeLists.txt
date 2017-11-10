@@ -74,7 +74,7 @@ elseif(APPLE)
 	# LINK TO TARGET
 	target_link_libraries(${PROJECT_NAME} glew glfw "-lpthread -framework OpenGL -framework OpenCL -framework Cocoa -framework IOKIT -framework CoreVideo")
 
-else
+else()
 
 
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
@@ -94,12 +94,13 @@ else
 	add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCE_FILES})
 	# INCLUDE DEPENDENCIES
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/universal)
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/Unix)
 
 	ADD_LIBRARY(glew STATIC IMPORTED)
-	SET_TARGET_PROPERTIES(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GL/libGLEW.a)
+	SET_TARGET_PROPERTIES(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Unix/GL/libGLEW.a)
 
 	ADD_LIBRARY(glfw STATIC IMPORTED)
-	SET_TARGET_PROPERTIES(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
+	SET_TARGET_PROPERTIES(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Unix/GLFW/libglfw3.a)
 
 	# LINK TO TARGET
 	target_link_libraries(${PROJECT_NAME} glew glfw "-lpthread -lOpenGL")
