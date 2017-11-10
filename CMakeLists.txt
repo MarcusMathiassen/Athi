@@ -74,4 +74,34 @@ elseif(APPLE)
 	# LINK TO TARGET
 	target_link_libraries(${PROJECT_NAME} glew glfw "-lpthread -framework OpenGL -framework OpenCL -framework Cocoa -framework IOKIT -framework CoreVideo")
 
+else
+
+
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+
+  SET(CMAKE_CXX_FLAGS_DEBUG "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
+  SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
+	
+	# RESOURCE FILE LOCATION
+	file(GLOB RESOURCE_FILES
+  "./Resources/*.png"
+  "./Resources/*.vs"
+  "./Resources/*.fs" 
+  "./Resources/*.ttf"
+  "./Resources/*.cl"
+	)
+
+	add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCE_FILES})
+	# INCLUDE DEPENDENCIES
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/universal)
+
+	ADD_LIBRARY(glew STATIC IMPORTED)
+	SET_TARGET_PROPERTIES(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GL/libGLEW.a)
+
+	ADD_LIBRARY(glfw STATIC IMPORTED)
+	SET_TARGET_PROPERTIES(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
+
+	# LINK TO TARGET
+	target_link_libraries(${PROJECT_NAME} glew glfw "-lpthread -lOpenGL")
+
 endif()
