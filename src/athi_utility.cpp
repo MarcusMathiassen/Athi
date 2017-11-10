@@ -110,7 +110,7 @@ u32 createShader(const char *file, const GLenum type) {
   }
   return shader;
 }
-#ifdef __APPLE__ || __LINUX__
+#ifdef __APPLE__ || __linux__
 u32 get_cpu_freq() {
   u32 num = 0;
   size_t size = sizeof(num);
