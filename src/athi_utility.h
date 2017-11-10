@@ -11,7 +11,7 @@
 
 #ifdef _WIN32
   #include <windows.h>
-#elif __APPLE__
+#elif __APPLE__ || __linux__
 #include <dispatch/dispatch.h>
   #include <sys/sysctl.h>
   #include <sys/types.h>
@@ -39,21 +39,6 @@ u32 get_cpu_threads();
 std::string get_cpu_brand();
 #endif
 glm::vec4 get_universal_current_color();
-
-
-template <class It, class F>
-inline void parallel_for_each(It a, It b, F &&f) {
-  const size_t count = std::distance(a, b);
-  using data_t = std::pair<It, F>;
-  data_t helper = data_t(a, std::forward<F>(f));
-  dispatch_apply_f(
-    count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-    &helper, [](void *ctx, size_t cnt) {
-      data_t *d = static_cast<data_t *>(ctx);
-      auto elem_it = std::next(d->first, cnt);
-      (*d).second(*(elem_it));
-    });
-}
 
 extern std::unordered_map<std::string, f64> time_taken_by;
 struct profile {
