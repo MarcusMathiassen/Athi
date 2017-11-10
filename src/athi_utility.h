@@ -11,8 +11,11 @@
 
 #ifdef _WIN32
   #include <windows.h>
-#elif __APPLE__ || __linux__
-#include <dispatch/dispatch.h>
+#endif
+#if __APPLE__
+  #include <dispatch/dispatch.h>
+#endif
+#if __LINUX__ || __APPLE__
   #include <sys/sysctl.h>
   #include <sys/types.h>
   #include <ctime>
