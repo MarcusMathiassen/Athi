@@ -15,10 +15,10 @@
 #if __APPLE__
   #include <dispatch/dispatch.h>
 #endif
-#if __linux__ || __APPLE__
-  #include <sys/sysctl.h>
-  #include <sys/types.h>
-  #include <ctime>
+#ifndef _WIN32
+#include <sys/sysctl.h>
+#include <sys/types.h>
+#include <ctime>
 #endif
 
 #include <cstring>
@@ -35,7 +35,7 @@ void limit_FPS(u32 desired_framerate, double time_start_frame);
 void validateShader(const char *file, const char *type, u32 shader);
 void validateShaderProgram(const char *name, u32 shaderProgram);
 u32 createShader(const char *file, const GLenum type);
-#ifdef __APPLE__ || __linux__
+#ifndef _WIN32
 u32 get_cpu_freq();
 u32 get_cpu_cores();
 u32 get_cpu_threads();
