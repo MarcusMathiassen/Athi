@@ -14,10 +14,16 @@
 #endif
 #if __APPLE__
   #include <dispatch/dispatch.h>
+  #include <sys/sysctl.h>
+  #include <sys/types.h>
+#endif
+#if __linux__
+  #include <unistd.h>
+  #include <linux/sysctl.h>
+#endif
+
 #endif
 #ifndef _WIN32
-#include <sys/sysctl.h>
-#include <sys/types.h>
 #include <ctime>
 #endif
 
