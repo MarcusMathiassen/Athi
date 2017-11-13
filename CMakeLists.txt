@@ -76,7 +76,6 @@ elseif(APPLE)
 
 else()
 
-
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
   SET(CMAKE_CXX_FLAGS_DEBUG "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
@@ -103,6 +102,6 @@ else()
 	SET_TARGET_PROPERTIES(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Unix/GLFW/libglfw3.a)
 
 	# LINK TO TARGET
-	target_link_libraries(${PROJECT_NAME} glew glfw "-lpthread -lOpenGL")
+	target_link_libraries(${PROJECT_NAME} glew glfw "-lpthread -lOpenCL -lGL -lGLU -lX11 -ldl")
 
 endif()

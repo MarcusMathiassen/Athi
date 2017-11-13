@@ -110,7 +110,7 @@ u32 createShader(const char *file, const GLenum type) {
   }
   return shader;
 }
-#ifndef _WIN32
+#if __APPLE__
 u32 get_cpu_freq()
 {
   u32 num = 0;
