@@ -28,10 +28,10 @@
 #include "imgui_impl_glfw_gl3.h"
 
 Smooth_Average<double, 30> smooth_frametime_avg(&smoothed_frametime);
-Smooth_Average<double, 30> smooth_physics_rametime_avg(
-    &smoothed_physics_frametime);
-Smooth_Average<double, 30> smooth_render_rametime_avg(
-    &smoothed_render_frametime);
+Smooth_Average<double, 30>
+    smooth_physics_rametime_avg(&smoothed_physics_frametime);
+Smooth_Average<double, 30>
+    smooth_render_rametime_avg(&smoothed_render_frametime);
 
 void Athi_Core::init() {
   window.scene.width = 1000;
@@ -126,7 +126,8 @@ void Athi_Core::start() {
       glfwSwapBuffers(window_context);
     }
 
-    if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
+    if (framerate_limit != 0)
+      limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     framerate = static_cast<u32>(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
@@ -179,7 +180,8 @@ void Athi_Core::update() {
   while (iter++ < physics_samples) {
     const double start = glfwGetTime();
     particle_manager.update();
-    timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) / physics_samples;
+    timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) /
+               physics_samples;
   }
 
   // Update GPU buffers

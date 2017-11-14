@@ -5,9 +5,6 @@
 #include "athi_transform.h"
 #include "athi_utility.h"
 #include "athi_voxelgrid.h"
-#ifdef __APPLE__
-#include <dispatch/dispatch.h>
-#endif
 
 #include <array>
 #include <future>
@@ -24,10 +21,6 @@ ParticleManager particle_manager;
 void ParticleManager::init() {
 
   pool = std::make_unique<ThreadPool>(std::thread::hardware_concurrency());
-
-#ifdef _WIN32
-  console->warn("WIN32: Multithreaded collisions not available.");
-#endif
 
   // OpenCL init
   //
@@ -163,17 +156,6 @@ void ParticleManager::update() {
         const size_t parts = total / thread_count;
         const size_t leftovers = total % thread_count;
 
-#if __APPLE__
-        dispatch_apply(
-            thread_count,
-            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-            ^(size_t i) {
-              const size_t begin = parts * i;
-              size_t end = parts * (i + 1);
-              if (i == thread_count - 1) end += leftovers;
-              collision_quadtree(cont, begin, end);
-            });
-#elif _WIN32 || __linux__
         std::vector<std::future<void>> results(thread_count);
         for (int i = 0; i < thread_count; ++i)
         {
@@ -186,7 +168,6 @@ void ParticleManager::update() {
 
         for (auto&& res : results)
           res.get();
-#endif
       } else
         collision_quadtree(cont, 0, cont.size());
     } else if (use_multithreading && variable_thread_count != 0 &&
@@ -196,17 +177,6 @@ void ParticleManager::update() {
       const size_t parts = total / thread_count;
       const size_t leftovers = total % thread_count;
 
-#if __APPLE__
-      dispatch_apply(thread_count,
-                     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-                     ^(size_t i) {
-                       const size_t begin = parts * i;
-                       size_t end = parts * (i + 1);
-                       if (i == thread_count - 1)
-                         end += leftovers;
-                       collision_logNxN(total, begin, end);
-                     });
-#elif _WIN32 || __linux__
       std::vector<std::future<void>> results(thread_count);
       for (int i = 0; i < thread_count; ++i)
       {
@@ -217,9 +187,8 @@ void ParticleManager::update() {
         results[i] = pool->enqueue(&ParticleManager::collision_logNxN, this, total, begin, end);
       }
 
-      for (auto&& res: results) 
+      for (auto&& res: results)
         res.get();
-#endif
     }
 
     else if (openCL_active) {
@@ -320,7 +289,7 @@ void ParticleManager::update() {
   }
 }
 
-void ParticleManager::update_gpu_buffers() noexcept 
+void ParticleManager::update_gpu_buffers() noexcept
 {
   const size_t particles_size = particles.size();
 

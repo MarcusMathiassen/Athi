@@ -1,6 +1,5 @@
 #include "athi_utility.h"
 
-
 std::unordered_map<std::string, f64> time_taken_by;
 
 vec4 get_universal_current_color() {

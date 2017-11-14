@@ -13,7 +13,6 @@
   #include <windows.h>
 #endif
 #if __APPLE__
-  #include <dispatch/dispatch.h>
   #include <sys/sysctl.h>
   #include <sys/types.h>
 #endif
@@ -42,7 +41,7 @@ void validateShaderProgram(const char *name, u32 shaderProgram);
 u32 createShader(const char *file, const GLenum type);
 #if __APPLE__
 u32 get_cpu_freq();
-u32 get_cpu_cores();
+  u32 get_cpu_cores();
 u32 get_cpu_threads();
 std::string get_cpu_brand();
 #endif

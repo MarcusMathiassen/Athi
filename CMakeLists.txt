@@ -12,11 +12,13 @@ file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 set (SOURCE_FILES ${CPP_FILES} ${H_FILES})
 
+message("-- CXX ${CMAKE_CXX_COMPILER}")
+
 if(WIN32)
 
 	SET(CMAKE_CXX_FLAGS "/std:c++latest -Ox -W3 /wd4530 /wd4005 /wd4996 /wd4244 /MP8")
 	set(CMAKE_GENERATOR "Visual Studio 15 2017 Win64")
-	
+
 	message("-- flags ${CMAKE_CXX_FLAGS}")
 	message("-- Generator set to ${CMAKE_GENERATOR}")
 	add_executable(${PROJECT_NAME} ${SOURCES})
@@ -24,7 +26,7 @@ if(WIN32)
 	# INCLUDE DEPENDENCIES
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/universal)
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows)
-	
+
 	ADD_LIBRARY(opencl STATIC IMPORTED)
   SET_TARGET_PROPERTIES(opencl PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/libOpenCL.a)
 
@@ -46,7 +48,7 @@ elseif(APPLE)
 	file(GLOB RESOURCE_FILES
   "./Resources/*.png"
   "./Resources/*.vs"
-  "./Resources/*.fs" 
+  "./Resources/*.fs"
   "./Resources/*.ttf"
   "./Resources/*.cl"
 	)
@@ -64,6 +66,7 @@ elseif(APPLE)
 
 	# INCLUDE DEPENDENCIES
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/universal)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS)
 
 	ADD_LIBRARY(glew STATIC IMPORTED)
 	SET_TARGET_PROPERTIES(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GL/libGLEW.a)
@@ -80,12 +83,12 @@ else()
 
   SET(CMAKE_CXX_FLAGS_DEBUG "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
-	
+
 	# RESOURCE FILE LOCATION
 	file(GLOB RESOURCE_FILES
   "./Resources/*.png"
   "./Resources/*.vs"
-  "./Resources/*.fs" 
+  "./Resources/*.fs"
   "./Resources/*.ttf"
   "./Resources/*.cl"
 	)

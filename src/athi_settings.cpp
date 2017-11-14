@@ -60,7 +60,7 @@ f32 time_scale{1.0f};
 bool vsync{false};
 
 s32 variable_thread_count;
-bool use_multithreading{false};
+bool use_multithreading{true};
 
 s32 cpu_cores;
 s32 cpu_threads;

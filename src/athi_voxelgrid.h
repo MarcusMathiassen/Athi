@@ -31,8 +31,8 @@ private:
     Rect bounds;
     std::vector<int> index;
     Node(const Rect &r) : bounds{r} {}
-    void insert(int id) { 
-      index.emplace_back(id); 
+    void insert(int id) {
+      index.emplace_back(id);
     }
     void get(std::vector<std::vector<int>> &cont) {
       cont.emplace_back(index);
