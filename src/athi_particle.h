@@ -40,7 +40,7 @@ struct Particle {
     pos.y += vel.y * timestep * time_scale;
     acc *= 0;
 
-    if(border_collision) {
+    if (border_collision) {
       // Border collision
       if (pos.x < 0 + radius) {
         pos.x = 0 + radius;

@@ -454,7 +454,7 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b)
   const f32 m1 = a.mass;
   const f32 m2 = b.mass;
 
-  // Should the circles s32ersect. Seperate them. If not the next
+  // Should the circles intersect. Seperate them. If not the next
   // calculated values will be off.
   separate(a, b);
 
@@ -464,7 +464,7 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b)
 
   // And we don't resolve collisions between circles moving away from
   // eachother
-  if (d < 0.0)
+  if (d < 1e-4)
   {
     const glm::vec2 norm = glm::normalize(glm::vec2(dx, dy));
     const glm::vec2 tang = glm::vec2(norm.y * -1.0, norm.x);

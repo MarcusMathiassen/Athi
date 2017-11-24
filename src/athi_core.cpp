@@ -33,8 +33,7 @@ Smooth_Average<double, 30>
 Smooth_Average<double, 30>
     smooth_render_rametime_avg(&smoothed_render_frametime);
 
-void Athi_Core::init()
-{
+void Athi_Core::init() {
   window.scene.width = 1000;
   window.scene.height = 500;
   window.init();
@@ -66,8 +65,7 @@ void Athi_Core::init()
   // Get the information associated with each extended ID.
   __cpuid(CPUInfo, 0x80000000);
   nExIds = CPUInfo[0];
-  for (i = 0x80000000; i <= nExIds; ++i)
-  {
+  for (i = 0x80000000; i <= nExIds; ++i) {
     __cpuid(CPUInfo, i);
     // Interpret CPU brand string
     if (i == 0x80000002)
@@ -100,12 +98,10 @@ void Athi_Core::init()
   console->info("Using GLFW {}", glfwGetVersionString());
 }
 
-void Athi_Core::start()
-{
+void Athi_Core::start() {
   auto window_context = window.get_window_context();
   glfwMakeContextCurrent(window_context);
-  while (!glfwWindowShouldClose(window_context))
-  {
+  while (!glfwWindowShouldClose(window_context)) {
     const double time_start_frame = glfwGetTime();
     profile p("Frame total");
 
@@ -141,8 +137,7 @@ void Athi_Core::start()
   shutdown();
 }
 
-void Athi_Core::draw(GLFWwindow *window)
-{
+void Athi_Core::draw(GLFWwindow *window) {
   profile p("Athi_Core::draw");
 
   const double time_start_frame = glfwGetTime();
@@ -167,8 +162,7 @@ void Athi_Core::draw(GLFWwindow *window)
     render();
   }
 
-  if (show_settings)
-  {
+  if (show_settings) {
     update_settings();
     gui_render();
   }
@@ -179,13 +173,11 @@ void Athi_Core::draw(GLFWwindow *window)
   smooth_render_rametime_avg.add_new_frametime(render_frametime);
 }
 
-void Athi_Core::update()
-{
+void Athi_Core::update() {
   profile p("Athi_Core::update");
   const double time_start_frame = glfwGetTime();
   int iter = 0;
-  while (iter++ < physics_samples)
-  {
+  while (iter++ < physics_samples) {
     const double start = glfwGetTime();
     particle_manager.update();
     timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) /
@@ -203,8 +195,7 @@ void Athi_Core::update()
 
 void Athi_Core::update_settings() { glfwSwapInterval(vsync); }
 
-void Athi_Core::shutdown()
-{
+void Athi_Core::shutdown() {
   gui_shutdown();
   glfwTerminate();
 }

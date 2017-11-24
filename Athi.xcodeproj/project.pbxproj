@@ -14,12 +14,12 @@
 		9019EB9E1F9EC3130088D080 /* printf.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9019EB791F9EC3130088D080 /* printf.cc */; };
 		9019EB9F1F9EC3130088D080 /* format.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9019EB7A1F9EC3130088D080 /* format.cc */; };
 		9019EBA01F9EC3130088D080 /* ostream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9019EB7C1F9EC3130088D080 /* ostream.cc */; };
+		9051CA341FC7E90C002E8918 /* libfmt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9051CA331FC7E90C002E8918 /* libfmt.a */; };
 		90726D481F9ACFBA006C170B /* athi_particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90726D471F9ACFBA006C170B /* athi_particle.cpp */; };
 		909D42811F9EA7E800EAD422 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A521F328D78007DCBB3 /* libglfw3.a */; };
 		909D42821F9EAAFC00EAD422 /* libGLEW.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A501F328D70007DCBB3 /* libGLEW.a */; };
 		F203DDEA1F33EA94005A1535 /* athi_utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F203DDE91F33EA94005A1535 /* athi_utility.cpp */; };
 		F2298A391F328D00007DCBB3 /* athi_camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A171F328D00007DCBB3 /* athi_camera.cpp */; };
-		F2298A3B1F328D00007DCBB3 /* athi_circle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A1B1F328D00007DCBB3 /* athi_circle.cpp */; };
 		F2298A3C1F328D00007DCBB3 /* athi_core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A1D1F328D00007DCBB3 /* athi_core.cpp */; };
 		F2298A3D1F328D00007DCBB3 /* athi_input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A1F1F328D00007DCBB3 /* athi_input.cpp */; };
 		F2298A3F1F328D00007DCBB3 /* athi_rect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2298A231F328D00007DCBB3 /* athi_rect.cpp */; };
@@ -31,9 +31,7 @@
 		F2298A4B1F328D5A007DCBB3 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A4A1F328D5A007DCBB3 /* IOKit.framework */; };
 		F2298A4D1F328D60007DCBB3 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A4C1F328D60007DCBB3 /* CoreVideo.framework */; };
 		F2298A4F1F328D67007DCBB3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2298A4E1F328D67007DCBB3 /* Cocoa.framework */; };
-		F25C78771F520AD300D9D616 /* athi_task_manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F25C78751F520AD300D9D616 /* athi_task_manager.cpp */; };
 		F2820A051F3BAC1C00BD6C76 /* athi_line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2820A021F3BAC1B00BD6C76 /* athi_line.cpp */; };
-		F28B69261F3C962C00766125 /* athi_spring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F28B69241F3C962C00766125 /* athi_spring.cpp */; };
 		F2A08A681F3A01B200E2148B /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F2A08A671F3A01B200E2148B /* OpenCL.framework */; };
 		F2AEF63B1F3E255F00D5000E /* athi_renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F2AEF63A1F3E255F00D5000E /* athi_renderer.cpp */; };
 /* End PBXBuildFile section */
@@ -103,15 +101,15 @@
 		9019EB9A1F9EC3130088D080 /* tweakme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tweakme.h; sourceTree = "<group>"; };
 		9019EB9B1F9EC3130088D080 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		9019EB9C1F9EC3130088D080 /* logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logger.h; sourceTree = "<group>"; };
+		9051CA311FC7E8AB002E8918 /* ThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPool.h; sourceTree = "<group>"; };
+		9051CA321FC7E8AB002E8918 /* athi_gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_gui.h; sourceTree = "<group>"; };
+		9051CA331FC7E90C002E8918 /* libfmt.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfmt.a; path = ../../../../../usr/local/Cellar/fmt/4.0.0/lib/libfmt.a; sourceTree = "<group>"; };
 		90726D461F9ACFBA006C170B /* athi_particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_particle.h; sourceTree = "<group>"; };
 		90726D471F9ACFBA006C170B /* athi_particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_particle.cpp; sourceTree = "<group>"; };
 		F203DDE91F33EA94005A1535 /* athi_utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_utility.cpp; sourceTree = "<group>"; };
 		F2298A0B1F328CDE007DCBB3 /* Athi */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Athi; sourceTree = BUILT_PRODUCTS_DIR; };
-		F2298A161F328D00007DCBB3 /* athi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi.h; sourceTree = "<group>"; };
 		F2298A171F328D00007DCBB3 /* athi_camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_camera.cpp; sourceTree = "<group>"; };
 		F2298A181F328D00007DCBB3 /* athi_camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_camera.h; sourceTree = "<group>"; };
-		F2298A1B1F328D00007DCBB3 /* athi_circle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_circle.cpp; sourceTree = "<group>"; };
-		F2298A1C1F328D00007DCBB3 /* athi_circle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_circle.h; sourceTree = "<group>"; };
 		F2298A1D1F328D00007DCBB3 /* athi_core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_core.cpp; sourceTree = "<group>"; };
 		F2298A1E1F328D00007DCBB3 /* athi_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_core.h; sourceTree = "<group>"; };
 		F2298A1F1F328D00007DCBB3 /* athi_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_input.cpp; sourceTree = "<group>"; };
@@ -137,16 +135,11 @@
 		F2298A4E1F328D67007DCBB3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		F2298A501F328D70007DCBB3 /* libGLEW.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libGLEW.a; path = dep/macOS/GL/libGLEW.a; sourceTree = "<group>"; };
 		F2298A521F328D78007DCBB3 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = dep/macOS/GLFW/libglfw3.a; sourceTree = "<group>"; };
-		F25C78751F520AD300D9D616 /* athi_task_manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_task_manager.cpp; sourceTree = "<group>"; };
-		F25C78761F520AD300D9D616 /* athi_task_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_task_manager.h; sourceTree = "<group>"; };
 		F2820A011F3BAC1B00BD6C76 /* athi_line.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_line.h; sourceTree = "<group>"; };
 		F2820A021F3BAC1B00BD6C76 /* athi_line.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_line.cpp; sourceTree = "<group>"; };
 		F284F78F1F52714000F2CD2F /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
-		F28B69231F3C962C00766125 /* athi_softbody.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_softbody.h; sourceTree = "<group>"; };
-		F28B69241F3C962C00766125 /* athi_spring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_spring.cpp; sourceTree = "<group>"; };
 		F28B69251F3C962C00766125 /* athi_spring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_spring.h; sourceTree = "<group>"; };
 		F2A08A671F3A01B200E2148B /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
-		F2AEF6371F3E255F00D5000E /* athi_rigidbody.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_rigidbody.h; sourceTree = "<group>"; };
 		F2AEF6381F3E255F00D5000E /* athi_renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_renderer.h; sourceTree = "<group>"; };
 		F2AEF6391F3E255F00D5000E /* athi_shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = athi_shader.h; sourceTree = "<group>"; };
 		F2AEF63A1F3E255F00D5000E /* athi_renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = athi_renderer.cpp; sourceTree = "<group>"; };
@@ -157,6 +150,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9051CA341FC7E90C002E8918 /* libfmt.a in Frameworks */,
 				909D42821F9EAAFC00EAD422 /* libGLEW.a in Frameworks */,
 				909D42811F9EA7E800EAD422 /* libglfw3.a in Frameworks */,
 				F2A08A681F3A01B200E2148B /* OpenCL.framework in Frameworks */,
@@ -269,6 +263,7 @@
 		F2298A151F328D00007DCBB3 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				F284F78E1F52714000F2CD2F /* universal */,
 				9019EB701F9EC3130088D080 /* spdlog */,
 				9019EB391F9EC21B0088D080 /* imconfig.h */,
 				9019EB361F9EC21B0088D080 /* imgui_draw.cpp */,
@@ -279,26 +274,19 @@
 				9019EB331F9EC21A0088D080 /* imgui.h */,
 				9019EB381F9EC21B0088D080 /* stb_rect_pack.h */,
 				9019EB3A1F9EC21B0088D080 /* stb_textedit.h */,
+				9051CA321FC7E8AB002E8918 /* athi_gui.h */,
+				9051CA311FC7E8AB002E8918 /* ThreadPool.h */,
 				9019EB321F9EC21A0088D080 /* stb_truetype.h */,
-				F284F78E1F52714000F2CD2F /* universal */,
-				F25C78751F520AD300D9D616 /* athi_task_manager.cpp */,
-				F25C78761F520AD300D9D616 /* athi_task_manager.h */,
 				90726D471F9ACFBA006C170B /* athi_particle.cpp */,
 				90726D461F9ACFBA006C170B /* athi_particle.h */,
 				F2AEF63A1F3E255F00D5000E /* athi_renderer.cpp */,
 				F2AEF6381F3E255F00D5000E /* athi_renderer.h */,
-				F2AEF6371F3E255F00D5000E /* athi_rigidbody.h */,
 				F2AEF6391F3E255F00D5000E /* athi_shader.h */,
-				F28B69231F3C962C00766125 /* athi_softbody.h */,
-				F28B69241F3C962C00766125 /* athi_spring.cpp */,
 				F28B69251F3C962C00766125 /* athi_spring.h */,
 				F2820A021F3BAC1B00BD6C76 /* athi_line.cpp */,
 				F2820A011F3BAC1B00BD6C76 /* athi_line.h */,
 				F203DDE91F33EA94005A1535 /* athi_utility.cpp */,
-				F2298A161F328D00007DCBB3 /* athi.h */,
 				F2298A181F328D00007DCBB3 /* athi_camera.h */,
-				F2298A1B1F328D00007DCBB3 /* athi_circle.cpp */,
-				F2298A1C1F328D00007DCBB3 /* athi_circle.h */,
 				F2298A171F328D00007DCBB3 /* athi_camera.cpp */,
 				F2298A1D1F328D00007DCBB3 /* athi_core.cpp */,
 				F2298A1E1F328D00007DCBB3 /* athi_core.h */,
@@ -326,6 +314,7 @@
 		F2298A471F328D54007DCBB3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9051CA331FC7E90C002E8918 /* libfmt.a */,
 				901213171F8AE55500370145 /* libglfw.3.2.dylib */,
 				901213151F8AE54800370145 /* libGLEW.2.1.0.dylib */,
 				F2A08A671F3A01B200E2148B /* OpenCL.framework */,
@@ -345,7 +334,7 @@
 				F284F78F1F52714000F2CD2F /* stb_image.h */,
 			);
 			name = universal;
-			path = dep/universal;
+			path = src/universal;
 			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
@@ -411,17 +400,14 @@
 				F203DDEA1F33EA94005A1535 /* athi_utility.cpp in Sources */,
 				F2820A051F3BAC1C00BD6C76 /* athi_line.cpp in Sources */,
 				9019EB3D1F9EC21B0088D080 /* imgui_draw.cpp in Sources */,
-				F28B69261F3C962C00766125 /* athi_spring.cpp in Sources */,
 				9019EBA01F9EC3130088D080 /* ostream.cc in Sources */,
 				F2298A3C1F328D00007DCBB3 /* athi_core.cpp in Sources */,
-				F25C78771F520AD300D9D616 /* athi_task_manager.cpp in Sources */,
 				F2AEF63B1F3E255F00D5000E /* athi_renderer.cpp in Sources */,
 				9019EB9E1F9EC3130088D080 /* printf.cc in Sources */,
 				F2298A3F1F328D00007DCBB3 /* athi_rect.cpp in Sources */,
 				F2298A461F328D00007DCBB3 /* main.cpp in Sources */,
 				9019EB9F1F9EC3130088D080 /* format.cc in Sources */,
 				9019EB3C1F9EC21B0088D080 /* imgui.cpp in Sources */,
-				F2298A3B1F328D00007DCBB3 /* athi_circle.cpp in Sources */,
 				F2298A391F328D00007DCBB3 /* athi_camera.cpp in Sources */,
 				9019EB3E1F9EC21B0088D080 /* imgui_impl_glfw_gl3.cpp in Sources */,
 				9019EB9D1F9EC3130088D080 /* posix.cc in Sources */,
@@ -552,7 +538,10 @@
 				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				HEADER_SEARCH_PATHS = "/Users/marcusmathiassen/Documents/GitHub/Athi/dep/macOS/**";
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/dep/macOS/**";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/dep/macOS/**",
+					/usr/local/Cellar/fmt/4.0.0/lib,
+				);
 				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -575,7 +564,10 @@
 				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_UNUSED_FUNCTION = NO;
 				HEADER_SEARCH_PATHS = "/Users/marcusmathiassen/Documents/GitHub/Athi/dep/macOS/**";
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/dep/macOS/**";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/dep/macOS/**",
+					/usr/local/Cellar/fmt/4.0.0/lib,
+				);
 				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
