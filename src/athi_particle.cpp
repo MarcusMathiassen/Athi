@@ -18,36 +18,43 @@
 
 ParticleManager particle_manager;
 
-void ParticleManager::init() {
+void ParticleManager::init()
+{
 
   pool = std::make_unique<ThreadPool>(std::thread::hardware_concurrency());
 
   // OpenCL init
   //
   read_file("../Resources/particle_collision.cl", &kernel_source);
-  if (!kernel_source) console->error("OpenCL missing kernel source");
+  if (!kernel_source)
+    console->error("OpenCL missing kernel source");
 
   // Connect to a compute device
   err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1,
                        &device_id, NULL);
-  if (err != CL_SUCCESS) console->error("Failed to create a device group!");
+  if (err != CL_SUCCESS)
+    console->error("Failed to create a device group!");
 
   // Create a compute context
   context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
-  if (!context) console->error("Failed to create a compute context!");
+  if (!context)
+    console->error("Failed to create a compute context!");
 
   // Create a command commands
   commands = clCreateCommandQueue(context, device_id, 0, &err);
-  if (!commands) console->error("Failed to create a command commands!");
+  if (!commands)
+    console->error("Failed to create a command commands!");
 
   // Create the compute program from the source buffer
   program = clCreateProgramWithSource(context, 1, (const char **)&kernel_source,
                                       NULL, &err);
-  if (!program) console->error("Failed to create compute program!");
+  if (!program)
+    console->error("Failed to create compute program!");
 
   // Build the program executable
   err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
-  if (err != CL_SUCCESS) {
+  if (err != CL_SUCCESS)
+  {
     size_t len;
     char buffer[2048];
 
@@ -89,7 +96,8 @@ void ParticleManager::init() {
 
   std::vector<glm::vec2> positions;
   positions.reserve(num_verts);
-  for (u32 i = 0; i < num_verts; ++i) {
+  for (u32 i = 0; i < num_verts; ++i)
+  {
     positions.emplace_back(cos(i * PI * 2.0f / num_verts),
                            sin(i * PI * 2.0f / num_verts));
   }
@@ -116,7 +124,8 @@ void ParticleManager::init() {
 
   // TRANSFORM
   glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
-  for (u32 i = 0; i < 4; ++i) {
+  for (u32 i = 0; i < 4; ++i)
+  {
     glEnableVertexAttribArray(2 + i);
     glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
                           (void *)(i * sizeof(glm::vec4)));
@@ -124,33 +133,41 @@ void ParticleManager::init() {
   }
 }
 
-void ParticleManager::update() {
+void ParticleManager::update()
+{
   profile p("ParticleManager::update");
 
   // just exit when no particles are present.
-  if (particles.empty()) return;
+  if (particles.empty())
+    return;
 
-  if (circle_collision) {
+  if (circle_collision)
+  {
     profile p("ParticleManager::circle_collision");
 
     comparisons = 0;
     resolutions = 0;
 
-    std::vector<std::vector<s32>> cont;  // nodes with vec of particle.id's
+    std::vector<std::vector<s32>> cont; // nodes with vec of particle.id's
 
-    if (quadtree_active && openCL_active == false) {
+    if (quadtree_active && openCL_active == false)
+    {
       quadtree = Quadtree<Particle>(glm::vec2(0.0f, 0.0f),
                                     glm::vec2(screen_width, screen_height));
       quadtree.input(particles);
       quadtree.get(cont);
-    } else if (voxelgrid_active && openCL_active == false) {
+    }
+    else if (voxelgrid_active && openCL_active == false)
+    {
       voxelgrid.reset();
       voxelgrid.input(particles);
       voxelgrid.get(cont);
     }
     // Quadtree or Voxelgrid
-    if ((quadtree_active || voxelgrid_active) && openCL_active == false) {
-      if (use_multithreading && variable_thread_count != 0) {
+    if ((quadtree_active || voxelgrid_active) && openCL_active == false)
+    {
+      if (use_multithreading && variable_thread_count != 0)
+      {
         const size_t thread_count = variable_thread_count;
         const size_t total = cont.size();
         const size_t parts = total / thread_count;
@@ -166,12 +183,15 @@ void ParticleManager::update() {
           results[i] = pool->enqueue(&ParticleManager::collision_quadtree, this, cont, begin, end);
         }
 
-        for (auto&& res : results)
+        for (auto &&res : results)
           res.get();
-      } else
+      }
+      else
         collision_quadtree(cont, 0, cont.size());
-    } else if (use_multithreading && variable_thread_count != 0 &&
-               openCL_active == false) {
+    }
+    else if (use_multithreading && variable_thread_count != 0 &&
+             openCL_active == false)
+    {
       const size_t thread_count = variable_thread_count;
       const size_t total = particles.size();
       const size_t parts = total / thread_count;
@@ -187,11 +207,12 @@ void ParticleManager::update() {
         results[i] = pool->enqueue(&ParticleManager::collision_logNxN, this, total, begin, end);
       }
 
-      for (auto&& res: results)
+      for (auto &&res : results)
         res.get();
     }
 
-    else if (openCL_active) {
+    else if (openCL_active)
+    {
       const u32 count = static_cast<u32>(particles.size());
 
       results.clear();
@@ -204,7 +225,8 @@ void ParticleManager::update() {
                              sizeof(Particle) * count, NULL, NULL);
       output = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
                               sizeof(Particle) * count, NULL, NULL);
-      if (!input || !output) {
+      if (!input || !output)
+      {
         console->error("Failed to allocate device memory!");
         exit(1);
       }
@@ -214,14 +236,16 @@ void ParticleManager::update() {
       err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0,
                                  sizeof(Particle) * count, &particles[0], 0,
                                  NULL, NULL);
-      if (err != CL_SUCCESS) console->error("Failed to write to source array!");
+      if (err != CL_SUCCESS)
+        console->error("Failed to write to source array!");
 
       // Set the arguments to our compute kernel
       err = 0;
       err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
       err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
       err |= clSetKernelArg(kernel, 2, sizeof(u32), &count);
-      if (err != CL_SUCCESS) {
+      if (err != CL_SUCCESS)
+      {
         console->error("Failed to set kernel arguments! {}", err);
         exit(1);
       }
@@ -232,7 +256,8 @@ void ParticleManager::update() {
       err =
           clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE,
                                    sizeof(local), &local, NULL);
-      if (err != CL_SUCCESS) {
+      if (err != CL_SUCCESS)
+      {
         console->error("Failed to retrieve kernel work group info! {}", err);
         exit(1);
       }
@@ -242,7 +267,8 @@ void ParticleManager::update() {
       // NULL, &global, &local, 0, NULL, NULL);
       err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0,
                                    NULL, NULL);
-      if (err) {
+      if (err)
+      {
         console->error("Failed to execute kernel! {}", err);
         exit(1);
       }
@@ -256,7 +282,8 @@ void ParticleManager::update() {
       err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0,
                                 sizeof(Particle) * count, &results[0], 0, NULL,
                                 NULL);
-      if (err != CL_SUCCESS) {
+      if (err != CL_SUCCESS)
+      {
         console->error("Failed to read output array! {}", err);
         exit(1);
       }
@@ -265,25 +292,33 @@ void ParticleManager::update() {
     }
 
     // CPU Singlethreaded
-    else {
+    else
+    {
       collision_logNxN(particles.size(), 0, particles.size());
     }
   }
   {
     profile p("ParticleManager::update(draw nodes/color quadtree/voxelgrid)");
-    if (quadtree_active && draw_debug) {
-      if (color_particles) quadtree.color_objects(colors);
-      if (draw_nodes) quadtree.draw_bounds();
+    if (quadtree_active && draw_debug)
+    {
+      if (color_particles)
+        quadtree.color_objects(colors);
+      if (draw_nodes)
+        quadtree.draw_bounds();
     }
-    if (voxelgrid_active && draw_debug) {
-      if (color_particles) voxelgrid.color_objects(colors);
-      if (draw_nodes) voxelgrid.draw_bounds();
+    if (voxelgrid_active && draw_debug)
+    {
+      if (color_particles)
+        voxelgrid.color_objects(colors);
+      if (draw_nodes)
+        voxelgrid.draw_bounds();
     }
   }
 
   {
     profile p("ParticleManager::update(particles update)");
-    for (auto &p : particles) {
+    for (auto &p : particles)
+    {
       p.update();
     }
   }
@@ -344,7 +379,8 @@ void ParticleManager::update_gpu_buffers() noexcept
   }
 }
 
-void ParticleManager::draw() const {
+void ParticleManager::draw() const
+{
   glBindVertexArray(vao);
   glUseProgram(shader_program);
   glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts,
@@ -352,7 +388,8 @@ void ParticleManager::draw() const {
 }
 
 void ParticleManager::add(const glm::vec2 &pos, f32 radius,
-                          const glm::vec4 &color) {
+                          const glm::vec4 &color)
+{
   Particle p;
   p.pos = pos;
   p.radius = radius;
@@ -368,14 +405,16 @@ void ParticleManager::add(const glm::vec2 &pos, f32 radius,
   colors.emplace_back(color);
 }
 
-void ParticleManager::erase_all() {
+void ParticleManager::erase_all()
+{
   particles.clear();
   colors.clear();
   transforms.clear();
 }
 
 bool ParticleManager::collision_check(const Particle &a,
-                                      const Particle &b) const {
+                                      const Particle &b) const
+{
   const f32 ax = a.pos.x;
   const f32 ay = a.pos.y;
   const f32 bx = b.pos.x;
@@ -385,7 +424,8 @@ bool ParticleManager::collision_check(const Particle &a,
 
   // square collision check
   if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br &&
-      ay + ar > by - br) {
+      ay + ar > by - br)
+  {
     const f32 dx = bx - ax;
     const f32 dy = by - ay;
 
@@ -395,13 +435,15 @@ bool ParticleManager::collision_check(const Particle &a,
     const f32 distance_sqrd = (dx * dx) + (dy * dy);
 
     // circle collision check
-    if (distance_sqrd < sqr_radius) return true;
+    if (distance_sqrd < sqr_radius)
+      return true;
   }
   return false;
 }
 
 // Collisions response between two circles with varying radius and mass.
-void ParticleManager::collision_resolve(Particle &a, Particle &b) {
+void ParticleManager::collision_resolve(Particle &a, Particle &b)
+{
   // Local variables
   const f64 dx = b.pos.x - a.pos.x;
   const f64 dy = b.pos.y - a.pos.y;
@@ -422,7 +464,8 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b) {
 
   // And we don't resolve collisions between circles moving away from
   // eachother
-  if (d < 0.0) {
+  if (d < 0.0)
+  {
     const glm::vec2 norm = glm::normalize(glm::vec2(dx, dy));
     const glm::vec2 tang = glm::vec2(norm.y * -1.0, norm.x);
     const f32 scal_norm_1 = glm::dot(norm, a_vel);
@@ -446,7 +489,8 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b) {
 }
 
 // Separates two s32ersecting circles.
-void ParticleManager::separate(Particle &a, Particle &b) {
+void ParticleManager::separate(Particle &a, Particle &b)
+{
   // Local variables
   const glm::vec2 a_pos = a.pos;
   const glm::vec2 b_pos = b.pos;
@@ -498,10 +542,13 @@ void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end)
 {
   u64 comp_counter = 0;
   u64 res_counter = 0;
-  for (size_t i = begin; i < end; ++i) {
-    for (size_t j = 1 + i; j < total; ++j) {
+  for (size_t i = begin; i < end; ++i)
+  {
+    for (size_t j = 1 + i; j < total; ++j)
+    {
       ++comp_counter;
-      if (collision_check(particles[i], particles[j])) {
+      if (collision_check(particles[i], particles[j]))
+      {
         collision_resolve(particles[i], particles[j]);
         ++res_counter;
       }
@@ -512,14 +559,19 @@ void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end)
 }
 
 void ParticleManager::collision_quadtree(
-    const std::vector<std::vector<s32>> &cont, size_t begin, size_t end) {
+    const std::vector<std::vector<s32>> &cont, size_t begin, size_t end)
+{
   u64 comp_counter = 0;
   u64 res_counter = 0;
-  for (size_t k = begin; k < end; ++k) {
-    for (size_t i = 0; i < cont[k].size(); ++i) {
-      for (size_t j = i + 1; j < cont[k].size(); ++j) {
+  for (size_t k = begin; k < end; ++k)
+  {
+    for (size_t i = 0; i < cont[k].size(); ++i)
+    {
+      for (size_t j = i + 1; j < cont[k].size(); ++j)
+      {
         ++comp_counter;
-        if (collision_check(particles[cont[k][i]], particles[cont[k][j]])) {
+        if (collision_check(particles[cont[k][i]], particles[cont[k][j]]))
+        {
           collision_resolve(particles[cont[k][i]], particles[cont[k][j]]);
           ++res_counter;
         }

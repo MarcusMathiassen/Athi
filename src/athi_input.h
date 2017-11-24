@@ -76,8 +76,10 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action,
   switch (button) {
   case GLFW_MOUSE_BUTTON_LEFT:
     athi_input_manager.mouse.left_button.state = action;
+    break;
   case GLFW_MOUSE_BUTTON_RIGHT:
     athi_input_manager.mouse.right_button.state = action;
+    break;
   }
 
   glm::vec2 mouse_pos = athi_input_manager.mouse.pos;
