@@ -133,13 +133,5 @@ void collision_resolve( Particle *a,  Particle *b)
 __kernel void particle_collision(__global Particle* input, __global Particle* output, const unsigned int count)
 {
   const unsigned int g_id = get_global_id(0);
-   __global Particle *a = &input[g_id];
-
-  unsigned int i = 0;
-  for (; i < count; ++i) {
-    if (i == g_id) continue;
-    __global Particle *b = &input[i];
-  }
-  
   output[g_id] = input[g_id];
 }

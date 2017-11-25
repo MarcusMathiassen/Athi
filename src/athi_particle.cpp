@@ -163,6 +163,21 @@ void ParticleManager::update()
       voxelgrid.input(particles);
       voxelgrid.get(cont);
     }
+
+#if 1
+    // Search for duplicates (DEBUG)
+    {
+    s32 counter = 0;
+    for (const auto& obj: cont) {
+      counter += obj.size();
+    }
+    s32 duplicates = counter - static_cast<s32>(particles.size());
+    if (duplicates != 0)
+      console->warn("Duplicates found in container. num: {}", duplicates);
+    }
+#endif
+
+
     // Quadtree or Voxelgrid
     if ((quadtree_active || voxelgrid_active) && openCL_active == false)
     {
@@ -246,30 +261,28 @@ void ParticleManager::update()
       err |= clSetKernelArg(kernel, 2, sizeof(u32), &count);
       if (err != CL_SUCCESS)
       {
-        console->error("Failed to set kernel arguments! {}", err);
+        console->error("[line {}] Failed to set kernel arguments! {}",__LINE__, err);
         exit(1);
       }
 
       // Get the maximum work group size for executing the
       // kernel o dn the device
       //
-      err =
-          clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE,
-                                   sizeof(local), &local, NULL);
-      if (err != CL_SUCCESS)
-      {
-        console->error("Failed to retrieve kernel work group info! {}", err);
-        exit(1);
-      }
+      // err =
+      //     clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE,
+      //                              sizeof(size_t), &local, NULL);
+      // if (err != CL_SUCCESS)
+      // {
+      //   console->error("[line {}] Failed to retrieve kernel work group info! {}", __LINE__, err);
+      //   exit(1);
+      // }
 
       global = count;
-      // err = clEnqueueNDRangeKernel(commands, kernel, 1,
-      // NULL, &global, &local, 0, NULL, NULL);
-      err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0,
-                                   NULL, NULL);
+      //err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, &local, 0, NULL, NULL);
+      err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0, NULL, NULL);
       if (err)
       {
-        console->error("Failed to execute kernel! {}", err);
+        console->error("[line {}] Failed to execute kernel! {}", __LINE__, err);
         exit(1);
       }
 

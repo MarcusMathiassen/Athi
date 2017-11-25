@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(athi)
 
-#SET(CMAKE_BUILD_TYPE DEBUG)
-SET(CMAKE_BUILD_TYPE RELEASE)
+SET(CMAKE_BUILD_TYPE DEBUG)
+#SET(CMAKE_BUILD_TYPE RELEASE)
 
 # Load headers
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
