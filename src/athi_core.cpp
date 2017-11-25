@@ -34,8 +34,8 @@ Smooth_Average<double, 30>
     smooth_render_rametime_avg(&smoothed_render_frametime);
 
 void Athi_Core::init() {
-  window.scene.width = 1000;
-  window.scene.height = 500;
+  window.scene.width = 640;
+  window.scene.height = 480;
   window.init();
 
   particle_manager.init();

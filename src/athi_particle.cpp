@@ -174,7 +174,7 @@ void ParticleManager::update()
         const size_t leftovers = total % thread_count;
 
         std::vector<std::future<void>> results(thread_count);
-        for (int i = 0; i < thread_count; ++i)
+        for (size_t i = 0; i < thread_count; ++i)
         {
           const size_t begin = parts * i;
           size_t end = parts * (i + 1);
@@ -198,7 +198,7 @@ void ParticleManager::update()
       const size_t leftovers = total % thread_count;
 
       std::vector<std::future<void>> results(thread_count);
-      for (int i = 0; i < thread_count; ++i)
+      for (size_t i = 0; i < thread_count; ++i)
       {
         const size_t begin = parts * i;
         size_t end = parts * (i + 1);
