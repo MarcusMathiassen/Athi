@@ -6,11 +6,13 @@ SET(CMAKE_BUILD_TYPE DEBUG)
 
 # Load headers
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/Universal)
 
 # Load sources
-file(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-
-set (SOURCE_FILES ${CPP_FILES} ${H_FILES})
+file(GLOB SOURCES 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/dep/Universal/*.cpp
+  )
 
 message("-- CXX ${CMAKE_CXX_COMPILER}")
 
@@ -24,7 +26,6 @@ if(WIN32)
 	add_executable(${PROJECT_NAME} ${SOURCES})
 
 	# INCLUDE DEPENDENCIES
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/universal)
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows)
 
 	ADD_LIBRARY(opencl STATIC IMPORTED)
@@ -41,7 +42,7 @@ elseif(APPLE)
 
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-  SET(CMAKE_CXX_FLAGS_DEBUG "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
+  SET(CMAKE_CXX_FLAGS_DEBUG "-march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
 	# RESOURCE FILE LOCATION
@@ -65,7 +66,6 @@ elseif(APPLE)
 	)
 
 	# INCLUDE DEPENDENCIES
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/universal)
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS)
 
 	ADD_LIBRARY(glew STATIC IMPORTED)
