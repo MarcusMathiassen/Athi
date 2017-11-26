@@ -7,12 +7,21 @@
 #include <condition_variable>
 #include <mutex>
 #include <thread>
+#include <unordered_map>
 
 #ifdef _WIN32
-#include <windows.h>
-#elif __APPLE__
-#include <sys/sysctl.h>
-#include <sys/types.h>
+  #include <windows.h>
+#endif
+#if __APPLE__
+  #include <sys/sysctl.h>
+  #include <sys/types.h>
+#endif
+#if __linux__
+  #include <unistd.h>
+  #include <linux/sysctl.h>
+#endif
+
+#ifndef _WIN32
 #include <ctime>
 #endif
 
@@ -26,15 +35,31 @@
 #include "athi_typedefs.h"
 
 void read_file(const char *file, char **buffer);
-void limit_FPS(u32 desired_framerate, f64 time_start_frame);
+void limit_FPS(u32 desired_framerate, double time_start_frame);
 void validateShader(const char *file, const char *type, u32 shader);
 void validateShaderProgram(const char *name, u32 shaderProgram);
 u32 createShader(const char *file, const GLenum type);
+#if __APPLE__
 u32 get_cpu_freq();
-u32 get_cpu_cores();
+  u32 get_cpu_cores();
 u32 get_cpu_threads();
-string get_cpu_brand();
-vec4 get_universal_current_color();
+std::string get_cpu_brand();
+#endif
+glm::vec4 get_universal_current_color();
+
+extern std::unordered_map<std::string, f64> time_taken_by;
+struct profile {
+  f64 start{0.0};
+  std::string id;
+
+  profile(const char* id_) : id(id_) {
+    start = glfwGetTime();
+  }
+  ~profile() {
+    time_taken_by[id] = (glfwGetTime() - start) * 1000.0;
+  }
+};
+
 
 class Semaphore {
  public:
@@ -61,18 +86,20 @@ class Semaphore {
   int count;
 };
 
-struct SMA {
-  SMA(f64 *var) : var(var) {}
-  f64 *var;
-#define SMA_SAMPLES 50
-  u32 tickindex{0};
-  f64 ticksum{0};
-  f64 ticklist[SMA_SAMPLES];
-  void add_new_frametime(f64 newtick) {
-    ticksum -= ticklist[tickindex];
-    ticksum += newtick;
-    ticklist[tickindex] = newtick;
-    if (++tickindex == SMA_SAMPLES) tickindex = 0;
-    *var = ((f64)ticksum / SMA_SAMPLES);
+template <class T, size_t S>
+class Smooth_Average {
+public:
+  Smooth_Average(T *var) : var(var) {}
+  void add_new_frametime(T newtick) {
+    tick_sum -= tick_list[tick_index];
+    tick_sum += newtick;
+    tick_list[tick_index] = newtick;
+    if (++tick_index == S) tick_index = 0;
+    *var = (static_cast<T>(tick_sum) / S);
   }
+private:
+  T *var;
+  size_t tick_index{0};
+  T tick_sum{0};
+  T tick_list[S];
 };

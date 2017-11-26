@@ -5,23 +5,21 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
-#include "athi_typedefs.h"
-#include "athi_transform.h"
-#include "athi_utility.h"
 #include "athi_camera.h"
+#include "athi_transform.h"
+#include "athi_typedefs.h"
+#include "athi_utility.h"
 
-struct Athi_Line
-{
+struct Athi_Line {
   vec2 p1, p2;
-  f32  width;
-  vec4 color{1.0f,1.0f,1.0f,1.0f};
+  f32 width;
+  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
   Transform transform;
   Athi_Line() = default;
 };
 
-struct Athi_Line_Manager
-{
-  enum {POSITIONS, COLOR, NUM_UNIFORMS};
+struct Athi_Line_Manager {
+  enum { POSITIONS, COLOR, NUM_UNIFORMS };
 
   u32 VAO;
   u32 shader_program;
@@ -42,6 +40,6 @@ void draw_lines();
 
 void draw_line(const vec2& p1, const vec2& p2, f32 width, const vec4& color);
 
-extern std::vector<Athi_Line>  line_immediate_buffer;
+extern std::vector<Athi_Line> line_immediate_buffer;
 extern std::vector<Athi_Line*> line_buffer;
 extern Athi_Line_Manager athi_line_manager;

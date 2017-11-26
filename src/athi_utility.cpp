@@ -1,33 +1,40 @@
 #include "athi_utility.h"
 
+std::unordered_map<std::string, f64> time_taken_by;
+
 vec4 get_universal_current_color() {
-  if (universal_color_picker > 5) universal_color_picker = 0;
+  if (universal_color_picker > 6)
+    universal_color_picker = 0;
   switch (universal_color_picker) {
-    case 0:
-      return pastel_red;
-      break;
-    case 1:
-      return pastel_blue;
-      break;
-    case 2:
-      return pastel_green;
-      break;
-    case 3:
-      return pastel_orange;
-      break;
-    case 4:
-      return pastel_yellow;
-      break;
-    case 5:
-      return pastel_purple;
-      break;
+  case 0:
+    return pastel_red;
+    break;
+  case 1:
+    return pastel_gray;
+    break;
+  case 2:
+    return pastel_green;
+    break;
+  case 3:
+    return pastel_orange;
+    break;
+  case 4:
+    return pastel_yellow;
+    break;
+  case 5:
+    return pastel_pink;
+    break;
+  case 6:
+    return pastel_blue;
+    break;
   }
   return vec4();
 }
 void read_file(const char *file, char **buffer) {
   string buff, line;
   std::ifstream fileIn(file);
-  while (std::getline(fileIn, line)) buff += line + '\n';
+  while (std::getline(fileIn, line))
+    buff += line + '\n';
   *buffer = (char *)malloc((buff.length() + 1) * sizeof(char));
   strcpy(*buffer, buff.c_str());
 }
@@ -39,7 +46,7 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) {
 
   if (time_to_sleep > 0.0) {
     if (time_to_sleep >
-        2.0)  // because of the inconsistent wakeup times from sleep
+        2.0) // because of the inconsistent wakeup times from sleep
     {
 #ifdef _WIN32
       Sleep((DWORD)time_to_sleep);
@@ -90,21 +97,21 @@ u32 createShader(const char *file, const GLenum type) {
   glCompileShader(shader);
 
   switch (type) {
-    case GL_VERTEX_SHADER:
-      validateShader(file, "VERTEX", shader);
-      break;
-    case GL_FRAGMENT_SHADER:
-      validateShader(file, "FRAGMENT", shader);
-      break;
-    case GL_GEOMETRY_SHADER:
-      validateShader(file, "GEOMETRY", shader);
-      break;
+  case GL_VERTEX_SHADER:
+    validateShader(file, "VERTEX", shader);
+    break;
+  case GL_FRAGMENT_SHADER:
+    validateShader(file, "FRAGMENT", shader);
+    break;
+  case GL_GEOMETRY_SHADER:
+    validateShader(file, "GEOMETRY", shader);
+    break;
   }
-  printf("Shader loaded: %s\n", file);
   return shader;
 }
-#ifdef __APPLE__
-u32 get_cpu_freq() {
+#if __APPLE__
+u32 get_cpu_freq()
+{
   u32 num = 0;
   size_t size = sizeof(num);
 
@@ -134,7 +141,7 @@ u32 get_cpu_threads() {
   return num;
 }
 
-string get_cpu_brand() {
+std::string get_cpu_brand() {
   char buffer[128];
   size_t bufferlen = 128;
 
