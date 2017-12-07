@@ -13,7 +13,7 @@ void Athi_Window::init() {
   }
 
   glfwWindowHint(GLFW_SAMPLES, 4);
-  //glfwWindowHint(GLFW_TRANSPARENT, GLFW_TRUE);
+  glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -24,6 +24,7 @@ void Athi_Window::init() {
 
   context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
+
 
   // glfwSetWindowAspectRatio(context, 1, 1);
   glfwSetWindowSizeCallback(context, window_size_callback);

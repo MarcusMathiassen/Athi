@@ -168,16 +168,16 @@ void Athi_Core::draw(GLFWwindow *window) {
   }
 
   render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  render_framerate =
-      static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
+  render_framerate = static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
   smooth_render_rametime_avg.add_new_frametime(render_frametime);
 }
 
 void Athi_Core::update() {
   profile p("Athi_Core::update");
   const double time_start_frame = glfwGetTime();
-  int iter = 0;
-  while (iter++ < physics_samples) {
+
+  // Iterate for how every many samples
+  for (int i = 0; i < physics_samples; ++i) {
     const double start = glfwGetTime();
     particle_manager.update();
     timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) /
@@ -187,9 +187,9 @@ void Athi_Core::update() {
   // Update GPU buffers
   particle_manager.update_gpu_buffers();
 
+  // Update timers
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  physics_framerate =
-      static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
+  physics_framerate = static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
 }
 
