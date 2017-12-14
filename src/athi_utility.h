@@ -39,14 +39,10 @@ void limit_FPS(u32 desired_framerate, double time_start_frame);
 void validateShader(const char *file, const char *type, u32 shader);
 void validateShaderProgram(const char *name, u32 shaderProgram);
 u32 createShader(const char *file, const GLenum type);
-#if __APPLE__
-u32 get_cpu_freq();
-  u32 get_cpu_cores();
-u32 get_cpu_threads();
 std::string get_cpu_brand();
-#endif
 glm::vec4 get_universal_current_color();
 
+//
 extern std::unordered_map<std::string, f64> time_taken_by;
 struct profile {
   f64 start{0.0};
@@ -59,7 +55,7 @@ struct profile {
     time_taken_by[id] = (glfwGetTime() - start) * 1000.0;
   }
 };
-
+//
 
 class Semaphore {
  public:

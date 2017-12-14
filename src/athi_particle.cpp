@@ -164,7 +164,7 @@ void ParticleManager::update()
       voxelgrid.get(cont);
     }
 
-#if 1
+#if 0
     // Search for duplicates (DEBUG)
     {
     s32 counter = 0;

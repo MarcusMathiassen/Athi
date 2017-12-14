@@ -109,44 +109,31 @@ u32 createShader(const char *file, const GLenum type) {
   }
   return shader;
 }
-#if __APPLE__
-u32 get_cpu_freq()
-{
-  u32 num = 0;
-  size_t size = sizeof(num);
-
-  if (sysctlbyname("hw.cpufrequency", &num, &size, NULL, 0) < 0) {
-    perror("sysctl");
-  }
-  return num;
-}
-
-u32 get_cpu_cores() {
-  u32 num = 0;
-  size_t size = sizeof(num);
-
-  if (sysctlbyname("hw.physicalcpu_max", &num, &size, NULL, 0) < 0) {
-    perror("sysctl");
-  }
-  return num;
-}
-
-u32 get_cpu_threads() {
-  u32 num = 0;
-  size_t size = sizeof(num);
-
-  if (sysctlbyname("hw.logicalcpu_max", &num, &size, NULL, 0) < 0) {
-    perror("sysctl");
-  }
-  return num;
-}
 
 std::string get_cpu_brand() {
+#ifdef _WIN32
+  int CPUInfo[4] = {-1};
+  unsigned nExIds, i = 0;
+  char CPUBrandString[0x40];
+  // Get the information associated with each extended ID.
+  __cpuid(CPUInfo, 0x80000000);
+  nExIds = CPUInfo[0];
+  for (i = 0x80000000; i <= nExIds; ++i) {
+    __cpuid(CPUInfo, i);
+    // Interpret CPU brand string
+    if (i == 0x80000002)
+      memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
+    else if (i == 0x80000003)
+      memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
+    else if (i == 0x80000004)
+      memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
+  }
+  // string includes manufacturer, model and clockspeed
+  return std::string(CPUBrandString);
+#endif
   char buffer[128];
   size_t bufferlen = 128;
 
   sysctlbyname("machdep.cpu.brand_string", &buffer, &bufferlen, NULL, 0);
-
   return string(buffer);
 }
-#endif

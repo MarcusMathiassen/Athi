@@ -57,39 +57,10 @@ void Athi_Core::init() {
 
   gui_init(window.get_window_context(), px_scale);
 
-// Move this to Utility.h
-#ifdef _WIN32
-  int CPUInfo[4] = {-1};
-  unsigned nExIds, i = 0;
-  char CPUBrandString[0x40];
-  // Get the information associated with each extended ID.
-  __cpuid(CPUInfo, 0x80000000);
-  nExIds = CPUInfo[0];
-  for (i = 0x80000000; i <= nExIds; ++i) {
-    __cpuid(CPUInfo, i);
-    // Interpret CPU brand string
-    if (i == 0x80000002)
-      memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
-    else if (i == 0x80000003)
-      memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
-    else if (i == 0x80000004)
-      memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
-  }
-  // string includes manufacturer, model and clockspeed
-
-  SYSTEM_INFO sysInfo;
-  GetSystemInfo(&sysInfo);
-#endif
-
   auto console = spdlog::stdout_color_mt("Athi");
   console->info("Initializing Athi..");
-#ifdef _WIN32
-  console->info("CPU: {}", CPUBrandString);
-  console->info("Threads available: {}", sysInfo.dwNumberOfProcessors);
-#elif __APPLE__
   console->info("CPU: {}", get_cpu_brand());
-  console->info("Threads available: {}", get_cpu_threads());
-#endif
+  console->info("Threads available: {}", std::thread::hardware_concurrency());
   console->info("IMGUI VERSION {}", ImGui::GetVersion());
   console->info("GL_VERSION {}", glGetString(GL_VERSION));
   console->info("GL_VENDOR {}", glGetString(GL_VENDOR));
