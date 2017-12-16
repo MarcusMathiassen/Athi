@@ -1,22 +1,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "athi_core.h"
-#include "athi_camera.h"
 #include "athi_gui.h"
 #include "athi_input.h"
 #include "athi_line.h"
 #include "athi_rect.h"
 #include "athi_renderer.h"
 #include "athi_settings.h"
-#include "athi_spring.h"
 #include "athi_utility.h"
-
-#include <array>
-#include <iostream>
-
-#ifdef _WIN32
-#include <windows.h>
-#endif
 
 #define GLEW_STATIC
 #include <GL/glew.h>

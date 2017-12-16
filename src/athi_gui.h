@@ -23,6 +23,24 @@ static void SetupImGuiStyle(bool bStyleDark_, float alpha_);
 static void menu_profiler();
 static void menu_settings();
 
+template<typename A, typename B>
+static std::pair<B,A> flip_pair(const std::pair<A,B> &p)
+{
+    return std::pair<B,A>(p.second, p.first);
+}
+
+
+// flips an associative container of A,B pairs to B,A pairs
+template<typename A, typename B, template<class,class,class...> class M, class... Args>
+static std::multimap<B,A> flip_map(const M<A,B,Args...> &src)
+{
+    std::multimap<B,A> dst;
+    std::transform(src.begin(), src.end(),
+                   std::inserter(dst, dst.begin()),
+                   flip_pair<A,B>);
+    return dst;
+}
+
 static void menu_profiler() {
   profile p("menu_profiler");
 
@@ -39,6 +57,9 @@ static void menu_profiler() {
   ImGui::Separator();
 
   const auto col = ImVec4(0.5f, 0.5f, 1.0f, 1.0f);
+
+  // if you want it sorted by time taken
+  //auto new_map = flip_map(time_taken_by);
 
   for (const auto & [ id, time ] : time_taken_by) {
     ImGui::PushStyleColor(ImGuiCol_Text, col);

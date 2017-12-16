@@ -5,11 +5,11 @@
 #include "athi_transform.h"
 #include "athi_utility.h"
 #include "athi_voxelgrid.h"
+#include "athi_dispatch.h"
 
 #include <array>
 #include <future>
 
-#include "ThreadPool.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
@@ -20,9 +20,6 @@ ParticleManager particle_manager;
 
 void ParticleManager::init()
 {
-
-  pool = std::make_unique<ThreadPool>(std::thread::hardware_concurrency());
-
   // OpenCL init
   //
   read_file("../Resources/particle_collision.cl", &kernel_source);
@@ -195,7 +192,7 @@ void ParticleManager::update()
           size_t end = parts * (i + 1);
           if (i == thread_count - 1)
             end += leftovers;
-          results[i] = pool->enqueue(&ParticleManager::collision_quadtree, this, cont, begin, end);
+          results[i] = pool.enqueue(&ParticleManager::collision_quadtree, this, cont, begin, end);
         }
 
         for (auto &&res : results)
@@ -219,7 +216,7 @@ void ParticleManager::update()
         size_t end = parts * (i + 1);
         if (i == thread_count - 1)
           end += leftovers;
-        results[i] = pool->enqueue(&ParticleManager::collision_logNxN, this, total, begin, end);
+        results[i] = pool.enqueue(&ParticleManager::collision_logNxN, this, total, begin, end);
       }
 
       for (auto &&res : results)
