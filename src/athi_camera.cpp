@@ -58,7 +58,7 @@ void Camera::process_mouse_scroll(float yoffset)
   if (zoom <= 44.0f)
       zoom = 44.0f;
   if (zoom >= 46.0f)
-      zoom = 46.0f; 
+      zoom = 46.0f;
 }
 
 void Camera::process_keyboard(Camera_Movement direction, float deltaTime)
@@ -81,7 +81,7 @@ void Camera::process_keyboard(Camera_Movement direction, float deltaTime)
 void Camera::update()
 {
   view_matrix = glm::lookAt(position, position + front, up);
-  perspective_projection = glm::perspective(zoom, aspect_ratio, zNear, zFar);  
+  perspective_projection = glm::perspective(zoom, aspect_ratio, zNear, zFar);
 }
 
 void Camera::update_projection(float width, float height)

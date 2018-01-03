@@ -65,7 +65,7 @@ struct Particle {
 struct ParticleManager {
 
   static constexpr int32_t num_verts{36};
-  std::shared_ptr<spdlog::logger> console = spdlog::stdout_color_mt("ParticleManager");  
+  std::shared_ptr<spdlog::logger> console = spdlog::stdout_color_mt("ParticleManager");
   std::vector<Particle>   particles;
   std::vector<Transform>  transforms;
   std::vector<glm::vec4>  colors;

@@ -59,8 +59,8 @@ struct Camera {
   glm::mat4 get_perspective_projection() const;
   glm::mat4 get_ortho_projection() const;
 
-  void process_mouse_scroll(float yoffset);  
-  void process_mouse_movement(float xoffset, float yoffset, bool constrain_pitch = true);  
+  void process_mouse_scroll(float yoffset);
+  void process_mouse_movement(float xoffset, float yoffset, bool constrain_pitch = true);
   void process_keyboard(Camera_Movement direction, float deltaTime);
   void update_camera_vectors();
   void use_projection_ortho();

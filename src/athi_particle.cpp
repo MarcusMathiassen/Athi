@@ -91,6 +91,7 @@ void ParticleManager::init()
   glDeleteShader(vs);
   glDeleteShader(fs);
 
+  // Setup the circle vertices
   std::vector<glm::vec2> positions;
   positions.reserve(num_verts);
   for (u32 i = 0; i < num_verts; ++i)
@@ -99,11 +100,11 @@ void ParticleManager::init()
                            sin(i * PI * 2.0f / num_verts));
   }
 
-  // vao
+  // VAO
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
 
-  // vbo
+  // VBO
   glGenBuffers(NUM_BUFFERS, vbo);
 
   // POSITION
@@ -132,12 +133,13 @@ void ParticleManager::init()
 
 void ParticleManager::update()
 {
-  profile p("ParticleManager::update");
+  profile p("ParticleManager::update"); // @Todo: Make the profiler be a debug mode only tool.
 
   // just exit when no particles are present.
   if (particles.empty())
     return;
 
+  // @TODO: This whole if statement and following logic statements. BE GONE.
   if (circle_collision)
   {
     profile p("ParticleManager::circle_collision");
@@ -145,7 +147,10 @@ void ParticleManager::update()
     comparisons = 0;
     resolutions = 0;
 
+
     std::vector<std::vector<s32>> cont; // nodes with vec of particle.id's
+    {
+      profile p("ParticleManager::Quadtree/Voxelgrid input and get");
 
     if (quadtree_active && openCL_active == false)
     {
@@ -159,6 +164,7 @@ void ParticleManager::update()
       voxelgrid.reset();
       voxelgrid.input(particles);
       voxelgrid.get(cont);
+    }
     }
 
 #if 0
@@ -174,8 +180,8 @@ void ParticleManager::update()
     }
 #endif
 
-
     // Quadtree or Voxelgrid
+    // Quadtree is significantly faster.
     if ((quadtree_active || voxelgrid_active) && openCL_active == false)
     {
       if (use_multithreading && variable_thread_count != 0)
@@ -336,7 +342,7 @@ void ParticleManager::update()
 
 void ParticleManager::update_gpu_buffers() noexcept
 {
-  const size_t particles_size = particles.size();
+  const auto particles_size = particles.size();
 
   // Check if buffers need resizing
   if (particles_size > models.size())
@@ -347,7 +353,6 @@ void ParticleManager::update_gpu_buffers() noexcept
   const auto proj = camera.get_ortho_projection();
   {
     // THIS IS THE SLOWEST THING EVER.
-    // #WHATISCHACHELOCALITY #WHATAREYOUDOING
     profile p("ParticleManager::update(update buffers with new data)");
     // Update the buffers with the new data.
     for (const auto &p : particles)
@@ -360,7 +365,7 @@ void ParticleManager::update_gpu_buffers() noexcept
 
   {
     profile p("ParticleManager::update(GPU buffer update)");
-    // Update the shader buffers incase of more particles..
+    // Update the gpu buffers incase of more particles..
     glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
     const size_t transform_bytes_needed = sizeof(glm::mat4) * particles_size;
     if (transform_bytes_needed > model_bytes_allocated)

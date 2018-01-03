@@ -188,14 +188,11 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
     voxelgrid_parts *= 4;
   }
 
-  // TEST APRTICLE
+  // Benchmark 1
   if (key == GLFW_KEY_N && action == GLFW_PRESS) {
-    for (float i = 0.0f + circle_size; i < screen_width; i += circle_size * 2) {
-      for (float j = 0.0f + circle_size; j < screen_height;
-           j += circle_size * 2) {
-        particle_manager.add(glm::vec2(i, j), circle_size, circle_color);
-      }
-    }
+    for (float j = 250; j < 500; j+=2.0f)
+      for (float k = 250; k < 500; k+=2.0f)
+        particle_manager.add(glm::vec2(j, k), 1.0f, circle_color);
   }
 
   // ERASE ALL CIRCLES

@@ -65,16 +65,13 @@ void Athi_Core::start() {
   glfwMakeContextCurrent(window_context);
   while (!glfwWindowShouldClose(window_context)) {
     const double time_start_frame = glfwGetTime();
-    profile p("Frame total");
-
-    // Frame begin
 
     // Input
     {
-      profile p("glfwPollEvents");
+      profile p("Input handling");
       glfwPollEvents();
+      update_inputs();
     }
-    update_inputs();
 
     // Update
     update();
@@ -82,7 +79,6 @@ void Athi_Core::start() {
     // Draw
     draw(window_context);
 
-    // Frame End
     {
       profile p("glfwSwapBuffers");
       glfwSwapBuffers(window_context);
@@ -116,7 +112,7 @@ void Athi_Core::draw(GLFWwindow *window) {
     draw_rects();
   }
   {
-    profile p("draw_rects");
+    profile p("draw_lines");
     draw_lines();
   }
   {
@@ -135,7 +131,6 @@ void Athi_Core::draw(GLFWwindow *window) {
 }
 
 void Athi_Core::update() {
-  profile p("Athi_Core::update");
   const double time_start_frame = glfwGetTime();
 
   // Iterate for how every many samples
