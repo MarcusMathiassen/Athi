@@ -13,12 +13,9 @@ std::vector<Athi_Rect*> rect_buffer;
 Athi_Rect_Manager athi_rect_manager;
 
 namespace Athi {
-bool Rect::contains(u32 id) {
-  auto circle_pos = particle_manager.particles[id].pos;
-  auto circle_radius = particle_manager.particles[id].radius;
-
-  const glm::vec2 o = circle_pos;
-  const float r = circle_radius;
+bool Rect::contains(std::uint32_t id) {
+  const auto o = particle_manager.particles[id].pos;
+  const auto r = particle_manager.particles[id].radius;
   if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y && o.y + r > min.y)
     return true;
   return false;
@@ -42,10 +39,8 @@ Athi_Rect_Manager::~Athi_Rect_Manager() {
 
 void Athi_Rect_Manager::init() {
   shader_program = glCreateProgram();
-  const u32 vs =
-      createShader("../Resources/athi_rect_shader.vs", GL_VERTEX_SHADER);
-  const u32 fs =
-      createShader("../Resources/athi_rect_shader.fs", GL_FRAGMENT_SHADER);
+  const auto vs = createShader("../Resources/athi_rect_shader.vs", GL_VERTEX_SHADER);
+  const auto fs = createShader("../Resources/athi_rect_shader.fs", GL_FRAGMENT_SHADER);
 
   glAttachShader(shader_program, vs);
   glAttachShader(shader_program, fs);
@@ -77,7 +72,7 @@ void Athi_Rect_Manager::draw() {
   glUseProgram(shader_program);
 
   const auto proj = camera.get_ortho_projection();
-  
+
   for (auto& rect : rect_buffer) {
     rect->transform.pos = vec3(rect->pos, 0.0f);
     rect->transform.scale = vec3(rect->width, rect->height, 0);
@@ -91,7 +86,7 @@ void Athi_Rect_Manager::draw() {
   }
 
   for (auto& rect : rect_immediate_buffer) {
-    rect.transform.pos = vec3(rect.pos, 0.0f);
+    rect.transform.pos = vec3(rect.pos, 0.0f);22
     rect.transform.scale = vec3(rect.width, rect.height, 0);
 
     mat4 trans = proj * rect.transform.get_model();
@@ -120,7 +115,7 @@ void draw_rect(const vec2& min, const vec2& max, const vec4& color,
   rect_immediate_buffer.emplace_back(rect);
 }
 
-void draw_rect(const vec2& min, f32 width, f32 height, const vec4& color,
+void draw_rect(const vec2& min, float width, float height, const vec4& color,
                GLenum draw_type) {
   Athi_Rect rect;
   rect.pos = min;
@@ -133,7 +128,7 @@ void draw_rect(const vec2& min, f32 width, f32 height, const vec4& color,
 }
 
 void draw_hollow_rect(const vec2& min, const vec2& max, const vec4& color) {
-  
+
   render_call([min, max, color]() {
     glBindVertexArray(athi_rect_manager.VAO);
     glUseProgram(athi_rect_manager.shader_program);
@@ -149,8 +144,8 @@ void draw_hollow_rect(const vec2& min, const vec2& max, const vec4& color) {
 
     Transform temp{vec3(min_, 0), vec3(), vec3(1, 1, 1)};
 
-    const f32 width = max_.x - min_.x;
-    const f32 height = max_.y - min_.y;
+    const float width = max_.x - min_.x;
+    const float height = max_.y - min_.y;
     temp.scale = vec3(width, height, 0);
     mat4 trans = proj *  temp.get_model();
 

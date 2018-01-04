@@ -24,7 +24,7 @@ public:
     }
   };
 
-  constexpr Quadtree(int32_t level, const Rect &bounds) noexcept : bounds(bounds), level(level) {}
+  constexpr Quadtree(std::int32_t level, const Rect &bounds) noexcept : bounds(bounds), level(level) {}
   constexpr Quadtree(const glm::vec2 &min, const glm::vec2 &max) noexcept {
     bounds.color = pastel_gray;
     bounds.min_pos = min;
@@ -75,7 +75,7 @@ public:
     }
   }
 
-  void get(std::vector<std::vector<int>> &cont) const {
+  void get(std::vector<std::vector<std::int32_t>> &cont) const {
     if (sw) {
       sw->get(cont);
       se->get(cont);
@@ -113,7 +113,7 @@ private:
     ne = std::make_unique<Quadtree<T>>(level + 1, NE);
   }
 
-  void insert(int32_t id) {
+  void insert(std::int32_t id) {
     if (sw) {
       if (sw->contains(id))
         sw->insert(id);
@@ -128,7 +128,7 @@ private:
 
     indices.emplace_back(id);
 
-    if (static_cast<int32_t>(indices.size()) > quadtree_capacity &&
+    if (static_cast<std::int32_t>(indices.size()) > quadtree_capacity &&
         level < quadtree_depth) {
       split();
 
@@ -146,11 +146,11 @@ private:
     }
   }
 
-  bool contains(int32_t id) const {
+  bool contains(std::int32_t id) const {
     return bounds.contains(data[id].pos, data[id].radius);
   }
 
-  std::vector<int> indices;
+  std::vector<std::int32_t> indices;
   static std::vector<T> data;
 
   std::unique_ptr<Quadtree<T>> sw;
@@ -159,7 +159,7 @@ private:
   std::unique_ptr<Quadtree<T>> ne;
 
   Rect bounds;
-  int32_t level{0};
+  std::int32_t level{0};
 };
 
 template <class T> std::vector<T> Quadtree<T>::data;

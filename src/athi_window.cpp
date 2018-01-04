@@ -13,7 +13,7 @@ void Athi_Window::init() {
   }
 
   glfwWindowHint(GLFW_SAMPLES, 4);
-  //glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+  // glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -29,17 +29,17 @@ void Athi_Window::init() {
   // glfwSetWindowAspectRatio(context, 1, 1);
   glfwSetWindowSizeCallback(context, window_size_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
-  
-  int width, height;
+
+  std::int32_t width, height;
   glfwGetFramebufferSize(context, &width, &height);
   glViewport(0, 0, width, height);
   screen_width = width;
   screen_height = height;
-  camera.update_projection(width, height); 
+  camera.update_projection(width, height);
   camera.update();
-  
+
   // Gather monitor info
-  s32 count;
+  std::int32_t count;
   auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
   monitor_refreshrate = modes->refreshRate;
 
@@ -56,27 +56,28 @@ void Athi_Window::update() {}
 
 GLFWwindow *Athi_Window::get_window_context() { return context; }
 
-void Athi_Window::window_size_callback(GLFWwindow *window, int xpos, int ypos) {
+void Athi_Window::window_size_callback(GLFWwindow *window, std::int32_t xpos, std::int32_t ypos) {
   std::cout << "window size: " << xpos << "x" << ypos << '\n';
 }
 
-void Athi_Window::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t width, std::int32_t height) {
   screen_width = width;
   screen_height = height;
-  camera.update_projection(static_cast<float>(width), static_cast<float>(height)); 
+  camera.update_projection(static_cast<float>(width), static_cast<float>(height));
   camera.update();
   glViewport(0.0f, 0.0f, width, height);
 
   std::cout << "framebuffer: " << width << "x" << height << '\n';
 
-  // HACKS
-  if (voxelgrid_parts != 4) voxelgrid_parts = 4; // hack
+  // @Hack
+  if (voxelgrid_parts != 4) voxelgrid_parts = 4;
   else voxelgrid_parts = 16;
-  int w,h;
+
+  std::int32_t w,h;
   glfwGetWindowSize(window, &w, &h);
   px_scale = static_cast<float>(width) / static_cast<float>(w);
 
   ImGuiIO& io = ImGui::GetIO();
-  io.FontGlobalScale = 1.0f / px_scale;  
+  io.FontGlobalScale = 1.0f / px_scale;
   //
 }

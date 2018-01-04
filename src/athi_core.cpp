@@ -119,7 +119,7 @@ void Athi_Core::draw(GLFWwindow *window) {
     profile p("render");
     render();
   }
-
+  //@Bug: rects and lines are being drawn over the Gui.
   if (show_settings) {
     update_settings();
     gui_render();
