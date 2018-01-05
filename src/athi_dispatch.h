@@ -17,8 +17,8 @@ private:
 public:
   std::queue<std::function<void()>> tasks;
   std::vector<std::thread>          workers;
-  constexpr std::size_t size() { return workers.size(); }
-  constexpr bool stopped() { return stop; }
+  std::size_t size() { return workers.size(); }
+  bool stopped() { return stop; }
   Dispatch(int num_workers = std::thread::hardware_concurrency())
   {
     assert(num_workers != 0 && "0 workers doesn't make sense.");

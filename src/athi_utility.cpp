@@ -51,8 +51,7 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) {
 #ifdef _WIN32
       Sleep((DWORD)time_to_sleep);
 #elif __APPLE__
-      const timespec time_in_nanoseconds_to_sleep{0,
-                                                  (long)(time_to_sleep * 1e6)};
+      const timespec time_in_nanoseconds_to_sleep{0, (long)(time_to_sleep * 1e6)};
       nanosleep(&time_in_nanoseconds_to_sleep, NULL);
 #endif
     }
@@ -79,8 +78,7 @@ void validateShaderProgram(const char *name, u32 shaderProgram) {
   glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
   if (!success) {
     glGetProgramInfoLog(shaderProgram, sizeof(infoLog), NULL, infoLog);
-    printf("\nERROR::SHADER::PROGRAM::%s::LINKING::FAILED\n\n%s", name,
-           infoLog);
+    printf("\nERROR::SHADER::PROGRAM::%s::LINKING::FAILED\n\n%s", name, infoLog);
   }
 }
 
