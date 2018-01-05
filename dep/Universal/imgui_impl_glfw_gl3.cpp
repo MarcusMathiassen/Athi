@@ -8,7 +8,7 @@
 
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
-#include "athi_input.h"
+#include "../../src/athi_input.h"
 
 // GL3W/GLFW
 #define GLEW_STATIC
