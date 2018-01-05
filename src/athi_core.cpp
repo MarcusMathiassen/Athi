@@ -15,8 +15,8 @@
 
 #include "spdlog/spdlog.h"
 
-#include "imgui.h"
-#include "imgui_impl_glfw_gl3.h"
+#include "../dep/Universal/imgui.h"
+#include "../dep/Universal/imgui_impl_glfw_gl3.h"
 
 Smooth_Average<double, 30> smooth_frametime_avg(&smoothed_frametime);
 Smooth_Average<double, 30>

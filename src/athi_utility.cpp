@@ -130,10 +130,11 @@ std::string get_cpu_brand() {
   }
   // string includes manufacturer, model and clockspeed
   return std::string(CPUBrandString);
-#endif
+#else
   char buffer[128];
   size_t bufferlen = 128;
 
   sysctlbyname("machdep.cpu.brand_string", &buffer, &bufferlen, NULL, 0);
   return string(buffer);
+#endif
 }
