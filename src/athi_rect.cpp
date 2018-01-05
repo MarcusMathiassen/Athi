@@ -86,7 +86,7 @@ void Athi_Rect_Manager::draw() {
   }
 
   for (auto& rect : rect_immediate_buffer) {
-    rect.transform.pos = vec3(rect.pos, 0.0f);22
+    rect.transform.pos = vec3(rect.pos, 0.0f);
     rect.transform.scale = vec3(rect.width, rect.height, 0);
 
     mat4 trans = proj * rect.transform.get_model();
