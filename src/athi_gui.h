@@ -10,7 +10,6 @@
 #include <sstream>
 #include <string>
 
-static int optimizer_used{2};
 static bool open_settings = false;
 static bool open_profiler = false;
 
@@ -195,36 +194,6 @@ void gui_render() {
     ImGui::PopItemWidth();
     ImGui::Checkbox("grab", &mouse_grab);
     ImGui::SameLine();
-
-    if (quadtree_active)
-      optimizer_used = 0;
-    else if (voxelgrid_active)
-      optimizer_used = 1;
-    else
-      optimizer_used = 2;
-
-    ImGui::RadioButton("quadtree", &optimizer_used, 0);
-    ImGui::SameLine();
-    ImGui::RadioButton("uniform grid", &optimizer_used, 1);
-    ImGui::SameLine();
-    ImGui::RadioButton("none", &optimizer_used, 2);
-
-    switch (optimizer_used) {
-      case 0:
-        quadtree_active = true;
-        voxelgrid_active = false;
-        break;
-      case 1:
-        voxelgrid_active = true;
-        quadtree_active = false;
-        break;
-      case 2:
-        voxelgrid_active = false;
-        quadtree_active = false;
-        break;
-      default:
-        break;
-    }
 
     ImGui::EndMainMenuBar();
   }

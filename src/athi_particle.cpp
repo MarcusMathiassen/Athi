@@ -16,6 +16,10 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#ifdef __APPLE__
+#include <dispatch/dispatch.h>
+#endif
+
 ParticleManager particle_manager;
 
 void ParticleManager::init()
@@ -147,7 +151,6 @@ void ParticleManager::update()
     comparisons = 0;
     resolutions = 0;
 
-
     std::vector<std::vector<s32>> cont; // nodes with vec of particle.id's
     {
       profile p("ParticleManager::Quadtree/Voxelgrid input and get");
@@ -186,11 +189,23 @@ void ParticleManager::update()
     {
       if (use_multithreading && variable_thread_count != 0)
       {
+
         const size_t thread_count = variable_thread_count;
         const size_t total = cont.size();
         const size_t parts = total / thread_count;
         const size_t leftovers = total % thread_count;
 
+#if __APPLE__
+        dispatch_apply(thread_count,
+                     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+                     ^(size_t i) {
+                       const size_t begin = parts * i;
+                       size_t end = parts * (i + 1);
+                       if (i == thread_count - 1)
+                         end += leftovers;
+                       collision_quadtree(cont, begin, end);
+                     });
+#else
         std::vector<std::future<void>> results(thread_count);
         for (size_t i = 0; i < thread_count; ++i)
         {
@@ -203,6 +218,7 @@ void ParticleManager::update()
 
         for (auto &&res : results)
           res.get();
+#endif
       }
       else
         collision_quadtree(cont, 0, cont.size());
@@ -215,6 +231,17 @@ void ParticleManager::update()
       const size_t parts = total / thread_count;
       const size_t leftovers = total % thread_count;
 
+#if __APPLE__
+        dispatch_apply(thread_count,
+                     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+                     ^(size_t i) {
+                       const size_t begin = parts * i;
+                       size_t end = parts * (i + 1);
+                       if (i == thread_count - 1)
+                         end += leftovers;
+                       collision_logNxN(total, begin, end);
+                     });
+#else
       std::vector<std::future<void>> results(thread_count);
       for (size_t i = 0; i < thread_count; ++i)
       {
@@ -227,6 +254,7 @@ void ParticleManager::update()
 
       for (auto &&res : results)
         res.get();
+#endif
     }
 
     else if (openCL_active)
