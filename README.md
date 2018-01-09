@@ -1,6 +1,11 @@
 # Athi
+ Particles?
+ 
+# How to compile
 
-How to compile:
+macOS/Unix: 
 ```
  git clone https://github.com/MarcusMathiassen/Athi.git && cd athi && mkdir build && cd build && cmake .. && make -j
 ```
+Windows:
+ run the build_win32 script from the project folder.
