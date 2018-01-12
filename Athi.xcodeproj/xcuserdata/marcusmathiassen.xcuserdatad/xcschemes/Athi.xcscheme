@@ -49,7 +49,7 @@
       language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "YES"
-      customWorkingDirectory = "/Users/marcusmathiassen/Documents/GitHub/Athi/build"
+      customWorkingDirectory = "/Users/marcusmathiassen/Athi"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"

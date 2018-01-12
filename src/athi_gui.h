@@ -55,7 +55,7 @@ static void menu_profiler()
 
   ImGui::Separator();
 
-  const auto col = ImVec4(0.5f, 0.5f, 1.0f, 1.0f);
+  const auto col = ImVec4(0.5f, 1.0f, 0.8f, 1.0f);
 
   // if you want it sorted by time taken
   // auto new_map = flip_map(time_taken_by);
@@ -66,9 +66,19 @@ static void menu_profiler()
     ImGui::Text("%s", id.c_str());
     ImGui::NextColumn();
     ImGui::PopStyleColor();
+
     ImGui::Text("%f", time);
     ImGui::NextColumn();
-    ImGui::Text("%.3f", 100.0 * time / frametime);
+
+    auto perc = 100.0 * time / frametime;
+    // If % is over 50% color red
+    if (perc > 50) {
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.5f, 0.5f, 1.0f));
+      ImGui::Text("%.3f", perc);
+      ImGui::PopStyleColor();
+    } else {
+      ImGui::Text("%.3f", perc);
+    }
     ImGui::NextColumn();
   }
 

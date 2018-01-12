@@ -15,13 +15,11 @@
 
 #include "../dep/Universal/imgui.h"
 #include "../dep/Universal/imgui_impl_glfw_gl3.h"
-#include "spdlog/spdlog.h"
+#include "../dep/Universal/spdlog/spdlog.h"
 
 Smooth_Average<double, 30> smooth_frametime_avg(&smoothed_frametime);
-Smooth_Average<double, 30>
-    smooth_physics_rametime_avg(&smoothed_physics_frametime);
-Smooth_Average<double, 30>
-    smooth_render_rametime_avg(&smoothed_render_frametime);
+Smooth_Average<double, 30> smooth_physics_rametime_avg(&smoothed_physics_frametime);
+Smooth_Average<double, 30> smooth_render_rametime_avg(&smoothed_render_frametime);
 
 void Athi_Core::init() {
   window.scene.width = 640;
@@ -138,7 +136,9 @@ void Athi_Core::draw(GLFWwindow *window) {
 
 void Athi_Core::update() {
   const double time_start_frame = glfwGetTime();
-
+  if (!particle_manager.particles.empty())
+  {
+  profile p("ParticleManager::update");
   // Iterate for how every many samples
   for (int i = 0; i < physics_samples; ++i) {
     const double start = glfwGetTime();
@@ -146,6 +146,11 @@ void Athi_Core::update() {
     timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) /
                physics_samples;
   }
+  }
+
+  // Draw nodes and/or color objects
+  particle_manager.draw_debug_nodes();
+
 
   // Update GPU buffers
   particle_manager.update_gpu_buffers();
