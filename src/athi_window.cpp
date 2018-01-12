@@ -6,9 +6,11 @@
 #include "athi_settings.h"
 #include "athi_window.h"
 
-void Athi_Window::init() {
+void Athi_Window::init()
+{
 
-  if (!glfwInit()) {
+  if (!glfwInit())
+  {
     std::cerr << "Error initializing GLFW!\n";
   }
 
@@ -24,7 +26,6 @@ void Athi_Window::init() {
 
   context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
-
 
   // glfwSetWindowAspectRatio(context, 1, 1);
   glfwSetWindowSizeCallback(context, window_size_callback);
@@ -45,7 +46,8 @@ void Athi_Window::init() {
 
   // Setup GLEW
   glewExperimental = true;
-  if (glewInit() != GLEW_OK) {
+  if (glewInit() != GLEW_OK)
+  {
     std::cerr << "Error initializing GLEW!\n";
   }
 }
@@ -56,11 +58,13 @@ void Athi_Window::update() {}
 
 GLFWwindow *Athi_Window::get_window_context() { return context; }
 
-void Athi_Window::window_size_callback(GLFWwindow *window, std::int32_t xpos, std::int32_t ypos) {
+void Athi_Window::window_size_callback(GLFWwindow *window, std::int32_t xpos, std::int32_t ypos)
+{
   std::cout << "window size: " << xpos << "x" << ypos << '\n';
 }
 
-void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t width, std::int32_t height) {
+void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t width, std::int32_t height)
+{
   screen_width = width;
   screen_height = height;
   camera.update_projection(static_cast<float>(width), static_cast<float>(height));
@@ -70,14 +74,17 @@ void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t wid
   std::cout << "framebuffer: " << width << "x" << height << '\n';
 
   // @Hack
-  if (voxelgrid_parts != 4) voxelgrid_parts = 4;
-  else voxelgrid_parts = 16;
+  if (voxelgrid_parts != 4)
+    voxelgrid_parts = 4;
+  else
+    voxelgrid_parts = 16;
 
-  std::int32_t w,h;
+  std::int32_t w, h;
   glfwGetWindowSize(window, &w, &h);
   px_scale = static_cast<float>(width) / static_cast<float>(w);
+  std::cout << "pxscale: " << px_scale << '\n';
 
-  ImGuiIO& io = ImGui::GetIO();
+  ImGuiIO &io = ImGui::GetIO();
   io.FontGlobalScale = 1.0f / px_scale;
   //
 }

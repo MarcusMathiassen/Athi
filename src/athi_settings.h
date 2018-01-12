@@ -67,7 +67,7 @@ extern bool vsync;
 
 extern s32 variable_thread_count;
 extern bool use_multithreading;
-
+extern bool use_libdispatch;
 extern s32 cpu_cores;
 extern s32 cpu_threads;
 extern string cpu_brand;

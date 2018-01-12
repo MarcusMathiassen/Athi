@@ -13,10 +13,9 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "spdlog/spdlog.h"
-
 #include "../dep/Universal/imgui.h"
 #include "../dep/Universal/imgui_impl_glfw_gl3.h"
+#include "spdlog/spdlog.h"
 
 Smooth_Average<double, 30> smooth_frametime_avg(&smoothed_frametime);
 Smooth_Average<double, 30>
@@ -48,8 +47,13 @@ void Athi_Core::init() {
 
   gui_init(window.get_window_context(), px_scale);
 
+  // Apple specific settings
+#if __APPLE__
+  use_libdispatch = true;
+#endif
+
+  // Debug information
   auto console = spdlog::stdout_color_mt("Athi");
-  console->info("Initializing Athi..");
   console->info("CPU: {}", get_cpu_brand());
   console->info("Threads available: {}", std::thread::hardware_concurrency());
   console->info("IMGUI VERSION {}", ImGui::GetVersion());
@@ -119,6 +123,7 @@ void Athi_Core::draw(GLFWwindow *window) {
     profile p("render");
     render();
   }
+
   //@Bug: rects and lines are being drawn over the Gui.
   if (show_settings) {
     update_settings();
@@ -126,7 +131,8 @@ void Athi_Core::draw(GLFWwindow *window) {
   }
 
   render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  render_framerate = static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
+  render_framerate =
+      static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
   smooth_render_rametime_avg.add_new_frametime(render_frametime);
 }
 
@@ -146,7 +152,8 @@ void Athi_Core::update() {
 
   // Update timers
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  physics_framerate = static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
+  physics_framerate =
+      static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
 }
 

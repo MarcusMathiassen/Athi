@@ -22,25 +22,25 @@ static void SetupImGuiStyle(bool bStyleDark_, float alpha_);
 static void menu_profiler();
 static void menu_settings();
 
-template<typename A, typename B>
-static std::pair<B,A> flip_pair(const std::pair<A,B> &p)
+template <typename A, typename B>
+static std::pair<B, A> flip_pair(const std::pair<A, B> &p)
 {
-    return std::pair<B,A>(p.second, p.first);
+  return std::pair<B, A>(p.second, p.first);
 }
-
 
 // flips an associative container of A,B pairs to B,A pairs
-template<typename A, typename B, template<class,class,class...> class M, class... Args>
-static std::multimap<B,A> flip_map(const M<A,B,Args...> &src)
+template <typename A, typename B, template <class, class, class...> class M, class... Args>
+static std::multimap<B, A> flip_map(const M<A, B, Args...> &src)
 {
-    std::multimap<B,A> dst;
-    std::transform(src.begin(), src.end(),
-                   std::inserter(dst, dst.begin()),
-                   flip_pair<A,B>);
-    return dst;
+  std::multimap<B, A> dst;
+  std::transform(src.begin(), src.end(),
+                 std::inserter(dst, dst.begin()),
+                 flip_pair<A, B>);
+  return dst;
 }
 
-static void menu_profiler() {
+static void menu_profiler()
+{
   profile p("menu_profiler");
 
   ImGui::Begin("Profiler");
@@ -58,9 +58,10 @@ static void menu_profiler() {
   const auto col = ImVec4(0.5f, 0.5f, 1.0f, 1.0f);
 
   // if you want it sorted by time taken
-  //auto new_map = flip_map(time_taken_by);
+  // auto new_map = flip_map(time_taken_by);
 
-  for (const auto & [ id, time ] : time_taken_by) {
+  for (const auto & [ id, time ] : time_taken_by)
+  {
     ImGui::PushStyleColor(ImGuiCol_Text, col);
     ImGui::Text("%s", id.c_str());
     ImGui::NextColumn();
@@ -77,20 +78,20 @@ static void menu_profiler() {
   ImGui::End();
 }
 
-static void menu_settings() {
+static void menu_settings()
+{
   profile p("menu_settings");
 
   ImGui::Begin("Settings", NULL, ImGuiWindowFlags_AlwaysAutoResize);
   ImGui::InputInt("Physics samples", &physics_samples);
-  if (physics_samples < 1) physics_samples = 1;
+  if (physics_samples < 1)
+    physics_samples = 1;
 
   ImGui::Checkbox("VSync", &vsync);
   ImGui::SameLine();
   ImGui::Checkbox("Particle Collisions", &circle_collision);
   ImGui::SameLine();
   ImGui::Checkbox("Border Collisions", &border_collision);
-  ImGui::SameLine();
-  ImGui::Checkbox("OpenCL", &openCL_active);
   ImGui::SliderFloat("time scale", &time_scale, 0.0001f, 10.0f);
 
   ImGui::SliderInt("framerate limit", &framerate_limit, 0, 1000);
@@ -99,28 +100,45 @@ static void menu_settings() {
   ImGui::SameLine();
   ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);
 
-  ImGui::Checkbox("multithreaded", &use_multithreading);
-  ImGui::SameLine();
-  ImGui::InputInt("", &variable_thread_count);
-  if (variable_thread_count < 0) variable_thread_count = 0;
   ImGui::Checkbox("draw nodes ", &draw_nodes);
   ImGui::SameLine();
   ImGui::Checkbox("color particles based on node", &color_particles);
 
-  if (ImGui::CollapsingHeader("quadtree options")) {
+  // Multithreading options
+  if (ImGui::CollapsingHeader("multithreading options"))
+  {
+  // Only setup for Apple systems. Linux in the future.
+#ifdef __APPLE__
+    ImGui::Checkbox("libdispatch", &use_libdispatch);
+    ImGui::SameLine();
+#endif
+    ImGui::Checkbox("OpenCL", &openCL_active);
+
+    ImGui::Checkbox("multithreaded", &use_multithreading);
+    ImGui::SameLine();
+    ImGui::InputInt("", &variable_thread_count);
+    if (variable_thread_count < 0)
+      variable_thread_count = 0;
+  }
+
+  if (ImGui::CollapsingHeader("quadtree options"))
+  {
     ImGui::Checkbox("Occupied only", &quadtree_show_only_occupied);
     ImGui::SliderInt("depth", &quadtree_depth, 0, 10);
     ImGui::SliderInt("capacity", &quadtree_capacity, 0, 100);
   }
-  if (ImGui::CollapsingHeader("uniform grid options")) {
+  if (ImGui::CollapsingHeader("uniform grid options"))
+  {
     ImGui::SliderInt("nodes", &voxelgrid_parts, 4, 1024);
   }
 
-  if (ImGui::CollapsingHeader("color options")) {
+  if (ImGui::CollapsingHeader("color options"))
+  {
     ImGui::PushItemWidth(100.0f);
     ImGui::Text("particle color");
     ImGui::SameLine();
-    if (ImGui::Button("apply to all")) {
+    if (ImGui::Button("apply to all"))
+    {
       for (auto &p : particle_manager.particles)
         particle_manager.colors[p.id] = circle_color;
     }
@@ -153,13 +171,16 @@ static void menu_settings() {
   ImGui::End();
 }
 
-void gui_render() {
+void gui_render()
+{
   profile p("gui_render");
 
   ImGui_ImplGlfwGL3_NewFrame();
 
-  if (ImGui::BeginMainMenuBar()) {
-    if (ImGui::BeginMenu("menu")) {
+  if (ImGui::BeginMainMenuBar())
+  {
+    if (ImGui::BeginMenu("menu"))
+    {
       ImGui::MenuItem("settings", NULL, &open_settings);
       ImGui::MenuItem("profiler", NULL, &open_profiler);
       ImGui::EndMenu();
@@ -198,13 +219,16 @@ void gui_render() {
     ImGui::EndMainMenuBar();
   }
 
-  if (open_settings) menu_settings();
-  if (open_profiler) menu_profiler();
+  if (open_settings)
+    menu_settings();
+  if (open_profiler)
+    menu_profiler();
 
   ImGui::Render();
 }
 
-void gui_init(GLFWwindow *window, float px_scale) {
+void gui_init(GLFWwindow *window, float px_scale)
+{
   ImGui_ImplGlfwGL3_Init(window, false);
   ImGuiIO &io = ImGui::GetIO();
 
@@ -217,7 +241,8 @@ void gui_init(GLFWwindow *window, float px_scale) {
 
 void gui_shutdown() { ImGui_ImplGlfwGL3_Shutdown(); }
 
-static void new_style() {
+static void new_style()
+{
   ImGuiStyle *style = &ImGui::GetStyle();
 
   style->WindowPadding = ImVec2(15, 15);
@@ -284,7 +309,8 @@ static void new_style() {
       ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
 }
 
-static void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
+static void SetupImGuiStyle(bool bStyleDark_, float alpha_)
+{
   ImGuiStyle &style = ImGui::GetStyle();
 
   // light style from Pacôme Danhiez (user itamago)
@@ -343,19 +369,27 @@ static void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   style.Colors[ImGuiCol_ModalWindowDarkening] =
       ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 
-  if (bStyleDark_) {
-    for (int i = 0; i <= ImGuiCol_COUNT; i++) {
+  if (bStyleDark_)
+  {
+    for (int i = 0; i <= ImGuiCol_COUNT; i++)
+    {
       ImVec4 &col = style.Colors[i];
       float H, S, V;
       ImGui::ColorConvertRGBtoHSV(col.x, col.y, col.z, H, S, V);
-      if (S < 0.1f) V = 1.0f - V;
+      if (S < 0.1f)
+        V = 1.0f - V;
       ImGui::ColorConvertHSVtoRGB(H, S, V, col.x, col.y, col.z);
-      if (col.w < 1.00f) col.w *= alpha_;
+      if (col.w < 1.00f)
+        col.w *= alpha_;
     }
-  } else {
-    for (int i = 0; i <= ImGuiCol_COUNT; i++) {
+  }
+  else
+  {
+    for (int i = 0; i <= ImGuiCol_COUNT; i++)
+    {
       ImVec4 &col = style.Colors[i];
-      if (col.w < 1.00f) {
+      if (col.w < 1.00f)
+      {
         col.x *= alpha_;
         col.y *= alpha_;
         col.z *= alpha_;

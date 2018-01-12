@@ -61,6 +61,7 @@ bool vsync{false};
 
 s32 variable_thread_count;
 bool use_multithreading{true};
+bool use_libdispatch{false};
 
 s32 cpu_cores;
 s32 cpu_threads;

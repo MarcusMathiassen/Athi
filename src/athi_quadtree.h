@@ -9,14 +9,18 @@
 #include <memory>
 #include <vector>
 
-template <class T> class Quadtree {
+template <class T>
+class Quadtree
+{
 public:
-  struct Rect {
+  struct Rect
+  {
     glm::vec2 min_pos{0.0f, 0.0f}, max_pos{0.0f, 0.0f};
     glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
     Rect() = default;
     Rect(const glm::vec2 &min, const glm::vec2 &max) : min_pos(min), max_pos(max) {}
-    bool contains(const glm::vec2 &pos, float radius) const {
+    bool contains(const glm::vec2 &pos, float radius) const
+    {
       if (pos.x - radius < max_pos.x && pos.x + radius > min_pos.x &&
           pos.y - radius < max_pos.y && pos.y + radius > min_pos.y)
         return true;
@@ -25,14 +29,17 @@ public:
   };
 
   constexpr Quadtree(std::int32_t level, const Rect &bounds) noexcept : bounds(bounds), level(level) {}
-  constexpr Quadtree(const glm::vec2 &min, const glm::vec2 &max) noexcept {
+  constexpr Quadtree(const glm::vec2 &min, const glm::vec2 &max) noexcept
+  {
     bounds.color = pastel_gray;
     bounds.min_pos = min;
     bounds.max_pos = max;
   }
 
-  void draw_bounds() {
-    if (sw) {
+  void draw_bounds()
+  {
+    if (sw)
+    {
       sw->bounds.color = sw_color;
       se->bounds.color = se_color;
       nw->bounds.color = nw_color;
@@ -50,8 +57,10 @@ public:
       draw_hollow_rect(bounds.min_pos, bounds.max_pos, bounds.color);
   }
 
-  void color_objects(std::vector<glm::vec4> &color) const {
-    if (sw) {
+  void color_objects(std::vector<glm::vec4> &color) const
+  {
+    if (sw)
+    {
       sw->bounds.color = sw_color;
       se->bounds.color = se_color;
       nw->bounds.color = nw_color;
@@ -67,16 +76,20 @@ public:
       color[id] = bounds.color;
   }
 
-  void input(const std::vector<T> &data_) {
+  void input(const std::vector<T> &data_)
+  {
     data = data_;
     indices.reserve(quadtree_capacity);
-    for (const auto &obj : data) {
+    for (const auto &obj : data)
+    {
       insert(obj.id);
     }
   }
 
-  void get(std::vector<std::vector<std::int32_t>> &cont) const {
-    if (sw) {
+  void get(std::vector<std::vector<std::int32_t>> &cont) const
+  {
+    if (sw)
+    {
       sw->get(cont);
       se->get(cont);
       nw->get(cont);
@@ -84,13 +97,15 @@ public:
       return;
     }
 
-    if (!indices.empty()) {
+    if (!indices.empty())
+    {
       cont.emplace_back(indices);
     }
   }
 
 private:
-  void split() {
+  void split()
+  {
     const glm::vec2 min = bounds.min_pos;
     const glm::vec2 max = bounds.max_pos;
 
@@ -113,8 +128,10 @@ private:
     ne = std::make_unique<Quadtree<T>>(level + 1, NE);
   }
 
-  void insert(std::int32_t id) {
-    if (sw) {
+  void insert(std::int32_t id)
+  {
+    if (sw)
+    {
       if (sw->contains(id))
         sw->insert(id);
       if (se->contains(id))
@@ -129,10 +146,12 @@ private:
     indices.emplace_back(id);
 
     if (static_cast<std::int32_t>(indices.size()) > quadtree_capacity &&
-        level < quadtree_depth) {
+        level < quadtree_depth)
+    {
       split();
 
-      for (const auto index : indices) {
+      for (const auto index : indices)
+      {
         if (sw->contains(index))
           sw->insert(index);
         if (se->contains(index))
@@ -146,7 +165,8 @@ private:
     }
   }
 
-  bool contains(std::int32_t id) const {
+  bool contains(std::int32_t id) const
+  {
     return bounds.contains(data[id].pos, data[id].radius);
   }
 
@@ -162,4 +182,5 @@ private:
   std::int32_t level{0};
 };
 
-template <class T> std::vector<T> Quadtree<T>::data;
+template <class T>
+std::vector<T> Quadtree<T>::data;
