@@ -19,7 +19,12 @@
 #include <glm/vec4.hpp>
 #include <vector>
 
+struct ParticleTable {
+
+};
+
 struct Particle {
+
   std::int32_t id{0};
   glm::vec2 pos{0.0f, 0.0f};
   glm::vec2 vel{0.0f, 0.0f};

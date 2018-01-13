@@ -8,6 +8,8 @@
 #include "athi_utility.h"
 #include "athi_voxelgrid.h"
 
+#include <iostream>
+#include <algorithm>
 #include <array>
 #include <future>
 
@@ -149,14 +151,30 @@ void ParticleManager::update_collisions() noexcept {
     if (quadtree_active && openCL_active == false) {
       quadtree = Quadtree<Particle>(glm::vec2(0.0f, 0.0f),
                                     glm::vec2(screen_width, screen_height));
-      quadtree.input(particles);
-      quadtree.get(cont);
+      {
+        profile p("Quadtree input");
+        quadtree.input(particles);
+      }
+      {
+        profile p("Quadtree get");
+        quadtree.get(cont);
+      }
     } else if (voxelgrid_active && openCL_active == false) {
       voxelgrid.reset();
       voxelgrid.input(particles);
       voxelgrid.get(cont);
     }
+#if 0
+    // Sort *cont* based on the id
+    for (auto&& node: cont) {
+      std::cout << "\n\nNODE\n";
+      for (auto&& id: node)
+        std::cout << " " << id;
+      //std::sort(node.begin(), node.end());
+    }
+#endif
   }
+  profile p("ParticleManager::update(circle_collision");
 
 #if 0
     // Search for duplicates (DEBUG)
@@ -325,7 +343,8 @@ void ParticleManager::update_collisions() noexcept {
 }
 
 void ParticleManager::draw_debug_nodes() noexcept {
-  if (particles.empty()) return;
+  if (particles.empty())
+    return;
   profile p("ParticleManager::draw_debug_nodes");
   if (quadtree_active && draw_debug) {
     if (color_particles)
@@ -345,7 +364,6 @@ void ParticleManager::update() noexcept {
 
   // @TODO: This whole if statement and following logic statements. BE GONE.
   if (circle_collision) {
-    profile p("ParticleManager::update(circle_collision");
     update_collisions();
   }
 
@@ -358,7 +376,8 @@ void ParticleManager::update() noexcept {
 }
 
 void ParticleManager::update_gpu_buffers() noexcept {
-  if (particles.empty()) return;
+  if (particles.empty())
+    return;
   profile p("ParticleManager::update_gpu_buffers");
 
   const auto particles_size = particles.size();
@@ -409,7 +428,8 @@ void ParticleManager::update_gpu_buffers() noexcept {
 }
 
 void ParticleManager::draw() const noexcept {
-  if (particles.empty()) return;
+  if (particles.empty())
+    return;
   profile p("ParticleManager::draw");
   glBindVertexArray(vao);
   glUseProgram(shader_program);
@@ -469,6 +489,7 @@ bool ParticleManager::collision_check(const Particle &a,
 
 // Collisions response between two circles with varying radius and mass.
 void ParticleManager::collision_resolve(Particle &a, Particle &b) noexcept {
+
   // Local variables
   const double dx = b.pos.x - a.pos.x;
   const double dy = b.pos.y - a.pos.y;

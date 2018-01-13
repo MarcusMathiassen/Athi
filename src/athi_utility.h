@@ -10,15 +10,15 @@
 #include <unordered_map>
 
 #ifdef _WIN32
-  #include <windows.h>
+#include <windows.h>
 #endif
 #if __APPLE__
-  #include <sys/sysctl.h>
-  #include <sys/types.h>
+#include <sys/sysctl.h>
+#include <sys/types.h>
 #endif
 #if __linux__
-  #include <unistd.h>
-  #include <linux/sysctl.h>
+#include <linux/sysctl.h>
+#include <unistd.h>
 #endif
 
 #ifndef _WIN32
@@ -35,10 +35,10 @@
 #include "athi_typedefs.h"
 
 void read_file(const char *file, char **buffer);
-void limit_FPS(u32 desired_framerate, double time_start_frame);
-void validateShader(const char *file, const char *type, u32 shader);
-void validateShaderProgram(const char *name, u32 shaderProgram);
-u32 createShader(const char *file, const GLenum type);
+void limit_FPS(std::uint32_t desired_framerate, double time_start_frame);
+void validateShader(const char *file, const char *type, std::uint32_t shader);
+void validateShaderProgram(const char *name, std::uint32_t shaderProgram);
+std::uint32_t createShader(const char *file, const GLenum type);
 std::string get_cpu_brand();
 glm::vec4 get_universal_current_color();
 
@@ -55,14 +55,17 @@ struct FrameBuffer {
   std::int32_t width, height;
   std::uint32_t fbo;
   std::uint32_t texture;
-  FrameBuffer(std::int32_t width = 0, std::int32_t height = 0, std::uint32_t texture = 0) : width(width), height(height), texture(texture) {
+  FrameBuffer(std::int32_t width = 0, std::int32_t height = 0,
+              std::uint32_t texture = 0)
+      : width(width), height(height), texture(texture) {
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -94,7 +97,8 @@ struct FrameBuffer {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glBindTexture(GL_TEXTURE_2D, texture);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -115,20 +119,18 @@ struct FrameBuffer {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glBindTexture(GL_TEXTURE_2D, tex);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGB8, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGB8,
+                 GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                           tex, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     texture = tex;
   }
-  void bind() const noexcept {
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-  }
-  void unbind() const noexcept {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  }
+  void bind() const noexcept { glBindFramebuffer(GL_FRAMEBUFFER, fbo); }
+  void unbind() const noexcept { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
   void clear() const noexcept {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -136,57 +138,27 @@ struct FrameBuffer {
   }
 };
 
-//
-extern std::unordered_map<std::string, f64> time_taken_by;
+extern std::unordered_map<std::string, double> time_taken_by;
 struct profile {
-  f64 start{0.0};
+  double start{0.0};
   std::string id;
 
-  profile(const char* id_) : id(id_) {
-    start = glfwGetTime();
-  }
-  ~profile() {
-    time_taken_by[id] = (glfwGetTime() - start) * 1000.0;
-  }
-};
-//
-
-class Semaphore {
- public:
-  Semaphore(int count_ = 0) : count(count_) {}
-
-  inline void notify() {
-    std::unique_lock<std::mutex> lock(mtx);
-    count++;
-    cv.notify_one();
-  }
-
-  inline void wait() {
-    std::unique_lock<std::mutex> lock(mtx);
-
-    while (count == 0) {
-      cv.wait(lock);
-    }
-    count--;
-  }
-
- private:
-  std::mutex mtx;
-  std::condition_variable cv;
-  int count;
+  profile(const char *id_) : id(id_) { start = glfwGetTime(); }
+  ~profile() { time_taken_by[id] = (glfwGetTime() - start) * 1000.0; }
 };
 
-template <class T, size_t S>
-class Smooth_Average {
+template <class T, size_t S> class Smooth_Average {
 public:
   Smooth_Average(T *var) : var(var) {}
   void add_new_frametime(T newtick) {
     tick_sum -= tick_list[tick_index];
     tick_sum += newtick;
     tick_list[tick_index] = newtick;
-    if (++tick_index == S) tick_index = 0;
+    if (++tick_index == S)
+      tick_index = 0;
     *var = (static_cast<T>(tick_sum) / S);
   }
+
 private:
   T *var;
   size_t tick_index{0};
