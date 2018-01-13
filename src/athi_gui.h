@@ -41,16 +41,15 @@ static std::multimap<B, A> flip_map(const M<A, B, Args...> &src) {
 static void menu_debug() {
   ImGui::Begin("Debug Options", NULL, ImGuiWindowFlags_AlwaysAutoResize);
   ImGui::Checkbox("mouse_grab", &mouse_grab);
+  ImGui::Checkbox("show_mouse_collision_box", &show_mouse_collision_box);
   ImGui::Checkbox("show_mouse_grab_lines", &show_mouse_grab_lines);
   ImGui::Checkbox("mouse_grab_multiple", &mouse_grab_multiple);
   ImGui::Checkbox("draw_debug", &draw_debug);
   ImGui::Checkbox("color_particles", &color_particles);
   ImGui::Checkbox("draw_nodes", &draw_nodes);
-  ImGui::Checkbox("show_fps_info", &show_fps_info);
   ImGui::Checkbox("quadtree_show_only_occupied", &quadtree_show_only_occupied);
   ImGui::Checkbox("quadtree_active", &quadtree_active);
   ImGui::Checkbox("voxelgrid_active", &voxelgrid_active);
-  ImGui::Checkbox("slowmotion", &slowmotion);
   ImGui::Checkbox("vsync", &vsync);
   ImGui::Checkbox("use_multithreading", &use_multithreading);
   ImGui::Checkbox("use_libdispatch", &use_libdispatch);
@@ -224,7 +223,7 @@ void gui_render() {
 
     const auto red = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
     const auto green = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
-    ImGui::PushStyleColor(ImGuiCol_Text, (framerate >= 60) ? green : red);
+    ImGui::PushStyleColor(ImGuiCol_Text, (framerate >= monitor_refreshrate) ? green : red);
     ImGui::Text("FPS %d", framerate);
     ImGui::PopStyleColor();
     ImGui::SameLine();

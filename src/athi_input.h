@@ -115,16 +115,6 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
     show_settings ^= 1;
   }
 
-  // TOGGLE SLOWMOTION
-  if (key == GLFW_KEY_O && action == GLFW_PRESS) {
-    slowmotion ^= 1;
-  }
-
-  // TOGGLE FPS_INFO
-  if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-    show_fps_info ^= 1;
-  }
-
   // TOGGLE VSYNC
   if (key == GLFW_KEY_L && action == GLFW_PRESS) {
     vsync ^= 1;

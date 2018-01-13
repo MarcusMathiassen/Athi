@@ -6,7 +6,8 @@ f64 frame_budget{1000.0 / 60.0};
 f32 mouse_size{10.0f};
 bool mouse_busy_UI{false};
 bool mouse_grab_multiple{true};
-bool show_mouse_grab_lines{true};
+bool show_mouse_grab_lines{false};
+bool show_mouse_collision_box{false};
 bool mouse_grab{true};
 s32 screen_width;
 s32 screen_height;
@@ -29,7 +30,6 @@ std::atomic<u64> resolutions{0};
 bool draw_debug{true};
 bool color_particles{true};
 bool draw_nodes{true};
-bool show_fps_info{true};
 
 bool quadtree_show_only_occupied{true};
 bool quadtree_active{true};
@@ -57,7 +57,6 @@ f64 smoothed_physics_frametime;
 s32 physics_framerate;
 s32 physics_FPS_limit{0};
 
-bool slowmotion{false};
 f32 time_scale{1.0f};
 bool vsync{true};
 

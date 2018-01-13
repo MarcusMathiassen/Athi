@@ -101,7 +101,7 @@ void mouse_grab_particles()
   auto mouse_pos = athi_input_manager.mouse.pos;
 
   Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
-  if (draw_debug) {
+  if (draw_debug && show_mouse_collision_box) {
     draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
   }
 

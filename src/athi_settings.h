@@ -8,6 +8,7 @@ extern f64 frame_budget;
 
 extern f32 mouse_size;
 extern bool mouse_grab_multiple;
+extern bool show_mouse_collision_box;
 extern bool mouse_busy_UI;
 extern bool show_mouse_grab_lines;
 extern bool mouse_grab;
@@ -63,7 +64,6 @@ extern f64 deltatime;
 extern f64 frametime;
 extern f64 smoothed_frametime;
 
-extern bool slowmotion;
 extern f32 time_scale;
 extern bool vsync;
 
