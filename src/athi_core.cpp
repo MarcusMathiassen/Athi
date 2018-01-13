@@ -73,6 +73,7 @@ void Athi_Core::start() {
   glfwMakeContextCurrent(window_context);
   while (!glfwWindowShouldClose(window_context)) {
     const double time_start_frame = glfwGetTime();
+    profile p("Complete frame");
 
     glfwPollEvents();
     update_inputs();

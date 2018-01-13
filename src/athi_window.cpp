@@ -47,16 +47,13 @@ void Athi_Window::init() {
   monitor_refreshrate = modes->refreshRate;
   framerate_limit = monitor_refreshrate;
 
-  // Setup GLEW
+  // GLEW setup / experimental because of glew bugs
   glewExperimental = true;
   if (glewInit() != GLEW_OK) {
     std::cerr << "Error initializing GLEW!\n";
   }
 }
 
-void Athi_Window::open() {}
-
-void Athi_Window::update() {}
 
 GLFWwindow *Athi_Window::get_window_context() { return context; }
 

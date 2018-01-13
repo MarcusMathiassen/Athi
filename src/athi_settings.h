@@ -21,6 +21,7 @@ extern bool show_settings;
 extern bool physics_gravity;
 extern f32 gravity_force;
 
+extern float collision_energy_loss;
 extern bool circle_collision;
 extern bool border_collision;
 

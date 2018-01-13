@@ -507,8 +507,8 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b) noexcept {
     const glm::vec2 scal_norm_2_vec = tang * scal_tang_2;
 
     // Update velocities
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * 0.99f;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * 0.99f;
+    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * collision_energy_loss;
+    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * collision_energy_loss;
   }
 }
 

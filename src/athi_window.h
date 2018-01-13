@@ -20,9 +20,7 @@ class Athi_Window {
     u32 width{512}, height{512};
   } scene, view;
 
-  void open();
   void init();
-  void update();
 
   GLFWwindow *get_window_context();
 };

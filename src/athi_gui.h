@@ -167,9 +167,13 @@ static void menu_settings() {
     }
     ImGui::ColorPicker4("##particle", (float *)&circle_color);
 
+    // Particle energy loss
+    ImGui::Text("collision energy loss");
+    ImGui::SameLine();
+    ImGui::InputFloat("energy loss", &collision_energy_loss, 0.01f, 1.0f);
+
     // Change all particles radius
     ImGui::Text("particle radius");
-    ImGui::SameLine();
     ImGui::SliderFloat("radius", &circle_size, 0.1f, 10.0f);
     ImGui::SameLine();
     if (ImGui::SmallButton("Radius: Apply to all")) {
