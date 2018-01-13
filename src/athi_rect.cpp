@@ -68,6 +68,10 @@ void Athi_Rect_Manager::init() {
 }
 
 void Athi_Rect_Manager::draw() {
+
+  if (rect_buffer.empty() && rect_immediate_buffer.empty()) return;
+  profile p("draw_rects");
+
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
 

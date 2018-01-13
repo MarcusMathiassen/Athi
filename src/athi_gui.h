@@ -12,6 +12,7 @@
 
 static bool open_settings = false;
 static bool open_profiler = false;
+static bool open_debug_menu = false;
 
 void gui_init(GLFWwindow *window, float px_scale);
 void gui_shutdown();
@@ -35,6 +36,27 @@ static std::multimap<B, A> flip_map(const M<A, B, Args...> &src) {
   std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()),
                  flip_pair<A, B>);
   return dst;
+}
+
+static void menu_debug() {
+  ImGui::Begin("Debug Options", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+  ImGui::Checkbox("mouse_grab", &mouse_grab);
+  ImGui::Checkbox("show_mouse_grab_lines", &show_mouse_grab_lines);
+  ImGui::Checkbox("mouse_grab_multiple", &mouse_grab_multiple);
+  ImGui::Checkbox("draw_debug", &draw_debug);
+  ImGui::Checkbox("color_particles", &color_particles);
+  ImGui::Checkbox("draw_nodes", &draw_nodes);
+  ImGui::Checkbox("show_fps_info", &show_fps_info);
+  ImGui::Checkbox("quadtree_show_only_occupied", &quadtree_show_only_occupied);
+  ImGui::Checkbox("quadtree_active", &quadtree_active);
+  ImGui::Checkbox("voxelgrid_active", &voxelgrid_active);
+  ImGui::Checkbox("slowmotion", &slowmotion);
+  ImGui::Checkbox("vsync", &vsync);
+  ImGui::Checkbox("use_multithreading", &use_multithreading);
+  ImGui::Checkbox("use_libdispatch", &use_libdispatch);
+  ImGui::Checkbox("openCL_active", &openCL_active);
+
+  ImGui::End();
 }
 
 static void menu_profiler() {
@@ -77,6 +99,7 @@ static void menu_profiler() {
     }
     ImGui::NextColumn();
   }
+  time_taken_by.clear();
 
   ImGui::Columns(1);
   ImGui::Separator();
@@ -99,7 +122,7 @@ static void menu_settings() {
   ImGui::Checkbox("Border Collisions", &border_collision);
   ImGui::SliderFloat("time scale", &time_scale, 0.0001f, 10.0f);
 
-  ImGui::SliderInt("framerate limit", &framerate_limit, 0, 1000);
+  ImGui::InputInt("framerate limit", &framerate_limit, 0, 1000);
 
   ImGui::Checkbox("gravity", &physics_gravity);
   ImGui::SameLine();
@@ -139,7 +162,7 @@ static void menu_settings() {
     ImGui::PushItemWidth(100.0f);
     ImGui::Text("particle color");
     ImGui::SameLine();
-    if (ImGui::Button("Color: Apply to all")) {
+    if (ImGui::SmallButton("Color: Apply to all")) {
       for (auto &p : particle_manager.particles)
         particle_manager.colors[p.id] = circle_color;
     }
@@ -150,7 +173,7 @@ static void menu_settings() {
     ImGui::SameLine();
     ImGui::SliderFloat("radius", &circle_size, 0.1f, 10.0f);
     ImGui::SameLine();
-    if (ImGui::Button("Radius: Apply to all")) {
+    if (ImGui::SmallButton("Radius: Apply to all")) {
       for (auto &p : particle_manager.particles) {
         p.radius = circle_size;
         particle_manager.transforms[p.id].scale =
@@ -162,7 +185,7 @@ static void menu_settings() {
   if (ImGui::CollapsingHeader("color options")) {
     ImGui::PushItemWidth(100.0f);
     ImGui::Text("background color");
-    ImGui::ColorPicker4("##Background", (float *)&background_color);
+    ImGui::ColorPicker4("##Background", (float *)&background_color_dark);
 
     ImGui::Text("quadtree colors");
     ImGui::Text("sw");
@@ -195,6 +218,7 @@ void gui_render() {
     if (ImGui::BeginMenu("menu")) {
       ImGui::MenuItem("settings", NULL, &open_settings);
       ImGui::MenuItem("profiler", NULL, &open_profiler);
+      ImGui::MenuItem("debug", NULL, &open_debug_menu);
       ImGui::EndMenu();
     }
 
@@ -234,6 +258,8 @@ void gui_render() {
     menu_settings();
   if (open_profiler)
     menu_profiler();
+  if (open_debug_menu)
+    menu_debug();
 
   ImGui::Render();
 }
@@ -243,9 +269,8 @@ void gui_init(GLFWwindow *window, float px_scale) {
   ImGuiIO &io = ImGui::GetIO();
 
   io.FontGlobalScale = 1.0f / px_scale;
-  io.Fonts->AddFontFromFileTTF("../Resources/DroidSans.ttf", 12 * px_scale,
-                               NULL, io.Fonts->GetGlyphRangesJapanese());
-  // SetupImGuiStyle(true, 0.9f);
+  io.Fonts->AddFontFromFileTTF("../Resources/DroidSans.ttf", 12 * px_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
+  //SetupImGuiStyle(true, 1.0f);
   new_style();
 }
 
@@ -271,24 +296,22 @@ static void new_style() {
   style->Colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
   style->Colors[ImGuiCol_ChildWindowBg] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
   style->Colors[ImGuiCol_PopupBg] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
-  style->Colors[ImGuiCol_Border] = ImVec4(0.80f, 0.80f, 0.83f, 0.88f);
+  style->Colors[ImGuiCol_Border] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
   style->Colors[ImGuiCol_BorderShadow] = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
   style->Colors[ImGuiCol_FrameBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
   style->Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
   style->Colors[ImGuiCol_FrameBgActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
   style->Colors[ImGuiCol_TitleBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-  style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.98f, 0.95f, 0.75f);
+  style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.98f, 0.95f, 1.0f);
   style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
   style->Colors[ImGuiCol_MenuBarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
   style->Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-  style->Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
-  style->Colors[ImGuiCol_ScrollbarGrabHovered] =
-      ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-  style->Colors[ImGuiCol_ScrollbarGrabActive] =
-      ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+  style->Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
+  style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+  style->Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
   style->Colors[ImGuiCol_ComboBg] = ImVec4(0.19f, 0.18f, 0.21f, 1.00f);
-  style->Colors[ImGuiCol_CheckMark] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
-  style->Colors[ImGuiCol_SliderGrab] = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+  style->Colors[ImGuiCol_CheckMark] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
+  style->Colors[ImGuiCol_SliderGrab] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
   style->Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
   style->Colors[ImGuiCol_Button] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
   style->Colors[ImGuiCol_ButtonHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
@@ -299,23 +322,18 @@ static void new_style() {
   style->Colors[ImGuiCol_Column] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
   style->Colors[ImGuiCol_ColumnHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
   style->Colors[ImGuiCol_ColumnActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
-  style->Colors[ImGuiCol_ResizeGrip] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-  style->Colors[ImGuiCol_ResizeGripHovered] =
-      ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+  style->Colors[ImGuiCol_ResizeGrip] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+  style->Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
   style->Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-  style->Colors[ImGuiCol_CloseButton] = ImVec4(0.40f, 0.39f, 0.38f, 0.16f);
-  style->Colors[ImGuiCol_CloseButtonHovered] =
-      ImVec4(0.40f, 0.39f, 0.38f, 0.39f);
-  style->Colors[ImGuiCol_CloseButtonActive] =
-      ImVec4(0.40f, 0.39f, 0.38f, 1.00f);
-  style->Colors[ImGuiCol_PlotLines] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
+  style->Colors[ImGuiCol_CloseButton] = ImVec4(0.40f, 0.39f, 0.38f, 1.00f);
+  style->Colors[ImGuiCol_CloseButtonHovered] = ImVec4(0.40f, 0.39f, 0.38f, 1.00f);
+  style->Colors[ImGuiCol_CloseButtonActive] = ImVec4(0.40f, 0.39f, 0.38f, 1.00f);
+  style->Colors[ImGuiCol_PlotLines] = ImVec4(0.40f, 0.39f, 0.38f, 1.00f);
   style->Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
-  style->Colors[ImGuiCol_PlotHistogram] = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
-  style->Colors[ImGuiCol_PlotHistogramHovered] =
-      ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
-  style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
-  style->Colors[ImGuiCol_ModalWindowDarkening] =
-      ImVec4(1.00f, 0.98f, 0.95f, 0.73f);
+  style->Colors[ImGuiCol_PlotHistogram] = ImVec4(0.40f, 0.39f, 0.38f, 1.00f);
+  style->Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+  style->Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+  style->Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(1.00f, 0.98f, 0.95f, 1.00f);
 }
 
 static void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
@@ -330,40 +348,40 @@ static void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   style.WindowRounding = 0.0f;
   style.Colors[ImGuiCol_Text] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
   style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-  style.Colors[ImGuiCol_WindowBg] = ImVec4(0.94f, 0.94f, 0.94f, 0.94f);
+  style.Colors[ImGuiCol_WindowBg] = ImVec4(0.94f, 0.94f, 0.94f, 1.00f);
   style.Colors[ImGuiCol_ChildWindowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-  style.Colors[ImGuiCol_PopupBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.94f);
-  style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.39f);
+  style.Colors[ImGuiCol_PopupBg] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+  style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
   style.Colors[ImGuiCol_BorderShadow] = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
-  style.Colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.94f);
-  style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
-  style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+  style.Colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+  style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 1.00f, 1.00f);
+  style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_TitleBg] = ImVec4(0.96f, 0.96f, 0.96f, 1.00f);
-  style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 1.00f, 1.00f, 0.51f);
+  style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
   style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.82f, 0.82f, 0.82f, 1.00f);
   style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
-  style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 0.53f);
+  style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_ScrollbarGrab] = imgui_pastel_red;
   style.Colors[ImGuiCol_ScrollbarGrabHovered] =
       ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
   style.Colors[ImGuiCol_ScrollbarGrabActive] =
       ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
-  style.Colors[ImGuiCol_ComboBg] = ImVec4(0.86f, 0.86f, 0.86f, 0.99f);
+  style.Colors[ImGuiCol_ComboBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
   style.Colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_SliderGrab] = imgui_pastel_red;
   style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-  style.Colors[ImGuiCol_Button] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
+  style.Colors[ImGuiCol_Button] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.06f, 0.53f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_Header] = imgui_pastel_red;
-  style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
+  style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_Column] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
-  style.Colors[ImGuiCol_ColumnHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.78f);
+  style.Colors[ImGuiCol_ColumnHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_ColumnActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_ResizeGrip] = imgui_pastel_red;
-  style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-  style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+  style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+  style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_CloseButton] = imgui_pastel_red;
   style.Colors[ImGuiCol_CloseButtonHovered] =
       ImVec4(0.98f, 0.39f, 0.36f, 1.00f);

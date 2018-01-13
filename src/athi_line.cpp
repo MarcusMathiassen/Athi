@@ -1,6 +1,6 @@
 #include "athi_line.h"
-#include "athi_rect.h"
 #include "athi_camera.h"
+#include "athi_rect.h"
 
 std::vector<Athi_Line> line_immediate_buffer;
 std::vector<Athi_Line *> line_buffer;
@@ -40,10 +40,20 @@ void Athi_Line_Manager::init() {
 }
 
 void Athi_Line_Manager::draw() {
+  if (line_buffer.empty() && line_immediate_buffer.empty()) return;
+  profile p("Athi_Line_Manager::draw()");
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
 
-  for (auto &line : line_buffer) {
+  const auto proj = camera.get_ortho_projection();
+
+  for (const auto &line : line_buffer) {
+
+    // auto temp = Transform()
+    // mat4 trans = proj *  temp.get_model();
+    // glUniformMatrix4fv(athi_rect_manager.uniform[athi_rect_manager.TRANSFORM], 1,
+    //                      GL_FALSE, &trans[0][0]);
+
     glUniform4f(uniform[COLOR], line->color.r, line->color.g, line->color.b,
                 line->color.a);
     glUniform4f(uniform[POSITIONS], line->p1.x, line->p1.y, line->p2.x,
@@ -51,11 +61,11 @@ void Athi_Line_Manager::draw() {
     glDrawArrays(GL_LINES, 0, 2);
   }
 
-  for (auto &line : line_immediate_buffer) {
+  for (const auto &line : line_immediate_buffer) {
     glUniform4f(uniform[COLOR], line.color.r, line.color.g, line.color.b,
                 line.color.a);
     glUniform4f(uniform[POSITIONS], line.p1.x, line.p1.y, line.p2.x, line.p2.y);
-    glDrawArrays(GL_POINTS, 0, 1);
+    glDrawArrays(GL_POINTS, 0, 2);
   }
   line_immediate_buffer.clear();
 }

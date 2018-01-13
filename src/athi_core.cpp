@@ -13,6 +13,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <iostream>
+
 #include "../dep/Universal/imgui.h"
 #include "../dep/Universal/imgui_impl_glfw_gl3.h"
 #include "../dep/Universal/spdlog/spdlog.h"
@@ -35,7 +37,11 @@ void Athi_Core::init() {
   glEnable(GL_BLEND);
   glDisable(GL_DEPTH_BUFFER);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(0.15686f, 0.17255f, 0.20392f, 1.0f);
+  glClearColor(
+    background_color_dark.r,
+    background_color_dark.g,
+    background_color_dark.b,
+    background_color_dark.a);
 
   variable_thread_count = std::thread::hardware_concurrency();
 
@@ -68,17 +74,11 @@ void Athi_Core::start() {
   while (!glfwWindowShouldClose(window_context)) {
     const double time_start_frame = glfwGetTime();
 
-    // Input
-    {
-      profile p("Input handling");
-      glfwPollEvents();
-      update_inputs();
-    }
+    glfwPollEvents();
+    update_inputs();
 
-    // Update
     update();
 
-    // Draw
     draw(window_context);
 
     {
@@ -101,26 +101,20 @@ void Athi_Core::draw(GLFWwindow *window) {
   profile p("Athi_Core::draw");
 
   const double time_start_frame = glfwGetTime();
-  glClearColor(background_color.x, background_color.y, background_color.z,
-               background_color.w);
+  glClearColor(
+    background_color_dark.r,
+    background_color_dark.g,
+    background_color_dark.b,
+    background_color_dark.a);
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  {
-    profile p("ParticleManager::draw");
-    particle_manager.draw();
-  }
-  {
-    profile p("draw_rects");
-    draw_rects();
-  }
-  {
-    profile p("draw_lines");
-    draw_lines();
-  }
-  {
-    profile p("render");
-    render();
-  }
+  particle_manager.draw();
+
+  draw_rects();
+  draw_lines();
+
+  render();
 
   //@Bug: rects and lines are being drawn over the Gui.
   if (show_settings) {
@@ -138,10 +132,10 @@ void Athi_Core::update() {
   const double time_start_frame = glfwGetTime();
   if (!particle_manager.particles.empty())
   {
-  profile p("ParticleManager::update");
   // Iterate for how every many samples
   for (int i = 0; i < physics_samples; ++i) {
     const double start = glfwGetTime();
+    profile p("ParticleManager::update");
     particle_manager.update();
     timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) /
                physics_samples;

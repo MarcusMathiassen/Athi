@@ -7,6 +7,8 @@
 #include "athi_settings.h"
 #include "athi_utility.h"
 
+
+#include <iostream>
 #include <glm/vec2.hpp>
 
 Athi_Input_Manager athi_input_manager;
@@ -99,8 +101,9 @@ void mouse_grab_particles()
   auto mouse_pos = athi_input_manager.mouse.pos;
 
   Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
-  //if (draw_debug)
-  //  draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
+  if (draw_debug) {
+    draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
+  }
 
   // If it's released just exit the function
   if (state == GLFW_RELEASE)
@@ -119,27 +122,29 @@ void mouse_grab_particles()
   {
     if (mouse_grab_multiple)
     {
+      int32_t width, height;
+      glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
       for (auto &id : mouse_attached_to)
       {
         attraction_force(particle_manager.particles[id], mouse_pos);
         last_state = ATTACHED;
-        //if (draw_debug)
-        // draw_line(mouse_pos, particle_manager.particles[id].pos,
-        //          0.03f, pastel_pink);
+        if (draw_debug && show_mouse_grab_lines) {
+
+          auto ms_view_pos = to_view_space(mouse_pos);
+          auto p_view_pos = to_view_space(particle_manager.particles[id].pos);
+
+          draw_line(ms_view_pos, p_view_pos, 1.0f, pastel_pink);
+        }
       }
     }
     else // single
     {
-      attraction_force(
-          particle_manager.particles[mouse_attached_to_single],
-          mouse_pos);
-      // if (draw_debug)
-      //  draw_line(
-      //     mouse_pos,
-      //    particle_manager.particles[mouse_attached_to_single].pos,
-      //   3.0f, pastel_pink);
+      attraction_force(particle_manager.particles[mouse_attached_to_single],mouse_pos);
+       if (draw_debug && show_mouse_grab_lines) {
+        draw_line(mouse_pos, particle_manager.particles[mouse_attached_to_single].pos, 3.0f, pastel_pink);
+       }
     }
-    mouse_busy_UI = true;
+    //mouse_busy_UI = true;
   }
 
   // Go through all circles. Return the circle hovered

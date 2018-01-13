@@ -39,6 +39,8 @@ s32 quadtree_capacity{50};
 bool voxelgrid_active{false};
 s32 voxelgrid_parts{16};
 
+u16 monitor_refreshrate{60};
+
 f64 frametime;
 f64 smoothed_frametime;
 s32 framerate;
@@ -57,7 +59,7 @@ s32 physics_FPS_limit{0};
 
 bool slowmotion{false};
 f32 time_scale{1.0f};
-bool vsync{false};
+bool vsync{true};
 
 s32 variable_thread_count;
 bool use_multithreading{true};
@@ -73,7 +75,8 @@ bool app_is_running{true};
 bool settings_changed{false};
 
 std::atomic<s32> universal_color_picker{0};
-glm::vec4 background_color = glm::vec4(0.15686f, 0.17255f, 0.20392f, 1.0f);
+glm::vec4 background_color_dark = glm::vec4(0.15686f, 0.17255f, 0.20392f, 1.0f);
+glm::vec4 background_color_light = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
 glm::vec4 sw_color{pastel_red};
 glm::vec4 se_color{pastel_gray};
 glm::vec4 nw_color{pastel_orange};

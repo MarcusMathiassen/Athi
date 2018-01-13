@@ -54,6 +54,8 @@ extern f64 smoothed_render_frametime;
 extern s32 render_framerate;
 extern s32 render_framerate_limit;
 
+extern u16 monitor_refreshrate;
+
 extern s32 framerate;
 extern s32 framerate_limit;
 
@@ -84,8 +86,8 @@ extern glm::vec4 se_color;
 extern glm::vec4 nw_color;
 extern glm::vec4 ne_color;
 
-extern glm::vec4 background_color;
-
+extern glm::vec4 background_color_dark;
+extern glm::vec4 background_color_light;
 static const glm::vec4 pastel_red(1, 0.411, 0.380, 1.0);
 static const glm::vec4 pastel_green(0.466, 0.745, 0.466, 1.0);
 static const glm::vec4 pastel_blue(0.466, 0.619, 0.796, 1.0);

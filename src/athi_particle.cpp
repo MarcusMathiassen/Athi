@@ -325,7 +325,8 @@ void ParticleManager::update_collisions() noexcept {
 }
 
 void ParticleManager::draw_debug_nodes() noexcept {
-  profile p("ParticleManager::update(draw nodes/color quadtree/voxelgrid)");
+  if (particles.empty()) return;
+  profile p("ParticleManager::draw_debug_nodes");
   if (quadtree_active && draw_debug) {
     if (color_particles)
       quadtree.color_objects(colors);
@@ -357,6 +358,9 @@ void ParticleManager::update() noexcept {
 }
 
 void ParticleManager::update_gpu_buffers() noexcept {
+  if (particles.empty()) return;
+  profile p("ParticleManager::update_gpu_buffers");
+
   const auto particles_size = particles.size();
 
   // Check if buffers need resizing
@@ -405,6 +409,8 @@ void ParticleManager::update_gpu_buffers() noexcept {
 }
 
 void ParticleManager::draw() const noexcept {
+  if (particles.empty()) return;
+  profile p("ParticleManager::draw");
   glBindVertexArray(vao);
   glUseProgram(shader_program);
   glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts,

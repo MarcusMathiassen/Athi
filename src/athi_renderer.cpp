@@ -1,4 +1,5 @@
 #include "athi_renderer.h"
+#include "athi_utility.h"
 #include <mutex>
 
 std::mutex render_mutex;
@@ -10,6 +11,8 @@ void render_call(const std::function<void()>& f) {
 }
 
 void render() {
+  if (command_buffer.empty()) return;
+  profile p("render");
   std::lock_guard<std::mutex> lock(render_mutex);
 
   // Execute all stores callseq
