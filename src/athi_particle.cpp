@@ -535,8 +535,8 @@ void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end) n
     for (size_t j = 1 + i; j < total; ++j) {
       ++comp_counter;
       if (collision_check(particles[i], particles[j])) {
-        //collision_resolve(particles[i], particles[j]);
-        //++res_counter;
+        collision_resolve(particles[i], particles[j]);
+        ++res_counter;
       }
     }
   }
@@ -553,8 +553,8 @@ void ParticleManager::collision_quadtree(const std::vector<std::vector<std::int3
       for (size_t j = i + 1; j < cont[k].size(); ++j) {
         ++comp_counter;
         if (collision_check(particles[cont[k][i]], particles[cont[k][j]])) {
-          //collision_resolve(particles[cont[k][i]], particles[cont[k][j]]);
-          //++res_counter;
+          collision_resolve(particles[cont[k][i]], particles[cont[k][j]]);
+          ++res_counter;
         }
       }
     }
