@@ -4,16 +4,14 @@
 #include "athi_settings.h"
 
 #include <glm/vec2.hpp>
-#include <glm/vec4.hpp>
 #include <memory>
 #include <vector>
 
-template <class T>
-class Quadtree {
+template <class T> class Quadtree {
 
 private:
-  std::vector<std::int32_t> indices; // contains the ID in this node.
-  static T* data;                    // pointer to the data input
+  std::vector<std::int32_t> indices;
+  static T *data;
 
   std::unique_ptr<Quadtree<T>> sw;
   std::unique_ptr<Quadtree<T>> se;
@@ -24,21 +22,21 @@ private:
   std::int32_t level{0};
 
   constexpr void split() noexcept {
-    const glm::vec2 min = bounds.min_pos;
-    const glm::vec2 max = bounds.max_pos;
+    const auto min = bounds.min_pos;
+    const auto max = bounds.max_pos;
 
-    const float x = min.x;
-    const float y = min.y;
-    const float width = max.x - min.x;
-    const float height = max.y - min.y;
+    const auto x = min.x;
+    const auto y = min.y;
+    const auto width = max.x - min.x;
+    const auto height = max.y - min.y;
 
-    const float w = width * 0.5f;
-    const float h = height * 0.5f;
+    const auto w = width * 0.5f;
+    const auto h = height * 0.5f;
 
-    const Rect SW(glm::vec2(x, y), glm::vec2(x + w, y + h));
-    const Rect SE(glm::vec2(x + w, y), glm::vec2(x + width, y + h));
-    const Rect NW(glm::vec2(x, y + h), glm::vec2(x + w, y + height));
-    const Rect NE(glm::vec2(x + w, y + h), glm::vec2(x + width, y + height));
+    const auto SW = Rect({x, y}, {x + w, y + h});
+    const auto SE = Rect({x + w, y}, {x + width, y + h});
+    const auto NW = Rect({x, y + h}, {x + w, y + height});
+    const auto NE = Rect({x + w, y + h}, {x + width, y + height});
 
     sw = std::make_unique<Quadtree<T>>(level + 1, SW);
     se = std::make_unique<Quadtree<T>>(level + 1, SE);
@@ -48,10 +46,14 @@ private:
 
   constexpr void insert(std::int32_t id) noexcept {
     if (sw) {
-      if (sw->contains(id)) sw->insert(id);
-      if (se->contains(id)) se->insert(id);
-      if (nw->contains(id)) nw->insert(id);
-      if (ne->contains(id)) ne->insert(id);
+      if (sw->contains(id))
+        sw->insert(id);
+      if (se->contains(id))
+        se->insert(id);
+      if (nw->contains(id))
+        nw->insert(id);
+      if (ne->contains(id))
+        ne->insert(id);
       return;
     }
 
@@ -61,18 +63,20 @@ private:
       split();
 
       for (const auto index : indices) {
-        if (sw->contains(index)) sw->insert(index);
-        if (se->contains(index)) se->insert(index);
-        if (nw->contains(index)) nw->insert(index);
-        if (ne->contains(index)) ne->insert(index);
+        if (sw->contains(index))
+          sw->insert(index);
+        if (se->contains(index))
+          se->insert(index);
+        if (nw->contains(index))
+          nw->insert(index);
+        if (ne->contains(index))
+          ne->insert(index);
       }
       indices.clear();
     }
   }
 
-  constexpr bool contains(std::int32_t id) const noexcept {
-    return bounds.contains(data[id].pos, data[id].radius);
-  }
+  constexpr bool contains(std::int32_t id) const noexcept { return bounds.contains(data[id].pos, data[id].radius); }
 
 public:
   constexpr Quadtree(std::int32_t level, const Rect &bounds) noexcept : bounds(bounds), level(level) {}
@@ -80,6 +84,25 @@ public:
     bounds.color = pastel_gray;
     bounds.min_pos = min;
     bounds.max_pos = max;
+  }
+  constexpr void input(std::vector<T> &data_) noexcept {
+    data = &data_[0];
+    indices.reserve(quadtree_capacity);
+    for (const auto &obj : data_)
+      insert(obj.id);
+  }
+
+  constexpr void get(std::vector<std::vector<std::int32_t>> &cont) const noexcept {
+    if (sw) {
+      sw->get(cont);
+      se->get(cont);
+      nw->get(cont);
+      ne->get(cont);
+      return;
+    }
+
+    if (!indices.empty())
+      cont.emplace_back(indices);
   }
 
   void draw_bounds() noexcept {
@@ -117,26 +140,6 @@ public:
     for (const auto id : indices)
       color[id] = bounds.color;
   }
-
-  constexpr void input(std::vector<T> &data_) noexcept {
-    data = &data_[0];
-    indices.reserve(quadtree_capacity);
-    for (const auto &obj : data_)
-      insert(obj.id);
-  }
-
-  constexpr void get(std::vector<std::vector<std::int32_t>> &cont) const noexcept {
-    if (sw) {
-      sw->get(cont);
-      se->get(cont);
-      nw->get(cont);
-      ne->get(cont);
-      return;
-    }
-
-    if (!indices.empty())
-      cont.emplace_back(indices);
-  }
 };
 
-template <class T> T* Quadtree<T>::data;
+template <class T> T *Quadtree<T>::data;

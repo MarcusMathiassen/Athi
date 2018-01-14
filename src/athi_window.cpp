@@ -13,7 +13,7 @@ void Athi_Window::init() {
   }
 
   glfwWindowHint(GLFW_SAMPLES, 4);
-  //glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+  // glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -22,8 +22,7 @@ void Athi_Window::init() {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-  context =
-      glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
+  context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
   // glfwSetWindowAspectRatio(context, 1, 1);
@@ -54,21 +53,16 @@ void Athi_Window::init() {
   }
 }
 
-
 GLFWwindow *Athi_Window::get_window_context() { return context; }
 
-void Athi_Window::window_size_callback(GLFWwindow *window, std::int32_t xpos,
-                                       std::int32_t ypos) {
+void Athi_Window::window_size_callback(GLFWwindow *window, std::int32_t xpos, std::int32_t ypos) {
   std::cout << "window size: " << xpos << "x" << ypos << '\n';
 }
 
-void Athi_Window::framebuffer_size_callback(GLFWwindow *window,
-                                            std::int32_t width,
-                                            std::int32_t height) {
+void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t width, std::int32_t height) {
   screen_width = width;
   screen_height = height;
-  camera.update_projection(static_cast<float>(width),
-                           static_cast<float>(height));
+  camera.update_projection(static_cast<float>(width), static_cast<float>(height));
   camera.update();
   glViewport(0.0f, 0.0f, width, height);
 

@@ -34,12 +34,12 @@ struct Athi_Line_Manager {
 };
 
 void init_line_manager();
-void add_line(Athi_Line* line);
+void add_line(Athi_Line *line);
 void init_line_manager();
 void draw_lines();
 
-void draw_line(const vec2& p1, const vec2& p2, f32 width, const vec4& color);
+void draw_line(const vec2 &p1, const vec2 &p2, f32 width, const vec4 &color);
 
 extern std::vector<Athi_Line> line_immediate_buffer;
-extern std::vector<Athi_Line*> line_buffer;
+extern std::vector<Athi_Line *> line_buffer;
 extern Athi_Line_Manager athi_line_manager;

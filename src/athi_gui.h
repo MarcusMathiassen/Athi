@@ -23,18 +23,15 @@ static void SetupImGuiStyle(bool bStyleDark_, float alpha_);
 static void menu_profiler();
 static void menu_settings();
 
-template <typename A, typename B>
-static std::pair<B, A> flip_pair(const std::pair<A, B> &p) {
+template <typename A, typename B> static std::pair<B, A> flip_pair(const std::pair<A, B> &p) {
   return std::pair<B, A>(p.second, p.first);
 }
 
 // flips an associative container of A,B pairs to B,A pairs
-template <typename A, typename B, template <class, class, class...> class M,
-          class... Args>
+template <typename A, typename B, template <class, class, class...> class M, class... Args>
 static std::multimap<B, A> flip_map(const M<A, B, Args...> &src) {
   std::multimap<B, A> dst;
-  std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()),
-                 flip_pair<A, B>);
+  std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()), flip_pair<A, B>);
   return dst;
 }
 
@@ -179,8 +176,7 @@ static void menu_settings() {
     if (ImGui::SmallButton("Radius: Apply to all")) {
       for (auto &p : particle_manager.particles) {
         p.radius = circle_size;
-        particle_manager.transforms[p.id].scale =
-            glm::vec3(circle_size, circle_size, 0);
+        particle_manager.transforms[p.id].scale = glm::vec3(circle_size, circle_size, 0);
       }
     }
     ImGui::PopItemWidth();
@@ -247,12 +243,10 @@ void gui_render() {
     ImGui::Checkbox("grab", &mouse_grab);
     ImGui::SameLine();
 
-    ImGui::Text("comparisons: %llu",
-                static_cast<uint64_t>(comparisons) / physics_samples);
+    ImGui::Text("comparisons: %llu", static_cast<uint64_t>(comparisons) / physics_samples);
     ImGui::SameLine();
     ImGui::Text("resolved: %llu (%.4f%%)", static_cast<uint64_t>(resolutions),
-                100.0f * static_cast<float>(resolutions) /
-                    static_cast<float>(comparisons));
+                100.0f * static_cast<float>(resolutions) / static_cast<float>(comparisons));
 
     ImGui::EndMainMenuBar();
   }
@@ -273,7 +267,7 @@ void gui_init(GLFWwindow *window, float px_scale) {
 
   io.FontGlobalScale = 1.0f / px_scale;
   io.Fonts->AddFontFromFileTTF("../Resources/DroidSans.ttf", 12 * px_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
-  //SetupImGuiStyle(true, 1.0f);
+  // SetupImGuiStyle(true, 1.0f);
   new_style();
 }
 
@@ -365,10 +359,8 @@ static void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
   style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_ScrollbarGrab] = imgui_pastel_red;
-  style.Colors[ImGuiCol_ScrollbarGrabHovered] =
-      ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
-  style.Colors[ImGuiCol_ScrollbarGrabActive] =
-      ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
+  style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
+  style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
   style.Colors[ImGuiCol_ComboBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
   style.Colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_SliderGrab] = imgui_pastel_red;
@@ -386,17 +378,14 @@ static void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_CloseButton] = imgui_pastel_red;
-  style.Colors[ImGuiCol_CloseButtonHovered] =
-      ImVec4(0.98f, 0.39f, 0.36f, 1.00f);
+  style.Colors[ImGuiCol_CloseButtonHovered] = ImVec4(0.98f, 0.39f, 0.36f, 1.00f);
   style.Colors[ImGuiCol_CloseButtonActive] = ImVec4(0.98f, 0.39f, 0.36f, 1.00f);
   style.Colors[ImGuiCol_PlotLines] = imgui_pastel_red;
   style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
   style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-  style.Colors[ImGuiCol_PlotHistogramHovered] =
-      ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+  style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
   style.Colors[ImGuiCol_TextSelectedBg] = imgui_pastel_red;
-  style.Colors[ImGuiCol_ModalWindowDarkening] =
-      ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+  style.Colors[ImGuiCol_ModalWindowDarkening] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 
   if (bStyleDark_) {
     for (int i = 0; i <= ImGuiCol_COUNT; i++) {

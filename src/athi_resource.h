@@ -3,7 +3,7 @@
 #include "athi_typedefs.h"
 
 class Resource {
- protected:
+protected:
   string name;
 };
 

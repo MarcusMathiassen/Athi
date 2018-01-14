@@ -22,10 +22,10 @@ typedef float f32;
 typedef double f64;
 
 using std::string;
-using std::vector;
 using std::unique_ptr;
+using std::vector;
 
+using glm::mat4;
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
-using glm::mat4;

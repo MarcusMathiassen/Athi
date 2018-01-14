@@ -37,11 +37,7 @@ void Athi_Core::init() {
   glEnable(GL_BLEND);
   glDisable(GL_DEPTH_BUFFER);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glClearColor(
-    background_color_dark.r,
-    background_color_dark.g,
-    background_color_dark.b,
-    background_color_dark.a);
+  glClearColor(background_color_dark.r, background_color_dark.g, background_color_dark.b, background_color_dark.a);
 
   variable_thread_count = std::thread::hardware_concurrency();
 
@@ -102,11 +98,7 @@ void Athi_Core::draw(GLFWwindow *window) {
   profile p("Athi_Core::draw");
 
   const double time_start_frame = glfwGetTime();
-  glClearColor(
-    background_color_dark.r,
-    background_color_dark.g,
-    background_color_dark.b,
-    background_color_dark.a);
+  glClearColor(background_color_dark.r, background_color_dark.g, background_color_dark.b, background_color_dark.a);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -124,36 +116,31 @@ void Athi_Core::draw(GLFWwindow *window) {
   }
 
   render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  render_framerate =
-      static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
+  render_framerate = static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
   smooth_render_rametime_avg.add_new_frametime(render_frametime);
 }
 
 void Athi_Core::update() {
   const double time_start_frame = glfwGetTime();
-  if (!particle_manager.particles.empty())
-  {
-  // Iterate for how every many samples
-  for (int i = 0; i < physics_samples; ++i) {
-    const double start = glfwGetTime();
-    profile p("ParticleManager::update");
-    particle_manager.update();
-    timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) /
-               physics_samples;
-  }
+  if (!particle_manager.particles.empty()) {
+    // Iterate for how every many samples
+    for (int i = 0; i < physics_samples; ++i) {
+      const double start = glfwGetTime();
+      profile p("ParticleManager::update");
+      particle_manager.update();
+      timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) / physics_samples;
+    }
   }
 
   // Draw nodes and/or color objects
   particle_manager.draw_debug_nodes();
-
 
   // Update GPU buffers
   particle_manager.update_gpu_buffers();
 
   // Update timers
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  physics_framerate =
-      static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
+  physics_framerate = static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
 }
 

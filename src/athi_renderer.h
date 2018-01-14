@@ -10,5 +10,5 @@ void render();
 void render_call(const std::function<void()> &f);
 
 class Renderer {
- private:
+private:
 };

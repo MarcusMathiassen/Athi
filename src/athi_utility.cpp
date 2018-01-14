@@ -1,6 +1,6 @@
 #include "athi_utility.h"
 
-std::unordered_map<std::string, f64 > time_taken_by;
+std::unordered_map<std::string, f64> time_taken_by;
 
 vec4 get_universal_current_color() {
   if (universal_color_picker > 6)
@@ -45,8 +45,7 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) {
   const f64 time_to_sleep = (frametime - time_spent_frame) * 0.7;
 
   if (time_to_sleep > 0.0) {
-    if (time_to_sleep >
-        2.0) // because of the inconsistent wakeup times from sleep
+    if (time_to_sleep > 2.0) // because of the inconsistent wakeup times from sleep
     {
 #ifdef _WIN32
       Sleep((DWORD)time_to_sleep);

@@ -4,21 +4,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 
-enum Camera_Movement {
-  FORWARD,
-  BACKWARD,
-  LEFT,
-  RIGHT,
-  DOWN,
-  UP
-};
+enum Camera_Movement { FORWARD, BACKWARD, LEFT, RIGHT, DOWN, UP };
 
 // Default camera values
-const float YAW        = -90.0f;
-const float PITCH      =  0.0f;
-const float SPEED      =  4.5f;
-const float SENSITIVTY =  0.1f;
-const float ZOOM       =  45.0f;
+const float YAW = -90.0f;
+const float PITCH = 0.0f;
+const float SPEED = 4.5f;
+const float SENSITIVTY = 0.1f;
+const float ZOOM = 45.0f;
 
 struct Camera {
 
@@ -39,7 +32,7 @@ struct Camera {
   float zoom{ZOOM};
 
   float fov{45.0f};
-  float aspect_ratio{1280/720};
+  float aspect_ratio{1280 / 720};
   float zNear{0.1f};
   float zFar{1000.0f};
   float moveSpeed{0.02f};

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <atomic>
 #include "athi_typedefs.h"
 #include "imgui.h"
+#include <atomic>
 
 extern f64 frame_budget;
 

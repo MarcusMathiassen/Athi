@@ -18,12 +18,9 @@ void init_input_manager();
 glm::vec2 get_mouse_viewspace_pos();
 int32_t get_mouse_button_state(int32_t button);
 void update_inputs();
-static void mouse_button_callback(GLFWwindow *window, int button, int action,
-                                  int mods);
-static void cursor_position_callback(GLFWwindow *window, double xpos,
-                                     double ypos);
-static void key_callback(GLFWwindow *window, int key, int scancode, int action,
-                         int mods);
+static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
+static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 static void char_callback(GLFWwindow *, unsigned int c);
 struct Mouse {
@@ -51,12 +48,10 @@ static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) 
   mouse_size -= yoffset * 0.5f;
   if (mouse_size < 0.000f)
     mouse_size = 0.5f;
-  g_MouseWheel +=
-      (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.
+  g_MouseWheel += (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.
 }
 
-static void cursor_position_callback(GLFWwindow *window, double xpos,
-                                     double ypos) {
+static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
   athi_input_manager.mouse.pos.x = xpos * px_scale;
   athi_input_manager.mouse.pos.y = screen_height - (ypos * px_scale);
 }
@@ -67,8 +62,7 @@ static void char_callback(GLFWwindow *, unsigned int c) {
     io.AddInputCharacter((unsigned short)c);
 }
 
-static void mouse_button_callback(GLFWwindow *window, int button, int action,
-                                  int mods) {
+static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
 
   if (action == GLFW_PRESS && button >= 0 && button < 3)
     g_MouseJustPressed[button] = true;
@@ -89,8 +83,7 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action,
   }
 }
 
-static void key_callback(GLFWwindow *window, int key, int scancode, int action,
-                         int mods) {
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
 
   // IMGUI
   ImGuiIO &io = ImGui::GetIO();
@@ -100,13 +93,10 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
     io.KeysDown[key] = false;
 
   (void)mods; // Modifiers are not reliable across systems
-  io.KeyCtrl =
-      io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-  io.KeyShift =
-      io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
+  io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
+  io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
   io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
-  io.KeySuper =
-      io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+  io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 
   //
 
@@ -180,8 +170,8 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
 
   // Benchmark 1
   if (key == GLFW_KEY_N && action == GLFW_PRESS) {
-    for (float j = 250; j < 500; j+=2.0f)
-      for (float k = 250; k < 500; k+=2.0f)
+    for (float j = 250; j < 500; j += 2.0f)
+      for (float k = 250; k < 500; k += 2.0f)
         particle_manager.add(glm::vec2(j, k), 1.0f, circle_color);
   }
 

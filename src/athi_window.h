@@ -7,11 +7,10 @@
 #include "athi_typedefs.h"
 
 class Athi_Window {
- private:
+private:
   GLFWwindow *context{nullptr};
 
- public:
-
+public:
   static void window_size_callback(GLFWwindow *window, int xpos, int ypos);
   static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 

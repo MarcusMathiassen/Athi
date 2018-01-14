@@ -6,6 +6,6 @@
 #include <GL/glew.h>
 
 class Shader : public Resource {
- private:
+private:
   u32 program;
 };

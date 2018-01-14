@@ -6,8 +6,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 
-template <class T>
-struct Athi_Spring {
+template <class T> struct Athi_Spring {
   T *object;
   T *anchor;
   float length;

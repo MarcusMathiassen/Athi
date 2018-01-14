@@ -1,15 +1,15 @@
 
 #include "athi_rect.h"
 #include "athi_camera.h"
+#include "athi_particle.h"
 #include "athi_renderer.h"
 #include "athi_transform.h"
 #include "athi_utility.h"
-#include "athi_particle.h"
 
 #include <iostream>
 
 std::vector<Athi_Rect> rect_immediate_buffer;
-std::vector<Athi_Rect*> rect_buffer;
+std::vector<Athi_Rect *> rect_buffer;
 Athi_Rect_Manager athi_rect_manager;
 
 namespace Athi {
@@ -21,7 +21,7 @@ bool Rect::contains(std::uint32_t id) {
   return false;
 }
 
-bool Rect::contain_rect(const Rect& r) const {
+bool Rect::contain_rect(const Rect &r) const {
   auto rmin = r.min;
   auto rmax = r.max;
   //  basic square collision check
@@ -30,7 +30,7 @@ bool Rect::contain_rect(const Rect& r) const {
   }
   return false;
 }
-}  // namespace Athi
+} // namespace Athi
 
 Athi_Rect_Manager::~Athi_Rect_Manager() {
   glDeleteBuffers(NUM_BUFFERS, VBO);
@@ -60,8 +60,7 @@ void Athi_Rect_Manager::init() {
   glGenBuffers(NUM_BUFFERS, VBO);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[INDICES]);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-               GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   uniform[TRANSFORM] = glGetUniformLocation(shader_program, "transform");
   uniform[COLOR] = glGetUniformLocation(shader_program, "color");
@@ -69,7 +68,8 @@ void Athi_Rect_Manager::init() {
 
 void Athi_Rect_Manager::draw() {
 
-  if (rect_buffer.empty() && rect_immediate_buffer.empty()) return;
+  if (rect_buffer.empty() && rect_immediate_buffer.empty())
+    return;
   profile p("draw_rects");
 
   glBindVertexArray(VAO);
@@ -77,26 +77,24 @@ void Athi_Rect_Manager::draw() {
 
   const auto proj = camera.get_ortho_projection();
 
-  for (auto& rect : rect_buffer) {
+  for (auto &rect : rect_buffer) {
     rect->transform.pos = vec3(rect->pos, 0.0f);
     rect->transform.scale = vec3(rect->width, rect->height, 0);
 
     mat4 trans = proj * rect->transform.get_model();
 
-    glUniform4f(uniform[COLOR], rect->color.r, rect->color.g, rect->color.b,
-                rect->color.a);
+    glUniform4f(uniform[COLOR], rect->color.r, rect->color.g, rect->color.b, rect->color.a);
     glUniformMatrix4fv(uniform[TRANSFORM], 1, GL_FALSE, &trans[0][0]);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
   }
 
-  for (auto& rect : rect_immediate_buffer) {
+  for (auto &rect : rect_immediate_buffer) {
     rect.transform.pos = vec3(rect.pos, 0.0f);
     rect.transform.scale = vec3(rect.width, rect.height, 0);
 
     mat4 trans = proj * rect.transform.get_model();
 
-    glUniform4f(uniform[COLOR], rect.color.r, rect.color.g, rect.color.b,
-                rect.color.a);
+    glUniform4f(uniform[COLOR], rect.color.r, rect.color.g, rect.color.b, rect.color.a);
     glUniformMatrix4fv(uniform[TRANSFORM], 1, GL_FALSE, &trans[0][0]);
     glDrawElements(rect.draw_mode, 6, GL_UNSIGNED_SHORT, NULL);
   }
@@ -105,10 +103,9 @@ void Athi_Rect_Manager::draw() {
 
 void init_rect_manager() { athi_rect_manager.init(); }
 
-void add_rect(Athi_Rect* rect) { rect_buffer.emplace_back(rect); }
+void add_rect(Athi_Rect *rect) { rect_buffer.emplace_back(rect); }
 
-void draw_rect(const vec2& min, const vec2& max, const vec4& color,
-               GLenum draw_type) {
+void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, GLenum draw_type) {
   Athi_Rect rect;
   rect.pos = min;
   rect.width = max.x - min.x;
@@ -119,8 +116,7 @@ void draw_rect(const vec2& min, const vec2& max, const vec4& color,
   rect_immediate_buffer.emplace_back(rect);
 }
 
-void draw_rect(const vec2& min, float width, float height, const vec4& color,
-               GLenum draw_type) {
+void draw_rect(const vec2 &min, float width, float height, const vec4 &color, GLenum draw_type) {
   Athi_Rect rect;
   rect.pos = min;
   rect.width = width;
@@ -131,7 +127,7 @@ void draw_rect(const vec2& min, float width, float height, const vec4& color,
   rect_immediate_buffer.emplace_back(rect);
 }
 
-void draw_hollow_rect(const vec2& min, const vec2& max, const vec4& color) {
+void draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color) {
 
   render_call([min, max, color]() {
     glBindVertexArray(athi_rect_manager.VAO);
@@ -151,12 +147,10 @@ void draw_hollow_rect(const vec2& min, const vec2& max, const vec4& color) {
     const float width = max_.x - min_.x;
     const float height = max_.y - min_.y;
     temp.scale = vec3(width, height, 0);
-    mat4 trans = proj *  temp.get_model();
+    mat4 trans = proj * temp.get_model();
 
-    glUniform4f(athi_rect_manager.uniform[athi_rect_manager.COLOR], color.r,
-                color.g, color.b, color.a);
-    glUniformMatrix4fv(athi_rect_manager.uniform[athi_rect_manager.TRANSFORM],
-                       1, GL_FALSE, &trans[0][0]);
+    glUniform4f(athi_rect_manager.uniform[athi_rect_manager.COLOR], color.r, color.g, color.b, color.a);
+    glUniformMatrix4fv(athi_rect_manager.uniform[athi_rect_manager.TRANSFORM], 1, GL_FALSE, &trans[0][0]);
     glDrawArrays(GL_LINE_LOOP, 0, 4);
   });
 }

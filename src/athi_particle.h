@@ -19,13 +19,11 @@
 #include <glm/vec4.hpp>
 #include <vector>
 
-struct ParticleTable {
-
-};
+struct ParticleTable {};
 
 struct Particle {
 
-  std::int32_t id{0};
+  int id{0};
   glm::vec2 pos{0.0f, 0.0f};
   glm::vec2 vel{0.0f, 0.0f};
   glm::vec2 acc{0.0f, 0.0f};
@@ -71,8 +69,7 @@ struct Particle {
 struct ParticleManager {
 
   static constexpr std::int32_t num_verts{36};
-  std::shared_ptr<spdlog::logger> console =
-      spdlog::stdout_color_mt("ParticleManager");
+  std::shared_ptr<spdlog::logger> console = spdlog::stdout_color_mt("ParticleManager");
   std::vector<Particle> particles;
   std::vector<Transform> transforms;
   std::vector<glm::vec4> colors;
@@ -80,8 +77,7 @@ struct ParticleManager {
 
   Dispatch pool;
 
-  Quadtree<Particle> quadtree =
-      Quadtree<Particle>(glm::vec2(-1, -1), glm::vec2(1, 1));
+  Quadtree<Particle> quadtree = Quadtree<Particle>(glm::vec2(-1, -1), glm::vec2(1, 1));
   VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
 
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
@@ -122,10 +118,8 @@ struct ParticleManager {
   void collision_resolve(Particle &a, Particle &b) noexcept;
   void separate(Particle &a, Particle &b) noexcept;
   void collision_logNxN(size_t total, size_t begin, size_t end) noexcept;
-  void collision_quadtree(const std::vector<std::vector<int>> &cont,
-                          size_t begin, size_t end) noexcept;
-  void add(const glm::vec2 &pos, float radius,
-           const glm::vec4 &color = glm::vec4(1, 1, 1, 1)) noexcept;
+  void collision_quadtree(const std::vector<std::vector<std::int32_t>> &cont, size_t begin, size_t end) noexcept;
+  void add(const glm::vec2 &pos, float radius, const glm::vec4 &color = glm::vec4(1, 1, 1, 1)) noexcept;
   void erase_all() noexcept;
 };
 

@@ -1,33 +1,27 @@
 #pragma once
 
-#include <vector>
 #include <memory>
+#include <vector>
 
-#include "athi_settings.h"
 #include "athi_rect.h"
+#include "athi_settings.h"
 #include "athi_utility.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-template <class T>
-class VoxelGrid {
+template <class T> class VoxelGrid {
 protected:
   static std::vector<T> data;
+
 private:
   struct Node : public VoxelGrid {
     Rect bounds;
     std::vector<int> index;
     Node(const Rect &r) : bounds{r} {}
-    void insert(int id) {
-      index.emplace_back(id);
-    }
-    void get(std::vector<std::vector<int>> &cont) {
-      cont.emplace_back(index);
-    }
-    void draw_bounds() const {
-        draw_hollow_rect(bounds.min_pos, bounds.max_pos, bounds.color);
-    }
+    void insert(int id) { index.emplace_back(id); }
+    void get(std::vector<std::vector<int>> &cont) { cont.emplace_back(index); }
+    void draw_bounds() const { draw_hollow_rect(bounds.min_pos, bounds.max_pos, bounds.color); }
     void color_objects(std::vector<glm::vec4> &color) const {
       for (const auto i : index) {
         color[i] = bounds.color;
@@ -40,7 +34,7 @@ private:
   std::vector<std::unique_ptr<Node>> nodes;
   static int32_t current_voxelgrid_part;
 
- public:
+public:
   void init(float width, float height) {
     nodes.clear();
 
@@ -60,7 +54,8 @@ private:
   };
 
   void input(const std::vector<T> &objects) {
-    if (voxelgrid_parts != current_voxelgrid_part) init(screen_width, screen_height);
+    if (voxelgrid_parts != current_voxelgrid_part)
+      init(screen_width, screen_height);
     data = objects;
 
     for (const auto &obj : data) {
@@ -85,7 +80,7 @@ private:
   }
   void get(std::vector<std::vector<int>> &cont) const {
     for (const auto &node : nodes) {
-        node->get(cont);
+      node->get(cont);
     }
   }
   void reset() {
@@ -94,8 +89,6 @@ private:
   }
 };
 
-template <class T>
-std::vector<T> VoxelGrid<T>::data;
+template <class T> std::vector<T> VoxelGrid<T>::data;
 
-template <class T>
-int32_t VoxelGrid<T>::current_voxelgrid_part{0};
+template <class T> int32_t VoxelGrid<T>::current_voxelgrid_part{0};
