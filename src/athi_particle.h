@@ -19,8 +19,6 @@
 #include <glm/vec4.hpp>
 #include <vector>
 
-struct ParticleTable {};
-
 struct Particle {
 
   int id{0};

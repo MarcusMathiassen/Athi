@@ -12,7 +12,7 @@ void Athi_Window::init() {
     std::cerr << "Error initializing GLFW!\n";
   }
 
-  glfwWindowHint(GLFW_SAMPLES, 4);
+  //glfwWindowHint(GLFW_SAMPLES, 4);
   // glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -65,6 +65,8 @@ void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t wid
   camera.update_projection(static_cast<float>(width), static_cast<float>(height));
   camera.update();
   glViewport(0.0f, 0.0f, width, height);
+
+  framebuffer->resize(width, height);
 
   std::cout << "framebuffer: " << width << "x" << height << '\n';
 

@@ -67,6 +67,12 @@ void Athi_Core::init() {
 void Athi_Core::start() {
   auto window_context = window.get_window_context();
   glfwMakeContextCurrent(window_context);
+
+  setup_fullscreen_quad();
+
+  framebuffer = std::make_unique<FrameBuffer>(screen_width, screen_height);
+  framebuffer->resize(screen_width, screen_height);
+
   while (!glfwWindowShouldClose(window_context)) {
     const double time_start_frame = glfwGetTime();
     profile p("Complete frame");
@@ -100,8 +106,9 @@ void Athi_Core::draw(GLFWwindow *window) {
   const double time_start_frame = glfwGetTime();
   glClearColor(background_color_dark.r, background_color_dark.g, background_color_dark.b, background_color_dark.a);
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  framebuffer->clear();
+  framebuffer->bind();
   particle_manager.draw();
 
   draw_rects();
@@ -109,6 +116,8 @@ void Athi_Core::draw(GLFWwindow *window) {
 
   render();
 
+  framebuffer->unbind();
+  draw_fullscreen_quad(framebuffer->texture);
   //@Bug: rects and lines are being drawn over the Gui.
   if (show_settings) {
     update_settings();
@@ -123,7 +132,6 @@ void Athi_Core::draw(GLFWwindow *window) {
 void Athi_Core::update() {
   const double time_start_frame = glfwGetTime();
   if (!particle_manager.particles.empty()) {
-    // Iterate for how every many samples
     for (int i = 0; i < physics_samples; ++i) {
       const double start = glfwGetTime();
       profile p("ParticleManager::update");

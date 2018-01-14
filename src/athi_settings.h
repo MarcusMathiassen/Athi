@@ -1,9 +1,12 @@
 #pragma once
 
+#include "athi_framebuffer.h"
 #include "athi_typedefs.h"
 #include "imgui.h"
 #include <atomic>
 
+
+extern std::unique_ptr<FrameBuffer> framebuffer;
 extern f64 frame_budget;
 
 extern f32 mouse_size;

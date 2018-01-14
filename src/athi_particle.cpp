@@ -368,7 +368,7 @@ void ParticleManager::update_gpu_buffers() noexcept {
 
     for (const auto &p : particles) {
       // Update the transform
-      transforms[p.id].pos = glm::vec3(p.pos.x, p.pos.y, 0);
+      transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
       models[p.id] = proj * transforms[p.id].get_model();
     }
   }

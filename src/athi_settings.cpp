@@ -1,6 +1,8 @@
 #include "athi_settings.h"
+#include "athi_framebuffer.h"
 #include "athi_typedefs.h"
 
+std::unique_ptr<FrameBuffer> framebuffer;
 double frame_budget{1000.0 / 60.0};
 
 float mouse_size{10.0f};

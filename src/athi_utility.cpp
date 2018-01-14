@@ -1,4 +1,6 @@
 #include "athi_utility.h"
+#include "athi_camera.h"
+#include "athi_transform.h"
 
 std::unordered_map<std::string, f64> time_taken_by;
 
@@ -105,6 +107,106 @@ u32 createShader(const char *file, const GLenum type) {
     break;
   }
   return shader;
+}
+
+
+enum {
+  POSITION_BUFFER,
+  COLOR_BUFFER,
+  TEXTCOORD_BUFFER,
+  INDICES_BUFFER,
+  NUM_BUFFERS
+};
+unsigned int shader_program;
+unsigned int VAO;
+unsigned int VBO[NUM_BUFFERS];
+void setup_fullscreen_quad() {
+  enum { POSITION_ATTR_LOC, TEXTCOORD_ATTR_LOC, COLOR_ATTR_LOC };
+
+  shader_program = glCreateProgram();
+  const auto vs = createShader("../Resources/athi_fullscreen_quad.vs", GL_VERTEX_SHADER);
+  const auto fs = createShader("../Resources/athi_fullscreen_quad.fs", GL_FRAGMENT_SHADER);
+
+  glAttachShader(shader_program, vs);
+  glAttachShader(shader_program, fs);
+
+  glBindAttribLocation(shader_program, POSITION_ATTR_LOC,   "position");
+  glBindAttribLocation(shader_program, TEXTCOORD_ATTR_LOC,  "texcoord");
+  glBindAttribLocation(shader_program, COLOR_ATTR_LOC,      "color");
+
+  glLinkProgram(shader_program);
+  glValidateProgram(shader_program);
+
+  glDeleteShader(vs);
+  glDeleteShader(fs);
+
+  glGenVertexArrays(1, &VAO);
+  glGenBuffers(NUM_BUFFERS, VBO);
+
+  const std::uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
+  // const GLfloat positions[] = {
+  //     -1.0, 1.0f,
+  //     1.0f, 1.0f,
+  //     1.0f, -1.0f,
+  //     -1.0f, -1.0f,
+  // };
+
+  const GLfloat positions[] = {
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+      0.0f, 0.0f,
+  };
+
+  const GLfloat textcoords[] = {
+      0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+  };
+
+  const GLfloat colors[] = {
+      1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+      0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+  };
+
+  glBindVertexArray(VAO);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO[POSITION_BUFFER]);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+  glEnableVertexAttribArray(POSITION_ATTR_LOC);
+  glVertexAttribPointer(POSITION_ATTR_LOC, 2, GL_FLOAT, GL_FALSE,
+                        sizeof(GLfloat) * 2, (void *)0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO[TEXTCOORD_BUFFER]);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(textcoords), textcoords, GL_STATIC_DRAW);
+  glEnableVertexAttribArray(TEXTCOORD_ATTR_LOC);
+  glVertexAttribPointer(TEXTCOORD_ATTR_LOC, 2, GL_FLOAT, GL_FALSE,
+                        sizeof(GLfloat) * 2, (void *)0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO[COLOR_BUFFER]);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+  glEnableVertexAttribArray(COLOR_ATTR_LOC);
+  glVertexAttribPointer(COLOR_ATTR_LOC, 4, GL_FLOAT, GL_FALSE,
+                        sizeof(GLfloat) * 4, (void *)0);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[INDICES_BUFFER]);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+               GL_STATIC_DRAW);
+}
+
+void draw_fullscreen_quad(std::uint32_t texture) {
+
+  glBindVertexArray(VAO);
+  glUseProgram(shader_program);
+  glActiveTexture(GL_TEXTURE0 + 0);
+  glBindTexture(GL_TEXTURE_2D, texture);
+
+  const auto proj = camera.get_ortho_projection();
+  mat4 trans = proj *  Transform().get_model();
+  glUniformMatrix4fv(glGetUniformLocation(shader_program, "transform"), 1,GL_FALSE, &trans[0][0]);
+
+  glUniform2f(glGetUniformLocation(shader_program, "res"), screen_width, screen_height);
+
+  glUniform1i(glGetUniformLocation(shader_program, "tex"), 0);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 }
 
 std::string get_cpu_brand() {
