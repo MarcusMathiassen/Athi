@@ -68,6 +68,7 @@ void ParticleManager::opencl_init() noexcept {
 }
 
 void ParticleManager::init() noexcept {
+
   console->info("Particle object size: {} bytes", sizeof(Particle));
   console->info("Particles per cacheline(64 bytes): {} particles", 64 / sizeof(Particle));
 
@@ -75,25 +76,14 @@ void ParticleManager::init() noexcept {
   opencl_init();
 
   // Shaders
-  shader_program = glCreateProgram();
-  const auto vs = createShader("../Resources/athi_particle_shader.vs", GL_VERTEX_SHADER);
-  const auto fs = createShader("../Resources/athi_particle_shader.fs", GL_FRAGMENT_SHADER);
 
-  glAttachShader(shader_program, vs);
-  glAttachShader(shader_program, fs);
-
-  glBindAttribLocation(shader_program, 0, "position");
-  glBindAttribLocation(shader_program, 1, "color");
-  glBindAttribLocation(shader_program, 2, "transform");
-
-  glLinkProgram(shader_program);
-  glValidateProgram(shader_program);
-  validateShaderProgram("ParticleManager_init", shader_program);
-
-  glDetachShader(shader_program, vs);
-  glDetachShader(shader_program, fs);
-  glDeleteShader(vs);
-  glDeleteShader(fs);
+  shader.init("athi_particle_shader");
+  shader.load_from_file("../Resources/athi_particle_shader.vs");
+  shader.load_from_file("../Resources/athi_particle_shader.fs");
+  shader.bind_attrib("position");
+  shader.bind_attrib("color");
+  shader.bind_attrib("transform");
+  shader.link();
 
   // Setup the circle vertices
   std::vector<glm::vec2> positions;
@@ -397,11 +387,10 @@ void ParticleManager::update_gpu_buffers() noexcept {
 }
 
 void ParticleManager::draw() const noexcept {
-  if (particles.empty())
-    return;
+  if (particles.empty()) return;
   profile p("ParticleManager::draw");
   glBindVertexArray(vao);
-  glUseProgram(shader_program);
+  shader.bind();
   glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts, static_cast<std::int32_t>(particles.size()));
 }
 
@@ -546,8 +535,8 @@ void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end) n
     for (size_t j = 1 + i; j < total; ++j) {
       ++comp_counter;
       if (collision_check(particles[i], particles[j])) {
-        collision_resolve(particles[i], particles[j]);
-        ++res_counter;
+        //collision_resolve(particles[i], particles[j]);
+        //++res_counter;
       }
     }
   }
@@ -564,8 +553,8 @@ void ParticleManager::collision_quadtree(const std::vector<std::vector<std::int3
       for (size_t j = i + 1; j < cont[k].size(); ++j) {
         ++comp_counter;
         if (collision_check(particles[cont[k][i]], particles[cont[k][j]])) {
-          collision_resolve(particles[cont[k][i]], particles[cont[k][j]]);
-          ++res_counter;
+          //collision_resolve(particles[cont[k][i]], particles[cont[k][j]]);
+          //++res_counter;
         }
       }
     }

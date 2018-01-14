@@ -36,9 +36,6 @@
 
 void read_file(const char *file, char **buffer);
 void limit_FPS(std::uint32_t desired_framerate, double time_start_frame);
-void validateShader(const char *file, const char *type, std::uint32_t shader);
-void validateShaderProgram(const char *name, std::uint32_t shaderProgram);
-std::uint32_t createShader(const char *file, const GLenum type);
 std::string get_cpu_brand();
 glm::vec4 get_universal_current_color();
 

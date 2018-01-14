@@ -73,13 +73,14 @@ struct ParticleManager {
 
   Dispatch pool;
 
+  Shader shader;
+
   Quadtree<Particle> quadtree = Quadtree<Particle>(glm::vec2(-1, -1), glm::vec2(1, 1));
   VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
 
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
   std::uint32_t vao;
   std::uint32_t vbo[NUM_BUFFERS];
-  std::uint32_t shader_program;
   std::size_t model_bytes_allocated{0};
   std::size_t color_bytes_allocated{0};
 

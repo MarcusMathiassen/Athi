@@ -117,7 +117,7 @@ static void menu_settings() {
   ImGui::Checkbox("Particle Collisions", &circle_collision);
   ImGui::SameLine();
   ImGui::Checkbox("Border Collisions", &border_collision);
-  ImGui::SliderFloat("time scale", &time_scale, 0.0001f, 10.0f);
+  ImGui::SliderFloat("time scale", &time_scale, 0.0001f, 2.0f);
 
   ImGui::InputInt("framerate limit", &framerate_limit, 0, 1000);
 

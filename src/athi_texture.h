@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstdio>
+#include "athi_settings.h"
+
 #define GLEW_STATIC
 #include <GL/glew.h>
 
@@ -13,7 +14,7 @@ struct Texture {
     s32 width{0}, height{0}, num_comp{0};
     u8 *image_data = stbi_load(file, &width, &height, &num_comp, 4);
     if (NULL == image_data)
-      printf("Texture loading failed: %s\n", file);
+      console->info("Texture loading failed: {}", file);
 
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
@@ -27,7 +28,7 @@ struct Texture {
 
     stbi_image_free(image_data);
 
-    std::cout << "Texture loaded: " << file << std::endl;
+    console->info("Texture loaded: {}", file);
   }
 
   Texture() = default;
