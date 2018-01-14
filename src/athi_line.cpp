@@ -45,7 +45,8 @@ void Athi_Line_Manager::draw() {
   glBindVertexArray(VAO);
   glUseProgram(shader_program);
 
-  const auto proj = camera.get_ortho_projection();
+  // This is for future use when i finally get to fix the missing transforms for lines.
+  //const auto proj = camera.get_ortho_projection();
 
   for (const auto &line : line_buffer) {
 
