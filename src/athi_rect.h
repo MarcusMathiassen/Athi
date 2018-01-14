@@ -10,6 +10,19 @@
 
 static constexpr u16 indices[]{0, 1, 2, 0, 2, 3};
 
+struct Rect {
+  glm::vec2 min_pos{0.0f, 0.0f}, max_pos{0.0f, 0.0f};
+  glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+  Rect() = default;
+  Rect(const glm::vec2 &min, const glm::vec2 &max) noexcept : min_pos(min), max_pos(max) {}
+  constexpr bool contains(const glm::vec2 &pos, float radius) const noexcept {
+    if (pos.x - radius < max_pos.x && pos.x + radius > min_pos.x &&
+        pos.y - radius < max_pos.y && pos.y + radius > min_pos.y)
+      return true;
+    return false;
+  }
+};
+
 namespace Athi {
 struct Rect {
   vec2 min, max;
