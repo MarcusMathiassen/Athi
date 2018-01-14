@@ -5,8 +5,12 @@
 #include "imgui.h"
 #include <atomic>
 
+#include "../dep/Universal/spdlog/spdlog.h" // Console logging
+
+extern std::shared_ptr<spdlog::logger> console;
 
 extern std::unique_ptr<FrameBuffer> framebuffer;
+extern bool post_processing;
 extern f64 frame_budget;
 
 extern f32 mouse_size;

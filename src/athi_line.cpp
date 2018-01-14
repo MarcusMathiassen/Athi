@@ -1,6 +1,7 @@
 #include "athi_line.h"
 #include "athi_camera.h"
 #include "athi_rect.h"
+#include "athi_shader.h"
 
 std::vector<Athi_Line> line_immediate_buffer;
 std::vector<Athi_Line *> line_buffer;

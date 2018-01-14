@@ -6,8 +6,7 @@
 #include "athi_transform.h"
 #include "athi_typedefs.h"
 #include "athi_voxelgrid.h"
-
-#include "../dep/Universal/spdlog/spdlog.h" // Console logging
+#include "athi_shader.h"
 
 #ifdef __APPLE__
 #include <OpenCL/OpenCL.h>
@@ -67,7 +66,6 @@ struct Particle {
 struct ParticleManager {
 
   static constexpr std::int32_t num_verts{36};
-  std::shared_ptr<spdlog::logger> console = spdlog::stdout_color_mt("ParticleManager");
   std::vector<Particle> particles;
   std::vector<Transform> transforms;
   std::vector<glm::vec4> colors;

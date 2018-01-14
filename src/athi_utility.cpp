@@ -1,6 +1,7 @@
 #include "athi_utility.h"
 #include "athi_camera.h"
 #include "athi_transform.h"
+#include "athi_shader.h"
 
 std::unordered_map<std::string, f64> time_taken_by;
 
@@ -61,54 +62,6 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) {
     }
   }
 }
-
-void validateShader(const char *file, const char *type, u32 shader) {
-  char infoLog[512] = {0};
-  s32 success;
-  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(shader, sizeof(infoLog), NULL, infoLog);
-    printf("\nERROR::FILE %s\n", file);
-    printf("ERROR::SHADER::%s::COMPILATION::FAILED\n\n%s", type, infoLog);
-  }
-}
-
-void validateShaderProgram(const char *name, u32 shaderProgram) {
-  char infoLog[512] = {0};
-  s32 success;
-  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetProgramInfoLog(shaderProgram, sizeof(infoLog), NULL, infoLog);
-    printf("\nERROR::SHADER::PROGRAM::%s::LINKING::FAILED\n\n%s", name, infoLog);
-  }
-}
-
-u32 createShader(const char *file, const GLenum type) {
-  char *source = NULL;
-  read_file(file, &source);
-
-  u32 shader = glCreateShader(type);
-  if (NULL != source) {
-    glShaderSource(shader, 1, &source, NULL);
-    free(source);
-  }
-
-  glCompileShader(shader);
-
-  switch (type) {
-  case GL_VERTEX_SHADER:
-    validateShader(file, "VERTEX", shader);
-    break;
-  case GL_FRAGMENT_SHADER:
-    validateShader(file, "FRAGMENT", shader);
-    break;
-  case GL_GEOMETRY_SHADER:
-    validateShader(file, "GEOMETRY", shader);
-    break;
-  }
-  return shader;
-}
-
 
 enum {
   POSITION_BUFFER,

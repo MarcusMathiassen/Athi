@@ -28,6 +28,22 @@ void Athi_Core::init() {
   window.scene.height = 480;
   window.init();
 
+    // Apple specific settings
+  #if __APPLE__
+    use_libdispatch = true;
+  #endif
+
+  console = spdlog::stdout_color_mt("Athi");
+  // Debug information
+  console->info("CPU: {}", get_cpu_brand());
+  console->info("Threads available: {}", std::thread::hardware_concurrency());
+  console->info("IMGUI VERSION {}", ImGui::GetVersion());
+  console->info("GL_VERSION {}", glGetString(GL_VERSION));
+  console->info("GL_VENDOR {}", glGetString(GL_VENDOR));
+  console->info("GL_RENDERER {}", glGetString(GL_RENDERER));
+  console->info("Using GLEW {}", glewGetString(GLEW_VERSION));
+  console->info("Using GLFW {}", glfwGetVersionString());
+
   particle_manager.init();
 
   init_input_manager();
@@ -46,22 +62,6 @@ void Athi_Core::init() {
   px_scale = static_cast<float>(width) / static_cast<float>(window.scene.width);
 
   gui_init(window.get_window_context(), px_scale);
-
-  // Apple specific settings
-#if __APPLE__
-  use_libdispatch = true;
-#endif
-
-  // Debug information
-  auto console = spdlog::stdout_color_mt("Athi");
-  console->info("CPU: {}", get_cpu_brand());
-  console->info("Threads available: {}", std::thread::hardware_concurrency());
-  console->info("IMGUI VERSION {}", ImGui::GetVersion());
-  console->info("GL_VERSION {}", glGetString(GL_VERSION));
-  console->info("GL_VENDOR {}", glGetString(GL_VENDOR));
-  console->info("GL_RENDERER {}", glGetString(GL_RENDERER));
-  console->info("Using GLEW {}", glewGetString(GLEW_VERSION));
-  console->info("Using GLFW {}", glfwGetVersionString());
 }
 
 void Athi_Core::start() {
@@ -107,17 +107,23 @@ void Athi_Core::draw(GLFWwindow *window) {
   glClearColor(background_color_dark.r, background_color_dark.g, background_color_dark.b, background_color_dark.a);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  framebuffer->clear();
-  framebuffer->bind();
+
+
+  if (post_processing) {
+    framebuffer->clear();
+    framebuffer->bind();
+  }
   particle_manager.draw();
 
-  draw_rects();
-  draw_lines();
 
-  render();
 
-  framebuffer->unbind();
-  draw_fullscreen_quad(framebuffer->texture);
+  if (post_processing) {
+    framebuffer->unbind();
+    draw_fullscreen_quad(framebuffer->texture);
+    draw_rects();
+    draw_lines();
+    render();
+  }
   //@Bug: rects and lines are being drawn over the Gui.
   if (show_settings) {
     update_settings();

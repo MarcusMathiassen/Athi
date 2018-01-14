@@ -2,7 +2,10 @@
 #include "athi_framebuffer.h"
 #include "athi_typedefs.h"
 
+std::shared_ptr<spdlog::logger> console;
+
 std::unique_ptr<FrameBuffer> framebuffer;
+bool post_processing{true};
 double frame_budget{1000.0 / 60.0};
 
 float mouse_size{10.0f};

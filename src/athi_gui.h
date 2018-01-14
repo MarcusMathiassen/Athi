@@ -51,6 +51,7 @@ static void menu_debug() {
   ImGui::Checkbox("use_multithreading", &use_multithreading);
   ImGui::Checkbox("use_libdispatch", &use_libdispatch);
   ImGui::Checkbox("openCL_active", &openCL_active);
+  ImGui::Checkbox("post_processing", &post_processing);
 
   ImGui::End();
 }

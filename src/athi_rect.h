@@ -7,6 +7,7 @@
 
 #include "athi_transform.h"
 #include "athi_typedefs.h"
+#include "athi_shader.h"
 
 static constexpr u16 indices[]{0, 1, 2, 0, 2, 3};
 
