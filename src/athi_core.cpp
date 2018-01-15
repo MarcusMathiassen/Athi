@@ -24,6 +24,10 @@ Smooth_Average<double, 30> smooth_physics_rametime_avg(&smoothed_physics_frameti
 Smooth_Average<double, 30> smooth_render_rametime_avg(&smoothed_render_frametime);
 
 void Athi_Core::init() {
+
+  spdlog::set_pattern("[%H:%M:%S] %v");
+  console = spdlog::stdout_color_mt("Athi");
+
   window.scene.width = 640;
   window.scene.height = 480;
   window.init();
@@ -33,7 +37,14 @@ void Athi_Core::init() {
     use_libdispatch = true;
   #endif
 
-  console = spdlog::stdout_color_mt("Athi");
+  int width, height;
+  glfwGetFramebufferSize(window.get_window_context(), &width, &height);
+  px_scale = static_cast<float>(width) / static_cast<float>(window.scene.width);
+
+  gui_init(window.get_window_context(), px_scale);
+  variable_thread_count = std::thread::hardware_concurrency();
+
+
   // Debug information
   console->info("CPU: {}", get_cpu_brand());
   console->info("Threads available: {}", std::thread::hardware_concurrency());
@@ -50,18 +61,7 @@ void Athi_Core::init() {
   init_rect_manager();
   init_line_manager();
 
-  glEnable(GL_BLEND);
-  glDisable(GL_DEPTH_BUFFER);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClearColor(background_color_dark.r, background_color_dark.g, background_color_dark.b, background_color_dark.a);
-
-  variable_thread_count = std::thread::hardware_concurrency();
-
-  int width, height;
-  glfwGetFramebufferSize(window.get_window_context(), &width, &height);
-  px_scale = static_cast<float>(width) / static_cast<float>(window.scene.width);
-
-  gui_init(window.get_window_context(), px_scale);
 }
 
 void Athi_Core::start() {
@@ -120,10 +120,11 @@ void Athi_Core::draw(GLFWwindow *window) {
   if (post_processing) {
     framebuffer->unbind();
     draw_fullscreen_quad(framebuffer->texture);
-    draw_rects();
-    draw_lines();
-    render();
   }
+  draw_rects();
+  draw_lines();
+  render();
+
   //@Bug: rects and lines are being drawn over the Gui.
   if (show_settings) {
     update_settings();

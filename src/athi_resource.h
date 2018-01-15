@@ -15,7 +15,11 @@ public:
   }
 
   std::uint32_t get_resource(const std::string &file) const noexcept {
-    return resources.at(file);
+    if (auto res = resources.find(file); res != resources.end()) {
+      console->warn("resource already loaded: {}", file);
+      return res->second;
+    }
+    return false;
   }
   bool is_loaded(const std::string &file) const noexcept {
     if (resources.empty()) return false;

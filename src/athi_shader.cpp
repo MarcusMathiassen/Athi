@@ -138,8 +138,12 @@ void validateShaderProgram(const char* name, std::uint32_t shaderProgram) noexce
 
 std::uint32_t createShader(const char* file, const GLenum type) noexcept {
 
+  if (auto resource = resource_manager.get_resource(file); resource)
+    return resource;
+
   char *source = NULL;
   read_file(file, &source);
+
 
   std::uint32_t shader = glCreateShader(type);
   if (NULL != source) {
@@ -161,5 +165,6 @@ std::uint32_t createShader(const char* file, const GLenum type) noexcept {
     break;
   }
 
+  resource_manager.add_resource(file, shader);
   return shader;
 }

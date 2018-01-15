@@ -140,6 +140,11 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     show_mouse_grab_lines ^= 1;
   }
 
+  // TOGGLE POST PROCESSING
+  if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+    post_processing ^= 1;
+  }
+
   // TOGGLE QUADTREE ACTIVE
   if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
     if (quadtree_active)

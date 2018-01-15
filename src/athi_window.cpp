@@ -1,6 +1,4 @@
 
-#include <iostream>
-
 #include "../dep/Universal/imgui.h"
 #include "athi_camera.h"
 #include "athi_settings.h"
@@ -9,10 +7,10 @@
 void Athi_Window::init() {
 
   if (!glfwInit()) {
-    std::cerr << "Error initializing GLFW!\n";
+    console->error("Error initializing GLFW!");
   }
 
-  //glfwWindowHint(GLFW_SAMPLES, 4);
+  glfwWindowHint(GLFW_SAMPLES, 0);
   // glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -21,6 +19,16 @@ void Athi_Window::init() {
 #if __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+
+  // Gather monitor info
+  std::int32_t count;
+  auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
+  monitor_refreshrate = modes->refreshRate;
+  framerate_limit = monitor_refreshrate;
+
+  auto monitor_name = glfwGetMonitorName(glfwGetPrimaryMonitor());
+
+  console->info("Monitor: {} {}hz", monitor_name, monitor_refreshrate);
 
   context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
@@ -32,6 +40,8 @@ void Athi_Window::init() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
 
+  glDisable(GL_DEPTH_BUFFER);
+
   std::int32_t width, height;
   glfwGetFramebufferSize(context, &width, &height);
   glViewport(0, 0, width, height);
@@ -40,23 +50,17 @@ void Athi_Window::init() {
   camera.update_projection(width, height);
   camera.update();
 
-  // Gather monitor info
-  std::int32_t count;
-  auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
-  monitor_refreshrate = modes->refreshRate;
-  framerate_limit = monitor_refreshrate;
-
   // GLEW setup / experimental because of glew bugs
   glewExperimental = true;
   if (glewInit() != GLEW_OK) {
-    std::cerr << "Error initializing GLEW!\n";
+    console->error("Error initializing GLEW!");
   }
 }
 
 GLFWwindow *Athi_Window::get_window_context() { return context; }
 
 void Athi_Window::window_size_callback(GLFWwindow *window, std::int32_t xpos, std::int32_t ypos) {
-  std::cout << "window size: " << xpos << "x" << ypos << '\n';
+  console->info("window size: {}x{}", xpos, ypos);
 }
 
 void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t width, std::int32_t height) {
@@ -68,8 +72,6 @@ void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t wid
 
   framebuffer->resize(width, height);
 
-  std::cout << "framebuffer: " << width << "x" << height << '\n';
-
   // @Hack
   if (voxelgrid_parts != 4)
     voxelgrid_parts = 4;
@@ -79,7 +81,8 @@ void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t wid
   std::int32_t w, h;
   glfwGetWindowSize(window, &w, &h);
   px_scale = static_cast<float>(width) / static_cast<float>(w);
-  std::cout << "pxscale: " << px_scale << '\n';
+
+  console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
 
   ImGuiIO &io = ImGui::GetIO();
   io.FontGlobalScale = 1.0f / px_scale;
