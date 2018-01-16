@@ -9,6 +9,47 @@
 #include <thread>
 #include <vector>
 
+template <class T>
+class Queue {
+private:
+  std::vector<T> buffer;
+  std::size_t index_offset{0};
+public:
+  void emplace(const T& item) {
+    buffer.emplace_back(item);
+  }
+
+  bool empty() const noexcept {
+    return buffer.empty();
+  }
+
+  void clear() noexcept {
+    buffer.clear();
+  }
+
+  T& front() const noexcept {
+    return buffer[index_offset++];
+  }
+
+  const T& front() noexcept {
+    return buffer[index_offset++];
+  }
+
+  T& pop() noexcept {
+    return buffer[index_offset++];
+  }
+  T operator [] (int index) const noexcept {
+    return buffer[index_offset+index];
+  }
+
+  auto begin() noexcept {
+    return buffer.begin() + index_offset;
+  }
+  auto end() noexcept {
+    return buffer.end();
+  }
+};
+
 class Dispatch {
 private:
   std::mutex queue_mutex;
