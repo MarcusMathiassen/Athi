@@ -3,10 +3,10 @@
 #include "athi_dispatch.h"
 #include "athi_quadtree.h"
 #include "athi_settings.h"
+#include "athi_shader.h"
 #include "athi_transform.h"
 #include "athi_typedefs.h"
 #include "athi_voxelgrid.h"
-#include "athi_shader.h"
 
 #ifdef __APPLE__
 #include <OpenCL/OpenCL.h>
@@ -19,7 +19,6 @@
 #include <vector>
 
 struct Particle {
-
   int id{0};
   glm::vec2 pos{0.0f, 0.0f};
   glm::vec2 vel{0.0f, 0.0f};
@@ -28,7 +27,6 @@ struct Particle {
   float radius{0.0f};
 
   void update() {
-
     // Apply gravity
     if (physics_gravity) {
       vel.y -= gravity_force * timestep;
@@ -64,7 +62,6 @@ struct Particle {
 };
 
 struct ParticleManager {
-
   static constexpr std::int32_t num_verts{36};
   std::vector<Particle> particles;
   std::vector<Transform> transforms;
@@ -75,7 +72,8 @@ struct ParticleManager {
 
   Shader shader;
 
-  Quadtree<Particle> quadtree = Quadtree<Particle>(glm::vec2(-1, -1), glm::vec2(1, 1));
+  Quadtree<Particle> quadtree =
+      Quadtree<Particle>(glm::vec2(-1, -1), glm::vec2(1, 1));
   VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
 
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
@@ -86,22 +84,22 @@ struct ParticleManager {
 
   // OPENCL
   // ////////////////////////////////////////////////////////////////////////////
-  std::int32_t err; // error code returned from api calls
+  std::int32_t err;  // error code returned from api calls
   char *kernel_source{nullptr};
-  std::size_t global; // global domain size for our calculation
-  std::size_t local;  // local domain size for our calculation
+  std::size_t global;  // global domain size for our calculation
+  std::size_t local;   // local domain size for our calculation
 
   static constexpr bool gpu{true};
   std::vector<Particle> results;
 
-  cl_device_id device_id;    // compute device id
-  cl_context context;        // compute context
-  cl_command_queue commands; // compute command queue
-  cl_program program;        // compute program
-  cl_kernel kernel;          // compute kernel
+  cl_device_id device_id;     // compute device id
+  cl_context context;         // compute context
+  cl_command_queue commands;  // compute command queue
+  cl_program program;         // compute program
+  cl_kernel kernel;           // compute kernel
 
-  cl_mem input;  // device memory used for the input array
-  cl_mem output; // device memory used for the output array
+  cl_mem input;   // device memory used for the input array
+  cl_mem output;  // device memory used for the output array
   ////////////////////////////////////////////////////////////////////////////////////////
 
   void init() noexcept;
@@ -115,8 +113,10 @@ struct ParticleManager {
   void collision_resolve(Particle &a, Particle &b) noexcept;
   void separate(Particle &a, Particle &b) noexcept;
   void collision_logNxN(size_t total, size_t begin, size_t end) noexcept;
-  void collision_quadtree(const std::vector<std::vector<std::int32_t>> &cont, size_t begin, size_t end) noexcept;
-  void add(const glm::vec2 &pos, float radius, const glm::vec4 &color = glm::vec4(1, 1, 1, 1)) noexcept;
+  void collision_quadtree(const std::vector<std::vector<std::int32_t>> &cont,
+                          size_t begin, size_t end) noexcept;
+  void add(const glm::vec2 &pos, float radius,
+           const glm::vec4 &color = glm::vec4(1, 1, 1, 1)) noexcept;
   void erase_all() noexcept;
 };
 

@@ -27,28 +27,25 @@ ParticleManager particle_manager;
 
 void ParticleManager::opencl_init() noexcept {
   read_file("../Resources/particle_collision.cl", &kernel_source);
-  if (!kernel_source)
-    console->error("OpenCL missing kernel source");
+  if (!kernel_source) console->error("OpenCL missing kernel source");
 
   // Connect to a compute device
-  err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
-  if (err != CL_SUCCESS)
-    console->error("Failed to create a device group!");
+  err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1,
+                       &device_id, NULL);
+  if (err != CL_SUCCESS) console->error("Failed to create a device group!");
 
   // Create a compute context
   context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
-  if (!context)
-    console->error("Failed to create a compute context!");
+  if (!context) console->error("Failed to create a compute context!");
 
   // Create a command commands
   commands = clCreateCommandQueue(context, device_id, 0, &err);
-  if (!commands)
-    console->error("Failed to create a command commands!");
+  if (!commands) console->error("Failed to create a command commands!");
 
   // Create the compute program from the source buffer
-  program = clCreateProgramWithSource(context, 1, (const char **)&kernel_source, NULL, &err);
-  if (!program)
-    console->error("Failed to create compute program!");
+  program = clCreateProgramWithSource(context, 1, (const char **)&kernel_source,
+                                      NULL, &err);
+  if (!program) console->error("Failed to create compute program!");
 
   // Build the program executable
   err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
@@ -57,7 +54,8 @@ void ParticleManager::opencl_init() noexcept {
     char buffer[2048];
 
     console->error("Failed to build program executable!");
-    clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &len);
+    clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG,
+                          sizeof(buffer), buffer, &len);
     console->error(buffer);
   }
 
@@ -68,15 +66,14 @@ void ParticleManager::opencl_init() noexcept {
 }
 
 void ParticleManager::init() noexcept {
-
   console->info("Particle object size: {} bytes", sizeof(Particle));
-  console->info("Particles per cacheline(64 bytes): {} particles", 64 / sizeof(Particle));
+  console->info("Particles per cacheline(64 bytes): {} particles",
+                64 / sizeof(Particle));
 
   // OpenCL
   opencl_init();
 
   // Shaders
-
   shader.init("athi_particle_shader");
   shader.load_from_file("../Resources/athi_particle_shader.vs");
   shader.load_from_file("../Resources/athi_particle_shader.fs");
@@ -89,7 +86,8 @@ void ParticleManager::init() noexcept {
   std::vector<glm::vec2> positions;
   positions.reserve(num_verts);
   for (auto i = 0; i < num_verts; ++i) {
-    positions.emplace_back(cosf(i * PI * 2.0f / num_verts), sinf(i * PI * 2.0f / num_verts));
+    positions.emplace_back(cosf(i * PI * 2.0f / num_verts),
+                           sinf(i * PI * 2.0f / num_verts));
   }
 
   // VAO
@@ -101,7 +99,8 @@ void ParticleManager::init() noexcept {
 
   // POSITION
   glBindBuffer(GL_ARRAY_BUFFER, vbo[POSITION]);
-  glBufferData(GL_ARRAY_BUFFER, num_verts * sizeof(positions[0]), &positions[0], GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, num_verts * sizeof(positions[0]), &positions[0],
+               GL_DYNAMIC_DRAW);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -115,7 +114,8 @@ void ParticleManager::init() noexcept {
   glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
   for (u32 i = 0; i < 4; ++i) {
     glEnableVertexAttribArray(2 + i);
-    glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)(i * sizeof(glm::vec4)));
+    glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                          (void *)(i * sizeof(glm::vec4)));
     glVertexAttribDivisor(2 + i, 1);
   }
 }
@@ -125,12 +125,14 @@ void ParticleManager::update_collisions() noexcept {
   comparisons = 0;
   resolutions = 0;
 
-  std::vector<std::vector<std::int32_t>> cont; // nodes with vec of particle.id's
+  std::vector<std::vector<std::int32_t>>
+      cont;  // nodes with vec of particle.id's
   {
     profile p("ParticleManager::Quadtree/Voxelgrid input and get");
 
     if (quadtree_active && openCL_active == false) {
-      quadtree = Quadtree<Particle>({0.0f, 0.0f}, {screen_width, screen_height});
+      quadtree =
+          Quadtree<Particle>({0.0f, 0.0f}, {screen_width, screen_height});
       {
         profile p("Quadtree input");
         quadtree.input(particles);
@@ -179,54 +181,55 @@ void ParticleManager::update_collisions() noexcept {
       const size_t leftovers = total % thread_count;
 
       if (use_libdispatch) {
-        dispatch_apply(thread_count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(size_t i) {
-          const size_t begin = parts * i;
-          size_t end = parts * (i + 1);
-          if (i == thread_count - 1)
-            end += leftovers;
-          collision_quadtree(cont, begin, end);
-        });
+        dispatch_apply(
+            thread_count,
+            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+            ^(size_t i) {
+              const size_t begin = parts * i;
+              size_t end = parts * (i + 1);
+              if (i == thread_count - 1) end += leftovers;
+              collision_quadtree(cont, begin, end);
+            });
       } else {
         std::vector<std::future<void>> results(thread_count);
         for (size_t i = 0; i < thread_count; ++i) {
           const size_t begin = parts * i;
           size_t end = parts * (i + 1);
-          if (i == thread_count - 1)
-            end += leftovers;
-          results[i] = pool.enqueue(&ParticleManager::collision_quadtree, this, cont, begin, end);
+          if (i == thread_count - 1) end += leftovers;
+          results[i] = pool.enqueue(&ParticleManager::collision_quadtree, this,
+                                    cont, begin, end);
         }
-
-        for (auto &&res : results)
-          res.get();
+        for (auto &&res : results) res.get();
       }
     } else
       collision_quadtree(cont, 0, cont.size());
-  } else if (use_multithreading && variable_thread_count != 0 && openCL_active == false) {
+  } else if (use_multithreading && variable_thread_count != 0 &&
+             openCL_active == false) {
     const size_t thread_count = variable_thread_count;
     const size_t total = particles.size();
     const size_t parts = total / thread_count;
     const size_t leftovers = total % thread_count;
 
     if (use_libdispatch) {
-      dispatch_apply(thread_count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(size_t i) {
-        const size_t begin = parts * i;
-        size_t end = parts * (i + 1);
-        if (i == thread_count - 1)
-          end += leftovers;
-        collision_logNxN(total, begin, end);
-      });
+      dispatch_apply(thread_count,
+                     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+                     ^(size_t i) {
+                       const size_t begin = parts * i;
+                       size_t end = parts * (i + 1);
+                       if (i == thread_count - 1) end += leftovers;
+                       collision_logNxN(total, begin, end);
+                     });
     } else {
       std::vector<std::future<void>> results(thread_count);
       for (size_t i = 0; i < thread_count; ++i) {
         const size_t begin = parts * i;
         size_t end = parts * (i + 1);
-        if (i == thread_count - 1)
-          end += leftovers;
-        results[i] = pool.enqueue(&ParticleManager::collision_logNxN, this, total, begin, end);
+        if (i == thread_count - 1) end += leftovers;
+        results[i] = pool.enqueue(&ParticleManager::collision_logNxN, this,
+                                  total, begin, end);
       }
 
-      for (auto &&res : results)
-        res.get();
+      for (auto &&res : results) res.get();
     }
   }
 
@@ -239,8 +242,10 @@ void ParticleManager::update_collisions() noexcept {
     // Create the input and output arrays in device memory
     // for our calculation
     //
-    input = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * count, NULL, NULL);
-    output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Particle) * count, NULL, NULL);
+    input = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * count,
+                           NULL, NULL);
+    output = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+                            sizeof(Particle) * count, NULL, NULL);
     if (!input || !output) {
       console->error("Failed to allocate device memory!");
       exit(1);
@@ -248,9 +253,10 @@ void ParticleManager::update_collisions() noexcept {
 
     // Write our data set s32o the input array in device
     // memory
-    err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(Particle) * count, &particles[0], 0, NULL, NULL);
-    if (err != CL_SUCCESS)
-      console->error("Failed to write to source array!");
+    err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0,
+                               sizeof(Particle) * count, &particles[0], 0, NULL,
+                               NULL);
+    if (err != CL_SUCCESS) console->error("Failed to write to source array!");
 
     // Set the arguments to our compute kernel
     err = 0;
@@ -258,7 +264,8 @@ void ParticleManager::update_collisions() noexcept {
     err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
     err |= clSetKernelArg(kernel, 2, sizeof(u32), &count);
     if (err != CL_SUCCESS) {
-      console->error("[line {}] Failed to set kernel arguments! {}", __LINE__, err);
+      console->error("[line {}] Failed to set kernel arguments! {}", __LINE__,
+                     err);
       exit(1);
     }
 
@@ -278,7 +285,8 @@ void ParticleManager::update_collisions() noexcept {
     global = count;
     // err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, &local,
     // 0, NULL, NULL);
-    err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0, NULL, NULL);
+    err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0,
+                                 NULL, NULL);
     if (err) {
       console->error("[line {}] Failed to execute kernel! {}", __LINE__, err);
       exit(1);
@@ -290,7 +298,9 @@ void ParticleManager::update_collisions() noexcept {
 
     // Read back the results from the device to verify the
     // output
-    err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0, sizeof(Particle) * count, &results[0], 0, NULL, NULL);
+    err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0,
+                              sizeof(Particle) * count, &results[0], 0, NULL,
+                              NULL);
     if (err != CL_SUCCESS) {
       console->error("Failed to read output array! {}", err);
       exit(1);
@@ -306,20 +316,15 @@ void ParticleManager::update_collisions() noexcept {
 }
 
 void ParticleManager::draw_debug_nodes() noexcept {
-  if (particles.empty())
-    return;
+  if (particles.empty()) return;
   profile p("ParticleManager::draw_debug_nodes");
   if (quadtree_active && draw_debug) {
-    if (color_particles)
-      quadtree.color_objects(colors);
-    if (draw_nodes)
-      quadtree.draw_bounds();
+    if (color_particles) quadtree.color_objects(colors);
+    if (draw_nodes) quadtree.draw_bounds();
   }
   if (voxelgrid_active && draw_debug) {
-    if (color_particles)
-      voxelgrid.color_objects(colors);
-    if (draw_nodes)
-      voxelgrid.draw_bounds();
+    if (color_particles) voxelgrid.color_objects(colors);
+    if (draw_nodes) voxelgrid.draw_bounds();
   }
 }
 
@@ -338,8 +343,7 @@ void ParticleManager::update() noexcept {
 }
 
 void ParticleManager::update_gpu_buffers() noexcept {
-  if (particles.empty())
-    return;
+  if (particles.empty()) return;
   profile p("ParticleManager::update_gpu_buffers");
 
   const auto particles_size = particles.size();
@@ -353,7 +357,8 @@ void ParticleManager::update_gpu_buffers() noexcept {
   const auto proj = camera.get_ortho_projection();
   {
     // THIS IS THE SLOWEST THING EVER.
-    profile p("ParticleManager::update_gpu_buffers(update buffers with new data)");
+    profile p(
+        "ParticleManager::update_gpu_buffers(update buffers with new data)");
     // Update the buffers with the new data.
 
     for (const auto &p : particles) {
@@ -369,7 +374,8 @@ void ParticleManager::update_gpu_buffers() noexcept {
     glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
     const auto transform_bytes_needed = sizeof(glm::mat4) * particles_size;
     if (transform_bytes_needed > model_bytes_allocated) {
-      glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &models[0], GL_STREAM_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &models[0],
+                   GL_STREAM_DRAW);
       model_bytes_allocated = transform_bytes_needed;
     } else {
       glBufferSubData(GL_ARRAY_BUFFER, 0, model_bytes_allocated, &models[0]);
@@ -378,7 +384,8 @@ void ParticleManager::update_gpu_buffers() noexcept {
     glBindBuffer(GL_ARRAY_BUFFER, vbo[COLOR]);
     const auto color_bytes_needed = sizeof(glm::vec4) * particles_size;
     if (color_bytes_needed > color_bytes_allocated) {
-      glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0], GL_STREAM_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0],
+                   GL_STREAM_DRAW);
       color_bytes_allocated = color_bytes_needed;
     } else {
       glBufferSubData(GL_ARRAY_BUFFER, 0, color_bytes_allocated, &colors[0]);
@@ -391,10 +398,12 @@ void ParticleManager::draw() const noexcept {
   profile p("ParticleManager::draw");
   glBindVertexArray(vao);
   shader.bind();
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts, static_cast<std::int32_t>(particles.size()));
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts,
+                        static_cast<std::int32_t>(particles.size()));
 }
 
-void ParticleManager::add(const glm::vec2 &pos, float radius, const glm::vec4 &color) noexcept {
+void ParticleManager::add(const glm::vec2 &pos, float radius,
+                          const glm::vec4 &color) noexcept {
   Particle p;
   p.pos = pos;
   p.radius = radius;
@@ -416,7 +425,8 @@ void ParticleManager::erase_all() noexcept {
   transforms.clear();
 }
 
-bool ParticleManager::collision_check(const Particle &a, const Particle &b) const noexcept {
+bool ParticleManager::collision_check(const Particle &a,
+                                      const Particle &b) const noexcept {
   const auto ax = a.pos.x;
   const auto ay = a.pos.y;
   const auto bx = b.pos.x;
@@ -425,7 +435,8 @@ bool ParticleManager::collision_check(const Particle &a, const Particle &b) cons
   const auto br = b.radius;
 
   // square collision check
-  if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br && ay + ar > by - br) {
+  if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br &&
+      ay + ar > by - br) {
     const auto dx = bx - ax;
     const auto dy = by - ay;
 
@@ -470,8 +481,10 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b) noexcept {
     const auto scal_tang_1 = glm::dot(tang, a_vel);
     const auto scal_tang_2 = glm::dot(tang, b_vel);
 
-    const auto scal_norm_1_after = (scal_norm_1 * (m1 - m2) + 2.0f * m2 * scal_norm_2) / (m1 + m2);
-    const auto scal_norm_2_after = (scal_norm_2 * (m2 - m1) + 2.0f * m1 * scal_norm_1) / (m1 + m2);
+    const auto scal_norm_1_after =
+        (scal_norm_1 * (m1 - m2) + 2.0f * m2 * scal_norm_2) / (m1 + m2);
+    const auto scal_norm_2_after =
+        (scal_norm_2 * (m2 - m1) + 2.0f * m1 * scal_norm_1) / (m1 + m2);
     const auto scal_norm_1_after_vec = norm * scal_norm_1_after;
     const auto scal_norm_2_after_vec = norm * scal_norm_2_after;
     const auto scal_norm_1_vec = tang * scal_tang_1;
@@ -513,13 +526,17 @@ void ParticleManager::separate(Particle &a, Particle &b) noexcept {
   glm::vec2 b_pos_move;
 
   // Make sure they dont moved beyond the border
-  if (a_pos.x + a_move_x >= 0.0f + ar && a_pos.x + a_move_x <= screen_width - ar)
+  if (a_pos.x + a_move_x >= 0.0f + ar &&
+      a_pos.x + a_move_x <= screen_width - ar)
     a_pos_move.x += a_move_x;
-  if (a_pos.y + a_move_y >= 0.0f + ar && a_pos.y + a_move_y <= screen_height - ar)
+  if (a_pos.y + a_move_y >= 0.0f + ar &&
+      a_pos.y + a_move_y <= screen_height - ar)
     a_pos_move.y += a_move_y;
-  if (b_pos.x + b_move_x >= 0.0f + br && b_pos.x + b_move_x <= screen_width - br)
+  if (b_pos.x + b_move_x >= 0.0f + br &&
+      b_pos.x + b_move_x <= screen_width - br)
     b_pos_move.x += b_move_x;
-  if (b_pos.y + b_move_y >= 0.0f + br && b_pos.y + b_move_y <= screen_height - br)
+  if (b_pos.y + b_move_y >= 0.0f + br &&
+      b_pos.y + b_move_y <= screen_height - br)
     b_pos_move.y += b_move_y;
 
   // Update positions
@@ -528,7 +545,8 @@ void ParticleManager::separate(Particle &a, Particle &b) noexcept {
 }
 
 // (N-1)*N/2
-void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end) noexcept {
+void ParticleManager::collision_logNxN(size_t total, size_t begin,
+                                       size_t end) noexcept {
   auto comp_counter = 0ul;
   auto res_counter = 0ul;
   for (size_t i = begin; i < end; ++i) {
@@ -544,8 +562,9 @@ void ParticleManager::collision_logNxN(size_t total, size_t begin, size_t end) n
   resolutions += res_counter;
 }
 
-void ParticleManager::collision_quadtree(const std::vector<std::vector<std::int32_t>> &cont, size_t begin,
-                                         size_t end) noexcept {
+void ParticleManager::collision_quadtree(
+    const std::vector<std::vector<std::int32_t>> &cont, size_t begin,
+    size_t end) noexcept {
   auto comp_counter = 0ul;
   auto res_counter = 0ul;
   for (size_t k = begin; k < end; ++k) {

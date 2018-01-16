@@ -5,9 +5,9 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
+#include "athi_shader.h"
 #include "athi_transform.h"
 #include "athi_typedefs.h"
-#include "athi_shader.h"
 
 static constexpr u16 indices[]{0, 1, 2, 0, 2, 3};
 
@@ -15,10 +15,11 @@ struct Rect {
   glm::vec2 min_pos{0.0f, 0.0f}, max_pos{0.0f, 0.0f};
   glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
   Rect() = default;
-  Rect(const glm::vec2 &min, const glm::vec2 &max) noexcept : min_pos(min), max_pos(max) {}
+  Rect(const glm::vec2 &min, const glm::vec2 &max) noexcept
+      : min_pos(min), max_pos(max) {}
   constexpr bool contains(const glm::vec2 &pos, float radius) const noexcept {
-    if (pos.x - radius < max_pos.x && pos.x + radius > min_pos.x && pos.y - radius < max_pos.y &&
-        pos.y + radius > min_pos.y)
+    if (pos.x - radius < max_pos.x && pos.x + radius > min_pos.x &&
+        pos.y - radius < max_pos.y && pos.y + radius > min_pos.y)
       return true;
     return false;
   }
@@ -39,7 +40,7 @@ struct Rect {
   bool contains(u32 id);
   Rect() = default;
 };
-} // namespace Athi
+}  // namespace Athi
 struct Athi_Rect {
   Transform transform;
   vec2 pos{0, 0};
@@ -72,8 +73,10 @@ struct Athi_Rect_Manager {
 
 void add_rect(Athi_Rect *rect);
 void init_rect_manager();
-void draw_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, GLenum draw_type);
-void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, GLenum draw_type);
+void draw_rect(const vec2 &min, f32 width, f32 height, const vec4 &color,
+               GLenum draw_type);
+void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color,
+               GLenum draw_type);
 void draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color);
 void draw_rects();
 
