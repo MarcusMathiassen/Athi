@@ -263,6 +263,7 @@ void ParticleManager::update_collisions() noexcept {
     err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
     err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
     err |= clSetKernelArg(kernel, 2, sizeof(u32), &count);
+    err |= clSetKernelArg(kernel, 3, sizeof(Particle) * count, NULL);
     if (err != CL_SUCCESS) {
       console->error("[line {}] Failed to set kernel arguments! {}", __LINE__,
                      err);
@@ -271,19 +272,19 @@ void ParticleManager::update_collisions() noexcept {
 
     // Get the maximum work group size for executing the
     // kernel o dn the device
-    //
-    // err =
-    //     clGetKernelWorkGroupInfo(kernel, device_id,
-    //     CL_KERNEL_WORK_GROUP_SIZE,
-    //                              sizeof(size_t), &local, NULL);
-    // if (err != CL_SUCCESS)
-    // {
-    //   console->error("[line {}] Failed to retrieve kernel work group info!
-    //   {}", __LINE__, err); exit(1);
-    // }
+    
+    err =
+        clGetKernelWorkGroupInfo(kernel, device_id,
+        CL_KERNEL_WORK_GROUP_SIZE,
+                                 sizeof(size_t), &local, NULL);
+    if (err != CL_SUCCESS)
+    {
+      console->error("[line {}] Failed to retrieve kernel work group info!{}", __LINE__, err); 
+        exit(1);
+    }
 
     global = count;
-    // err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, &local,
+    //err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, &local,
     // 0, NULL, NULL);
     err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0,
                                  NULL, NULL);
@@ -360,7 +361,6 @@ void ParticleManager::update_gpu_buffers() noexcept {
     profile p(
         "ParticleManager::update_gpu_buffers(update buffers with new data)");
     // Update the buffers with the new data.
-
     for (const auto &p : particles) {
       // Update the transform
       transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
