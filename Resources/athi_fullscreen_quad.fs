@@ -9,10 +9,6 @@ in Vertex {
 
 uniform sampler2D tex;
 
-float normpdf(in float x, in float sigma) {
-  return 0.39894 * exp(-0.5 * x * x / (sigma * sigma)) / sigma;
-}
-
 vec4 blur13(sampler2D image, vec2 uv, vec2 resolution, vec2 direction) {
   vec4 color = vec4(0.0);
   vec2 off1 = vec2(1.411764705882353) * direction;
@@ -65,10 +61,10 @@ void main() {
   //vec4 vert = blur13(tex, frag.texcoord, vec2(1280 * 2, 800 * 2), vec2(0, 1));
 
   //vec4 gaussian = mix(hor, vert, 0.5);
-  vec4 box_blur = box_blur(tex, frag.texcoord);
   //vec4 sobel = sobel(tex, frag.texcoord);
-
-  vec4 image = texture(tex, frag.texcoord);
   //vec4 sobel_gaussian = mix(gaussian, box_blur, 0.9);
-  frag_color = box_blur;
+  vec4 box_blur = box_blur(tex, frag.texcoord);
+  vec4 image = texture(tex, frag.texcoord);
+
+  frag_color = mix(box_blur, image, 0.5);
 }

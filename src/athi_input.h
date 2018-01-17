@@ -174,9 +174,16 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
   }
 
   // Benchmark 1
+  if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+    for (int j = 250; j < 500; j += 2)
+      for (int k = 250; k < 500; k += 2)
+        particle_manager.add(glm::vec2(j, k), 1.0f, circle_color);
+  }
+
+  // Benchmark 2
   if (key == GLFW_KEY_N && action == GLFW_PRESS) {
-    for (float j = 250; j < 500; j += 2.0f)
-      for (float k = 250; k < 500; k += 2.0f)
+    for (int j = 0; j < screen_width; j += 4)
+      for (int k = 0; k < screen_height; k += 4)
         particle_manager.add(glm::vec2(j, k), 1.0f, circle_color);
   }
 
