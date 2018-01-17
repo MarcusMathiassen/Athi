@@ -86,17 +86,17 @@ struct ParticleManager {
   // ////////////////////////////////////////////////////////////////////////////
   std::int32_t err;  // error code returned from api calls
   char *kernel_source{nullptr};
-  std::size_t global;  // global domain size for our calculation
-  std::size_t local;   // local domain size for our calculation
+  std::size_t global_dim;  // global domain size for our calculation
+  std::size_t local;      // local domain size for our calculation
 
   static constexpr bool gpu{true};
   std::vector<Particle> results;
 
-  cl_device_id device_id;     // compute device id
-  cl_context context;         // compute context
-  cl_command_queue commands;  // compute command queue
-  cl_program program;         // compute program
-  cl_kernel kernel;           // compute kernel
+  cl_device_id      device_id;  // compute device id
+  cl_context        context;    // compute context
+  cl_command_queue  commands;   // compute command queue
+  cl_program        program;    // compute program
+  cl_kernel         kernel;     // compute kernel
 
   cl_mem input;   // device memory used for the input array
   cl_mem output;  // device memory used for the output array

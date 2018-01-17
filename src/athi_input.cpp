@@ -167,15 +167,9 @@ void update_inputs() {
     particle_manager.add(mouse_pos, 1.0f, circle_color);
     particle_manager.add(mouse_pos, 1.0f, circle_color);
     particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
   }
 
   if (glfwGetKey(context, GLFW_KEY_2) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
     particle_manager.add(mouse_pos, 2.0f, circle_color);
     particle_manager.add(mouse_pos, 2.0f, circle_color);
     particle_manager.add(mouse_pos, 2.0f, circle_color);
@@ -199,27 +193,30 @@ void update_inputs() {
     particle_manager.add(mouse_pos, 3.0f, circle_color);
     particle_manager.add(mouse_pos, 3.0f, circle_color);
     particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
   }
 
   if (glfwGetKey(context, GLFW_KEY_4) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
-    particle_manager.add(mouse_pos, 5.0f, circle_color);
+    particle_manager.add(mouse_pos, 4.0f, circle_color);
+    particle_manager.add(mouse_pos, 4.0f, circle_color);
+    particle_manager.add(mouse_pos, 4.0f, circle_color);
+    particle_manager.add(mouse_pos, 4.0f, circle_color);
+    particle_manager.add(mouse_pos, 4.0f, circle_color);
+    particle_manager.add(mouse_pos, 4.0f, circle_color);
+    particle_manager.add(mouse_pos, 4.0f, circle_color);
+    particle_manager.add(mouse_pos, 4.0f, circle_color);
+    particle_manager.add(mouse_pos, 4.0f, circle_color);
+    particle_manager.add(mouse_pos, 4.0f, circle_color);
   }
   if (glfwGetKey(context, GLFW_KEY_5) == GLFW_PRESS) {
+    particle_manager.add(mouse_pos, circle_size, circle_color);
+    particle_manager.add(mouse_pos, circle_size, circle_color);
+    particle_manager.add(mouse_pos, circle_size, circle_color);
+    particle_manager.add(mouse_pos, circle_size, circle_color);
+    particle_manager.add(mouse_pos, circle_size, circle_color);
+    particle_manager.add(mouse_pos, circle_size, circle_color);
+    particle_manager.add(mouse_pos, circle_size, circle_color);
+    particle_manager.add(mouse_pos, circle_size, circle_color);
+    particle_manager.add(mouse_pos, circle_size, circle_color);
     particle_manager.add(mouse_pos, circle_size, circle_color);
   }
 }

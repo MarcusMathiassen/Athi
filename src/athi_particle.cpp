@@ -233,19 +233,14 @@ void ParticleManager::update_collisions() noexcept {
     }
   }
 
-  else if (openCL_active) {
+  else if (openCL_active && particles.size() >= 256) {
     const auto count = static_cast<std::uint32_t>(particles.size());
-
-    results.clear();
-    results.resize(count);
 
     // Create the input and output arrays in device memory
     // for our calculation
     //
-    input = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * count,
-                           NULL, NULL);
-    output = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-                            sizeof(Particle) * count, NULL, NULL);
+    input = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * count, NULL, NULL);
+    output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Particle) * count, NULL, NULL);
     if (!input || !output) {
       console->error("Failed to allocate device memory!");
       exit(1);
@@ -253,41 +248,43 @@ void ParticleManager::update_collisions() noexcept {
 
     // Write our data set s32o the input array in device
     // memory
-    err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0,
-                               sizeof(Particle) * count, &particles[0], 0, NULL,
-                               NULL);
+    err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(Particle) * count, &particles[0], 0, NULL, NULL);
+
     if (err != CL_SUCCESS) console->error("Failed to write to source array!");
 
     // Set the arguments to our compute kernel
     err = 0;
     err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
     err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
-    err |= clSetKernelArg(kernel, 2, sizeof(u32), &count);
-    err |= clSetKernelArg(kernel, 3, sizeof(Particle) * count, NULL);
+    err |= clSetKernelArg(kernel, 2, sizeof(std::uint32_t), &count);
+    //err |= clSetKernelArg(kernel, 3, sizeof(cl_mem) * local, NULL);
     if (err != CL_SUCCESS) {
-      console->error("[line {}] Failed to set kernel arguments! {}", __LINE__,
-                     err);
+      console->error("[line {}] Failed to set kernel arguments! {}", __LINE__, err);
       exit(1);
     }
 
     // Get the maximum work group size for executing the
-    // kernel o dn the device
-    
+    // kernel on the device
     err =
         clGetKernelWorkGroupInfo(kernel, device_id,
         CL_KERNEL_WORK_GROUP_SIZE,
-                                 sizeof(size_t), &local, NULL);
+                                 sizeof(local), &local, NULL);
     if (err != CL_SUCCESS)
     {
-      console->error("[line {}] Failed to retrieve kernel work group info!{}", __LINE__, err); 
+      console->error("[line {}] Failed to retrieve kernel work group info!{}", __LINE__, err);
         exit(1);
     }
 
-    global = count;
-    //err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, &local,
-    // 0, NULL, NULL);
-    err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global, NULL, 0,
-                                 NULL, NULL);
+    const auto leftovers = count % local;
+    global_dim = count - leftovers; // 1D
+    console->info("OpenCL count: {}", count);
+    console->info("OpenCL local: {}", local);
+    console->info("OpenCL global_dim: {}", global_dim);
+    console->info("OpenCL leftovers run on CPU: {}", leftovers);
+
+
+    err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, &local, 0, NULL, NULL);
+    //err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, NULL, 0, NULL, NULL);
     if (err) {
       console->error("[line {}] Failed to execute kernel! {}", __LINE__, err);
       exit(1);
@@ -300,14 +297,30 @@ void ParticleManager::update_collisions() noexcept {
     // Read back the results from the device to verify the
     // output
     err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0,
-                              sizeof(Particle) * count, &results[0], 0, NULL,
+                              sizeof(Particle) * count, &particles[0], 0, NULL,
                               NULL);
     if (err != CL_SUCCESS) {
       console->error("Failed to read output array! {}", err);
       exit(1);
     }
 
-    particles = results;
+    // Handle any leftover that werent checked
+    if (leftovers) {
+      const size_t thread_count = variable_thread_count;
+      const size_t total = leftovers;
+      const size_t parts = total / thread_count;
+      const size_t leftovers_p = total % thread_count;
+
+      dispatch_apply(
+          thread_count,
+          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+          ^(size_t i) {
+            const size_t begin = parts * i;
+            size_t end = parts * (i + 1);
+            if (i == thread_count - 1) end += leftovers_p;
+            collision_logNxN(leftovers, (count-leftovers) + begin, end);
+          });
+    }
   }
 
   // CPU Singlethreaded

@@ -129,33 +129,9 @@ void collision_resolve(Particle *a, Particle *b) {
 // Kernel particle_collision
 __kernel void particle_collision(__global Particle *input,
                                  __global Particle *output,
-                                 const unsigned int count,
-                                 __local Particle *pblock) {
-  const unsigned int g_id = get_global_id(0);
-
-  int ti = get_local_id(0);
-
-  int n = get_global_size(0);
-  int nt = get_local_size(0);
-  int nb = n/nt;
-
-  Particle p1 = input[g_id];
-
-  for(int jb=0; jb < nb; jb++) { 
-
-    pblock[ti] = input[jb*nt+ti];
-    barrier(CLK_LOCAL_MEM_FENCE);
-
-    for(int j=0; j<nt; j++) {
-
-      Particle p2 = input[j];
-
-      if (collision_detection(&p1, &p2)) {
-        collision_resolve(&p1, &p2);
-      }
-    }
-    barrier(CLK_LOCAL_MEM_FENCE);
-  }
-  
-  output[g_id] = p1;
+                                 const unsigned int count)
+{
+  int g_id = get_global_id(0);
+  //Particle p1 = input[g_id];
+  output[g_id] = input[g_id];
 }
