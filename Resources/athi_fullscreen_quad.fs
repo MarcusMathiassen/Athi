@@ -36,33 +36,11 @@ vec4 box_blur(sampler2D image, vec2 uv) {
   return sum;
 }
 
-vec4 sobel(sampler2D image, vec2 uv) {
-  vec4 top = texture(image, vec2(uv.x, uv.y + 1.0 / 200.0));
-  vec4 bottom = texture(image, vec2(uv.x, uv.y - 1.0 / 200.0));
-  vec4 left = texture(image, vec2(uv.x - 1.0 / 300.0, uv.y));
-  vec4 right = texture(image, vec2(uv.x + 1.0 / 300.0, uv.y));
-  vec4 topLeft =
-      texture(image, vec2(uv.x - 1.0 / 300.0, uv.y + 1.0 / 200.0));
-  vec4 topRight =
-      texture(image, vec2(uv.x + 1.0 / 300.0, uv.y + 1.0 / 200.0));
-  vec4 bottomLeft =
-      texture(image, vec2(uv.x - 1.0 / 300.0, uv.y - 1.0 / 200.0));
-  vec4 bottomRight =
-      texture(image, vec2(uv.x + 1.0 / 300.0, uv.y - 1.0 / 200.0));
-  vec4 sx = -topLeft - 2 * left - bottomLeft + topRight + 2 * right +
-            bottomRight;
-  vec4 sy = -topLeft - 2 * top - topRight + bottomLeft + 2 * bottom +
-            bottomRight;
-  return sqrt(sx * sx + sy * sy);
-}
-
 void main() {
   //vec4 hor = blur13(tex, frag.texcoord, vec2(1280 * 2, 800 * 2), vec2(1, 0));
   //vec4 vert = blur13(tex, frag.texcoord, vec2(1280 * 2, 800 * 2), vec2(0, 1));
 
   //vec4 gaussian = mix(hor, vert, 0.5);
-  //vec4 sobel = sobel(tex, frag.texcoord);
-  //vec4 sobel_gaussian = mix(gaussian, box_blur, 0.9);
   vec4 box_blur = box_blur(tex, frag.texcoord);
   vec4 image = texture(tex, frag.texcoord);
 

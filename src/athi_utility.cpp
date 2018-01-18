@@ -73,25 +73,22 @@ enum {
 unsigned int shader_program;
 unsigned int VAO;
 unsigned int VBO[NUM_BUFFERS];
+
+Shader fullscreen_shader;
 void setup_fullscreen_quad() {
   enum { POSITION_ATTR_LOC, TEXTCOORD_ATTR_LOC, COLOR_ATTR_LOC };
 
-  shader_program = glCreateProgram();
-  const auto vs = createShader("../Resources/athi_fullscreen_quad.vs", GL_VERTEX_SHADER);
-  const auto fs = createShader("../Resources/athi_fullscreen_quad.fs", GL_FRAGMENT_SHADER);
+  fullscreen_shader.init("Fullscreen shader");
+  fullscreen_shader.load_from_file("../Resources/athi_fullscreen_quad.vs", ShaderType::Vertex);
+  fullscreen_shader.load_from_file("../Resources/athi_fullscreen_quad.fs", ShaderType::Fragment);
+  fullscreen_shader.bind_attrib("position");
+  fullscreen_shader.bind_attrib("texcoord");
+  fullscreen_shader.bind_attrib("color");
+  fullscreen_shader.link();
+  fullscreen_shader.add_uniform("transform");
+  fullscreen_shader.add_uniform("res");
+  fullscreen_shader.add_uniform("tex");
 
-  glAttachShader(shader_program, vs);
-  glAttachShader(shader_program, fs);
-
-  glBindAttribLocation(shader_program, POSITION_ATTR_LOC,   "position");
-  glBindAttribLocation(shader_program, TEXTCOORD_ATTR_LOC,  "texcoord");
-  glBindAttribLocation(shader_program, COLOR_ATTR_LOC,      "color");
-
-  glLinkProgram(shader_program);
-  glValidateProgram(shader_program);
-
-  glDeleteShader(vs);
-  glDeleteShader(fs);
 
   glGenVertexArrays(1, &VAO);
   glGenBuffers(NUM_BUFFERS, VBO);
@@ -148,17 +145,16 @@ void setup_fullscreen_quad() {
 void draw_fullscreen_quad(std::uint32_t texture) {
 
   glBindVertexArray(VAO);
-  glUseProgram(shader_program);
+  fullscreen_shader.bind();
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_2D, texture);
 
   const auto proj = camera.get_ortho_projection();
   mat4 trans = proj *  Transform().get_model();
-  glUniformMatrix4fv(glGetUniformLocation(shader_program, "transform"), 1,GL_FALSE, &trans[0][0]);
 
-  glUniform2f(glGetUniformLocation(shader_program, "res"), screen_width, screen_height);
-
-  glUniform1i(glGetUniformLocation(shader_program, "tex"), 0);
+  fullscreen_shader.setUniform("transform", trans);
+  fullscreen_shader.setUniform("res", screen_width, screen_height);
+  fullscreen_shader.setUniform("tex", 0);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 }
 

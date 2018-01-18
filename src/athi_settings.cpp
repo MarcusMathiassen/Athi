@@ -7,7 +7,7 @@ ThreadPoolSolution threadpool_solution{ThreadPoolSolution::Dispatch};
 
 std::shared_ptr<spdlog::logger> console;
 
-std::unique_ptr<FrameBuffer> framebuffer;
+std::vector<FrameBuffer> framebuffers;
 bool post_processing{true};
 double frame_budget{1000.0 / 60.0};
 

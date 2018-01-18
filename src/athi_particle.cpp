@@ -26,6 +26,7 @@
 ParticleManager particle_manager;
 
 void ParticleManager::opencl_init() noexcept {
+  // Read in the kernel source
   read_file("../Resources/particle_collision.cl", &kernel_source);
   if (!kernel_source) console->error("OpenCL missing kernel source");
 
@@ -66,6 +67,7 @@ void ParticleManager::opencl_init() noexcept {
 }
 
 void ParticleManager::init() noexcept {
+  // Print some debug info about particle sizes
   console->info("Particle object size: {} bytes", sizeof(Particle));
   console->info("Particles per cacheline(64 bytes): {} particles",
                 64 / sizeof(Particle));
@@ -74,9 +76,11 @@ void ParticleManager::init() noexcept {
   opencl_init();
 
   // Shaders
-  shader.init("athi_particle_shader");
-  shader.load_from_file("../Resources/athi_particle_shader.vs");
-  shader.load_from_file("../Resources/athi_particle_shader.fs");
+  shader.init("ParticleManager::init()");
+  shader.load_from_file("../Resources/default_particle_shader.vert",
+                        ShaderType::Vertex);
+  shader.load_from_file("../Resources/default_particle_shader.frag",
+                        ShaderType::Fragment);
   shader.bind_attrib("position");
   shader.bind_attrib("color");
   shader.bind_attrib("transform");
@@ -120,101 +124,102 @@ void ParticleManager::init() noexcept {
   }
 }
 
-
 inline static auto get_begin_and_end(int i, int total, int threads) noexcept {
   const int parts = total / threads;
   const int leftovers = total % threads;
   const int begin = parts * i;
   int end = parts * (i + 1);
   if (i == threads - 1) end += leftovers;
-  return std::pair<std::size_t, std::size_t>{begin, end};
+  return std::tuple<std::size_t, std::size_t>{begin, end};
 };
 
 void ParticleManager::opencl_naive() noexcept {
+  const auto count = static_cast<std::uint32_t>(particles.size());
 
-    const auto count = static_cast<std::uint32_t>(particles.size());
+  // Create the input and output arrays in device memory
+  // for our calculation
+  //
+  input = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * count,
+                         NULL, NULL);
+  output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Particle) * count,
+                          NULL, NULL);
+  if (!input || !output) {
+    console->error("Failed to allocate device memory!");
+    exit(1);
+  }
 
-    // Create the input and output arrays in device memory
-    // for our calculation
-    //
-    input = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * count, NULL, NULL);
-    output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Particle) * count, NULL, NULL);
-    if (!input || !output) {
-      console->error("Failed to allocate device memory!");
-      exit(1);
-    }
+  // Write our data set s32o the input array in device
+  // memory
+  err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0,
+                             sizeof(Particle) * count, &particles[0], 0, NULL,
+                             NULL);
 
-    // Write our data set s32o the input array in device
-    // memory
-    err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0, sizeof(Particle) * count, &particles[0], 0, NULL, NULL);
+  if (err != CL_SUCCESS) console->error("Failed to write to source array!");
 
-    if (err != CL_SUCCESS) console->error("Failed to write to source array!");
+  // Set the arguments to our compute kernel
+  err = 0;
+  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
+  err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
+  err |= clSetKernelArg(kernel, 2, sizeof(std::uint32_t), &count);
+  // err |= clSetKernelArg(kernel, 3, sizeof(cl_mem) * local, NULL);
+  if (err != CL_SUCCESS) {
+    console->error("[line {}] Failed to set kernel arguments! {}", __LINE__,
+                   err);
+    exit(1);
+  }
 
-    // Set the arguments to our compute kernel
-    err = 0;
-    err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
-    err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
-    err |= clSetKernelArg(kernel, 2, sizeof(std::uint32_t), &count);
-    //err |= clSetKernelArg(kernel, 3, sizeof(cl_mem) * local, NULL);
-    if (err != CL_SUCCESS) {
-      console->error("[line {}] Failed to set kernel arguments! {}", __LINE__, err);
-      exit(1);
-    }
-
-    // Get the maximum work group size for executing the
-    // kernel on the device
-    err =
-        clGetKernelWorkGroupInfo(kernel, device_id,
-        CL_KERNEL_WORK_GROUP_SIZE,
+  // Get the maximum work group size for executing the
+  // kernel on the device
+  err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE,
                                  sizeof(local), &local, NULL);
-    if (err != CL_SUCCESS)
-    {
-      console->error("[line {}] Failed to retrieve kernel work group info!{}", __LINE__, err);
-        exit(1);
-    }
+  if (err != CL_SUCCESS) {
+    console->error("[line {}] Failed to retrieve kernel work group info!{}",
+                   __LINE__, err);
+    exit(1);
+  }
 
-    const auto leftovers = count % local;
-    global_dim = count - leftovers; // 1D
-    console->info("OpenCL count: {}", count);
-    console->info("OpenCL local: {}", local);
-    console->info("OpenCL global_dim: {}", global_dim);
-    console->info("OpenCL leftovers run on CPU: {}", leftovers);
+  const auto leftovers = count % local;
+  global_dim = count - leftovers;  // 1D
+  console->info("OpenCL count: {}", count);
+  console->info("OpenCL local: {}", local);
+  console->info("OpenCL global_dim: {}", global_dim);
+  console->info("OpenCL leftovers run on CPU: {}", leftovers);
 
+  err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, &local,
+                               0, NULL, NULL);
+  // err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, NULL,
+  // 0, NULL, NULL);
+  if (err) {
+    console->error("[line {}] Failed to execute kernel! {}", __LINE__, err);
+    exit(1);
+  }
 
-    err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, &local, 0, NULL, NULL);
-    //err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, NULL, 0, NULL, NULL);
-    if (err) {
-      console->error("[line {}] Failed to execute kernel! {}", __LINE__, err);
-      exit(1);
-    }
+  // Wait for the command commands to get serviced before
+  // reading back results
+  clFinish(commands);
 
-    // Wait for the command commands to get serviced before
-    // reading back results
-    clFinish(commands);
+  // Read back the results from the device to verify the
+  // output
+  err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0,
+                            sizeof(Particle) * count, &particles[0], 0, NULL,
+                            NULL);
+  if (err != CL_SUCCESS) {
+    console->error("Failed to read output array! {}", err);
+    exit(1);
+  }
 
-    // Read back the results from the device to verify the
-    // output
-    err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0,
-                              sizeof(Particle) * count, &particles[0], 0, NULL,
-                              NULL);
-    if (err != CL_SUCCESS) {
-      console->error("Failed to read output array! {}", err);
-      exit(1);
-    }
-
-    // Handle any leftover that werent checked
-    if (leftovers) {
-      const size_t total = leftovers;
-      dispatch_apply(
-        variable_thread_count,
-        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-        ^(size_t i) {
-          const auto [begin, end] = get_begin_and_end(i, total, variable_thread_count);
-          collision_logNxN(total, count-leftovers+begin, end);
-        });
-    }
+  // Handle any leftover that werent checked
+  if (leftovers) {
+    const size_t total = leftovers;
+    dispatch_apply(variable_thread_count,
+                   dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+                   ^(size_t i) {
+                     const auto[begin, end] =
+                         get_begin_and_end(i, total, variable_thread_count);
+                     collision_logNxN(total, count - leftovers + begin, end);
+                   });
+  }
 }
-
 
 void ParticleManager::update_collisions() noexcept {
   // reset the values
@@ -222,22 +227,23 @@ void ParticleManager::update_collisions() noexcept {
   resolutions = 0;
 
   // Use a tree to partition the data
-  std::vector<std::vector<std::int32_t>> container;
+  std::vector<std::vector<std::int32_t>> tree_container;
   switch (tree_type) {
-      using Tree = TreeType;
-      case Tree::Quadtree: {
-        quadtree = Quadtree<Particle>({0.0f, 0.0f}, {screen_width, screen_height});
+    using Tree = TreeType;
+    case Tree::Quadtree: {
+      quadtree =
+          Quadtree<Particle>({0.0f, 0.0f}, {screen_width, screen_height});
       {
         profile p("Quadtree.input()");
         quadtree.input(particles);
       }
       {
         profile p("Quadtree.get()");
-        quadtree.get(container);
+        quadtree.get(tree_container);
       }
       break;
-      }
-      case Tree::UniformGrid: {
+    }
+    case Tree::UniformGrid: {
       {
         profile p("voxelgrid.reset()");
         voxelgrid.reset();
@@ -248,11 +254,12 @@ void ParticleManager::update_collisions() noexcept {
       }
       {
         profile p("voxelgrid.get()");
-        voxelgrid.get(container);
+        voxelgrid.get(tree_container);
       }
       break;
     }
-    default: /* Using naive approch */ break;
+    default: /* Using naive approch */
+      break;
   }
 
   if (openCL_active && particles.size() >= 256) {
@@ -261,37 +268,45 @@ void ParticleManager::update_collisions() noexcept {
   }
 
   if (use_multithreading && variable_thread_count != 0) {
-    if constexpr (os == OS::Apple) { threadpool_solution = ThreadPoolSolution::AppleGCD; }
-    else { threadpool_solution = ThreadPoolSolution::Dispatch; }
-  }
-  else threadpool_solution = ThreadPoolSolution::None;
+    if constexpr (os == OS::Apple) {
+      threadpool_solution = ThreadPoolSolution::AppleGCD;
+    } else {
+      threadpool_solution = ThreadPoolSolution::Dispatch;
+    }
+  } else
+    threadpool_solution = ThreadPoolSolution::None;
 
   profile p("ParticleManager::update(circle_collision");
 
   const std::size_t total = particles.size();
-  const std::size_t container_total = container.size();
+  const std::size_t container_total = tree_container.size();
 
   switch (threadpool_solution) {
     using Threads = ThreadPoolSolution;
     case Threads::AppleGCD: {
       switch (tree_type) {
         using Tree = TreeType;
-        case Tree::Quadtree: [[fallthrough]];
+        case Tree::Quadtree:
+          [[fallthrough]];
         case Tree::UniformGrid: {
-          dispatch_apply(variable_thread_count,
-             dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-             ^(size_t i) {
-               const auto [begin, end] = get_begin_and_end(i, container_total, variable_thread_count);
-               collision_quadtree(container, begin, end);
-             });
+          dispatch_apply(
+              variable_thread_count,
+              dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+              ^(size_t i) {
+                const auto[begin, end] = get_begin_and_end(
+                    i, container_total, variable_thread_count);
+                collision_quadtree(tree_container, begin, end);
+              });
         } break;
         case Tree::None: {
-          dispatch_apply(variable_thread_count,
-           dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-           ^(size_t i) {
-             const auto [begin, end] = get_begin_and_end(i, total, variable_thread_count);
-             collision_logNxN(total, begin, end);
-           });
+          dispatch_apply(
+              variable_thread_count,
+              dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+              ^(size_t i) {
+                const auto[begin, end] =
+                    get_begin_and_end(i, total, variable_thread_count);
+                collision_logNxN(total, begin, end);
+              });
         } break;
       }
     } break;
@@ -299,12 +314,15 @@ void ParticleManager::update_collisions() noexcept {
     case Threads::Dispatch: {
       switch (tree_type) {
         using Tree = TreeType;
-        case Tree::Quadtree: [[fallthrough]];
+        case Tree::Quadtree:
+          [[fallthrough]];
         case Tree::UniformGrid: {
           std::vector<std::future<void>> results(variable_thread_count);
           for (int i = 0; i < variable_thread_count; ++i) {
-            const auto [begin, end] = get_begin_and_end(i, container_total, variable_thread_count);
-            results[i] = pool.enqueue(&ParticleManager::collision_quadtree, this, container, begin, end);
+            const auto[begin, end] =
+                get_begin_and_end(i, container_total, variable_thread_count);
+            results[i] = pool.enqueue(&ParticleManager::collision_quadtree,
+                                      this, tree_container, begin, end);
           }
           for (auto &&res : results) res.get();
         } break;
@@ -312,8 +330,10 @@ void ParticleManager::update_collisions() noexcept {
         case Tree::None: {
           std::vector<std::future<void>> results(variable_thread_count);
           for (int i = 0; i < variable_thread_count; ++i) {
-            const auto [begin, end] = get_begin_and_end(i, total, variable_thread_count);
-            results[i] = pool.enqueue(&ParticleManager::collision_logNxN, this, total, begin, end);
+            const auto[begin, end] =
+                get_begin_and_end(i, total, variable_thread_count);
+            results[i] = pool.enqueue(&ParticleManager::collision_logNxN, this,
+                                      total, begin, end);
           }
           for (auto &&res : results) res.get();
         } break;
@@ -323,9 +343,14 @@ void ParticleManager::update_collisions() noexcept {
     case Threads::None: {
       switch (tree_type) {
         using Tree = TreeType;
-        case Tree::Quadtree: [[fallthrough]];
-        case Tree::UniformGrid: { collision_quadtree(container, 0, container_total); } break;
-        case Tree::None: { collision_logNxN(total, 0, total); } break;
+        case Tree::Quadtree:
+          [[fallthrough]];
+        case Tree::UniformGrid: {
+          collision_quadtree(tree_container, 0, container_total);
+        } break;
+        case Tree::None: {
+          collision_logNxN(total, 0, total);
+        } break;
       }
     } break;
   }
@@ -349,7 +374,6 @@ void ParticleManager::draw_debug_nodes() noexcept {
       } break;
 
       case TT::None: {
-
       } break;
     }
   }
@@ -453,6 +477,7 @@ void ParticleManager::erase_all() noexcept {
 
 bool ParticleManager::collision_check(const Particle &a,
                                       const Particle &b) const noexcept {
+  // Local variables
   const auto ax = a.pos.x;
   const auto ay = a.pos.y;
   const auto bx = b.pos.x;
@@ -478,7 +503,7 @@ bool ParticleManager::collision_check(const Particle &a,
 }
 
 // Collisions response between two circles with varying radius and mass.
-void ParticleManager::collision_resolve(Particle &a, Particle &b) noexcept {
+void ParticleManager::collision_resolve(Particle &a, Particle &b) const noexcept {
   // Local variables
   const auto dx = b.pos.x - a.pos.x;
   const auto dy = b.pos.y - a.pos.y;
@@ -523,7 +548,7 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b) noexcept {
 }
 
 // Separates two s32ersecting circles.
-void ParticleManager::separate(Particle &a, Particle &b) noexcept {
+void ParticleManager::separate(Particle &a, Particle &b) const noexcept {
   // Local variables
   const auto a_pos = a.pos;
   const auto b_pos = b.pos;
@@ -589,16 +614,18 @@ void ParticleManager::collision_logNxN(size_t total, size_t begin,
 }
 
 void ParticleManager::collision_quadtree(
-    const std::vector<std::vector<std::int32_t>> &container, size_t begin,
+    const std::vector<std::vector<std::int32_t>> &tree_container, size_t begin,
     size_t end) noexcept {
   auto comp_counter = 0ul;
   auto res_counter = 0ul;
   for (size_t k = begin; k < end; ++k) {
-    for (size_t i = 0; i < container[k].size(); ++i) {
-      for (size_t j = i + 1; j < container[k].size(); ++j) {
+    for (size_t i = 0; i < tree_container[k].size(); ++i) {
+      for (size_t j = i + 1; j < tree_container[k].size(); ++j) {
         ++comp_counter;
-        if (collision_check(particles[container[k][i]], particles[container[k][j]])) {
-          collision_resolve(particles[container[k][i]], particles[container[k][j]]);
+        if (collision_check(particles[tree_container[k][i]],
+                            particles[tree_container[k][j]])) {
+          collision_resolve(particles[tree_container[k][i]],
+                            particles[tree_container[k][j]]);
           ++res_counter;
         }
       }

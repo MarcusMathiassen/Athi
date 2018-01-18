@@ -4,6 +4,7 @@
 #include "athi_typedefs.h"
 #include "imgui.h"
 #include <atomic>
+#include <vector>
 
 #include "../dep/Universal/spdlog/spdlog.h" // Console logging
 
@@ -44,7 +45,7 @@ extern TreeType tree_type;
 
 extern std::shared_ptr<spdlog::logger> console;
 
-extern std::unique_ptr<FrameBuffer> framebuffer;
+extern std::vector<FrameBuffer> framebuffers;
 extern bool post_processing;
 extern f64 frame_budget;
 

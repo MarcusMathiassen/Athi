@@ -60,7 +60,7 @@ struct Athi_Rect_Manager {
 
   u32 VAO;
   u32 VBO[NUM_BUFFERS];
-  u32 shader_program;
+  Shader shader;
   u32 uniform[NUM_UNIFORMS];
 
   Athi_Rect_Manager() = default;

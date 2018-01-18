@@ -73,8 +73,9 @@ void Athi_Core::start() {
 
   setup_fullscreen_quad();
 
-  framebuffer = std::make_unique<FrameBuffer>(screen_width, screen_height);
-  framebuffer->resize(screen_width, screen_height);
+  framebuffers.resize(2);
+  framebuffers[0].resize(screen_width, screen_height);
+  framebuffers[1].resize(screen_width, screen_height);
 
   while (!glfwWindowShouldClose(window_context)) {
     const double time_start_frame = glfwGetTime();
@@ -111,16 +112,19 @@ void Athi_Core::draw(GLFWwindow *window) {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+
   if (post_processing) {
-    framebuffer->clear();
-    framebuffer->bind();
+    framebuffers[0].clear();
+    framebuffers[0].bind();
   }
+
   particle_manager.draw();
 
   if (post_processing) {
-    framebuffer->unbind();
-    draw_fullscreen_quad(framebuffer->texture);
+    framebuffers[0].unbind();
+    draw_fullscreen_quad(framebuffers[0].texture);
   }
+
   draw_rects();
   draw_lines();
   render();

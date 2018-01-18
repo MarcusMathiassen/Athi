@@ -7,6 +7,7 @@
 
 #include "athi_camera.h"
 #include "athi_transform.h"
+#include "athi_shader.h"
 #include "athi_typedefs.h"
 #include "athi_utility.h"
 
@@ -22,6 +23,7 @@ struct Athi_Line_Manager {
   enum { POSITIONS, COLOR, NUM_UNIFORMS };
 
   u32 VAO;
+  Shader shader;
   u32 shader_program;
   u32 uniform[NUM_UNIFORMS];
 

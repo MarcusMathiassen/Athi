@@ -10,31 +10,17 @@ Athi_Line_Manager athi_line_manager;
 Athi_Line_Manager::~Athi_Line_Manager() { glDeleteVertexArrays(1, &VAO); }
 
 void Athi_Line_Manager::init() {
-  shader_program = glCreateProgram();
-  const u32 vs = createShader("../Resources/athi_line_shader.vs", GL_VERTEX_SHADER);
-  const u32 gs = createShader("../Resources/athi_line_shader.gs", GL_GEOMETRY_SHADER);
-  const u32 fs = createShader("../Resources/athi_line_shader.fs", GL_FRAGMENT_SHADER);
 
-  glAttachShader(shader_program, vs);
-  glAttachShader(shader_program, gs);
-  glAttachShader(shader_program, fs);
-
-  glLinkProgram(shader_program);
-  glValidateProgram(shader_program);
-  validateShaderProgram("line_constructor", shader_program);
-
-  glDetachShader(shader_program, vs);
-  glDetachShader(shader_program, gs);
-  glDetachShader(shader_program, fs);
-  glDeleteShader(vs);
-  glDeleteShader(gs);
-  glDeleteShader(fs);
+  shader.init("Athi_Line_Manager::init()");
+  shader.load_from_file("../Resources/default_line_shader.vert", ShaderType::Vertex);
+  shader.load_from_file("../Resources/default_line_shader.geom", ShaderType::Geometry);
+  shader.load_from_file("../Resources/default_line_shader.frag", ShaderType::Fragment);
+  shader.link();
+  shader.add_uniform("positions");
+  shader.add_uniform("color");
 
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
-
-  uniform[POSITIONS] = glGetUniformLocation(shader_program, "positions");
-  uniform[COLOR] = glGetUniformLocation(shader_program, "color");
 }
 
 void Athi_Line_Manager::draw() {
@@ -42,28 +28,18 @@ void Athi_Line_Manager::draw() {
     return;
   profile p("Athi_Line_Manager::draw()");
   glBindVertexArray(VAO);
-  glUseProgram(shader_program);
-
-  // This is for future use when i finally get to fix the missing transforms for
-  // lines.
-  // const auto proj = camera.get_ortho_projection();
+  shader.bind();
 
   for (const auto &line : line_buffer) {
-
-    // auto temp = Transform()
-    // mat4 trans = proj *  temp.get_model();
-    // glUniformMatrix4fv(athi_rect_manager.uniform[athi_rect_manager.TRANSFORM],
-    // 1,
-    //                      GL_FALSE, &trans[0][0]);
-
-    glUniform4f(uniform[COLOR], line->color.r, line->color.g, line->color.b, line->color.a);
-    glUniform4f(uniform[POSITIONS], line->p1.x, line->p1.y, line->p2.x, line->p2.y);
+    shader.setUniform("color", line->color);
+    shader.setUniform("positions", glm::vec4(line->p1.x, line->p1.y, line->p2.x, line->p2.y));
     glDrawArrays(GL_LINES, 0, 2);
   }
 
   for (const auto &line : line_immediate_buffer) {
-    glUniform4f(uniform[COLOR], line.color.r, line.color.g, line.color.b, line.color.a);
-    glUniform4f(uniform[POSITIONS], line.p1.x, line.p1.y, line.p2.x, line.p2.y);
+
+    shader.setUniform("color", line.color);
+    shader.setUniform("positions", glm::vec4(line.p1.x, line.p1.y, line.p2.x, line.p2.y));
     glDrawArrays(GL_POINTS, 0, 2);
   }
   line_immediate_buffer.clear();

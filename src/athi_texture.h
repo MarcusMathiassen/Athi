@@ -31,6 +31,10 @@ struct Texture {
     console->info("Texture loaded: {}", file);
   }
 
+  void operator = (const Texture ID) {
+
+  }
+
   Texture() = default;
 
   void bind(u32 unit) const {

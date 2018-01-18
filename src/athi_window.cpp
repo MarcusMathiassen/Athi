@@ -70,7 +70,10 @@ void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t wid
   camera.update();
   glViewport(0.0f, 0.0f, width, height);
 
-  framebuffer->resize(width, height);
+
+  for (auto& framebuffer: framebuffers) {
+    framebuffer.resize(width, height);
+  }
 
   // @Hack
   if (voxelgrid_parts != 4)

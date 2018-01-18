@@ -27,7 +27,7 @@ struct Particle {
   float mass{0.0f};
   float radius{0.0f};
 
-  void update() {
+  void update() noexcept {
     // Apply gravity
     if (physics_gravity) {
       vel.y -= gravity_force * timestep;
@@ -111,8 +111,8 @@ struct ParticleManager {
   void update_collisions() noexcept;
   void opencl_naive() noexcept;
   bool collision_check(const Particle &a, const Particle &b) const noexcept;
-  void collision_resolve(Particle &a, Particle &b) noexcept;
-  void separate(Particle &a, Particle &b) noexcept;
+  void collision_resolve(Particle &a, Particle &b) const noexcept;
+  void separate(Particle &a, Particle &b) const noexcept;
   void collision_logNxN(size_t total, size_t begin, size_t end) noexcept;
   void collision_quadtree(const std::vector<std::vector<std::int32_t>> &cont,
                           size_t begin, size_t end) noexcept;
