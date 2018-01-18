@@ -37,9 +37,9 @@ enum class TreeType {
 extern TreeType tree_type;
 
 #ifdef NDEBUG
-  static constexpr bool debug{true};
+  static constexpr bool ONLY_RUNS_IN_DEBUG_MODE{true};
 #else
-  static constexpr bool debug{false};
+  static constexpr bool ONLY_RUNS_IN_DEBUG_MODE{false};
 #endif
 
 

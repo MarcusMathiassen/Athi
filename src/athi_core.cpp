@@ -28,6 +28,7 @@ void Athi_Core::init() {
 
   spdlog::set_pattern("[%H:%M:%S] %v");
   console = spdlog::stdout_color_mt("Athi");
+  if constexpr (ONLY_RUNS_IN_DEBUG_MODE) console->critical("DEBUG MODE: ON");
 
   window.scene.width = 640;
   window.scene.height = 480;
@@ -47,8 +48,7 @@ void Athi_Core::init() {
   variable_thread_count = std::thread::hardware_concurrency();
 
   // Debug information
-  if constexpr (debug) console->info("DEBUG MODE: {}", debug);
-  console->info("CPU: {}", get_cpu_brand());
+  console->info("{} {}", FRED("CPU:"), get_cpu_brand());
   console->info("Threads available: {}", std::thread::hardware_concurrency());
   console->info("IMGUI VERSION {}", ImGui::GetVersion());
   console->info("GL_VERSION {}", glGetString(GL_VERSION));

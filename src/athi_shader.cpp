@@ -52,10 +52,13 @@ void Shader::bind_attrib(const char* name) noexcept {
 }
 
 void Shader::add_uniform(const std::string& name) noexcept {
-  if constexpr (debug)
-    if (!is_linked)
-      console->error("[{}] add_uniform({}) called before shader was linked.",
-                     this->name, name);
+
+  if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
+    if (!is_linked) {
+        console->warn("[{}] add_uniform({}) called before shader was linked.",
+                       this->name, name);
+    }
+  }
   uniforms[name] = glGetUniformLocation(program, name.c_str());
 }
 

@@ -44,8 +44,8 @@ void Athi_Rect_Manager::init() {
   shader.load_from_file("../Resources/default_rect_shader.frag",
                         ShaderType::Fragment);
   shader.link();
-  shader.add_uniform("transform");
   shader.add_uniform("color");
+  shader.add_uniform("transform");
 
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);

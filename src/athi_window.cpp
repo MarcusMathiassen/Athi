@@ -3,6 +3,7 @@
 #include "athi_camera.h"
 #include "athi_settings.h"
 #include "athi_window.h"
+#include "athi_utility.h"
 
 void Athi_Window::init() {
 
@@ -28,7 +29,7 @@ void Athi_Window::init() {
 
   auto monitor_name = glfwGetMonitorName(glfwGetPrimaryMonitor());
 
-  console->info("Monitor: {} {}hz", monitor_name, monitor_refreshrate);
+  console->info("{} {} {}hz", FRED("Monitor:"), monitor_name, monitor_refreshrate);
 
   context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
