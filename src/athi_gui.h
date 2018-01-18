@@ -123,6 +123,10 @@ static void menu_settings() {
 
   ImGui::InputInt("framerate limit", &framerate_limit, 0, 1000);
 
+  ImGui::Checkbox("gravitational force", &use_gravitational_force);
+  ImGui::SameLine();
+  ImGui::SliderFloat("", &gravitational_constant,  6.674e-6f, 6.674e-1);
+
   ImGui::Checkbox("gravity", &physics_gravity);
   ImGui::SameLine();
   ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);

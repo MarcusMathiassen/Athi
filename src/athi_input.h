@@ -125,6 +125,11 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     circle_collision ^= 1;
   }
 
+  // TOGGLE GRAVITATIONAL_FORCES 
+  if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+    use_gravitational_force ^= 1;
+  }
+
   // TOGGLE MULTITHREADING
   if (key == GLFW_KEY_M && action == GLFW_PRESS) {
     use_multithreading ^= 1;

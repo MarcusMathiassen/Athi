@@ -622,7 +622,7 @@ static void gravitational_force(Particle &a, const Particle &b) {
 
   if (d > 1e-4f) {
     const float angle = atan2(dy, dx);
-    const float G = 6.674e-6;
+    const float G = gravitational_constant;
     const float F = G * m1 * m2 / d * d;
 
     a.vel.x += F * cos(angle);

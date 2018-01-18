@@ -25,6 +25,7 @@ bool show_settings{true};
 bool physics_gravity{false};
 bool use_gravitational_force{false};
 float gravity_force{9.81f};
+float gravitational_constant{6.674e-6};
 
 float collision_energy_loss{0.99f};
 bool circle_collision{true};
