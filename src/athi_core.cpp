@@ -116,14 +116,16 @@ void Athi_Core::draw(GLFWwindow *window) {
   if (post_processing) {
     framebuffers[0].clear();
     framebuffers[0].bind();
+    particle_manager.draw();
   }
-
-  particle_manager.draw();
 
   if (post_processing) {
     framebuffers[0].unbind();
     draw_fullscreen_quad(framebuffers[0].texture);
   }
+
+  particle_manager.draw();
+
 
   draw_rects();
   draw_lines();
