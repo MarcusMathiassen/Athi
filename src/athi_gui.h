@@ -48,6 +48,8 @@ static void menu_debug() {
   ImGui::Checkbox("quadtree_active", &quadtree_active);
   ImGui::Checkbox("voxelgrid_active", &voxelgrid_active);
   ImGui::Checkbox("vsync", &vsync);
+  ImGui::Checkbox("use_gravitational_force", &use_gravitational_force);
+  ImGui::Checkbox("physics_gravity", &physics_gravity);
   ImGui::Checkbox("use_multithreading", &use_multithreading);
   ImGui::Checkbox("use_libdispatch", &use_libdispatch);
   ImGui::Checkbox("openCL_active", &openCL_active);

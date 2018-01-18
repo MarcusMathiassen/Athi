@@ -23,6 +23,7 @@ float px_scale{1.0f};
 
 bool show_settings{true};
 bool physics_gravity{false};
+bool use_gravitational_force{false};
 float gravity_force{9.81f};
 
 float collision_energy_loss{0.99f};

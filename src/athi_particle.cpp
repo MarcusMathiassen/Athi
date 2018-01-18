@@ -381,15 +381,27 @@ void ParticleManager::draw_debug_nodes() noexcept {
 
 void ParticleManager::update() noexcept {
   // @TODO: This whole if statement and following logic statements. BE GONE.
-  if (circle_collision) {
-    update_collisions();
+  {
+    profile p("update_collisions() + particles.update()");
+   for (int i = 0; i < physics_samples; ++i) {
+     const auto start = glfwGetTime();
+     if (circle_collision) {
+       update_collisions();
+     }
+
+     {
+       profile p("ParticleManager::update(particles::update)");
+       for (auto &p : particles) {
+         p.update();
+       }
+     }
+     timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) / physics_samples;
+   }
   }
 
-  {
-    profile p("ParticleManager::update(particles::update)");
-    for (auto &p : particles) {
-      p.update();
-    }
+  if (use_gravitational_force) {
+    profile p("ParticleManager::apply_n_body()");
+    apply_n_body();
   }
 }
 
@@ -443,7 +455,7 @@ void ParticleManager::update_gpu_buffers() noexcept {
   }
 }
 
-void ParticleManager::draw() const noexcept {
+void ParticleManager::draw() noexcept {
   if (particles.empty()) return;
   profile p("ParticleManager::draw");
   glBindVertexArray(vao);
@@ -593,6 +605,37 @@ void ParticleManager::separate(Particle &a, Particle &b) const noexcept {
   // Update positions
   a.pos += a_pos_move;
   b.pos += b_pos_move;
+}
+
+
+static void gravitational_force(Particle &a, const Particle &b) {
+  const float x1 = a.pos.x;
+  const float y1 = a.pos.y;
+  const float x2 = b.pos.x;
+  const float y2 = b.pos.y;
+  const float m1 = a.mass;
+  const float m2 = b.mass;
+
+  const float dx = x2 - x1;
+  const float dy = y2 - y1;
+  const float d = sqrt(dx * dx + dy * dy);
+
+  if (d > 1e-4f) {
+    const float angle = atan2(dy, dx);
+    const float G = 6.674e-6;
+    const float F = G * m1 * m2 / d * d;
+
+    a.vel.x += F * cos(angle);
+    a.vel.y += F * sin(angle);
+  }
+}
+
+void ParticleManager::apply_n_body() noexcept {
+  for (size_t i = 0; i < particles.size(); ++i) {
+    for (size_t j = 0; j < particles.size(); ++j) {
+      gravitational_force(particles[i], particles[j]);
+    }
+  }
 }
 
 // (N-1)*N/2

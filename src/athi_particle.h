@@ -104,12 +104,13 @@ struct ParticleManager {
 
   void init() noexcept;
   void update() noexcept;
-  void draw() const noexcept;
+  void draw() noexcept;
   void opencl_init() noexcept;
   void draw_debug_nodes() noexcept;
   void update_gpu_buffers() noexcept;
   void update_collisions() noexcept;
   void opencl_naive() noexcept;
+  void apply_n_body() noexcept;
   bool collision_check(const Particle &a, const Particle &b) const noexcept;
   void collision_resolve(Particle &a, Particle &b) const noexcept;
   void separate(Particle &a, Particle &b) const noexcept;

@@ -12,43 +12,89 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-Shader::~Shader() noexcept { glDeleteProgram(program); }
+#ifdef _WIN32
+#include <sys/stat.h>
+#else
+// Not Windows? Assume unix-like.
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
+
+Shader::~Shader() noexcept { glDeleteProgram(*program); }
 
 void Shader::link() noexcept {
-  glLinkProgram(program);
-  glValidateProgram(program);
+  glLinkProgram(*program);
+  glValidateProgram(*program);
   validate_shader_program();
 
-  for (auto& shader : shaders) {
-    glDetachShader(program, shader);
+  for (auto & [file_handle, shader]: shaders) {
+    glDetachShader(*program, shader);
     glDeleteShader(shader);
   }
 
   for (auto & [ name, integer ] : uniforms) {
-    integer = glGetUniformLocation(program, name.c_str());
+    integer = glGetUniformLocation(*program, name.c_str());
   }
 
   is_linked = true;
 }
 
-void Shader::bind() const noexcept { glUseProgram(program); }
+void Shader::bind() noexcept { 
+  if constexpr (ONLY_RUNS_IN_DEBUG_MODE) reload();
+  glUseProgram(*program); 
+}
+
+void Shader::reload() noexcept {
+
+  bool need_to_reload = false;
+
+  // For every shader that needs reloading
+  for (auto & [file_handle, shader]: shaders) {
+      const auto timestamp = GetShaderFileTimestamp(file_handle.file.c_str());
+      if (timestamp > file_handle.timestamp) {
+        need_to_reload = true;
+        file_handle.timestamp = timestamp;
+      }
+  }
+
+  if (need_to_reload) {
+    glDeleteProgram(*program);
+    *program = glCreateProgram();
+    for (auto & [file_handle, shader]: shaders) {
+      console->info("Reloading shader: {}", file_handle.file);
+      shader = create_shader(file_handle.file, file_handle.shader_type);
+      glAttachShader(*program, shader);
+    }
+
+    for (auto & [ name, integer ] : attribs) {
+      glBindAttribLocation(*program, integer, name.c_str());
+    }
+    link();
+  }
+}
 
 void Shader::init(std::string_view name) noexcept {
   this->name = name;
-  program = glCreateProgram();
+  program = std::make_unique<std::uint32_t>();
+  *program = glCreateProgram();
 }
 
 void Shader::load_from_file(const std::string& file,
                             const ShaderType shader_type) noexcept {
   auto shader = create_shader(file, shader_type);
-  glAttachShader(program, shader);
-  shaders.emplace_back(shader);
+  glAttachShader(*program, shader);
+  
+  const auto timestamp = GetShaderFileTimestamp(file.c_str());
+  FileHandle file_handle{file, shader_type, timestamp};
+
+  shaders.emplace_back(std::tuple<FileHandle, std::uint32_t>{file_handle, shader});
 }
 
 void Shader::bind_attrib(const char* name) noexcept {
-  const auto integer = static_cast<std::int32_t>(uniforms.size());
-  glBindAttribLocation(program, integer, name);
-  uniforms[name] = integer;
+  const auto integer = static_cast<std::int32_t>(attribs.size());
+  glBindAttribLocation(*program, integer, name);
+  attribs[name] = integer;
 }
 
 void Shader::add_uniform(const std::string& name) noexcept {
@@ -59,11 +105,11 @@ void Shader::add_uniform(const std::string& name) noexcept {
                        this->name, name);
     }
   }
-  uniforms[name] = glGetUniformLocation(program, name.c_str());
+  uniforms[name] = glGetUniformLocation(*program, name.c_str());
 }
 
 std::uint32_t Shader::get_attrib(const std::string& name) const noexcept {
-  return uniforms.at(name);
+  return attribs.at(name);
 }
 
 void Shader::setUniform(const std::string& name, float x, float y) const
@@ -121,9 +167,9 @@ void Shader::validate_shader(const std::string& file, const char* type,
 void Shader::validate_shader_program() const noexcept {
   char infoLog[512] = {0};
   std::int32_t success;
-  glGetProgramiv(program, GL_LINK_STATUS, &success);
+  glGetProgramiv(*program, GL_LINK_STATUS, &success);
   if (!success) {
-    glGetProgramInfoLog(program, sizeof(infoLog), NULL, infoLog);
+    glGetProgramInfoLog(*program, sizeof(infoLog), NULL, infoLog);
     console->warn("\nERROR::SHADER::PROGRAM::{}::LINKING::FAILED\n\n{}", name,
                   infoLog);
   }
@@ -131,9 +177,6 @@ void Shader::validate_shader_program() const noexcept {
 
 std::uint32_t Shader::create_shader(const std::string& file,
                                     ShaderType shader_type) const noexcept {
-  if (auto resource = resource_manager.get_resource(file); resource)
-    return resource;
-
   char* source = NULL;
   read_file(file.c_str(), &source);
 
@@ -176,6 +219,5 @@ std::uint32_t Shader::create_shader(const std::string& file,
       break;
   }
 
-  resource_manager.add_resource(file, shader);
   return shader;
 }

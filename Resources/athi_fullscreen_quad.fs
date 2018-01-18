@@ -42,7 +42,7 @@ void main() {
 
   //vec4 gaussian = mix(hor, vert, 0.5);
   vec4 box_blur = box_blur(tex, frag.texcoord);
-  vec4 image = texture(tex, frag.texcoord);
+  //vec4 image = texture(tex, frag.texcoord);
 
-  frag_color = mix(box_blur, image, 0.5);
+  frag_color = box_blur;
 }

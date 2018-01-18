@@ -145,14 +145,9 @@ void Athi_Core::draw(GLFWwindow *window) {
 
 void Athi_Core::update() {
   const double time_start_frame = glfwGetTime();
+  
   if (!particle_manager.particles.empty()) {
-    for (int i = 0; i < physics_samples; ++i) {
-      const double start = glfwGetTime();
-      profile p("ParticleManager::update");
       particle_manager.update();
-      timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) /
-                 physics_samples;
-    }
   }
 
   // Draw nodes and/or color objects

@@ -16,12 +16,19 @@ enum class ShaderType {
   Compute = GL_COMPUTE_SHADER,
 };
 
+struct FileHandle {
+  std::string file;
+  ShaderType shader_type;
+  std::uint64_t timestamp{0};
+};
+
 class Shader {
  private:
   bool is_linked{false};
   std::string name;
-  std::uint32_t program;
-  std::vector<std::uint32_t> shaders;
+  std::unique_ptr<std::uint32_t> program;
+  std::vector<std::tuple<FileHandle, std::uint32_t>> shaders;
+  std::unordered_map<std::string, std::int32_t> attribs;
   std::unordered_map<std::string, std::int32_t> uniforms;
 
   void validate_shader(const std::string &file, const char *type,
@@ -34,7 +41,8 @@ class Shader {
   Shader() noexcept = default;
   ~Shader() noexcept;
   void link() noexcept;
-  void bind() const noexcept;
+  void reload() noexcept;
+  void bind() noexcept;
   void init(std::string_view name) noexcept;
   void load_from_file(const std::string &file,
                       const ShaderType shader_type) noexcept;
@@ -53,3 +61,32 @@ class Shader {
   void setUniform(const std::string &name, int val) const noexcept;
   void setUniform(const std::string &name, bool val) const noexcept;
 };
+
+static uint64_t GetShaderFileTimestamp(const char* filename)
+{
+    uint64_t timestamp = 0;
+
+#ifdef _WIN32
+    struct __stat64 stFileInfo;
+    if (_stat64(filename, &stFileInfo) == 0)
+    {
+        timestamp = stFileInfo.st_mtime;
+    }
+#else
+    struct stat fileStat;
+
+    if (stat(filename, &fileStat) == -1)
+    {
+        perror(filename);
+        return 0;
+    }
+
+#ifdef __APPLE__
+    timestamp = fileStat.st_mtimespec.tv_sec;
+#else
+    timestamp = fileStat.st_mtime;
+#endif
+#endif
+
+    return timestamp;
+}

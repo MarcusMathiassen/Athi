@@ -34,28 +34,6 @@ int32_t get_mouse_button_state(int32_t button) {
   return GLFW_RELEASE;
 }
 
-void gravitational_force(Particle &a, const vec2 &point) {
-  const float x1 = a.pos.x;
-  const float y1 = a.pos.y;
-  const float x2 = point.x;
-  const float y2 = point.y;
-  const float m1 = a.mass;
-  const float m2 = 10.0f;
-
-  const float dx = x2 - x1;
-  const float dy = y2 - y1;
-  const float d = sqrt(dx * dx + dy * dy);
-
-  if (d > 1e-4f) {
-    const float angle = atan2(dy, dx);
-    const float G = 6.674f;
-    const float F = G * m1 * m2 / d * d;
-
-    a.vel.x += F * cos(angle);
-    a.vel.y += F * sin(angle);
-  }
-}
-
 void attraction_force(Particle &a, const vec2 &point) {
   // Set up variables
   const float x1 = a.pos.x;
