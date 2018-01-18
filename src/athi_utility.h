@@ -12,7 +12,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
-#if __APPLE__
+#ifdef __APPLE__
 #include <sys/sysctl.h>
 #include <sys/types.h>
 #endif
@@ -52,12 +52,23 @@ void setup_fullscreen_quad();
 void draw_fullscreen_quad(std::uint32_t texture);
 
 extern std::unordered_map<std::string, double> time_taken_by;
+
 struct profile {
   double start{0.0};
   std::string id;
 
-  profile(const char *id_) : id(id_) { start = glfwGetTime(); }
-  ~profile() { time_taken_by[id] = (glfwGetTime() - start) * 1000.0; }
+  profile(const char *id_) noexcept {
+    if constexpr (debug) {
+      id = id_;
+      start = glfwGetTime();
+    }
+  }
+
+  ~profile() noexcept {
+    if constexpr (debug) {
+      time_taken_by[id] = (glfwGetTime() - start) * 1000.0;
+    }
+  }
 };
 
 template <class T, size_t S> class Smooth_Average {

@@ -24,6 +24,8 @@ Smooth_Average<double, 30> smooth_render_rametime_avg(
     &smoothed_render_frametime);
 
 void Athi_Core::init() {
+
+
   spdlog::set_pattern("[%H:%M:%S] %v");
   console = spdlog::stdout_color_mt("Athi");
 
@@ -34,6 +36,7 @@ void Athi_Core::init() {
   // Apple specific settings
 #if __APPLE__
   use_libdispatch = true;
+  threadpool_solution = ThreadPoolSolution::AppleGCD;
 #endif
 
   int width, height;
@@ -44,6 +47,7 @@ void Athi_Core::init() {
   variable_thread_count = std::thread::hardware_concurrency();
 
   // Debug information
+  if constexpr (debug) console->info("DEBUG MODE: {}", debug);
   console->info("CPU: {}", get_cpu_brand());
   console->info("Threads available: {}", std::thread::hardware_concurrency());
   console->info("IMGUI VERSION {}", ImGui::GetVersion());

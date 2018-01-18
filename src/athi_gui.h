@@ -217,8 +217,8 @@ void gui_render() {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("menu")) {
       ImGui::MenuItem("settings", NULL, &open_settings);
-      ImGui::MenuItem("profiler", NULL, &open_profiler);
-      ImGui::MenuItem("debug", NULL, &open_debug_menu);
+      if constexpr (debug) ImGui::MenuItem("profiler", NULL, &open_profiler);
+      if constexpr (debug) ImGui::MenuItem("debug", NULL, &open_debug_menu);
       ImGui::EndMenu();
     }
 

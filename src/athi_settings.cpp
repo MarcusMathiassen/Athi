@@ -2,6 +2,9 @@
 #include "athi_framebuffer.h"
 #include "athi_typedefs.h"
 
+TreeType tree_type{TreeType::Quadtree};
+ThreadPoolSolution threadpool_solution{ThreadPoolSolution::Dispatch};
+
 std::shared_ptr<spdlog::logger> console;
 
 std::unique_ptr<FrameBuffer> framebuffer;

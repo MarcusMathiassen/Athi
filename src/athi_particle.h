@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include "athi_dispatch.h"
@@ -72,8 +73,7 @@ struct ParticleManager {
 
   Shader shader;
 
-  Quadtree<Particle> quadtree =
-      Quadtree<Particle>(glm::vec2(-1, -1), glm::vec2(1, 1));
+  Quadtree<Particle> quadtree = Quadtree<Particle>(glm::vec2(-1, -1), glm::vec2(1, 1));
   VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
 
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
@@ -109,6 +109,7 @@ struct ParticleManager {
   void draw_debug_nodes() noexcept;
   void update_gpu_buffers() noexcept;
   void update_collisions() noexcept;
+  void opencl_naive() noexcept;
   bool collision_check(const Particle &a, const Particle &b) const noexcept;
   void collision_resolve(Particle &a, Particle &b) noexcept;
   void separate(Particle &a, Particle &b) noexcept;

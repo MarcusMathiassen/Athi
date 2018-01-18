@@ -120,120 +120,18 @@ void ParticleManager::init() noexcept {
   }
 }
 
-void ParticleManager::update_collisions() noexcept {
-  // reset the values
-  comparisons = 0;
-  resolutions = 0;
 
-  std::vector<std::vector<std::int32_t>>
-      cont;  // nodes with vec of particle.id's
-  {
-    profile p("ParticleManager::Quadtree/Voxelgrid input and get");
+inline static auto get_begin_and_end(int i, int total, int threads) noexcept {
+  const int parts = total / threads;
+  const int leftovers = total % threads;
+  const int begin = parts * i;
+  int end = parts * (i + 1);
+  if (i == threads - 1) end += leftovers;
+  return std::pair<std::size_t, std::size_t>{begin, end};
+};
 
-    if (quadtree_active && openCL_active == false) {
-      quadtree =
-          Quadtree<Particle>({0.0f, 0.0f}, {screen_width, screen_height});
-      {
-        profile p("Quadtree input");
-        quadtree.input(particles);
-      }
-      {
-        profile p("Quadtree get");
-        quadtree.get(cont);
-      }
-    } else if (voxelgrid_active && openCL_active == false) {
-      voxelgrid.reset();
-      voxelgrid.input(particles);
-      voxelgrid.get(cont);
-    }
-#if 0
-    // Sort *cont* based on the id
-    for (auto&& node: cont) {
-      std::cout << "\n\nNODE\n";
-      for (auto&& id: node)
-        std::cout << " " << id;
-      //std::sort(node.begin(), node.end());
-    }
-#endif
-  }
-  profile p("ParticleManager::update(circle_collision");
+void ParticleManager::opencl_naive() noexcept {
 
-#if 0
-    // Search for duplicates (DEBUG)
-    {
-    s32 counter = 0;
-    for (const auto& obj: cont) {
-      counter += obj.size();
-    }
-    s32 duplicates = counter - static_cast<s32>(particles.size());
-    if (duplicates != 0)
-      console->warn("Duplicates found in container. num: {}", duplicates);
-    }
-#endif
-
-  // Quadtree or Voxelgrid
-  // Quadtree is significantly faster.
-  if ((quadtree_active || voxelgrid_active) && openCL_active == false) {
-    if (use_multithreading && variable_thread_count != 0) {
-      const size_t thread_count = variable_thread_count;
-      const size_t total = cont.size();
-      const size_t parts = total / thread_count;
-      const size_t leftovers = total % thread_count;
-
-      if (use_libdispatch) {
-        dispatch_apply(
-            thread_count,
-            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-            ^(size_t i) {
-              const size_t begin = parts * i;
-              size_t end = parts * (i + 1);
-              if (i == thread_count - 1) end += leftovers;
-              collision_quadtree(cont, begin, end);
-            });
-      } else {
-        std::vector<std::future<void>> results(thread_count);
-        for (size_t i = 0; i < thread_count; ++i) {
-          const size_t begin = parts * i;
-          size_t end = parts * (i + 1);
-          if (i == thread_count - 1) end += leftovers;
-          results[i] = pool.enqueue(&ParticleManager::collision_quadtree, this,
-                                    cont, begin, end);
-        }
-        for (auto &&res : results) res.get();
-      }
-    } else
-      collision_quadtree(cont, 0, cont.size());
-  } else if (use_multithreading && variable_thread_count != 0 &&
-             openCL_active == false) {
-    const size_t thread_count = variable_thread_count;
-    const size_t total = particles.size();
-    const size_t parts = total / thread_count;
-    const size_t leftovers = total % thread_count;
-
-    if (use_libdispatch) {
-      dispatch_apply(thread_count,
-                     dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-                     ^(size_t i) {
-                       const size_t begin = parts * i;
-                       size_t end = parts * (i + 1);
-                       if (i == thread_count - 1) end += leftovers;
-                       collision_logNxN(total, begin, end);
-                     });
-    } else {
-      std::vector<std::future<void>> results(thread_count);
-      for (size_t i = 0; i < thread_count; ++i) {
-        const size_t begin = parts * i;
-        size_t end = parts * (i + 1);
-        if (i == thread_count - 1) end += leftovers;
-        results[i] = pool.enqueue(&ParticleManager::collision_logNxN, this,
-                                  total, begin, end);
-      }
-
-      for (auto &&res : results) res.get();
-    }
-  }
-
-  else if (openCL_active && particles.size() >= 256) {
     const auto count = static_cast<std::uint32_t>(particles.size());
 
     // Create the input and output arrays in device memory
@@ -306,39 +204,154 @@ void ParticleManager::update_collisions() noexcept {
 
     // Handle any leftover that werent checked
     if (leftovers) {
-      const size_t thread_count = variable_thread_count;
       const size_t total = leftovers;
-      const size_t parts = total / thread_count;
-      const size_t leftovers_p = total % thread_count;
-
       dispatch_apply(
-          thread_count,
-          dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-          ^(size_t i) {
-            const size_t begin = parts * i;
-            size_t end = parts * (i + 1);
-            if (i == thread_count - 1) end += leftovers_p;
-            collision_logNxN(leftovers, (count-leftovers) + begin, end);
-          });
+        variable_thread_count,
+        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+        ^(size_t i) {
+          const auto [begin, end] = get_begin_and_end(i, total, variable_thread_count);
+          collision_logNxN(total, count-leftovers+begin, end);
+        });
     }
+}
+
+
+void ParticleManager::update_collisions() noexcept {
+  // reset the values
+  comparisons = 0;
+  resolutions = 0;
+
+  // Use a tree to partition the data
+  std::vector<std::vector<std::int32_t>> container;
+  switch (tree_type) {
+      using Tree = TreeType;
+      case Tree::Quadtree: {
+        quadtree = Quadtree<Particle>({0.0f, 0.0f}, {screen_width, screen_height});
+      {
+        profile p("Quadtree.input()");
+        quadtree.input(particles);
+      }
+      {
+        profile p("Quadtree.get()");
+        quadtree.get(container);
+      }
+      break;
+      }
+      case Tree::UniformGrid: {
+      {
+        profile p("voxelgrid.reset()");
+        voxelgrid.reset();
+      }
+      {
+        profile p("voxelgrid.input()");
+        voxelgrid.input(particles);
+      }
+      {
+        profile p("voxelgrid.get()");
+        voxelgrid.get(container);
+      }
+      break;
+    }
+    default: /* Using naive approch */ break;
   }
 
-  // CPU Singlethreaded
-  else {
-    collision_logNxN(particles.size(), 0, particles.size());
+  if (openCL_active && particles.size() >= 256) {
+    opencl_naive();
+    return;
+  }
+
+  if (use_multithreading && variable_thread_count != 0) {
+    if constexpr (os == OS::Apple) { threadpool_solution = ThreadPoolSolution::AppleGCD; }
+    else { threadpool_solution = ThreadPoolSolution::Dispatch; }
+  }
+  else threadpool_solution = ThreadPoolSolution::None;
+
+  profile p("ParticleManager::update(circle_collision");
+
+  const std::size_t total = particles.size();
+  const std::size_t container_total = container.size();
+
+  switch (threadpool_solution) {
+    using Threads = ThreadPoolSolution;
+    case Threads::AppleGCD: {
+      switch (tree_type) {
+        using Tree = TreeType;
+        case Tree::Quadtree: [[fallthrough]];
+        case Tree::UniformGrid: {
+          dispatch_apply(variable_thread_count,
+             dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+             ^(size_t i) {
+               const auto [begin, end] = get_begin_and_end(i, container_total, variable_thread_count);
+               collision_quadtree(container, begin, end);
+             });
+        } break;
+        case Tree::None: {
+          dispatch_apply(variable_thread_count,
+           dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+           ^(size_t i) {
+             const auto [begin, end] = get_begin_and_end(i, total, variable_thread_count);
+             collision_logNxN(total, begin, end);
+           });
+        } break;
+      }
+    } break;
+
+    case Threads::Dispatch: {
+      switch (tree_type) {
+        using Tree = TreeType;
+        case Tree::Quadtree: [[fallthrough]];
+        case Tree::UniformGrid: {
+          std::vector<std::future<void>> results(variable_thread_count);
+          for (int i = 0; i < variable_thread_count; ++i) {
+            const auto [begin, end] = get_begin_and_end(i, container_total, variable_thread_count);
+            results[i] = pool.enqueue(&ParticleManager::collision_quadtree, this, container, begin, end);
+          }
+          for (auto &&res : results) res.get();
+        } break;
+
+        case Tree::None: {
+          std::vector<std::future<void>> results(variable_thread_count);
+          for (int i = 0; i < variable_thread_count; ++i) {
+            const auto [begin, end] = get_begin_and_end(i, total, variable_thread_count);
+            results[i] = pool.enqueue(&ParticleManager::collision_logNxN, this, total, begin, end);
+          }
+          for (auto &&res : results) res.get();
+        } break;
+      }
+    } break;
+
+    case Threads::None: {
+      switch (tree_type) {
+        using Tree = TreeType;
+        case Tree::Quadtree: [[fallthrough]];
+        case Tree::UniformGrid: { collision_quadtree(container, 0, container_total); } break;
+        case Tree::None: { collision_logNxN(total, 0, total); } break;
+      }
+    } break;
   }
 }
 
 void ParticleManager::draw_debug_nodes() noexcept {
   if (particles.empty()) return;
   profile p("ParticleManager::draw_debug_nodes");
-  if (quadtree_active && draw_debug) {
-    if (color_particles) quadtree.color_objects(colors);
-    if (draw_nodes) quadtree.draw_bounds();
-  }
-  if (voxelgrid_active && draw_debug) {
-    if (color_particles) voxelgrid.color_objects(colors);
-    if (draw_nodes) voxelgrid.draw_bounds();
+
+  if (draw_debug) {
+    switch (tree_type) {
+      using TT = TreeType;
+      case TT::Quadtree: {
+        if (color_particles) quadtree.color_objects(colors);
+        if (draw_nodes) quadtree.draw_bounds();
+      } break;
+
+      case TT::UniformGrid: {
+        if (color_particles) voxelgrid.color_objects(colors);
+        if (draw_nodes) voxelgrid.draw_bounds();
+      } break;
+
+      case TT::None: {
+
+      } break;
+    }
   }
 }
 
@@ -576,16 +589,16 @@ void ParticleManager::collision_logNxN(size_t total, size_t begin,
 }
 
 void ParticleManager::collision_quadtree(
-    const std::vector<std::vector<std::int32_t>> &cont, size_t begin,
+    const std::vector<std::vector<std::int32_t>> &container, size_t begin,
     size_t end) noexcept {
   auto comp_counter = 0ul;
   auto res_counter = 0ul;
   for (size_t k = begin; k < end; ++k) {
-    for (size_t i = 0; i < cont[k].size(); ++i) {
-      for (size_t j = i + 1; j < cont[k].size(); ++j) {
+    for (size_t i = 0; i < container[k].size(); ++i) {
+      for (size_t j = i + 1; j < container[k].size(); ++j) {
         ++comp_counter;
-        if (collision_check(particles[cont[k][i]], particles[cont[k][j]])) {
-          collision_resolve(particles[cont[k][i]], particles[cont[k][j]]);
+        if (collision_check(particles[container[k][i]], particles[container[k][j]])) {
+          collision_resolve(particles[container[k][i]], particles[container[k][j]]);
           ++res_counter;
         }
       }

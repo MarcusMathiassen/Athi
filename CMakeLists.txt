@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.2)
 project(athi)
 
-#set(CMAKE_BUILD_TYPE DEBUG)
-set(CMAKE_BUILD_TYPE RELEASE)
+set(CMAKE_BUILD_TYPE DEBUG)
+#set(CMAKE_BUILD_TYPE RELEASE)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -44,7 +44,7 @@ elseif(APPLE)
 
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-  set(CMAKE_CXX_FLAGS_DEBUG "-O3 -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
+  set(CMAKE_CXX_FLAGS_DEBUG "-O3 -DNDEBUG -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
   # RESOURCE FILE LOCATION
@@ -60,7 +60,7 @@ elseif(APPLE)
 
   # BUNDLE OPTIONS
   set_target_properties(${PROJECT_NAME} PROPERTIES
-  MACOSX_BUNDLE false
+  MACOSX_BUNDLE true
   MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Resources/info.plist
   #MACOSX_BUNDLE_ICON_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon_16.png
   MACOSX_FRAMEWORK_IDENTIFIER org.cmake.${PROJECT_NAME}
@@ -80,7 +80,6 @@ elseif(APPLE)
   target_link_libraries(${PROJECT_NAME} glew glfw "-lpthread -framework OpenGL -framework OpenCL -framework Cocoa -framework IOKIT -framework CoreVideo")
 
 else()
-
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
   set(CMAKE_CXX_FLAGS_DEBUG "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")

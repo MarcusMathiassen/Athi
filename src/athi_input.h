@@ -147,9 +147,11 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 
   // TOGGLE QUADTREE ACTIVE
   if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
-    if (quadtree_active)
+    if (quadtree_active) {
       quadtree_active = false;
-    else {
+      tree_type = TreeType::None;
+    } else {
+      tree_type = TreeType::Quadtree;
       quadtree_active = true;
       voxelgrid_active = false;
     }
@@ -157,9 +159,12 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 
   // TOGGLE VOXELGRID ACTIVE
   if (key == GLFW_KEY_W && action == GLFW_PRESS) {
-    if (voxelgrid_active)
+
+    if (voxelgrid_active) {
       voxelgrid_active = false;
-    else {
+      tree_type = TreeType::None;
+    } else {
+      tree_type = TreeType::UniformGrid;
       voxelgrid_active = true;
       quadtree_active = false;
     }

@@ -11,7 +11,7 @@ private:
 public:
   void add_resource(const std::string &file, std::uint32_t resource) noexcept {
     resources[file] = resource;
-    console->info("resource loaded: {}({})", file, resource);
+    console->info("resource loaded: {}", file);
   }
 
   std::uint32_t get_resource(const std::string &file) const noexcept {

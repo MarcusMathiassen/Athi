@@ -7,6 +7,41 @@
 
 #include "../dep/Universal/spdlog/spdlog.h" // Console logging
 
+enum class OS {
+  Apple,
+  Windows,
+  Linux,
+};
+#ifdef __APPLE__
+constexpr OS os{OS::Apple};
+#elif _WIN32
+constexpr OS os{OS::Windows};
+#else
+constexpr OS os{OS::Linux};
+#endif
+
+enum class ThreadPoolSolution {
+  AppleGCD,
+  Dispatch,
+  None
+};
+extern ThreadPoolSolution threadpool_solution;
+
+// For all our tree options
+enum class TreeType {
+  Quadtree,
+  UniformGrid,
+  None,
+};
+extern TreeType tree_type;
+
+#ifdef NDEBUG
+  static constexpr bool debug{true};
+#else
+  static constexpr bool debug{false};
+#endif
+
+
 extern std::shared_ptr<spdlog::logger> console;
 
 extern std::unique_ptr<FrameBuffer> framebuffer;
