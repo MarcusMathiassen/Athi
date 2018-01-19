@@ -64,6 +64,30 @@ void ParticleManager::opencl_init() noexcept {
   kernel = clCreateKernel(program, "particle_collision", &err);
   if (!kernel || err != CL_SUCCESS)
     console->error("Failed to create compute kernel!");
+
+
+  // Print info
+  char device_name[64], driver_version[64], device_version[64];
+  std::uint32_t val, work_item_dim;
+  std::uint64_t global_mem_size;
+  std::size_t max_work_group_size, work_item_sizes[3];
+  err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(char)*64, &device_name, NULL);
+  err = clGetDeviceInfo(device_id, CL_DRIVER_VERSION, sizeof(char)*64, &driver_version, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_VERSION, sizeof(char)*64, &device_version, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), &val, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &max_work_group_size, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(size_t)*3, &work_item_sizes, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, sizeof(cl_uint), &work_item_dim, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(cl_ulong), &global_mem_size, NULL);
+  console->info(FRED("OpenCL")" Device name: {}",device_name);
+  console->info(FRED("OpenCL")" Device Compute Units: {}", val);
+  const auto mem_in_gb = (static_cast<double>(global_mem_size) / 1073741824.0);
+  console->info(FRED("OpenCL")" Device memory: {}GB",  mem_in_gb);
+  console->info(FRED("OpenCL")" Device supported version: {}", device_version);
+  console->info(FRED("OpenCL")" Driver version: {}", driver_version);
+  console->info(FRED("OpenCL")" Max workgroup size: {}",  max_work_group_size);
+  console->info(FRED("OpenCL")" Max workitem sizes: ({},{},{})", work_item_sizes[0], work_item_sizes[1], work_item_sizes[2]);
+  console->info(FRED("OpenCL")" Max Work item dim: {}", work_item_dim);
 }
 
 void ParticleManager::init() noexcept {
@@ -180,10 +204,10 @@ void ParticleManager::opencl_naive() noexcept {
 
   const auto leftovers = count % local;
   global_dim = count - leftovers;  // 1D
-  console->info("OpenCL count: {}", count);
-  console->info("OpenCL local: {}", local);
-  console->info("OpenCL global_dim: {}", global_dim);
-  console->info("OpenCL leftovers run on CPU: {}", leftovers);
+  // console->info("OpenCL count: {}", count);
+  // console->info("OpenCL local: {}", local);
+  // console->info("OpenCL global_dim: {}", global_dim);
+  // console->info("OpenCL leftovers run on CPU: {}", leftovers);
 
   err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, &local,
                                0, NULL, NULL);
