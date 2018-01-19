@@ -39,7 +39,7 @@ glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 std::atomic<u64> comparisons{0};
 std::atomic<u64> resolutions{0};
 
-bool draw_debug{true};
+bool draw_debug{false};
 bool color_particles{true};
 bool draw_nodes{true};
 

@@ -1,4 +1,4 @@
-#version 410
+#version 330
 
 out vec4 frag_color;
 
@@ -37,8 +37,8 @@ vec4 box_blur(sampler2D image, vec2 uv) {
 }
 
 void main() {
-  //vec4 hor = blur13(tex, frag.texcoord, vec2(1280 * 2, 800 * 2), vec2(1, 0));
-  //vec4 vert = blur13(tex, frag.texcoord, vec2(1280 * 2, 800 * 2), vec2(0, 1));
+  //vec4 hor = blur13(tex, frag.texcoord, vec2(1280, 800), vec2(50, 0));
+  //vec4 vert = blur13(tex, frag.texcoord, vec2(1280, 800), vec2(0, 50));
 
   //vec4 gaussian = mix(hor, vert, 0.5);
   //vec4 image = texture(tex, frag.texcoord);

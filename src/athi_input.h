@@ -100,6 +100,13 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 
   //
 
+  // TOGGLE PAUSE
+  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+    if (time_scale == 0)
+      time_scale = 1;
+    else time_scale = 0;
+  }
+
   // TOGGLE SETTINGS UI
   if (key == GLFW_KEY_I && action == GLFW_PRESS) {
     show_settings ^= 1;
