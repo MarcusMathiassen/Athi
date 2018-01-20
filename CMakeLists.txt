@@ -6,11 +6,11 @@ set(CMAKE_BUILD_TYPE DEBUG)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Load headers
+#Load headers
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/Universal)
 
-# Load sources
+#Load sources
 file(GLOB SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/dep/Universal/*.cpp
@@ -49,9 +49,12 @@ elseif(APPLE)
 
   # RESOURCE FILE LOCATION
   file(GLOB RESOURCE_FILES
+  "./Resources/*.jpg"
   "./Resources/*.png"
-  "./Resources/*.vs"
-  "./Resources/*.fs"
+  "./Resources/*.vert"
+  "./Resources/*.frag"
+  "./Resources/*.geom"
+  "./Resources/*.comp"
   "./Resources/*.ttf"
   "./Resources/*.cl"
   )

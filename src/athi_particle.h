@@ -44,19 +44,19 @@ struct Particle {
       // Border collision
       if (pos.x < 0 + radius) {
         pos.x = 0 + radius;
-        vel.x = -vel.x;
+        vel.x = -vel.x * collision_energy_loss;
       }
       if (pos.x > screen_width - radius) {
         pos.x = screen_width - radius;
-        vel.x = -vel.x;
+        vel.x = -vel.x * collision_energy_loss;
       }
       if (pos.y < 0 + radius) {
         pos.y = 0 + radius;
-        vel.y = -vel.y;
+        vel.y = -vel.y * collision_energy_loss;
       }
       if (pos.y > screen_height - radius) {
         pos.y = screen_height - radius;
-        vel.y = -vel.y;
+        vel.y = -vel.y * collision_energy_loss;
       }
     }
   }
@@ -73,7 +73,8 @@ struct ParticleManager {
 
   Shader shader;
 
-  Quadtree<Particle> quadtree = Quadtree<Particle>(glm::vec2(-1, -1), glm::vec2(1, 1));
+  Quadtree<Particle> quadtree =
+      Quadtree<Particle>(glm::vec2(-1, -1), glm::vec2(1, 1));
   VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
 
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
@@ -83,24 +84,24 @@ struct ParticleManager {
   std::size_t color_bytes_allocated{0};
 
   // OPENCL
-  // ////////////////////////////////////////////////////////////////////////////
+  // ///////////////////////////////////////////////////////
   std::int32_t err;  // error code returned from api calls
   char *kernel_source{nullptr};
   std::size_t global_dim;  // global domain size for our calculation
-  std::size_t local;      // local domain size for our calculation
+  std::size_t local;       // local domain size for our calculation
 
   static constexpr bool gpu{true};
   std::vector<Particle> results;
 
-  cl_device_id      device_id;  // compute device id
-  cl_context        context;    // compute context
-  cl_command_queue  commands;   // compute command queue
-  cl_program        program;    // compute program
-  cl_kernel         kernel;     // compute kernel
+  cl_device_id device_id;     // compute device id
+  cl_context context;         // compute context
+  cl_command_queue commands;  // compute command queue
+  cl_program program;         // compute program
+  cl_kernel kernel;           // compute kernel
 
   cl_mem input;   // device memory used for the input array
   cl_mem output;  // device memory used for the output array
-  ////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////
 
   void init() noexcept;
   void update() noexcept;

@@ -24,8 +24,6 @@ Smooth_Average<double, 30> smooth_render_rametime_avg(
     &smoothed_render_frametime);
 
 void Athi_Core::init() {
-
-
   spdlog::set_pattern("[%H:%M:%S] %v");
   console = spdlog::stdout_color_mt("Athi");
   if constexpr (ONLY_RUNS_IN_DEBUG_MODE) console->critical("DEBUG MODE: ON");
@@ -112,7 +110,6 @@ void Athi_Core::draw(GLFWwindow *window) {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-
   if (post_processing) {
     framebuffers[0].clear();
     framebuffers[0].bind();
@@ -125,7 +122,6 @@ void Athi_Core::draw(GLFWwindow *window) {
   }
 
   particle_manager.draw();
-
 
   draw_rects();
   draw_lines();
@@ -144,10 +140,11 @@ void Athi_Core::draw(GLFWwindow *window) {
 }
 
 void Athi_Core::update() {
+
   const double time_start_frame = glfwGetTime();
-  
+
   if (!particle_manager.particles.empty()) {
-      particle_manager.update();
+    particle_manager.update();
   }
 
   // Draw nodes and/or color objects
@@ -157,10 +154,11 @@ void Athi_Core::update() {
   particle_manager.update_gpu_buffers();
 
   // Update timers
-  physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
+  physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0 / 60.0;
   physics_framerate =
       static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
+  timestep = smoothed_physics_frametime / physics_samples;
 }
 
 void Athi_Core::update_settings() { glfwSwapInterval(vsync); }

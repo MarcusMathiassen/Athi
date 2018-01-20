@@ -65,29 +65,37 @@ void ParticleManager::opencl_init() noexcept {
   if (!kernel || err != CL_SUCCESS)
     console->error("Failed to create compute kernel!");
 
-
   // Print info
   char device_name[64], driver_version[64], device_version[64];
   std::uint32_t val, work_item_dim;
   std::uint64_t global_mem_size;
   std::size_t max_work_group_size, work_item_sizes[3];
-  err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(char)*64, &device_name, NULL);
-  err = clGetDeviceInfo(device_id, CL_DRIVER_VERSION, sizeof(char)*64, &driver_version, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_VERSION, sizeof(char)*64, &device_version, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), &val, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &max_work_group_size, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(size_t)*3, &work_item_sizes, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, sizeof(cl_uint), &work_item_dim, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(cl_ulong), &global_mem_size, NULL);
-  console->info(FRED("OpenCL")" Device name: {}",device_name);
-  console->info(FRED("OpenCL")" Device Compute Units: {}", val);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(char) * 64,
+                        &device_name, NULL);
+  err = clGetDeviceInfo(device_id, CL_DRIVER_VERSION, sizeof(char) * 64,
+                        &driver_version, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_VERSION, sizeof(char) * 64,
+                        &device_version, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint),
+                        &val, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE,
+                        sizeof(size_t), &max_work_group_size, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_SIZES,
+                        sizeof(size_t) * 3, &work_item_sizes, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
+                        sizeof(cl_uint), &work_item_dim, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(cl_ulong),
+                        &global_mem_size, NULL);
+  console->info(FRED("OpenCL") " Device name: {}", device_name);
+  console->info(FRED("OpenCL") " Device Compute Units: {}", val);
   const auto mem_in_gb = (static_cast<double>(global_mem_size) / 1073741824.0);
-  console->info(FRED("OpenCL")" Device memory: {}GB",  mem_in_gb);
-  console->info(FRED("OpenCL")" Device supported version: {}", device_version);
-  console->info(FRED("OpenCL")" Driver version: {}", driver_version);
-  console->info(FRED("OpenCL")" Max workgroup size: {}",  max_work_group_size);
-  console->info(FRED("OpenCL")" Max workitem sizes: ({},{},{})", work_item_sizes[0], work_item_sizes[1], work_item_sizes[2]);
-  console->info(FRED("OpenCL")" Max Work item dim: {}", work_item_dim);
+  console->info(FRED("OpenCL") " Device memory: {}GB", mem_in_gb);
+  console->info(FRED("OpenCL") " Device supported version: {}", device_version);
+  console->info(FRED("OpenCL") " Driver version: {}", driver_version);
+  console->info(FRED("OpenCL") " Max workgroup size: {}", max_work_group_size);
+  console->info(FRED("OpenCL") " Max workitem sizes: ({},{},{})",
+                work_item_sizes[0], work_item_sizes[1], work_item_sizes[2]);
+  console->info(FRED("OpenCL") " Max Work item dim: {}", work_item_dim);
 }
 
 void ParticleManager::init() noexcept {
@@ -407,20 +415,21 @@ void ParticleManager::update() noexcept {
   // @TODO: This whole if statement and following logic statements. BE GONE.
   {
     profile p("update_collisions() + particles.update()");
-   for (int i = 0; i < physics_samples; ++i) {
-     const auto start = glfwGetTime();
-     if (circle_collision) {
-       update_collisions();
-     }
+    for (int i = 0; i < physics_samples; ++i) {
+      const auto start = glfwGetTime();
+      if (circle_collision) {
+        update_collisions();
+      }
 
-     {
-       profile p("ParticleManager::update(particles::update)");
-       for (auto &p : particles) {
-         p.update();
-       }
-     }
-     timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) / physics_samples;
-   }
+      {
+        profile p("ParticleManager::update(particles::update)");
+        for (auto &p : particles) {
+          p.update();
+        }
+      }
+      timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) /
+                 physics_samples;
+    }
   }
 
   if (use_gravitational_force) {
@@ -539,7 +548,8 @@ bool ParticleManager::collision_check(const Particle &a,
 }
 
 // Collisions response between two circles with varying radius and mass.
-void ParticleManager::collision_resolve(Particle &a, Particle &b) const noexcept {
+void ParticleManager::collision_resolve(Particle &a, Particle &b) const
+    noexcept {
   // Local variables
   const auto dx = b.pos.x - a.pos.x;
   const auto dy = b.pos.y - a.pos.y;
@@ -630,7 +640,6 @@ void ParticleManager::separate(Particle &a, Particle &b) const noexcept {
   a.pos += a_pos_move;
   b.pos += b_pos_move;
 }
-
 
 static void gravitational_force(Particle &a, const Particle &b) {
   const float x1 = a.pos.x;

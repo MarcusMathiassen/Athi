@@ -29,9 +29,9 @@ float gravitational_constant{6.674e-6};
 
 float collision_energy_loss{0.99f};
 bool circle_collision{true};
-bool border_collision{true};
+bool border_collision{false};
 
-std::int32_t physics_samples{8};
+std::int32_t physics_samples{4};
 
 float circle_size{5.0f};
 glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};

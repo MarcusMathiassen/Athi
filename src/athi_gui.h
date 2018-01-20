@@ -125,7 +125,7 @@ static void menu_settings() {
 
   ImGui::Checkbox("gravitational force", &use_gravitational_force);
   ImGui::SameLine();
-  ImGui::SliderFloat("", &gravitational_constant,  6.674e-6f, 6.674e-1);
+  ImGui::SliderFloat("", &gravitational_constant,  6.674e-6f, 6.674e-1f);
 
   ImGui::Checkbox("gravity", &physics_gravity);
   ImGui::SameLine();
@@ -306,7 +306,7 @@ static void new_style() {
   style->Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
   style->Colors[ImGuiCol_FrameBgActive] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
   style->Colors[ImGuiCol_TitleBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
-  style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 0.98f, 0.95f, 1.0f);
+  style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.10f, 0.09f, 0.12f, 1.0f);
   style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
   style->Colors[ImGuiCol_MenuBarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
   style->Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
