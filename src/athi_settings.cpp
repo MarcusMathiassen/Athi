@@ -2,6 +2,8 @@
 #include "athi_framebuffer.h"
 #include "athi_typedefs.h"
 
+
+MouseOption mouse_option{MouseOption::None};
 TreeType tree_type{TreeType::Quadtree};
 ThreadPoolSolution threadpool_solution{ThreadPoolSolution::Dispatch};
 
@@ -11,9 +13,11 @@ std::vector<FrameBuffer> framebuffers;
 bool post_processing{true};
 double frame_budget{1000.0 / 60.0};
 
+int mouse_radio_options = static_cast<int>(MouseOption::None);
+int tree_radio_option = 0;
+
 float mouse_size{10.0f};
 bool mouse_busy_UI{false};
-bool mouse_grab_multiple{true};
 bool show_mouse_grab_lines{false};
 bool show_mouse_collision_box{false};
 bool mouse_grab{true};
@@ -31,7 +35,7 @@ float collision_energy_loss{0.99f};
 bool circle_collision{true};
 bool border_collision{false};
 
-std::int32_t physics_samples{4};
+std::int32_t physics_samples{8};
 
 float circle_size{5.0f};
 glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
@@ -86,7 +90,7 @@ bool app_is_running{true};
 bool settings_changed{false};
 
 std::atomic<std::int32_t> universal_color_picker{0};
-glm::vec4 background_color_dark = glm::vec4(0.15686f, 0.17255f, 0.20392f, 1.0f);
+glm::vec4 background_color_dark = glm::vec4(18.0f/255.0f, 20.0f/255.0f, 25.0f/255.0f, 1.0f);
 glm::vec4 background_color_light = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
 glm::vec4 sw_color{pastel_red};
 glm::vec4 se_color{pastel_gray};

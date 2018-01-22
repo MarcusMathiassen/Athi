@@ -514,6 +514,15 @@ void ParticleManager::add(const glm::vec2 &pos, float radius,
   colors.emplace_back(color);
 }
 
+
+void ParticleManager::remove_all_with_id(const std::vector<std::int32_t>& ids) noexcept {
+  for (const auto id: ids) {
+    particles.erase(particles.begin()+id);
+    transforms.erase(transforms.begin()+id);
+    colors.erase(colors.begin()+id);
+  }
+}
+
 void ParticleManager::erase_all() noexcept {
   particles.clear();
   colors.clear();

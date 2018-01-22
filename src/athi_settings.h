@@ -8,6 +8,16 @@
 
 #include "../dep/Universal/spdlog/spdlog.h" // Console logging
 
+
+enum class MouseOption {
+  Color,
+  Drag,
+  Delete,
+  None,
+};
+
+extern MouseOption mouse_option;
+
 enum class OS {
   Apple,
   Windows,
@@ -42,6 +52,8 @@ extern TreeType tree_type;
   static constexpr bool ONLY_RUNS_IN_DEBUG_MODE{false};
 #endif
 
+extern int mouse_radio_options;
+extern int tree_radio_option;
 
 extern std::shared_ptr<spdlog::logger> console;
 
@@ -50,7 +62,6 @@ extern bool post_processing;
 extern f64 frame_budget;
 
 extern f32 mouse_size;
-extern bool mouse_grab_multiple;
 extern bool show_mouse_collision_box;
 extern bool mouse_busy_UI;
 extern bool show_mouse_grab_lines;

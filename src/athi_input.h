@@ -208,4 +208,9 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
   if (key == GLFW_KEY_E && action == GLFW_PRESS) {
     particle_manager.erase_all();
   }
+
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    mouse_option = MouseOption::None;
+    mouse_radio_options = static_cast<int>(MouseOption::None);
+  }
 }

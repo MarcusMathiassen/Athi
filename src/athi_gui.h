@@ -37,10 +37,10 @@ static std::multimap<B, A> flip_map(const M<A, B, Args...> &src) {
 
 static void menu_debug() {
   ImGui::Begin("Debug Options", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+
   ImGui::Checkbox("mouse_grab", &mouse_grab);
   ImGui::Checkbox("show_mouse_collision_box", &show_mouse_collision_box);
   ImGui::Checkbox("show_mouse_grab_lines", &show_mouse_grab_lines);
-  ImGui::Checkbox("mouse_grab_multiple", &mouse_grab_multiple);
   ImGui::Checkbox("draw_debug", &draw_debug);
   ImGui::Checkbox("color_particles", &color_particles);
   ImGui::Checkbox("draw_nodes", &draw_nodes);
@@ -226,6 +226,21 @@ void gui_render() {
       if constexpr (ONLY_RUNS_IN_DEBUG_MODE) ImGui::MenuItem("profiler", NULL, &open_profiler);
       if constexpr (ONLY_RUNS_IN_DEBUG_MODE) ImGui::MenuItem("debug", NULL, &open_debug_menu);
       ImGui::EndMenu();
+    }
+
+    ImGui::RadioButton("Color", &mouse_radio_options, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("Drag", &mouse_radio_options, 1);
+    ImGui::SameLine();
+    ImGui::RadioButton("Delete", &mouse_radio_options, 2);
+    ImGui::SameLine();
+    ImGui::RadioButton("None", &mouse_radio_options, 3);
+
+    switch ((MouseOption)mouse_radio_options) {
+      case MouseOption::Color: { mouse_option = MouseOption::Color; } break;
+      case MouseOption::Drag: { mouse_option = MouseOption::Drag; } break;
+      case MouseOption::Delete: { mouse_option = MouseOption::Delete; } break;
+      case MouseOption::None: { /* DO NOTHING */ } break;
     }
 
     const auto red = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);

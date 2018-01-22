@@ -19,7 +19,7 @@ glm::vec2 get_mouse_viewspace_pos() {
   double mouse_pos_x, mouse_pos_y;
   glfwGetCursorPos(context, &mouse_pos_x, &mouse_pos_y);
 
-  int32_t width, height;
+  std::int32_t width, height;
   glfwGetWindowSize(context, &width, &height);
   mouse_pos_x = -1.0f + 2 * mouse_pos_x / width;
   mouse_pos_y = 1.0f - 2 * mouse_pos_y / height;
@@ -27,7 +27,7 @@ glm::vec2 get_mouse_viewspace_pos() {
   return glm::vec2(mouse_pos_x, mouse_pos_y);
 }
 
-int32_t get_mouse_button_state(int32_t button) {
+std::int32_t get_mouse_button_state(std::int32_t button) {
   const int state = glfwGetMouseButton(glfwGetCurrentContext(), button);
   if (state == GLFW_PRESS)
     return GLFW_PRESS;
@@ -52,75 +52,97 @@ void attraction_force(Particle &a, const vec2 &point) {
   a.vel *= 0.7f;
 }
 
-vector<int32_t> mouse_attached_to;
+std::vector<int32_t> get_objects_in_rect(const glm::vec2& min, const glm::vec2& max)
+{
+  std::vector<int32_t> ids_of_objects_in_rect;
+
+
+
+  return ids_of_objects_in_rect;
+}
+
 int32_t mouse_attached_to_single{-1};
 enum { ATTACHED, PRESSED, NOTHING };
+bool mouse_pressed{false};
 uint16_t last_state{NOTHING};
 
 int32_t id1, id2;
 bool found{false};
 bool attach{false};
-void mouse_grab_particles() {
+static bool is_dragging{false};
+static std::vector<std::int32_t> mouse_attached_to;
+void drag_color_or_destroy_with_mouse() {
+
+
   // Get the mouse state
-  int32_t state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
+  const auto state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
-  auto mouse_pos = athi_input_manager.mouse.pos;
+  // ...and position
+  const auto mouse_pos = athi_input_manager.mouse.pos;
 
-  Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
+  // Setup a rect and draw to screen if needed
+  const Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
   if (draw_debug && show_mouse_collision_box) {
     draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
   }
 
-  // If it's released just exit the function
+  // If the mouse left button is released, just exit the function.
   if (state == GLFW_RELEASE) {
+    is_dragging = false;
     last_state = NOTHING;
-    mouse_busy_UI = false;
-
-    // remove all circles attached
     mouse_attached_to.clear();
     return;
   }
+
   // If pressed continue on..
 
-  // If already attached
   if (last_state == ATTACHED) {
-    if (mouse_grab_multiple) {
-      int32_t width, height;
-      glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-      for (auto &id : mouse_attached_to) {
-        attraction_force(particle_manager.particles[id], mouse_pos);
+    is_dragging = true;
+  }
+
+  // Get all particles in the mouse collision box
+  const auto selected_particle_ids = get_particles_in_rect(particle_manager.particles, mouse_rect.min, mouse_rect.max);
+
+  switch (mouse_option) {
+
+    case MouseOption::Color: { 
+      for (const auto particle_id: selected_particle_ids) {
+        particle_manager.colors[particle_id] = circle_color; 
+      } 
+    } break;
+
+    case MouseOption::Drag: { 
+
+      // Add all selected particles to our list of attached particles. If not already attached
+      if (!is_dragging) {
+        for (const auto particle_id: selected_particle_ids) {
+          mouse_attached_to.emplace_back(particle_id);
+        }
+      }
+
+      // Pull the particles towards the mouse
+      for (const auto particle_id: mouse_attached_to) {
+        attraction_force(particle_manager.particles[particle_id], mouse_pos);
+
         last_state = ATTACHED;
+
+        // Debug lines from particle to mouse
         if (draw_debug && show_mouse_grab_lines) {
-
           auto ms_view_pos = to_view_space(mouse_pos);
-          auto p_view_pos = to_view_space(particle_manager.particles[id].pos);
-
+          auto p_view_pos = to_view_space(particle_manager.particles[particle_id].pos);
           draw_line(ms_view_pos, p_view_pos, 1.0f, pastel_pink);
         }
       }
-    } else // single
-    {
-      attraction_force(particle_manager.particles[mouse_attached_to_single], mouse_pos);
-      if (draw_debug && show_mouse_grab_lines) {
-        draw_line(mouse_pos, particle_manager.particles[mouse_attached_to_single].pos, 3.0f, pastel_pink);
-      }
-    }
-    // mouse_busy_UI = true;
-  }
+    } break;
+    case MouseOption::Delete: {
+      //if (!selected_particle_ids.empty()) { // DOESNT WORK
+        //particle_manager.remove_all_with_id(selected_particle_ids);
+      //}
+    } break;
 
-  // Go through all circles. Return the circle hovered
-  if (last_state != ATTACHED) {
-    for (auto &c : particle_manager.particles) {
-      // If the mouse and circle intersect
-      if (mouse_rect.contains(c.id)) {
-        if (mouse_grab_multiple) {
-          mouse_attached_to.emplace_back(c.id);
-        } else {
-          mouse_attached_to_single = c.id;
-        }
-        last_state = ATTACHED;
-      }
-    }
+    case MouseOption::None: {
+      /* Do nothing */
+    } break;
   }
 }
 
@@ -129,10 +151,15 @@ void update_inputs() {
 
   auto mouse_pos = athi_input_manager.mouse.pos;
   auto context = glfwGetCurrentContext();
-
-  if (mouse_grab) {
-    mouse_grab_particles();
+  {
+    profile p("drag_color_or_destroy_with_mouse");
+    drag_color_or_destroy_with_mouse();
   }
+
+  // Draw Mouse
+  const Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
+  draw_hollow_rect(mouse_rect.min, mouse_rect.max, circle_color);
+
 
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
     particle_manager.add(mouse_pos, 1.0f, circle_color);

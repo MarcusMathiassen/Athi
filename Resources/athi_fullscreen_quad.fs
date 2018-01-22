@@ -30,18 +30,18 @@ vec4 box_blur(sampler2D image, vec2 uv) {
   for (int x = -4; x <= 4; x++)
     for (int y = -4; y <= 4; y++)
       sum += texture(image,
-                     vec2(uv.x + x * 1.0 / 1280.0, uv.y + y * 1.0 / 1000.0)) /
+                     vec2(uv.x + x * 1.0 / 800.0, uv.y + y * 1.0 / 800.0)) /
              81.0;
   return sum;
 }
 
 void main() {
-  // vec4 hor = blur13(tex, frag.texcoord, vec2(1280, 800), vec2(50, 0));
-  // vec4 vert = blur13(tex, frag.texcoord, vec2(1280, 800), vec2(0, 50));
+  //vec4 hor = blur13(tex, frag.texcoord, vec2(1280, 800), vec2(1, 0));
+  //vec4 vert = blur13(tex, frag.texcoord, vec2(1280, 800), vec2(0, 1));
 
-  // vec4 gaussian = mix(hor, vert, 0.5);
+  //vec4 gaussian = mix(hor, vert, 0.5);
   // vec4 image = texture(tex, frag.texcoord);
   vec4 box_blur = box_blur(tex, frag.texcoord);
 
-  frag_color = box_blur * frag.color;
+  frag_color = box_blur;
 }
