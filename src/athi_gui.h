@@ -230,14 +230,17 @@ void gui_render() {
 
     ImGui::RadioButton("Color", &mouse_radio_options, 0);
     ImGui::SameLine();
-    ImGui::RadioButton("Drag", &mouse_radio_options, 1);
+    ImGui::RadioButton("Gravity Well", &mouse_radio_options, 1);
     ImGui::SameLine();
-    ImGui::RadioButton("Delete", &mouse_radio_options, 2);
+    ImGui::RadioButton("Drag", &mouse_radio_options, 2);
     ImGui::SameLine();
-    ImGui::RadioButton("None", &mouse_radio_options, 3);
+    ImGui::RadioButton("Delete", &mouse_radio_options, 3);
+    ImGui::SameLine();
+    ImGui::RadioButton("None", &mouse_radio_options, 4);
 
     switch ((MouseOption)mouse_radio_options) {
       case MouseOption::Color: { mouse_option = MouseOption::Color; } break;
+      case MouseOption::GravityWell: { mouse_option = MouseOption::GravityWell; } break;
       case MouseOption::Drag: { mouse_option = MouseOption::Drag; } break;
       case MouseOption::Delete: { mouse_option = MouseOption::Delete; } break;
       case MouseOption::None: { /* DO NOTHING */ } break;

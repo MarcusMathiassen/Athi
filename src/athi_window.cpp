@@ -11,7 +11,7 @@ void Athi_Window::init() {
     console->error("Error initializing GLFW!");
   }
 
-  glfwWindowHint(GLFW_SAMPLES, 0);
+  glfwWindowHint(GLFW_SAMPLES, 4);
   // glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);

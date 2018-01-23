@@ -10,6 +10,7 @@
 
 enum class MouseOption {
   Color,
+  GravityWell,
   Drag,
   Delete,
   None,

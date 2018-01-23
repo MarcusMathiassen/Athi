@@ -34,6 +34,28 @@ std::int32_t get_mouse_button_state(std::int32_t button) {
   return GLFW_RELEASE;
 }
 
+static void gravity_well(Particle &a, const vec2 &point) {
+  const float x1 = a.pos.x;
+  const float y1 = a.pos.y;
+  const float x2 = point.x;
+  const float y2 = point.y;
+  const float m1 = a.mass;
+  const float m2 = 1000.0f;
+
+  const float dx = x2 - x1;
+  const float dy = y2 - y1;
+  const float d = sqrt(dx * dx + dy * dy);
+
+  if (d > 0) {
+    const float angle = atan2(dy, dx);
+    const float G = gravitational_constant;
+    const float F = G * m1 * m2 / d * d;
+
+    a.vel.x += F * cos(angle);
+    a.vel.y += F * sin(angle);
+  }
+}
+
 void attraction_force(Particle &a, const vec2 &point) {
   // Set up variables
   const float x1 = a.pos.x;
@@ -100,6 +122,14 @@ void drag_color_or_destroy_with_mouse() {
       for (const auto particle_id: selected_particle_ids) {
         particle_manager.colors[particle_id] = circle_color; 
       } 
+    } break;
+
+    case MouseOption::GravityWell: {
+      // Pull the particles towards the mouse
+      for (auto& particle: particle_manager.particles) {
+        gravity_well(particle, mouse_pos);
+        last_state = ATTACHED;
+      }
     } break;
 
     case MouseOption::Drag: { 
