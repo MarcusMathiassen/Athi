@@ -278,6 +278,25 @@ struct ParticleManager {
 };
 
 // Returns a vector of ids of particles colliding with the input rectangle.
+static std::vector<std::int32_t> get_particles_in_rect_basic(const std::vector<Particle>& particles, const glm::vec2& min, const glm::vec2& max) noexcept {
+  std::vector<std::int32_t> vector_of_ids;
+
+  // @Performance: Check for available tree structure used and use that instead.
+  // Go through all the particles..
+  for (const auto& particle: particles) {
+    
+    const auto o = particle.pos;
+
+    // If the particle is inside the rectangle, add it to the output vector.
+    if (o.x < max.x && o.x > min.x && o.y < max.y && o.y > min.y) {
+      vector_of_ids.emplace_back(particle.id);
+    }
+  }
+  
+  return vector_of_ids;
+}
+
+// Returns a vector of ids of particles colliding with the input rectangle.
 static std::vector<std::int32_t> get_particles_in_rect(const std::vector<Particle>& particles, const glm::vec2& min, const glm::vec2& max) noexcept {
   std::vector<std::int32_t> vector_of_ids;
 
