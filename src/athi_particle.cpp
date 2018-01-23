@@ -457,6 +457,7 @@ void ParticleManager::update_gpu_buffers() noexcept {
         "ParticleManager::update_gpu_buffers(update buffers with new data)");
     // Update the buffers with the new data.
     for (const auto &p : particles) {
+
       // Update the transform
       transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
       models[p.id] = proj * transforms[p.id].get_model();

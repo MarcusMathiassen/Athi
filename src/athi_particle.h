@@ -5,6 +5,7 @@
 #include "athi_quadtree.h"
 #include "athi_settings.h"
 #include "athi_shader.h"
+#include "athi_camera.h"
 #include "athi_transform.h"
 #include "athi_typedefs.h"
 #include "athi_voxelgrid.h"
@@ -26,6 +27,8 @@ struct Particle {
   glm::vec2 acc{0.0f, 0.0f};
   float mass{0.0f};
   float radius{0.0f};
+
+  //Transform transform; // this is a 36 byte struct
 
   void update() noexcept {
     // Apply gravity
@@ -59,6 +62,156 @@ struct Particle {
         vel.y = -vel.y * collision_energy_loss;
       }
     }
+  }
+};
+
+
+struct ParticleSystem {
+  std::vector<std::int32_t> id;
+  std::vector<glm::vec2> position;
+  std::vector<glm::vec2> velocity;
+  std::vector<glm::vec2> acceleration;
+  std::vector<float> radius;
+  std::vector<float> mass;
+  std::vector<glm::vec4> color;
+
+  Shader particle_shader;
+
+  std::uint32_t sprite_atlas;
+
+  std::vector<Transform> transform;
+  std::vector<glm::mat4> model;
+  enum { POSITION_BUFFER, TEXCOORD_BUFFER, COLOR_BUFFER, INDICES_BUFFER, TRANSFORM_BUFFER, NUM_BUFFERS };
+  std::uint32_t vao, vbo[NUM_BUFFERS];
+
+  void init() noexcept {
+
+    particle_shader.init("ParticleSystem.init()");
+    particle_shader.load_from_file("../Resources/billboard_particle_shader.vert", ShaderType::Vertex);
+    particle_shader.load_from_file("../Resources/billboard_particle_shader.frag", ShaderType::Fragment);
+    particle_shader.bind_attrib("position");
+    particle_shader.bind_attrib("texcoord");
+    particle_shader.bind_attrib("color");
+    particle_shader.link();
+    particle_shader.add_uniform("transform");
+    particle_shader.add_uniform("res");
+    particle_shader.add_uniform("tex");
+
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(NUM_BUFFERS, vbo);
+
+    const std::uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
+
+    const GLfloat positions[] = {
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+        0.0f, 0.0f,
+    };
+
+    const GLfloat texcoords[] = {
+        0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+    };
+
+    const GLfloat colors[] = {
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f, 1.0f,
+    };
+
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[POSITION_BUFFER]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2, (void *)0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[TEXCOORD_BUFFER]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2, (void *)0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[COLOR_BUFFER]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 4, (void *)0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[INDICES_BUFFER]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+  }
+
+  void update_gpu_buffers() noexcept {
+
+  }
+
+  void update(float timestep) noexcept {
+    const auto num_particles = id.size();
+
+    // @Performance: this can be done in parallel
+    for (std::size_t i = 0; i < num_particles; ++i) {
+
+      auto& pos = position[i];
+      auto& vel = velocity[i];
+      auto& acc = acceleration[i];
+
+      vel.x += acc.x * timestep * time_scale;
+      vel.y += acc.y * timestep * time_scale;
+      pos.x += vel.x * timestep * time_scale;
+      pos.y += vel.y * timestep * time_scale;
+      acc *= 0;
+    }
+  }
+
+  void draw() noexcept {
+    glBindVertexArray(vao);
+    particle_shader.bind();
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glBindTexture(GL_TEXTURE_2D, sprite_atlas);
+
+    const auto proj = camera.get_ortho_projection();
+    mat4 trans = proj *  Transform().get_model();
+
+    particle_shader.setUniform("transform", trans);
+    particle_shader.setUniform("res", screen_width, screen_height);
+    particle_shader.setUniform("tex", 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+  }
+
+  void add_particle(const Particle& p) noexcept {
+    id.emplace_back(p.id);
+    position.emplace_back(p.pos);
+    velocity.emplace_back(p.vel);
+    acceleration.emplace_back(p.acc);
+    radius.emplace_back(p.radius);
+    mass.emplace_back(p.mass);
+  }
+
+  void reserve(std::size_t size) noexcept {
+    id.reserve(size);
+    position.reserve(size);
+    velocity.reserve(size);
+    acceleration.reserve(size);
+    radius.reserve(size);
+    mass.reserve(size);
+  }
+
+  void resize(std::size_t size) noexcept {
+    id.resize(size);
+    position.resize(size);
+    velocity.resize(size);
+    acceleration.resize(size);
+    radius.resize(size);
+    mass.resize(size);
+  }
+
+  void clear() noexcept {
+    id.clear();
+    position.clear();
+    velocity.clear();
+    acceleration.clear();
+    radius.clear();
+    mass.clear();
   }
 };
 
@@ -116,8 +269,7 @@ struct ParticleManager {
   void collision_resolve(Particle &a, Particle &b) const noexcept;
   void separate(Particle &a, Particle &b) const noexcept;
   void collision_logNxN(size_t total, size_t begin, size_t end) noexcept;
-  void collision_quadtree(const std::vector<std::vector<std::int32_t>> &cont,
-                          size_t begin, size_t end) noexcept;
+  void collision_quadtree(const std::vector<std::vector<std::int32_t>> &cont, size_t begin, size_t end) noexcept;
   void add(const glm::vec2 &pos, float radius,
            const glm::vec4 &color = glm::vec4(1, 1, 1, 1)) noexcept;
 
