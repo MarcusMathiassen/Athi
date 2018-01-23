@@ -52,15 +52,6 @@ void attraction_force(Particle &a, const vec2 &point) {
   a.vel *= 0.7f;
 }
 
-std::vector<int32_t> get_objects_in_rect(const glm::vec2& min, const glm::vec2& max)
-{
-  std::vector<int32_t> ids_of_objects_in_rect;
-
-
-
-  return ids_of_objects_in_rect;
-}
-
 int32_t mouse_attached_to_single{-1};
 enum { ATTACHED, PRESSED, NOTHING };
 bool mouse_pressed{false};

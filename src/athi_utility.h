@@ -55,6 +55,35 @@
 #define BOLD(x) "\x1B[1m" x RST
 #define UNDL(x) "\x1B[4m" x RST
 
+#ifdef _WIN32
+  static glm::vec4 getHSV(u16 h, f32 s, f32 v)
+#else
+  static constexpr glm::vec4 getHSV(u16 h, f32 s, f32 v)
+#endif
+{
+  h = (h >= 360) ? 0 : h;
+  const f32 hue { (f32)h * 0.016666f };
+
+  const u8  i   { (u8)hue };
+  const f32 f   { hue - i };
+  const f32 p   { v * (1.0f - s) };
+  const f32 q   { v * (1.0f - s*f) };
+  const f32 t   { v * (1.0f - s*( 1.0f-f )) };
+
+  f32 r{0.0f}, g{0.0f}, b{0.0f};
+
+  switch(i)
+  {
+    case 0: r = v; g = t; b = p; break;
+    case 1: r = q; g = v; b = p; break;
+    case 2: r = p; g = v; b = t; break;
+    case 3: r = p; g = q; b = v; break;
+    case 4: r = t; g = p; b = v; break;
+    case 5:
+    default: r = v; g = p; b = q; break;
+  }
+  return glm::vec4(r,g,b, 1.0f);
+}
 void read_file(const char *file, char **buffer);
 void limit_FPS(std::uint32_t desired_framerate, double time_start_frame);
 std::string get_cpu_brand();

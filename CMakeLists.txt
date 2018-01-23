@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.2)
 project(athi)
 
-set(CMAKE_BUILD_TYPE DEBUG)
-#set(CMAKE_BUILD_TYPE RELEASE)
+set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Release)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -17,6 +17,7 @@ file(GLOB SOURCES
   )
 
 message("-- CXX ${CMAKE_CXX_COMPILER}")
+message("-- Generated with build type: ${CMAKE_BUILD_TYPE}")
 
 if(WIN32)
 
@@ -44,8 +45,12 @@ elseif(APPLE)
 
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O3 -DNDEBUG -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
+  set(CMAKE_CXX_FLAGS_DEBUG "-O3 -DNDEBUG -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
+
+  message("-- Debug   flags: ${CMAKE_CXX_FLAGS_DEBUG}")
+  message("-- Release flags: ${CMAKE_CXX_FLAGS_RELEASE}")
+  message("-- Generator set to: ${CMAKE_GENERATOR}")
 
   # RESOURCE FILE LOCATION
   file(GLOB RESOURCE_FILES
@@ -91,8 +96,8 @@ else()
   # RESOURCE FILE LOCATION
   file(GLOB RESOURCE_FILES
   "./Resources/*.png"
-  "./Resources/*.vs"
-  "./Resources/*.fs"
+  "./Resources/*.vert"
+  "./Resources/*.frag"
   "./Resources/*.ttf"
   "./Resources/*.cl"
   )

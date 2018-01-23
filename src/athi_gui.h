@@ -275,10 +275,12 @@ void gui_render() {
 
   if (open_settings)
     menu_settings();
-  if (open_profiler)
-    menu_profiler();
-  if (open_debug_menu)
-    menu_debug();
+  if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
+    if (open_profiler)
+      menu_profiler();
+    if (open_debug_menu)
+      menu_debug();
+  }
 
   ImGui::Render();
 }

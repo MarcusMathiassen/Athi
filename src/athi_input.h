@@ -14,6 +14,10 @@
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
 
+
+static float hue = 0;
+static bool left_shift_pressed = false;
+
 void init_input_manager();
 glm::vec2 get_mouse_viewspace_pos();
 int32_t get_mouse_button_state(int32_t button);
@@ -45,6 +49,15 @@ struct Athi_Input_Manager {
 extern Athi_Input_Manager athi_input_manager;
 
 static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+
+  // If color wheel
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+    hue += yoffset;
+    hue = hue < 0 ? 360 : hue > 360 ? 0 : hue;
+    circle_color = getHSV(hue, 1.0, 1.0);
+    return;
+  }
+
   mouse_size -= yoffset * 0.5f;
   if (mouse_size < 0.000f)
     mouse_size = 0.5f;

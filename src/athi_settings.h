@@ -8,7 +8,6 @@
 
 #include "../dep/Universal/spdlog/spdlog.h" // Console logging
 
-
 enum class MouseOption {
   Color,
   Drag,
