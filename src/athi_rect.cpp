@@ -39,9 +39,9 @@ Athi_Rect_Manager::~Athi_Rect_Manager() {
 
 void Athi_Rect_Manager::init() {
   shader.init("Athi_Rect_Manager::init()");
-  shader.load_from_file("../Resources/default_rect_shader.vert",
+  shader.load_from_file("default_rect_shader.vert",
                         ShaderType::Vertex);
-  shader.load_from_file("../Resources/default_rect_shader.frag",
+  shader.load_from_file("default_rect_shader.frag",
                         ShaderType::Fragment);
   shader.link();
   shader.add_uniform("color");

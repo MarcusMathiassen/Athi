@@ -27,7 +27,7 @@ ParticleManager particle_manager;
 
 void ParticleManager::opencl_init() noexcept {
   // Read in the kernel source
-  read_file("../Resources/particle_collision.cl", &kernel_source);
+  read_file("../Resources/Kernels/particle_collision.cl", &kernel_source);
   if (!kernel_source) console->error("OpenCL missing kernel source");
 
   // Connect to a compute device
@@ -109,9 +109,9 @@ void ParticleManager::init() noexcept {
 
   // Shaders
   shader.init("ParticleManager::init()");
-  shader.load_from_file("../Resources/default_particle_shader.vert",
+  shader.load_from_file("default_particle_shader.vert",
                         ShaderType::Vertex);
-  shader.load_from_file("../Resources/default_particle_shader.frag",
+  shader.load_from_file("default_particle_shader.frag",
                         ShaderType::Fragment);
   shader.bind_attrib("position");
   shader.bind_attrib("color");

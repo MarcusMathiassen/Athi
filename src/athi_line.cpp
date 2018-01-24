@@ -12,9 +12,9 @@ Athi_Line_Manager::~Athi_Line_Manager() { glDeleteVertexArrays(1, &VAO); }
 void Athi_Line_Manager::init() {
 
   shader.init("Athi_Line_Manager::init()");
-  shader.load_from_file("../Resources/default_line_shader.vert", ShaderType::Vertex);
-  shader.load_from_file("../Resources/default_line_shader.geom", ShaderType::Geometry);
-  shader.load_from_file("../Resources/default_line_shader.frag", ShaderType::Fragment);
+  shader.load_from_file("default_line_shader.vert", ShaderType::Vertex);
+  shader.load_from_file("default_line_shader.geom", ShaderType::Geometry);
+  shader.load_from_file("default_line_shader.frag", ShaderType::Fragment);
   shader.link();
   shader.add_uniform("positions");
   shader.add_uniform("color");

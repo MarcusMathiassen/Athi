@@ -82,11 +82,12 @@ void Shader::init(std::string_view name) noexcept {
 
 void Shader::load_from_file(const std::string& file,
                             const ShaderType shader_type) noexcept {
-  auto shader = create_shader(file, shader_type);
+  const auto file_name = shader_folder_path+file;
+  auto shader = create_shader(file_name, shader_type);
   glAttachShader(*program, shader);
   
-  const auto timestamp = GetShaderFileTimestamp(file.c_str());
-  FileHandle file_handle{file, shader_type, timestamp};
+  const auto timestamp = GetShaderFileTimestamp(file_name.c_str());
+  FileHandle file_handle{file_name, shader_type, timestamp};
 
   shaders.emplace_back(std::tuple<FileHandle, std::uint32_t>{file_handle, shader});
 }

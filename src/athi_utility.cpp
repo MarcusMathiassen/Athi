@@ -82,8 +82,8 @@ void setup_fullscreen_quad() {
   enum { POSITION_ATTR_LOC, TEXTCOORD_ATTR_LOC, COLOR_ATTR_LOC };
 
   fullscreen_shader.init("Fullscreen shader");
-  fullscreen_shader.load_from_file("../Resources/athi_fullscreen_quad.vs", ShaderType::Vertex);
-  fullscreen_shader.load_from_file("../Resources/athi_fullscreen_quad.fs", ShaderType::Fragment);
+  fullscreen_shader.load_from_file("athi_fullscreen_quad.vs", ShaderType::Vertex);
+  fullscreen_shader.load_from_file("athi_fullscreen_quad.fs", ShaderType::Fragment);
   fullscreen_shader.bind_attrib("position");
   fullscreen_shader.bind_attrib("texcoord");
   fullscreen_shader.bind_attrib("color");

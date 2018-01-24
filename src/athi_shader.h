@@ -37,6 +37,8 @@ class Shader {
   std::uint32_t create_shader(const std::string &file,
                               const ShaderType shader_type) const noexcept;
 
+  static constexpr const char* shader_folder_path{"../Resources/Shaders/"};
+
  public:
   Shader() noexcept = default;
   ~Shader() noexcept;

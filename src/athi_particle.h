@@ -82,8 +82,8 @@ struct ParticleSystem {
   void init() noexcept {
 
     particle_shader.init("ParticleSystem.init()");
-    particle_shader.load_from_file("../Resources/billboard_particle_shader.vert", ShaderType::Vertex);
-    particle_shader.load_from_file("../Resources/billboard_particle_shader.frag", ShaderType::Fragment);
+    particle_shader.load_from_file("billboard_particle_shader.vert", ShaderType::Vertex);
+    particle_shader.load_from_file("billboard_particle_shader.frag", ShaderType::Fragment);
     particle_shader.bind_attrib("position");
     particle_shader.bind_attrib("texcoord");
     particle_shader.bind_attrib("color");

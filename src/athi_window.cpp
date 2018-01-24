@@ -25,7 +25,6 @@ void Athi_Window::init() {
   std::int32_t count;
   auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
   monitor_refreshrate = modes->refreshRate;
-  framerate_limit = monitor_refreshrate;
 
   auto monitor_name = glfwGetMonitorName(glfwGetPrimaryMonitor());
 
@@ -72,6 +71,7 @@ void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t wid
   glViewport(0.0f, 0.0f, width, height);
 
 
+  // @Hack: this doesnt look right
   for (auto& framebuffer: framebuffers) {
     framebuffer.resize(width, height);
   }
@@ -87,8 +87,4 @@ void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t wid
   px_scale = static_cast<float>(width) / static_cast<float>(w);
 
   console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
-
-  ImGuiIO &io = ImGui::GetIO();
-  io.FontGlobalScale = 1.0f / px_scale;
-  //
 }
