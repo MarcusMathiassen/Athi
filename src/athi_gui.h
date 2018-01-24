@@ -253,6 +253,11 @@ void gui_render() {
     ImGui::PopStyleColor();
     ImGui::SameLine();
 
+    ImGui::PushStyleColor(ImGuiCol_Text, (physics_framerate >= monitor_refreshrate) ? green : red);
+    ImGui::Text("Physics FPS %d", physics_framerate);
+    ImGui::PopStyleColor();
+    ImGui::SameLine();
+
     const auto yellow = ImVec4(0.1f, 8.0f, 0.8f, 1.0f);
     ImGui::PushStyleColor(ImGuiCol_Text, yellow);
     ImGui::Text("particles: %lu", particle_manager.particles.size());

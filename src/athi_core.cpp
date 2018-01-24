@@ -154,11 +154,10 @@ void Athi_Core::update() {
   particle_manager.update_gpu_buffers();
 
   // Update timers
-  physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0 / 60.0;
-  physics_framerate =
-      static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
+  physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
+  physics_framerate = static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
-  timestep = smoothed_physics_frametime / physics_samples;
+  //timestep = (physics_frametime / (1000/60));
 }
 
 void Athi_Core::update_settings() { glfwSwapInterval(vsync); }

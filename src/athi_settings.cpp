@@ -33,7 +33,7 @@ float gravitational_constant{6.674e-6};
 
 float collision_energy_loss{0.99f};
 bool circle_collision{true};
-bool border_collision{false};
+bool border_collision{true};
 
 std::int32_t physics_samples{8};
 

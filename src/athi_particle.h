@@ -24,24 +24,20 @@ struct Particle {
   int id{0};
   glm::vec2 pos{0.0f, 0.0f};
   glm::vec2 vel{0.0f, 0.0f};
-  glm::vec2 acc{0.0f, 0.0f};
   float mass{0.0f};
   float radius{0.0f};
 
   //Transform transform; // this is a 36 byte struct
 
-  void update() noexcept {
+  void update(float dt) noexcept {
     // Apply gravity
     if (physics_gravity) {
-      vel.y -= gravity_force * timestep;
+      vel.y -= gravity_force * dt * time_scale;
     }
 
     // Update pos/vel/acc
-    vel.x += acc.x * timestep * time_scale;
-    vel.y += acc.y * timestep * time_scale;
-    pos.x += vel.x * timestep * time_scale;
-    pos.y += vel.y * timestep * time_scale;
-    acc *= 0;
+    pos.x += vel.x * dt * time_scale;
+    pos.y += vel.y * dt * time_scale;
 
     if (border_collision) {
       // Border collision
@@ -70,7 +66,6 @@ struct ParticleSystem {
   std::vector<std::int32_t> id;
   std::vector<glm::vec2> position;
   std::vector<glm::vec2> velocity;
-  std::vector<glm::vec2> acceleration;
   std::vector<float> radius;
   std::vector<float> mass;
   std::vector<glm::vec4> color;
@@ -153,13 +148,9 @@ struct ParticleSystem {
 
       auto& pos = position[i];
       auto& vel = velocity[i];
-      auto& acc = acceleration[i];
 
-      vel.x += acc.x * timestep * time_scale;
-      vel.y += acc.y * timestep * time_scale;
       pos.x += vel.x * timestep * time_scale;
       pos.y += vel.y * timestep * time_scale;
-      acc *= 0;
     }
   }
 
@@ -182,7 +173,6 @@ struct ParticleSystem {
     id.emplace_back(p.id);
     position.emplace_back(p.pos);
     velocity.emplace_back(p.vel);
-    acceleration.emplace_back(p.acc);
     radius.emplace_back(p.radius);
     mass.emplace_back(p.mass);
   }
@@ -191,7 +181,6 @@ struct ParticleSystem {
     id.reserve(size);
     position.reserve(size);
     velocity.reserve(size);
-    acceleration.reserve(size);
     radius.reserve(size);
     mass.reserve(size);
   }
@@ -200,7 +189,6 @@ struct ParticleSystem {
     id.resize(size);
     position.resize(size);
     velocity.resize(size);
-    acceleration.resize(size);
     radius.resize(size);
     mass.resize(size);
   }
@@ -209,7 +197,6 @@ struct ParticleSystem {
     id.clear();
     position.clear();
     velocity.clear();
-    acceleration.clear();
     radius.clear();
     mass.clear();
   }

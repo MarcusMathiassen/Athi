@@ -415,6 +415,9 @@ void ParticleManager::update() noexcept {
   // @TODO: This whole if statement and following logic statements. BE GONE.
   {
     profile p("update_collisions() + particles.update()");
+
+
+    float this_sample_timestep = 0;
     for (int i = 0; i < physics_samples; ++i) {
       const auto start = glfwGetTime();
       if (circle_collision) {
@@ -424,12 +427,17 @@ void ParticleManager::update() noexcept {
       {
         profile p("ParticleManager::update(particles::update)");
         for (auto &p : particles) {
-          p.update();
+          p.update(this_sample_timestep);
         }
       }
-      timestep = (((glfwGetTime() - start) * 1000.0) / (1000.0 / 60.0)) /
-                 physics_samples;
+
+      const auto ms_spent_this_sample = (glfwGetTime() - start) * 1000.0;
+      const auto desired_frametime = (1000.0 / 60.0);
+      // ms used / 16.6667ms per frame / samples
+      this_sample_timestep += (ms_spent_this_sample / desired_frametime);
     }
+
+    timestep = this_sample_timestep;
   }
 
   if (use_gravitational_force) {
