@@ -17,11 +17,9 @@
 #include "../dep/Universal/imgui_impl_glfw_gl3.h"
 #include "../dep/Universal/spdlog/spdlog.h"
 
-Smooth_Average<double, 30> smooth_frametime_avg(&smoothed_frametime);
-Smooth_Average<double, 30> smooth_physics_rametime_avg(
-    &smoothed_physics_frametime);
-Smooth_Average<double, 30> smooth_render_rametime_avg(
-    &smoothed_render_frametime);
+Smooth_Average<double, 100> smooth_frametime_avg(&smoothed_frametime);
+Smooth_Average<double, 100> smooth_physics_rametime_avg(&smoothed_physics_frametime);
+Smooth_Average<double, 100> smooth_render_rametime_avg(&smoothed_render_frametime);
 
 void Athi_Core::init() {
   spdlog::set_pattern("[%H:%M:%S] %v");
@@ -55,7 +53,6 @@ void Athi_Core::init() {
   console->info("Using GLEW {}", glewGetString(GLEW_VERSION));
   console->info("Using GLFW {}", glfwGetVersionString());
 
-  //particle_system.init();
   particle_manager.init();
 
   init_input_manager();
@@ -113,17 +110,30 @@ void Athi_Core::draw(GLFWwindow *window) {
 
   if (post_processing) {
     framebuffers[0].clear();
+    framebuffers[0].clear();
+    
+    draw_fullscreen_quad(framebuffers[0].texture, glm::vec2(0,0));
+
+    // First draw the particles to the framebuffer.
     framebuffers[0].bind();
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
     particle_manager.draw();
+
+    // .. Then blur the current framebuffer
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+    for (int i = 0; i < post_processing_samples; i++) {
+      draw_fullscreen_quad(framebuffers[0].texture, glm::vec2(0,1*blur_strength)); // first pass
+      draw_fullscreen_quad(framebuffers[0].texture, glm::vec2(1*blur_strength,0)); // first pass
+    }
   }
 
   if (post_processing) {
     framebuffers[0].unbind();
-    draw_fullscreen_quad(framebuffers[0].texture);
+    draw_fullscreen_quad(framebuffers[0].texture, glm::vec2(0,0));  
   }
 
   particle_manager.draw();
-  //particle_system.draw();
 
   draw_rects();
   draw_lines();
@@ -144,8 +154,6 @@ void Athi_Core::update() {
 
   const double time_start_frame = glfwGetTime();
 
-  //particle_system.update(timestep);
-
   if (!particle_manager.particles.empty()) {
     particle_manager.update();
   }
@@ -154,7 +162,6 @@ void Athi_Core::update() {
   particle_manager.draw_debug_nodes();
 
   // Update GPU buffers
-  //particle_system.update_gpu_buffers();
   particle_manager.update_gpu_buffers();
 
   // Update timers

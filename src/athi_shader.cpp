@@ -49,7 +49,8 @@ void Shader::reload() noexcept {
 
   bool need_to_reload = false;
 
-  // For every shader that needs reloading
+    
+  // Check if any shaders need reloading
   for (auto & [file_handle, shader]: shaders) {
       const auto timestamp = GetShaderFileTimestamp(file_handle.file.c_str());
       if (timestamp > file_handle.timestamp) {
@@ -58,6 +59,8 @@ void Shader::reload() noexcept {
       }
   }
 
+  // @Performance: You should only need to reload the changed shader.
+  // .. If so, reload the shader, and for now, all its friends.
   if (need_to_reload) {
     glDeleteProgram(*program);
     *program = glCreateProgram();
@@ -67,6 +70,7 @@ void Shader::reload() noexcept {
       glAttachShader(*program, shader);
     }
 
+    // We have to rebind the attrib locations in case they are out of sync.
     for (auto & [ name, integer ] : attribs) {
       glBindAttribLocation(*program, integer, name.c_str());
     }

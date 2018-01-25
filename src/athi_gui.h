@@ -111,8 +111,6 @@ static void menu_settings() {
 
   ImGui::Begin("Settings", NULL, ImGuiWindowFlags_AlwaysAutoResize);
   ImGui::InputInt("Physics samples", &physics_samples);
-  if (physics_samples < 1)
-    physics_samples = 1;
 
   ImGui::Checkbox("VSync", &vsync);
   ImGui::SameLine();
@@ -134,6 +132,20 @@ static void menu_settings() {
   ImGui::Checkbox("draw nodes ", &draw_nodes);
   ImGui::SameLine();
   ImGui::Checkbox("color particles based on node", &color_particles);
+
+  if (ImGui::CollapsingHeader("Post-processing")) {
+    ImGui::Checkbox("Post-processing on", &post_processing);
+    ImGui::InputInt("Post-processing samples", &post_processing_samples);
+    ImGui::InputInt("Blur strength", &blur_strength);
+    if (physics_samples < 1)
+      physics_samples = 1;
+
+    if (post_processing_samples < 1)
+      post_processing_samples = 1;
+
+    if (blur_strength < 1)
+      blur_strength = 1;
+  }
 
   // Multithreading options
   if (ImGui::CollapsingHeader("multithreading options")) {

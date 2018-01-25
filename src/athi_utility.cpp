@@ -91,6 +91,7 @@ void setup_fullscreen_quad() {
   fullscreen_shader.add_uniform("transform");
   fullscreen_shader.add_uniform("res");
   fullscreen_shader.add_uniform("tex");
+  fullscreen_shader.add_uniform("dir");
 
 
   glGenVertexArrays(1, &VAO);
@@ -147,7 +148,7 @@ void setup_fullscreen_quad() {
                GL_STATIC_DRAW);
 }
 
-void draw_fullscreen_quad(std::uint32_t texture) {
+void draw_fullscreen_quad(std::uint32_t texture, const glm::vec2& dir) {
 
   glBindVertexArray(VAO);
   fullscreen_shader.bind();
@@ -160,6 +161,7 @@ void draw_fullscreen_quad(std::uint32_t texture) {
   fullscreen_shader.setUniform("transform", trans);
   fullscreen_shader.setUniform("res", screen_width, screen_height);
   fullscreen_shader.setUniform("tex", 0);
+  fullscreen_shader.setUniform("dir", dir);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 }
 

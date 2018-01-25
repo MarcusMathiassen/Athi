@@ -2,6 +2,9 @@
 
 out vec4 frag_color;
 
+uniform vec2 dir;
+uniform vec2 res;
+
 in Vertex {
   vec4 color;
   vec2 texcoord;
@@ -25,23 +28,7 @@ vec4 blur13(sampler2D image, vec2 uv, vec2 resolution, vec2 direction) {
   return color;
 }
 
-vec4 box_blur(sampler2D image, vec2 uv) {
-  vec4 sum = vec4(0.0);
-  for (int x = -4; x <= 4; x++)
-    for (int y = -4; y <= 4; y++)
-      sum += texture(image,
-                     vec2(uv.x + x * 1.0 / 1280.0, uv.y + y * 1.0 / 1280.0)) /
-             81.0;
-  return sum;
-}
-
-void main() {
-  vec4 hor = blur13(tex, frag.texcoord, vec2(1280, 800), vec2(1, 0));
-  vec4 vert = blur13(tex, frag.texcoord, vec2(1280, 800), vec2(0, 1));
-
-  vec4 gaussian = mix(hor, vert, 0.5);
-  // vec4 image = texture(tex, frag.texcoord);
-  //vec4 box_blur = box_blur(tex, frag.texcoord);
-
-  frag_color = gaussian;
+void main()
+{
+  frag_color = blur13(tex, frag.texcoord, vec2(res.x, res.y), dir);
 }

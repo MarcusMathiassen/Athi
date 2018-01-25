@@ -3,19 +3,19 @@
 #include "athi_typedefs.h"
 
 
-MouseOption mouse_option{MouseOption::None};
+MouseOption mouse_option{MouseOption::Drag};
 TreeType tree_type{TreeType::Quadtree};
 ThreadPoolSolution threadpool_solution{ThreadPoolSolution::Dispatch};
 
 std::shared_ptr<spdlog::logger> console;
 
 std::vector<FrameBuffer> framebuffers;
-bool post_processing{true};
 double frame_budget{1000.0 / 60.0};
 
-int mouse_radio_options = static_cast<int>(MouseOption::None);
+int mouse_radio_options = static_cast<int>(MouseOption::Drag);
 int tree_radio_option = 0;
 
+bool post_processing{true};
 float mouse_size{10.0f};
 bool mouse_busy_UI{false};
 bool show_mouse_grab_lines{false};
@@ -36,6 +36,8 @@ bool circle_collision{true};
 bool border_collision{true};
 
 std::int32_t physics_samples{8};
+s32 post_processing_samples{2};
+s32 blur_strength{4};
 
 float circle_size{5.0f};
 glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};

@@ -82,6 +82,8 @@ extern bool circle_collision;
 extern bool border_collision;
 
 extern s32 physics_samples;
+extern s32 post_processing_samples;
+extern s32 blur_strength;
 
 extern f32 circle_size;
 extern glm::vec4 circle_color;

@@ -12,10 +12,11 @@ void Athi_Window::init() {
   }
 
   glfwWindowHint(GLFW_SAMPLES, 4);
-  // glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+  //glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE); // not functional yet, add a background color pass
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
 
 #if __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -24,6 +25,11 @@ void Athi_Window::init() {
   // Gather monitor info
   std::int32_t count;
   auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
+  glfwWindowHint(GLFW_RED_BITS, modes->redBits);
+  glfwWindowHint(GLFW_GREEN_BITS, modes->greenBits);
+  glfwWindowHint(GLFW_BLUE_BITS, modes->blueBits);
+  glfwWindowHint(GLFW_REFRESH_RATE, modes->refreshRate);
+
   monitor_refreshrate = modes->refreshRate;
 
   auto monitor_name = glfwGetMonitorName(glfwGetPrimaryMonitor());
@@ -37,12 +43,11 @@ void Athi_Window::init() {
   glfwSetWindowSizeCallback(context, window_size_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
 
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_BLEND);
-
-  glDisable(GL_DEPTH_BUFFER);
-
-  glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+  // GLEW setup / experimental because of glew bugs
+  glewExperimental = true;
+  if (glewInit() != GLEW_OK) {
+    console->error("Error initializing GLEW!");
+  }
 
   std::int32_t width, height;
   glfwGetFramebufferSize(context, &width, &height);
@@ -52,11 +57,12 @@ void Athi_Window::init() {
   camera.update_projection(width, height);
   camera.update();
 
-  // GLEW setup / experimental because of glew bugs
-  glewExperimental = true;
-  if (glewInit() != GLEW_OK) {
-    console->error("Error initializing GLEW!");
-  }
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+
+  glDisable(GL_DEPTH_BUFFER);
+
+  glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
 
 GLFWwindow *Athi_Window::get_window_context() { return context; }

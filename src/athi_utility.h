@@ -34,6 +34,19 @@
 #include "athi_settings.h"
 #include "athi_typedefs.h"
 
+#include <cstdlib> // rand
+
+#include <glm/vec2.hpp>
+
+static float rand_f32(float min, float max) noexcept
+{
+    return ((float(rand()) / float(RAND_MAX)) * (max - min)) + min;
+}
+
+static glm::vec2 rand_vec2(float min, float max) noexcept {
+  return glm::vec2(rand_f32(min, max), rand_f32(min, max));
+}
+
 /* FOREGROUND */
 #define RST  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -99,7 +112,7 @@ static glm::vec2 to_view_space(glm::vec2 v) {
 }
 
 void setup_fullscreen_quad();
-void draw_fullscreen_quad(std::uint32_t texture);
+void draw_fullscreen_quad(std::uint32_t texture, const glm::vec2& dir);
 
 extern std::unordered_map<std::string, double> time_taken_by;
 

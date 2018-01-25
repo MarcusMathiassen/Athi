@@ -497,14 +497,14 @@ void ParticleManager::draw() noexcept {
   profile p("ParticleManager::draw");
   glBindVertexArray(vao);
   shader.bind();
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts,
-                        static_cast<std::int32_t>(particles.size()));
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts, static_cast<std::int32_t>(particles.size()));
 }
 
 void ParticleManager::add(const glm::vec2 &pos, float radius,
                           const glm::vec4 &color) noexcept {
   Particle p;
   p.pos = pos;
+  p.vel = rand_vec2(-1.0f,1.0f);
   p.radius = radius;
   p.mass = 1.33333f * PI * radius * radius * radius;
   p.id = static_cast<std::int32_t>(particles.size());
