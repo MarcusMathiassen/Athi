@@ -42,6 +42,8 @@ void Athi_Window::init() {
 
   glDisable(GL_DEPTH_BUFFER);
 
+  glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+
   std::int32_t width, height;
   glfwGetFramebufferSize(context, &width, &height);
   glViewport(0, 0, width, height);

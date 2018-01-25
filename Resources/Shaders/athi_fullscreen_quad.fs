@@ -30,7 +30,7 @@ vec4 box_blur(sampler2D image, vec2 uv) {
   for (int x = -4; x <= 4; x++)
     for (int y = -4; y <= 4; y++)
       sum += texture(image,
-                     vec2(uv.x + x * 1.0 / 1201230.0, uv.y + y * 1.0 / 800.0)) /
+                     vec2(uv.x + x * 1.0 / 1280.0, uv.y + y * 1.0 / 1280.0)) /
              81.0;
   return sum;
 }

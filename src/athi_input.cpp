@@ -40,7 +40,7 @@ static void gravity_well(Particle &a, const vec2 &point) {
   const float x2 = point.x;
   const float y2 = point.y;
   const float m1 = a.mass;
-  const float m2 = 1000.0f;
+  const float m2 = 10000.0f;
 
   const float dx = x2 - x1;
   const float dy = y2 - y1;
@@ -245,4 +245,22 @@ void update_inputs() {
     particle_manager.add(mouse_pos, circle_size, circle_color);
     particle_manager.add(mouse_pos, circle_size, circle_color);
   }
+
+  // if (glfwGetKey(context, GLFW_KEY_8) == GLFW_PRESS) {
+  //   Particle p;
+  //   p.pos = get_mouse_viewspace_pos();
+  //   p.radius = 0.001f; 
+  //   p.mass = 1.0f; 
+  //   particle_system.add_particle(p, circle_color);
+  //   particle_system.add_particle(p, circle_color);
+  //   particle_system.add_particle(p, circle_color);
+  //   particle_system.add_particle(p, circle_color);
+  //   particle_system.add_particle(p, circle_color);
+  //   particle_system.add_particle(p, circle_color);
+  //   particle_system.add_particle(p, circle_color);
+  //   particle_system.add_particle(p, circle_color);
+  //   particle_system.add_particle(p, circle_color);
+  //   particle_system.add_particle(p, circle_color);
+  //   console->info("particles: {}", particle_system.id.size());
+  // }
 }

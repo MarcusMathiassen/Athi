@@ -28,8 +28,8 @@ void Athi_Core::init() {
   console = spdlog::stdout_color_mt("Athi");
   if constexpr (ONLY_RUNS_IN_DEBUG_MODE) console->critical("DEBUG MODE: ON");
 
-  window.scene.width = 640;
-  window.scene.height = 480;
+  window.scene.width = 512;
+  window.scene.height = 512;
   window.init();
 
   // Apple specific settings
@@ -42,7 +42,7 @@ void Athi_Core::init() {
   glfwGetFramebufferSize(window.get_window_context(), &width, &height);
   px_scale = static_cast<float>(width) / static_cast<float>(window.scene.width);
 
-  gui_init(window.get_window_context(), px_scale);
+  gui_init(window.get_window_context(), px_scale); 
   variable_thread_count = std::thread::hardware_concurrency();
 
   // Debug information
@@ -55,6 +55,7 @@ void Athi_Core::init() {
   console->info("Using GLEW {}", glewGetString(GLEW_VERSION));
   console->info("Using GLFW {}", glfwGetVersionString());
 
+  //particle_system.init();
   particle_manager.init();
 
   init_input_manager();
@@ -122,6 +123,7 @@ void Athi_Core::draw(GLFWwindow *window) {
   }
 
   particle_manager.draw();
+  //particle_system.draw();
 
   draw_rects();
   draw_lines();
@@ -134,14 +136,15 @@ void Athi_Core::draw(GLFWwindow *window) {
   }
 
   render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  render_framerate =
-      static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
+  render_framerate = static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
   smooth_render_rametime_avg.add_new_frametime(render_frametime);
 }
 
 void Athi_Core::update() {
 
   const double time_start_frame = glfwGetTime();
+
+  //particle_system.update(timestep);
 
   if (!particle_manager.particles.empty()) {
     particle_manager.update();
@@ -151,6 +154,7 @@ void Athi_Core::update() {
   particle_manager.draw_debug_nodes();
 
   // Update GPU buffers
+  //particle_system.update_gpu_buffers();
   particle_manager.update_gpu_buffers();
 
   // Update timers

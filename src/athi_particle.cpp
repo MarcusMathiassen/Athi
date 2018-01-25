@@ -23,6 +23,7 @@
 #include <dispatch/dispatch.h>
 #endif
 
+//ParticleSystem particle_system;
 ParticleManager particle_manager;
 
 void ParticleManager::opencl_init() noexcept {
@@ -121,6 +122,8 @@ void ParticleManager::init() noexcept {
   // Setup the circle vertices
   std::vector<glm::vec2> positions;
   positions.reserve(num_verts);
+  const float x_change = 1.0f;
+  const float y_change = 0.8f;
   for (auto i = 0; i < num_verts; ++i) {
     positions.emplace_back(cosf(i * PI * 2.0f / num_verts),
                            sinf(i * PI * 2.0f / num_verts));
@@ -155,15 +158,6 @@ void ParticleManager::init() noexcept {
     glVertexAttribDivisor(2 + i, 1);
   }
 }
-
-inline static auto get_begin_and_end(int i, int total, int threads) noexcept {
-  const int parts = total / threads;
-  const int leftovers = total % threads;
-  const int begin = parts * i;
-  int end = parts * (i + 1);
-  if (i == threads - 1) end += leftovers;
-  return std::tuple<std::size_t, std::size_t>{begin, end};
-};
 
 void ParticleManager::opencl_naive() noexcept {
   const auto count = static_cast<std::uint32_t>(particles.size());
@@ -458,13 +452,14 @@ void ParticleManager::update_gpu_buffers() noexcept {
     transforms.resize(particles_size);
   }
 
-  const auto proj = camera.get_ortho_projection();
   {
     // THIS IS THE SLOWEST THING EVER.
-    profile p(
-        "ParticleManager::update_gpu_buffers(update buffers with new data)");
+    profile p("ParticleManager::update_gpu_buffers(update buffers with new data)");
+
+    const auto proj = camera.get_ortho_projection();
+
     // Update the buffers with the new data.
-    for (const auto &p : particles) {
+    for (const auto& p: particles) {
 
       // Update the transform
       transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};

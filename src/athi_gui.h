@@ -125,7 +125,7 @@ static void menu_settings() {
 
   ImGui::Checkbox("gravitational force", &use_gravitational_force);
   ImGui::SameLine();
-  ImGui::SliderFloat("", &gravitational_constant,  6.674e-6f, 6.674e-1f);
+  ImGui::SliderFloat("", &gravitational_constant,  100, 10000);
 
   ImGui::Checkbox("gravity", &physics_gravity);
   ImGui::SameLine();

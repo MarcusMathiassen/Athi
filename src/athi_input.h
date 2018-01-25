@@ -220,6 +220,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
   // ERASE ALL CIRCLES
   if (key == GLFW_KEY_E && action == GLFW_PRESS) {
     particle_manager.erase_all();
+    //particle_system.clear();
   }
 
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
