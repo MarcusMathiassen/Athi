@@ -30,22 +30,70 @@ inline static auto get_begin_and_end(int i, int total, int threads) noexcept {
   return std::tuple<std::size_t, std::size_t>{begin, end};
 };
 
+static HSV LerpHSV (HSV a, HSV b, float t)
+{
+ // Hue interpolation
+ float h;
+ float d = b.h - a.h;
+ if (a.h > b.h)
+ {
+ // Swap (a.h, b.h)
+ float h3 = b.h;
+ b.h = a.h;
+ a.h = h3;
+ 
+ d = -d;
+ t = 1 - t;
+ }
+ 
+ if (d > 0.5) // 180deg
+ {
+ a.h = a.h + 1; // 360deg
+ h = ( a.h + t * (b.h - a.h) ); // 360deg
+ }
+ if (d <= 0.5) // 180deg
+ {
+ h = a.h + t * d;
+ }
+ 
+ // Interpolates the rest
+ return HSV
+ (
+ h, // H
+ a.s + t * (b.s-a.s), // S
+ a.v + t * (b.v-a.v), // V
+ a.a + t * (b.a-a.a) // A
+ );
+}
+
+static glm::vec4 color_by_acceleration(const glm::vec4& min_color, const glm::vec4& max_color, const glm::vec2& acc) noexcept {
+
+  // Get the HSV equivalent
+  const float mg = sqrt(acc.x * acc.x + acc.y * acc.y);
+
+  const auto c1 = rgb_to_hsv(min_color);
+  const auto c2 = rgb_to_hsv(max_color);
+
+  const auto c3 = LerpHSV(c1,c2,mg);
+  return getHSV(c3.h, c3.s, c3.v, c3.a);
+}
+
 struct Particle {
   int id{0};
   glm::vec2 pos{0.0f, 0.0f};
   glm::vec2 vel{0.0f, 0.0f};
+  glm::vec2 acc{0.0f, 0.0f};
   float mass{0.0f};
   float radius{0.0f};
 
   void update(float dt) noexcept {
-    // Apply gravity
-    if (physics_gravity) {
-      vel.y -= gravity_force * dt * time_scale;
-    }
 
     // Update pos/vel/acc
+    vel.x += acc.x * dt * time_scale * air_drag;
+    vel.y += acc.y * dt * time_scale * air_drag;
     pos.x += vel.x * dt * time_scale;
     pos.y += vel.y * dt * time_scale;
+    acc *= 0;
 
     if (border_collision) {
       // Border collision

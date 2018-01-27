@@ -410,7 +410,6 @@ void ParticleManager::update() noexcept {
   {
     profile p("update_collisions() + particles.update()");
 
-
     float this_sample_timestep = 0;
     for (int i = 0; i < physics_samples; ++i) {
       const auto start = glfwGetTime();
@@ -421,6 +420,11 @@ void ParticleManager::update() noexcept {
       {
         profile p("ParticleManager::update(particles::update)");
         for (auto &p : particles) {
+
+          // Apply gravity
+          if (physics_gravity) {
+            p.acc.y -= gravity_force * this_sample_timestep * time_scale;
+          }
           p.update(this_sample_timestep);
         }
       }
@@ -460,6 +464,15 @@ void ParticleManager::update_gpu_buffers() noexcept {
 
     // Update the buffers with the new data.
     for (const auto& p: particles) {
+
+      const auto old = p.pos - p.vel ;
+      const auto pos_diff = p.pos - old;
+      auto acc = glm::vec2();
+      acc.x = pos_diff.x;
+      acc.y = pos_diff.y;
+
+
+      colors[p.id] = color_by_acceleration(pastel_red, pastel_pink, acc);
 
       // Update the transform
       transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
@@ -671,8 +684,8 @@ static void gravitational_force(Particle &a, const Particle &b) {
     const float G = gravitational_constant;
     const float F = G * m1 * m2 / d * d;
 
-    a.vel.x += F * cos(angle);
-    a.vel.y += F * sin(angle);
+    a.acc.x += F * cos(angle);
+    a.acc.y += F * sin(angle);
   }
 }
 

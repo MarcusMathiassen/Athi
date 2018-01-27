@@ -54,7 +54,7 @@ static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) 
   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
     hue += yoffset;
     hue = hue < 0 ? 360 : hue > 360 ? 0 : hue;
-    circle_color = getHSV(hue, 1.0, 1.0);
+    circle_color = getHSV(hue, 1.0, 1.0, 1.0);
     return;
   }
 

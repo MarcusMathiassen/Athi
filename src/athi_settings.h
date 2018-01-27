@@ -76,7 +76,7 @@ extern bool physics_gravity;
 extern bool use_gravitational_force;
 extern f32 gravity_force;
 extern f32 gravitational_constant;
-
+extern f32 air_drag;
 extern float collision_energy_loss;
 extern bool circle_collision;
 extern bool border_collision;
