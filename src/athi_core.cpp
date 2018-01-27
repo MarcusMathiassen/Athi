@@ -17,9 +17,9 @@
 #include "../dep/Universal/imgui_impl_glfw_gl3.h"
 #include "../dep/Universal/spdlog/spdlog.h"
 
-Smooth_Average<double, 100> smooth_frametime_avg(&smoothed_frametime);
-Smooth_Average<double, 100> smooth_physics_rametime_avg(&smoothed_physics_frametime);
-Smooth_Average<double, 100> smooth_render_rametime_avg(&smoothed_render_frametime);
+Smooth_Average<double, 30> smooth_frametime_avg(&smoothed_frametime);
+Smooth_Average<double, 30> smooth_physics_rametime_avg(&smoothed_physics_frametime);
+Smooth_Average<double, 30> smooth_render_rametime_avg(&smoothed_render_frametime);
 
 void Athi_Core::init() {
   spdlog::set_pattern("[%H:%M:%S] %v");

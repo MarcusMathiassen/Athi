@@ -160,14 +160,14 @@ void ParticleManager::init() noexcept {
 }
 
 void ParticleManager::opencl_naive() noexcept {
-  const auto count = static_cast<std::uint32_t>(particles.size());
+  const auto count = particle_count;
 
   // Create the input and output arrays in device memory
   // for our calculation
   //
-  input = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * count,
+  input = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * particle_count,
                          NULL, NULL);
-  output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Particle) * count,
+  output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Particle) * particle_count,
                           NULL, NULL);
   if (!input || !output) {
     console->error("Failed to allocate device memory!");
@@ -177,7 +177,7 @@ void ParticleManager::opencl_naive() noexcept {
   // Write our data set s32o the input array in device
   // memory
   err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0,
-                             sizeof(Particle) * count, &particles[0], 0, NULL,
+                             sizeof(Particle) * particle_count, &particles[0], 0, NULL,
                              NULL);
 
   if (err != CL_SUCCESS) console->error("Failed to write to source array!");
@@ -186,7 +186,7 @@ void ParticleManager::opencl_naive() noexcept {
   err = 0;
   err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
   err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
-  err |= clSetKernelArg(kernel, 2, sizeof(std::uint32_t), &count);
+  err |= clSetKernelArg(kernel, 2, sizeof(std::uint32_t), &particle_count);
   // err |= clSetKernelArg(kernel, 3, sizeof(cl_mem) * local, NULL);
   if (err != CL_SUCCESS) {
     console->error("[line {}] Failed to set kernel arguments! {}", __LINE__,
@@ -204,9 +204,9 @@ void ParticleManager::opencl_naive() noexcept {
     exit(1);
   }
 
-  const auto leftovers = count % local;
-  global_dim = count - leftovers;  // 1D
-  // console->info("OpenCL count: {}", count);
+  const auto leftovers = particle_count % local;
+  global_dim = particle_count - leftovers;  // 1D
+  // console->info("OpenCL particle_count: {}", particle_count);
   // console->info("OpenCL local: {}", local);
   // console->info("OpenCL global_dim: {}", global_dim);
   // console->info("OpenCL leftovers run on CPU: {}", leftovers);
@@ -227,7 +227,7 @@ void ParticleManager::opencl_naive() noexcept {
   // Read back the results from the device to verify the
   // output
   err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0,
-                            sizeof(Particle) * count, &particles[0], 0, NULL,
+                            sizeof(Particle) * particle_count, &particles[0], 0, NULL,
                             NULL);
   if (err != CL_SUCCESS) {
     console->error("Failed to read output array! {}", err);
@@ -242,7 +242,7 @@ void ParticleManager::opencl_naive() noexcept {
                    ^(size_t i) {
                      const auto[begin, end] =
                          get_begin_and_end(i, total, variable_thread_count);
-                     collision_logNxN(total, count - leftovers + begin, end);
+                     collision_logNxN(total, particle_count - leftovers + begin, end);
                    });
   }
 }
@@ -304,7 +304,7 @@ void ParticleManager::update_collisions() noexcept {
 
   profile p("ParticleManager::update(circle_collision");
 
-  const std::size_t total = particles.size();
+  const std::size_t total = particle_count;
   const std::size_t container_total = tree_container.size();
 
   switch (threadpool_solution) {
@@ -448,12 +448,10 @@ void ParticleManager::update_gpu_buffers() noexcept {
   if (particles.empty()) return;
   profile p("ParticleManager::update_gpu_buffers");
 
-  const auto particles_size = particles.size();
-
   // Check if buffers need resizing
-  if (particles_size > models.size()) {
-    models.resize(particles_size);
-    transforms.resize(particles_size);
+  if (particle_count > models.size()) {
+    models.resize(particle_count);
+    transforms.resize(particle_count);
   }
 
   {
@@ -467,12 +465,8 @@ void ParticleManager::update_gpu_buffers() noexcept {
 
       const auto old = p.pos - p.vel ;
       const auto pos_diff = p.pos - old;
-      auto acc = glm::vec2();
-      acc.x = pos_diff.x;
-      acc.y = pos_diff.y;
 
-
-      colors[p.id] = color_by_acceleration(pastel_red, pastel_pink, acc);
+      colors[p.id] = color_by_acceleration(glm::vec4(1,1,1,1), pastel_blue, pos_diff);
 
       // Update the transform
       transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
@@ -484,7 +478,7 @@ void ParticleManager::update_gpu_buffers() noexcept {
     profile p("ParticleManager::update_gpu_buffers(GPU buffer update)");
     // Update the gpu buffers incase of more particles..
     glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
-    const auto transform_bytes_needed = sizeof(glm::mat4) * particles_size;
+    const auto transform_bytes_needed = sizeof(glm::mat4) * particle_count;
     if (transform_bytes_needed > model_bytes_allocated) {
       glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &models[0],
                    GL_STREAM_DRAW);
@@ -494,7 +488,7 @@ void ParticleManager::update_gpu_buffers() noexcept {
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo[COLOR]);
-    const auto color_bytes_needed = sizeof(glm::vec4) * particles_size;
+    const auto color_bytes_needed = sizeof(glm::vec4) * particle_count;
     if (color_bytes_needed > color_bytes_allocated) {
       glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0],
                    GL_STREAM_DRAW);
@@ -510,7 +504,7 @@ void ParticleManager::draw() noexcept {
   profile p("ParticleManager::draw");
   glBindVertexArray(vao);
   shader.bind();
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts, static_cast<std::int32_t>(particles.size()));
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts, particle_count);
 }
 
 void ParticleManager::add(const glm::vec2 &pos, float radius,
@@ -520,8 +514,10 @@ void ParticleManager::add(const glm::vec2 &pos, float radius,
   p.vel = rand_vec2(-1.0f,1.0f);
   p.radius = radius;
   p.mass = 1.33333f * PI * radius * radius * radius;
-  p.id = static_cast<std::int32_t>(particles.size());
+  p.id = particle_count;
   particles.emplace_back(p);
+
+  ++particle_count;
 
   Transform t;
   t.pos = {pos.x, pos.y, 0};
@@ -541,6 +537,7 @@ void ParticleManager::remove_all_with_id(const std::vector<std::int32_t>& ids) n
 }
 
 void ParticleManager::erase_all() noexcept {
+  particle_count = 0;
   particles.clear();
   colors.clear();
   transforms.clear();
@@ -679,14 +676,12 @@ static void gravitational_force(Particle &a, const Particle &b) {
   const float dy = y2 - y1;
   const float d = sqrt(dx * dx + dy * dy);
 
-  if (d > 1e-4f) {
-    const float angle = atan2(dy, dx);
-    const float G = gravitational_constant;
-    const float F = G * m1 * m2 / d * d;
+  const float angle = atan2(dy, dx);
+  const float G = gravitational_constant;
+  const float F = G * m1 * m2 / d * d;
 
-    a.acc.x += F * cos(angle);
-    a.acc.y += F * sin(angle);
-  }
+  a.vel.x += F * cos(angle);
+  a.vel.y += F * sin(angle);
 }
 
 void ParticleManager::apply_n_body() noexcept {

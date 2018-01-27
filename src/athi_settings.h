@@ -4,7 +4,6 @@
 #include "athi_typedefs.h"
 #include "imgui.h"
 #include <atomic>
-#include <vector>
 
 #include "../dep/Universal/spdlog/spdlog.h" // Console logging
 
@@ -52,12 +51,12 @@ extern TreeType tree_type;
   static constexpr bool ONLY_RUNS_IN_DEBUG_MODE{false};
 #endif
 
-extern int mouse_radio_options;
-extern int tree_radio_option;
+extern s32 mouse_radio_options;
+extern s32 tree_radio_option;
 
 extern std::shared_ptr<spdlog::logger> console;
 
-extern std::vector<FrameBuffer> framebuffers;
+extern vector<FrameBuffer> framebuffers;
 extern bool post_processing;
 extern f64 frame_budget;
 
@@ -86,7 +85,7 @@ extern s32 post_processing_samples;
 extern s32 blur_strength;
 
 extern f32 circle_size;
-extern glm::vec4 circle_color;
+extern vec4 circle_color;
 extern std::atomic<u64> comparisons;
 extern std::atomic<u64> resolutions;
 
@@ -140,18 +139,18 @@ extern bool settings_changed;
 
 extern std::atomic<s32> universal_color_picker;
 
-extern glm::vec4 sw_color;
-extern glm::vec4 se_color;
-extern glm::vec4 nw_color;
-extern glm::vec4 ne_color;
+extern vec4 sw_color;
+extern vec4 se_color;
+extern vec4 nw_color;
+extern vec4 ne_color;
 
-extern glm::vec4 background_color_dark;
-extern glm::vec4 background_color_light;
-static const glm::vec4 pastel_red(1, 0.411, 0.380, 1.0);
-static const glm::vec4 pastel_green(0.466, 0.745, 0.466, 1.0);
-static const glm::vec4 pastel_blue(0.466, 0.619, 0.796, 1.0);
-static const glm::vec4 pastel_yellow(0.992, 0.992, 0.588, 1.0);
-static const glm::vec4 pastel_purple(0.77647, 0.47059, 0.86667, 1.0);
-static const glm::vec4 pastel_pink(1, 0.819, 0.862, 1.0);
-static const glm::vec4 pastel_orange(1, 0.701, 0.278, 1.0);
-static const glm::vec4 pastel_gray(0.333, 0.333, 0.333, 1.0);
+extern vec4 background_color_dark;
+extern vec4 background_color_light;
+static const vec4 pastel_red(1, 0.411, 0.380, 1.0);
+static const vec4 pastel_green(0.466, 0.745, 0.466, 1.0);
+static const vec4 pastel_blue(0.466, 0.619, 0.796, 1.0);
+static const vec4 pastel_yellow(0.992, 0.992, 0.588, 1.0);
+static const vec4 pastel_purple(0.77647, 0.47059, 0.86667, 1.0);
+static const vec4 pastel_pink(1, 0.819, 0.862, 1.0);
+static const vec4 pastel_orange(1, 0.701, 0.278, 1.0);
+static const vec4 pastel_gray(0.333, 0.333, 0.333, 1.0);

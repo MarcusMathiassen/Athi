@@ -1,7 +1,6 @@
 #include "athi_settings.h"
-#include "athi_framebuffer.h"
 #include "athi_typedefs.h"
-
+#include "athi_framebuffer.h"
 
 MouseOption mouse_option{MouseOption::Drag};
 TreeType tree_type{TreeType::Quadtree};
@@ -10,38 +9,38 @@ ThreadPoolSolution threadpool_solution{ThreadPoolSolution::Dispatch};
 std::shared_ptr<spdlog::logger> console;
 
 std::vector<FrameBuffer> framebuffers;
-double frame_budget{1000.0 / 60.0};
+f64 frame_budget{1000.0 / 60.0};
 
-int mouse_radio_options = static_cast<int>(MouseOption::Drag);
-int tree_radio_option = 0;
+s32 mouse_radio_options = static_cast<s32>(MouseOption::Drag);
+s32 tree_radio_option = 0;
 
 bool post_processing{true};
-float mouse_size{10.0f};
+f32 mouse_size{10.0f};
 bool mouse_busy_UI{false};
 bool show_mouse_grab_lines{false};
 bool show_mouse_collision_box{false};
 bool mouse_grab{true};
-std::int32_t screen_width;
-std::int32_t screen_height;
-float px_scale{1.0f};
+s32 screen_width;
+s32 screen_height;
+f32 px_scale{1.0f};
 
 bool show_settings{true};
 bool physics_gravity{false};
 bool use_gravitational_force{false};
-float gravity_force{9.81f};
-float gravitational_constant{6.674e-6};
+f32 gravity_force{9.81f};
+f32 gravitational_constant{6.674e-6};
 f32 air_drag{0.9};
 
-float collision_energy_loss{0.99f};
+f32 collision_energy_loss{0.99f};
 bool circle_collision{true};
 bool border_collision{true};
 
-std::int32_t physics_samples{8};
+s32 physics_samples{8};
 s32 post_processing_samples{2};
-s32 blur_strength{4};
+s32 blur_strength{2};
 
-float circle_size{5.0f};
-glm::vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
+f32 circle_size{5.0f};
+vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
 std::atomic<u64> comparisons{0};
 std::atomic<u64> resolutions{0};
@@ -52,50 +51,50 @@ bool draw_nodes{true};
 
 bool quadtree_show_only_occupied{true};
 bool quadtree_active{true};
-std::int32_t quadtree_depth{5};
-std::int32_t quadtree_capacity{50};
+s32 quadtree_depth{5};
+s32 quadtree_capacity{50};
 
 bool voxelgrid_active{false};
-std::int32_t voxelgrid_parts{16};
+s32 voxelgrid_parts{16};
 
 u16 monitor_refreshrate{60};
 
-double frametime;
-double smoothed_frametime;
-std::int32_t framerate;
-std::int32_t framerate_limit{0};
+f64 frametime;
+f64 smoothed_frametime;
+s32 framerate;
+s32 framerate_limit{0};
 
-double render_frametime;
-double smoothed_render_frametime;
-std::int32_t render_framerate;
-std::int32_t render_framerate_limit{0};
+f64 render_frametime;
+f64 smoothed_render_frametime;
+s32 render_framerate;
+s32 render_framerate_limit{0};
 
-double timestep;
-double physics_frametime;
-double smoothed_physics_frametime;
-std::int32_t physics_framerate;
-std::int32_t physics_FPS_limit{0};
+f64 timestep;
+f64 physics_frametime;
+f64 smoothed_physics_frametime;
+s32 physics_framerate;
+s32 physics_FPS_limit{0};
 
-float time_scale{1.0f};
+f32 time_scale{1.0f};
 bool vsync{true};
 
-std::int32_t variable_thread_count;
+s32 variable_thread_count;
 bool use_multithreading{true};
 bool use_libdispatch{false};
 
-std::int32_t cpu_cores;
-std::int32_t cpu_threads;
-std::string cpu_brand;
+s32 cpu_cores;
+s32 cpu_threads;
+string cpu_brand;
 
 bool openCL_active{false};
 
 bool app_is_running{true};
 bool settings_changed{false};
 
-std::atomic<std::int32_t> universal_color_picker{0};
-glm::vec4 background_color_dark = glm::vec4(18.0f/255.0f, 20.0f/255.0f, 25.0f/255.0f, 1.0f);
-glm::vec4 background_color_light = glm::vec4(0.7f, 0.7f, 0.7f, 1.0f);
-glm::vec4 sw_color{pastel_red};
-glm::vec4 se_color{pastel_gray};
-glm::vec4 nw_color{pastel_orange};
-glm::vec4 ne_color{pastel_pink};
+std::atomic<s32> universal_color_picker{0};
+vec4 background_color_dark = vec4(18.0f/255.0f, 20.0f/255.0f, 25.0f/255.0f, 1.0f);
+vec4 background_color_light = vec4(0.7f, 0.7f, 0.7f, 1.0f);
+vec4 sw_color{pastel_red};
+vec4 se_color{pastel_gray};
+vec4 nw_color{pastel_orange};
+vec4 ne_color{pastel_pink};

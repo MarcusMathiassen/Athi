@@ -1,3 +1,5 @@
+#include "athi_typedefs.h"
+
 #include "athi_utility.h"
 #include "athi_camera.h"
 #include "athi_transform.h"
@@ -5,7 +7,134 @@
 
 #include <vector>
 
-std::unordered_map<std::string, f64> time_taken_by;
+f32 rand_f32(f32 min, f32 max) noexcept { 
+  return ((f32(rand()) / f32(RAND_MAX)) * (max - min)) + min;
+}
+vec2 rand_vec2(f32 min, f32 max) noexcept { 
+  return vec2(rand_f32(min, max), rand_f32(min, max));
+}
+vec3 rand_vec3(f32 min, f32 max) noexcept { 
+  return vec3(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max));
+}
+vec4 rand_vec4(f32 min, f32 max) noexcept { 
+  return vec4(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max), rand_f32(min, max));
+}
+
+HSV rgb_to_hsv(vec4 in) noexcept {
+  HSV         out;
+  double      min{0.0f}, max{0.0f}, delta{0.0f};
+
+  min = in.r < in.g ? in.r : in.g;
+  min = min  < in.b ? min  : in.b;
+
+  max = in.r > in.g ? in.r : in.g;
+  max = max  > in.b ? max  : in.b;
+
+  out.v = max;                                // v
+  delta = max - min;
+  if (delta < 0.00001) 
+  {
+      out.s = 0;
+      out.h = 0; // undefined, maybe nan?
+      return out;
+  }
+  if( max > 0.0 ) { // NOTE: if Max is == 0, this divide would cause a crash
+      out.s = (delta / max);                  // s
+  } else {
+      // if max is 0, then r = g = b = 0              
+      // s = 0, h is undefined
+      out.s = 0.0;
+      out.h = NAN;                            // its now undefined
+      return out;
+  }
+  if( in.r >= max )                           // > is bogus, just keeps compilor happy
+      out.h = ( in.g - in.b ) / delta;        // between yellow & magenta
+  else
+  if( in.g >= max )
+      out.h = 2.0 + ( in.b - in.r ) / delta;  // between cyan & yellow
+  else
+      out.h = 4.0 + ( in.r - in.g ) / delta;  // between magenta & cyan
+  out.h *= 60.0;                              // degrees
+  if( out.h < 0.0 ) out.h += 360.0;
+  return out;
+}
+
+vec4 getHSV(u16 h, f32 s, f32 v, f32 a) noexcept {
+  h = (h >= 360) ? 0 : h;
+  const f32 hue { (f32)h * 0.016666f };
+
+  const u16 i   { (u16)hue };
+  const f32 f   { hue - i };
+  const f32 p   { v * (1.0f - s) };
+  const f32 q   { v * (1.0f - s*f) };
+  const f32 t   { v * (1.0f - s*( 1.0f-f )) };
+
+  f32 r{0.0f}, g{0.0f}, b{0.0f};
+
+  switch(i)
+  {
+    case 0: r = v; g = t; b = p; break;
+    case 1: r = q; g = v; b = p; break;
+    case 2: r = p; g = v; b = t; break;
+    case 3: r = p; g = q; b = v; break;
+    case 4: r = t; g = p; b = v; break;
+    case 5:
+    default: r = v; g = p; b = q; break;
+  }
+  return vec4(r,g,b,a);
+}
+
+HSV LerpHSV (HSV a, HSV b, f32 t) noexcept {
+  // Hue interpolation
+  f32 h{0.0f};
+  f32 d = b.h - a.h;
+  if (a.h > b.h)
+  {
+  // Swap (a.h, b.h)
+  f32 h3 = b.h;
+  b.h = a.h;
+  a.h = h3;
+  
+  d = -d;
+  t = 1 - t;
+  }
+  
+  if (d > 0.5) // 180deg
+  {
+  a.h = a.h + 1; // 360deg
+  h = ( a.h + t * (b.h - a.h) ); // 360deg
+  }
+  if (d <= 0.5) // 180deg
+  {
+  h = a.h + t * d;
+  }
+ 
+  h = h > 360 ? 360 : h < 0 ? 0 : h;
+  
+  // Interpolates the rest
+  return HSV
+  (
+  h, // H
+  a.s + t * (b.s-a.s), // S
+  a.v + t * (b.v-a.v), // V
+  a.a + t * (b.a-a.a) // A
+  );
+}
+
+vec4 color_by_acceleration(const vec4& min_color, const vec4& max_color, const vec2& acc) noexcept {
+
+  // Get the HSV equivalent
+  const f32 mg = sqrt(acc.x * acc.x + acc.y * acc.y);
+
+  const auto c1 = rgb_to_hsv(min_color);
+  const auto c2 = rgb_to_hsv(max_color);
+
+  const auto c3 = LerpHSV(c1,c2,mg);
+  return getHSV(c3.h, c3.s, c3.v, c3.a);
+}
+
+
+std::unordered_map<string, f64> time_taken_by;
 
 
 vec4 get_universal_current_color() {
@@ -36,7 +165,7 @@ vec4 get_universal_current_color() {
   }
   return vec4();
 }
-void read_file(const char *file, char **buffer) {
+void read_file(const char *file, char **buffer) noexcept {
   string buff, line;
   std::ifstream fileIn(file);
   while (std::getline(fileIn, line))
@@ -45,7 +174,7 @@ void read_file(const char *file, char **buffer) {
   strcpy(*buffer, buff.c_str());
 }
 
-void limit_FPS(u32 desired_framerate, f64 time_start_frame) {
+void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept {
   const f64 frametime = (1000.0 / desired_framerate);
   f64 time_spent_frame = (glfwGetTime() - time_start_frame) * 1000.0;
   const f64 time_to_sleep = (frametime - time_spent_frame) * 0.7;
@@ -66,6 +195,14 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) {
   }
 }
 
+vec2 to_view_space(vec2 v) noexcept {
+  s32 width, height;
+  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+  v.x = -1.0f + 2 * v.x / width;
+  v.y = 1.0f - 2 * v.y / height;
+  return v;
+}
+
 enum {
   POSITION_BUFFER,
   COLOR_BUFFER,
@@ -73,9 +210,9 @@ enum {
   INDICES_BUFFER,
   NUM_BUFFERS
 };
-unsigned int shader_program;
-unsigned int VAO;
-unsigned int VBO[NUM_BUFFERS];
+u32 shader_program;
+u32 VAO;
+u32 VBO[NUM_BUFFERS];
 
 Shader fullscreen_shader;
 void setup_fullscreen_quad() {
@@ -97,26 +234,26 @@ void setup_fullscreen_quad() {
   glGenVertexArrays(1, &VAO);
   glGenBuffers(NUM_BUFFERS, VBO);
 
-  const std::uint16_t indices[6] = {0, 1, 2, 0, 2, 3};
-  // const GLfloat positions[] = {
+  const u16 indices[6] = {0, 1, 2, 0, 2, 3};
+  // const f32 positions[] = {
   //     -1.0, 1.0f,
   //     1.0f, 1.0f,
   //     1.0f, -1.0f,
   //     -1.0f, -1.0f,
   // };
 
-  const GLfloat positions[] = {
+  const f32 positions[] = {
       0.0f, 1.0f,
       1.0f, 1.0f,
       1.0f, 0.0f,
       0.0f, 0.0f,
   };
 
-  const GLfloat textcoords[] = {
+  const f32 textcoords[] = {
       0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
   };
 
-  const GLfloat colors[] = {
+  const f32 colors[] = {
       1.0f, 1.0f, 1.0f, 1.0f,
       1.0f, 1.0f, 1.0f, 1.0f,
       1.0f, 1.0f, 1.0f, 1.0f,
@@ -129,26 +266,26 @@ void setup_fullscreen_quad() {
   glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
   glEnableVertexAttribArray(POSITION_ATTR_LOC);
   glVertexAttribPointer(POSITION_ATTR_LOC, 2, GL_FLOAT, GL_FALSE,
-                        sizeof(GLfloat) * 2, (void *)0);
+                        sizeof(f32) * 2, (void *)0);
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO[TEXTCOORD_BUFFER]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(textcoords), textcoords, GL_STATIC_DRAW);
   glEnableVertexAttribArray(TEXTCOORD_ATTR_LOC);
   glVertexAttribPointer(TEXTCOORD_ATTR_LOC, 2, GL_FLOAT, GL_FALSE,
-                        sizeof(GLfloat) * 2, (void *)0);
+                        sizeof(f32) * 2, (void *)0);
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO[COLOR_BUFFER]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
   glEnableVertexAttribArray(COLOR_ATTR_LOC);
   glVertexAttribPointer(COLOR_ATTR_LOC, 4, GL_FLOAT, GL_FALSE,
-                        sizeof(GLfloat) * 4, (void *)0);
+                        sizeof(f32) * 4, (void *)0);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[INDICES_BUFFER]);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                GL_STATIC_DRAW);
 }
 
-void draw_fullscreen_quad(std::uint32_t texture, const glm::vec2& dir) {
+void draw_fullscreen_quad(u32 texture, const vec2& dir) {
 
   glBindVertexArray(VAO);
   fullscreen_shader.bind();
@@ -165,10 +302,10 @@ void draw_fullscreen_quad(std::uint32_t texture, const glm::vec2& dir) {
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 }
 
-std::string get_cpu_brand() {
+string get_cpu_brand() {
 #ifdef _WIN32
-  int CPUInfo[4] = {-1};
-  unsigned nExIds, i = 0;
+  s32 CPUInfo[4] = {-1};
+  u32 nExIds, i = 0;
   char CPUBrandString[0x40];
   // Get the information associated with each extended ID.
   __cpuid(CPUInfo, 0x80000000);
@@ -184,7 +321,7 @@ std::string get_cpu_brand() {
       memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
   }
   // string includes manufacturer, model and clockspeed
-  return std::string(CPUBrandString);
+  return string(CPUBrandString);
 #else
   char buffer[128];
   size_t bufferlen = 128;

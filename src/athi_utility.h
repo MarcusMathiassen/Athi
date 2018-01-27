@@ -1,5 +1,8 @@
 #pragma once
 
+#include "athi_typedefs.h"
+#include "athi_settings.h"
+
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -31,21 +34,7 @@
 
 #include <vector>
 
-#include "athi_settings.h"
-#include "athi_typedefs.h"
-
 #include <cstdlib> // rand
-
-#include <glm/vec2.hpp>
-
-static float rand_f32(float min, float max) noexcept
-{
-    return ((float(rand()) / float(RAND_MAX)) * (max - min)) + min;
-}
-
-static glm::vec2 rand_vec2(float min, float max) noexcept {
-  return glm::vec2(rand_f32(min, max), rand_f32(min, max));
-}
 
 /* FOREGROUND */
 #define RST  "\x1B[0m"
@@ -68,116 +57,55 @@ static glm::vec2 rand_vec2(float min, float max) noexcept {
 #define BOLD(x) "\x1B[1m" x RST
 #define UNDL(x) "\x1B[4m" x RST
 
+
+// Random number functions
+f32   rand_f32(f32 min, f32 max) noexcept;
+vec2  rand_vec2(f32 min, f32 max) noexcept;
+vec3  rand_vec3(f32 min, f32 max) noexcept;
+vec4  rand_vec4(f32 min, f32 max) noexcept;
+
 struct HSV {
-  float h{0.0f},s{0.0f},v{0.0f},a{1.0f};
+  f32 h{0.0f},s{0.0f},v{0.0f},a{1.0f};
   HSV() = default;
-  HSV(float _h, float _s, float _v ,float _a) 
-  : h(_h), s(_s), v(_v), a(_a){}
+  HSV(f32 _h, f32 _s, f32 _v ,f32 _a) : h(_h), s(_s), v(_v), a(_a) {}
 };
 
-static HSV rgb_to_hsv(glm::vec4 in) {
-  HSV         out;
-  double      min, max, delta;
 
-  min = in.r < in.g ? in.r : in.g;
-  min = min  < in.b ? min  : in.b;
+inline static auto get_begin_and_end(s32 i, s32 total, s32 threads) noexcept {
+  const s32 parts = total / threads;
+  const s32 leftovers = total % threads;
+  const s32 begin = parts * i;
+  s32 end = parts * (i + 1);
+  if (i == threads - 1) end += leftovers;
+  return std::tuple<size_t, size_t>{begin, end};
+};
 
-  max = in.r > in.g ? in.r : in.g;
-  max = max  > in.b ? max  : in.b;
-
-  out.v = max;                                // v
-  delta = max - min;
-  if (delta < 0.00001)
-  {
-      out.s = 0;
-      out.h = 0; // undefined, maybe nan?
-      return out;
-  }
-  if( max > 0.0 ) { // NOTE: if Max is == 0, this divide would cause a crash
-      out.s = (delta / max);                  // s
-  } else {
-      // if max is 0, then r = g = b = 0              
-      // s = 0, h is undefined
-      out.s = 0.0;
-      out.h = NAN;                            // its now undefined
-      return out;
-  }
-  if( in.r >= max )                           // > is bogus, just keeps compilor happy
-      out.h = ( in.g - in.b ) / delta;        // between yellow & magenta
-  else
-  if( in.g >= max )
-      out.h = 2.0 + ( in.b - in.r ) / delta;  // between cyan & yellow
-  else
-      out.h = 4.0 + ( in.r - in.g ) / delta;  // between magenta & cyan
-
-  out.h *= 60.0;                              // degrees
-
-  if( out.h < 0.0 )
-      out.h += 360.0;
-
-  return out;
-}
-
-
-#ifdef _WIN32
-  static glm::vec4 getHSV(u16 h, f32 s, f32 v, f32 a)
-#else
-  static constexpr glm::vec4 getHSV(u16 h, f32 s, f32 v, f32 a)
-#endif
-{
-  h = (h >= 360) ? 0 : h;
-  const f32 hue { (f32)h * 0.016666f };
-
-  const u8  i   { (u8)hue };
-  const f32 f   { hue - i };
-  const f32 p   { v * (1.0f - s) };
-  const f32 q   { v * (1.0f - s*f) };
-  const f32 t   { v * (1.0f - s*( 1.0f-f )) };
-
-  f32 r{0.0f}, g{0.0f}, b{0.0f};
-
-  switch(i)
-  {
-    case 0: r = v; g = t; b = p; break;
-    case 1: r = q; g = v; b = p; break;
-    case 2: r = p; g = v; b = t; break;
-    case 3: r = p; g = q; b = v; break;
-    case 4: r = t; g = p; b = v; break;
-    case 5:
-    default: r = v; g = p; b = q; break;
-  }
-  return glm::vec4(r,g,b,a);
-}
-void read_file(const char *file, char **buffer);
-void limit_FPS(std::uint32_t desired_framerate, double time_start_frame);
-std::string get_cpu_brand();
-glm::vec4 get_universal_current_color();
-
-static glm::vec2 to_view_space(glm::vec2 v) {
-  int32_t width, height;
-  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-  v.x = -1.0f + 2 * v.x / width;
-  v.y = 1.0f - 2 * v.y / height;
-
-  return v;
-}
-
+// Color functions
+vec4 getHSV(u16 h, f32 s, f32 v, f32 a) noexcept;
+HSV rgb_to_hsv(vec4 in) noexcept;
+HSV LerpHSV (HSV a, HSV b, f32 t) noexcept;
+vec4 color_by_acceleration(const vec4& min_color, const vec4& max_color, const vec2& acc) noexcept;
+void read_file(const char *file, char **buffer) noexcept;
+void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept;
+string get_cpu_brand();
+vec4 get_universal_current_color();
+vec2 to_view_space(vec2 v) noexcept;
 void setup_fullscreen_quad();
-void draw_fullscreen_quad(std::uint32_t texture, const glm::vec2& dir);
+void draw_fullscreen_quad(u32 texture, const vec2& dir);
 
-extern std::unordered_map<std::string, double> time_taken_by;
+extern std::unordered_map<string, f64> time_taken_by;
 
-struct profile {
-  double start{0.0};
-  std::string id;
-
+class profile {
+private:
+  f64 start{0.0};
+  string id;
+public:
   profile(const char *id_) noexcept {
     if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
       id = id_;
       start = glfwGetTime();
     }
   }
-
   ~profile() noexcept {
     if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
       time_taken_by[id] = (glfwGetTime() - start) * 1000.0;
@@ -185,7 +113,8 @@ struct profile {
   }
 };
 
-template <class T, size_t S> class Smooth_Average {
+template <class T, size_t S> 
+class Smooth_Average {
 public:
   Smooth_Average(T *var) : var(var) {}
   void add_new_frametime(T newtick) {
