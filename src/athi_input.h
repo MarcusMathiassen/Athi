@@ -62,6 +62,9 @@ static void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) 
   if (mouse_size < 0.000f)
     mouse_size = 0.5f;
   g_MouseWheel += (float)yoffset; // Use fractional mouse wheel, 1.0 unit 5 lines.
+
+  //camera.process_mouse_scroll(yoffset);
+  //camera.update();
 }
 
 static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {

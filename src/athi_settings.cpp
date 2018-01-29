@@ -16,6 +16,7 @@ s32 tree_radio_option = 0;
 
 u32 num_vertices_per_particle = 36;
 bool is_particles_colored_by_acc = true;
+bool has_random_velocity = true;
 
 bool post_processing{true};
 f32 mouse_size{10.0f};

@@ -38,6 +38,7 @@ static std::multimap<B, A> flip_map(const M<A, B, Args...> &src) {
 static void menu_debug() {
   ImGui::Begin("Debug Options", NULL, ImGuiWindowFlags_AlwaysAutoResize);
 
+  ImGui::Checkbox("give random velocity", &has_random_velocity);
   ImGui::Checkbox("Particles colored by acceleration", &is_particles_colored_by_acc);
   ImGui::Checkbox("mouse_grab", &mouse_grab);
   ImGui::Checkbox("show_mouse_collision_box", &show_mouse_collision_box);
@@ -178,13 +179,15 @@ static void menu_settings() {
 
   if (ImGui::CollapsingHeader("particle options")) {
 
+    // Initial state
+
+    ImGui::Checkbox("give random velocity", &has_random_velocity);
+
 
     ImGui::PushItemWidth(100.0f);
     // Color changed by acceleration
     ImGui::Checkbox("colored by acceleration", &is_particles_colored_by_acc);
     if (is_particles_colored_by_acc) {
-
-        ImGui::Text("Acceleration");
         ImGui::Text("minimum");
         ImGui::SameLine(200);
         ImGui::Text("maximum");
@@ -193,14 +196,17 @@ static void menu_settings() {
         ImGui::ColorPicker4("##particle_acc_max_color", (float *)&acceleration_color_max);
     }
 
+    ImGui::Separator();
+
     // Rebuild particle vertices
     if (ImGui::Button("Apply vertices")) {
+      if (vertices_to_be_applied < 3) vertices_to_be_applied = 3;
       particle_manager.rebuild_vertices(vertices_to_be_applied);
     }
     ImGui::SameLine();
     ImGui::InputInt("Vertices per particle", &vertices_to_be_applied, 3, 999);
 
-
+    ImGui::Separator();
 
     // Change all particles color
     ImGui::Text("particle color");

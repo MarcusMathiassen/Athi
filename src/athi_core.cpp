@@ -94,7 +94,7 @@ void Athi_Core::start() {
     framerate = static_cast<u32>(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
   }
-
+  
   app_is_running = false;
   shutdown();
 }
