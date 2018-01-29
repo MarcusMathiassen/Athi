@@ -38,6 +38,7 @@ static std::multimap<B, A> flip_map(const M<A, B, Args...> &src) {
 static void menu_debug() {
   ImGui::Begin("Debug Options", NULL, ImGuiWindowFlags_AlwaysAutoResize);
 
+  ImGui::Checkbox("Particles colored by acceleration", &is_particles_colored_by_acc);
   ImGui::Checkbox("mouse_grab", &mouse_grab);
   ImGui::Checkbox("show_mouse_collision_box", &show_mouse_collision_box);
   ImGui::Checkbox("show_mouse_grab_lines", &show_mouse_grab_lines);
@@ -106,6 +107,9 @@ static void menu_profiler() {
   ImGui::End();
 }
 
+
+static int vertices_to_be_applied = 36;
+
 static void menu_settings() {
   profile p("menu_settings");
 
@@ -173,8 +177,32 @@ static void menu_settings() {
   }
 
   if (ImGui::CollapsingHeader("particle options")) {
-    // Change all particles color
+
+
     ImGui::PushItemWidth(100.0f);
+    // Color changed by acceleration
+    ImGui::Checkbox("colored by acceleration", &is_particles_colored_by_acc);
+    if (is_particles_colored_by_acc) {
+
+        ImGui::Text("Acceleration");
+        ImGui::Text("minimum");
+        ImGui::SameLine(200);
+        ImGui::Text("maximum");
+        ImGui::ColorPicker4("##particle_acc_min_color", (float *)&acceleration_color_min);
+        ImGui::SameLine();
+        ImGui::ColorPicker4("##particle_acc_max_color", (float *)&acceleration_color_max);
+    }
+
+    // Rebuild particle vertices
+    if (ImGui::Button("Apply vertices")) {
+      particle_manager.rebuild_vertices(vertices_to_be_applied);
+    }
+    ImGui::SameLine();
+    ImGui::InputInt("Vertices per particle", &vertices_to_be_applied, 3, 999);
+
+
+
+    // Change all particles color
     ImGui::Text("particle color");
     ImGui::SameLine();
     if (ImGui::SmallButton("Color: Apply to all")) {

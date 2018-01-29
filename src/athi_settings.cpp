@@ -14,6 +14,9 @@ f64 frame_budget{1000.0 / 60.0};
 s32 mouse_radio_options = static_cast<s32>(MouseOption::Drag);
 s32 tree_radio_option = 0;
 
+u32 num_vertices_per_particle = 36;
+bool is_particles_colored_by_acc = true;
+
 bool post_processing{true};
 f32 mouse_size{10.0f};
 bool mouse_busy_UI{false};
@@ -90,6 +93,9 @@ bool openCL_active{false};
 
 bool app_is_running{true};
 bool settings_changed{false};
+
+vec4 acceleration_color_min{vec4(1,1,1,1)};
+vec4 acceleration_color_max{pastel_blue};
 
 std::atomic<s32> universal_color_picker{0};
 vec4 background_color_dark = vec4(18.0f/255.0f, 20.0f/255.0f, 25.0f/255.0f, 1.0f);

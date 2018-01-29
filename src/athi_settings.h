@@ -54,6 +54,10 @@ extern TreeType tree_type;
 extern s32 mouse_radio_options;
 extern s32 tree_radio_option;
 
+extern u32 num_vertices_per_particle;
+extern bool is_particles_colored_by_acc;
+
+
 extern std::shared_ptr<spdlog::logger> console;
 
 extern vector<FrameBuffer> framebuffers;
@@ -143,6 +147,9 @@ extern vec4 sw_color;
 extern vec4 se_color;
 extern vec4 nw_color;
 extern vec4 ne_color;
+
+extern vec4 acceleration_color_min;
+extern vec4 acceleration_color_max;
 
 extern vec4 background_color_dark;
 extern vec4 background_color_light;

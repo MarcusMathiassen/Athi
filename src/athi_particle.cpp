@@ -23,7 +23,7 @@
 #include <dispatch/dispatch.h>
 #endif
 
-//ParticleSystem particle_system;
+// ParticleSystem particle_system;
 ParticleManager particle_manager;
 
 void ParticleManager::opencl_init() noexcept {
@@ -68,8 +68,8 @@ void ParticleManager::opencl_init() noexcept {
 
   // Print info
   char device_name[64], driver_version[64], device_version[64];
-  std::uint32_t val, work_item_dim;
-  std::uint64_t global_mem_size;
+  u32 val, work_item_dim;
+  u64 global_mem_size;
   std::size_t max_work_group_size, work_item_sizes[3];
   err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(char) * 64,
                         &device_name, NULL);
@@ -89,7 +89,7 @@ void ParticleManager::opencl_init() noexcept {
                         &global_mem_size, NULL);
   console->info(FRED("OpenCL") " Device name: {}", device_name);
   console->info(FRED("OpenCL") " Device Compute Units: {}", val);
-  const auto mem_in_gb = (static_cast<double>(global_mem_size) / 1073741824.0);
+  const auto mem_in_gb = (static_cast<f64>(global_mem_size) / 1073741824.0);
   console->info(FRED("OpenCL") " Device memory: {}GB", mem_in_gb);
   console->info(FRED("OpenCL") " Device supported version: {}", device_version);
   console->info(FRED("OpenCL") " Driver version: {}", driver_version);
@@ -110,10 +110,8 @@ void ParticleManager::init() noexcept {
 
   // Shaders
   shader.init("ParticleManager::init()");
-  shader.load_from_file("default_particle_shader.vert",
-                        ShaderType::Vertex);
-  shader.load_from_file("default_particle_shader.frag",
-                        ShaderType::Fragment);
+  shader.load_from_file("default_particle_shader.vert", ShaderType::Vertex);
+  shader.load_from_file("default_particle_shader.frag", ShaderType::Fragment);
   shader.bind_attrib("position");
   shader.bind_attrib("color");
   shader.bind_attrib("transform");
@@ -121,12 +119,12 @@ void ParticleManager::init() noexcept {
 
   // Setup the circle vertices
   std::vector<glm::vec2> positions;
-  positions.reserve(num_verts);
+  positions.reserve(num_vertices_per_particle);
   const float x_change = 1.0f;
   const float y_change = 0.8f;
-  for (auto i = 0; i < num_verts; ++i) {
-    positions.emplace_back(cosf(i * PI * 2.0f / num_verts),
-                           sinf(i * PI * 2.0f / num_verts));
+  for (u32 i = 0; i < num_vertices_per_particle; ++i) {
+    positions.emplace_back(cosf(i * PI * 2.0f / num_vertices_per_particle),
+                           sinf(i * PI * 2.0f / num_vertices_per_particle));
   }
 
   // VAO
@@ -138,7 +136,7 @@ void ParticleManager::init() noexcept {
 
   // POSITION
   glBindBuffer(GL_ARRAY_BUFFER, vbo[POSITION]);
-  glBufferData(GL_ARRAY_BUFFER, num_verts * sizeof(positions[0]), &positions[0],
+  glBufferData(GL_ARRAY_BUFFER, num_vertices_per_particle * sizeof(positions[0]), &positions[0],
                GL_DYNAMIC_DRAW);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
@@ -159,16 +157,40 @@ void ParticleManager::init() noexcept {
   }
 }
 
+void ParticleManager::rebuild_vertices(u32 num_vertices) noexcept {
+  num_vertices_per_particle = num_vertices;
+
+  glBindVertexArray(vao);
+
+
+  // Setup the circle vertices
+  std::vector<glm::vec2> positions;
+  positions.reserve(num_vertices_per_particle);
+  const float x_change = 1.0f;
+  const float y_change = 0.8f;
+  for (u32 i = 0; i < num_vertices_per_particle; ++i) {
+    positions.emplace_back(cosf(i * PI * 2.0f / num_vertices_per_particle),
+                           sinf(i * PI * 2.0f / num_vertices_per_particle));
+  }
+
+  // POSITION
+  glBindBuffer(GL_ARRAY_BUFFER, vbo[POSITION]);
+  glBufferData(GL_ARRAY_BUFFER, num_vertices_per_particle * sizeof(positions[0]), &positions[0],
+               GL_DYNAMIC_DRAW);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+}
+
 void ParticleManager::opencl_naive() noexcept {
   const auto count = particle_count;
 
   // Create the input and output arrays in device memory
   // for our calculation
   //
-  input = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(Particle) * particle_count,
-                         NULL, NULL);
-  output = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(Particle) * particle_count,
-                          NULL, NULL);
+  input = clCreateBuffer(context, CL_MEM_READ_ONLY,
+                         sizeof(Particle) * particle_count, NULL, NULL);
+  output = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+                          sizeof(Particle) * particle_count, NULL, NULL);
   if (!input || !output) {
     console->error("Failed to allocate device memory!");
     exit(1);
@@ -177,8 +199,8 @@ void ParticleManager::opencl_naive() noexcept {
   // Write our data set s32o the input array in device
   // memory
   err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0,
-                             sizeof(Particle) * particle_count, &particles[0], 0, NULL,
-                             NULL);
+                             sizeof(Particle) * particle_count, &particles[0],
+                             0, NULL, NULL);
 
   if (err != CL_SUCCESS) console->error("Failed to write to source array!");
 
@@ -227,8 +249,8 @@ void ParticleManager::opencl_naive() noexcept {
   // Read back the results from the device to verify the
   // output
   err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0,
-                            sizeof(Particle) * particle_count, &particles[0], 0, NULL,
-                            NULL);
+                            sizeof(Particle) * particle_count, &particles[0], 0,
+                            NULL, NULL);
   if (err != CL_SUCCESS) {
     console->error("Failed to read output array! {}", err);
     exit(1);
@@ -242,7 +264,8 @@ void ParticleManager::opencl_naive() noexcept {
                    ^(size_t i) {
                      const auto[begin, end] =
                          get_begin_and_end(i, total, variable_thread_count);
-                     collision_logNxN(total, particle_count - leftovers + begin, end);
+                     collision_logNxN(total, particle_count - leftovers + begin,
+                                      end);
                    });
   }
 }
@@ -420,7 +443,6 @@ void ParticleManager::update() noexcept {
       {
         profile p("ParticleManager::update(particles::update)");
         for (auto &p : particles) {
-
           // Apply gravity
           if (physics_gravity) {
             p.acc.y -= gravity_force * this_sample_timestep * time_scale;
@@ -456,17 +478,20 @@ void ParticleManager::update_gpu_buffers() noexcept {
 
   {
     // THIS IS THE SLOWEST THING EVER.
-    profile p("ParticleManager::update_gpu_buffers(update buffers with new data)");
+    profile p(
+        "ParticleManager::update_gpu_buffers(update buffers with new data)");
 
     const auto proj = camera.get_ortho_projection();
 
     // Update the buffers with the new data.
-    for (const auto& p: particles) {
+    for (const auto &p : particles) {
 
-      const auto old = p.pos - p.vel ;
-      const auto pos_diff = p.pos - old;
 
-      colors[p.id] = color_by_acceleration(glm::vec4(1,1,1,1), pastel_blue, pos_diff);
+      if (is_particles_colored_by_acc) {
+        const auto old = p.pos - p.vel;
+        const auto pos_diff = p.pos - old;
+        colors[p.id] = color_by_acceleration(acceleration_color_min, acceleration_color_max, pos_diff);
+      }
 
       // Update the transform
       transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
@@ -504,14 +529,14 @@ void ParticleManager::draw() noexcept {
   profile p("ParticleManager::draw");
   glBindVertexArray(vao);
   shader.bind();
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_verts, particle_count);
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_vertices_per_particle, particle_count);
 }
 
 void ParticleManager::add(const glm::vec2 &pos, float radius,
                           const glm::vec4 &color) noexcept {
   Particle p;
   p.pos = pos;
-  p.vel = rand_vec2(-1.0f,1.0f);
+  p.vel = rand_vec2(-1.0f, 1.0f);
   p.radius = radius;
   p.mass = 1.33333f * PI * radius * radius * radius;
   p.id = particle_count;
@@ -527,12 +552,12 @@ void ParticleManager::add(const glm::vec2 &pos, float radius,
   colors.emplace_back(color);
 }
 
-
-void ParticleManager::remove_all_with_id(const std::vector<std::int32_t>& ids) noexcept {
-  for (const auto id: ids) {
-    particles.erase(particles.begin()+id);
-    transforms.erase(transforms.begin()+id);
-    colors.erase(colors.begin()+id);
+void ParticleManager::remove_all_with_id(
+    const std::vector<std::int32_t> &ids) noexcept {
+  for (const auto id : ids) {
+    particles.erase(particles.begin() + id);
+    transforms.erase(transforms.begin() + id);
+    colors.erase(colors.begin() + id);
   }
 }
 
@@ -621,29 +646,29 @@ void ParticleManager::separate(Particle &a, Particle &b) const noexcept {
   // Local variables
   const auto a_pos = a.pos;
   const auto b_pos = b.pos;
-  const auto ar = a.radius;
-  const auto br = b.radius;
+  const f32 ar = a.radius;
+  const f32 br = b.radius;
 
-  const auto collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
+  const f32 collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
 
-  const auto dx = b_pos.x - a_pos.x;
-  const auto dy = b_pos.y - a_pos.y;
+  const f32 dx = b_pos.x - a_pos.x;
+  const f32 dy = b_pos.y - a_pos.y;
 
   // contact angle
-  const auto collision_angle = atan2(dy, dx);
-  const auto cos_angle = cosf(collision_angle);
-  const auto sin_angle = sinf(collision_angle);
+  const f32 collision_angle = atan2(dy, dx);
+  const f32 cos_angle = cosf(collision_angle);
+  const f32 sin_angle = sinf(collision_angle);
 
   // TODO: could this be done using a normal vector and just inverting it?
   // amount to move each ball
-  const auto a_move_x = -collision_depth * 0.5f * cos_angle;
-  const auto a_move_y = -collision_depth * 0.5f * sin_angle;
-  const auto b_move_x = collision_depth * 0.5f * cos_angle;
-  const auto b_move_y = collision_depth * 0.5f * sin_angle;
+  const f32 a_move_x = -collision_depth * 0.5f * cos_angle;
+  const f32 a_move_y = -collision_depth * 0.5f * sin_angle;
+  const f32 b_move_x = collision_depth * 0.5f * cos_angle;
+  const f32 b_move_y = collision_depth * 0.5f * sin_angle;
 
   // store the new move values
-  glm::vec2 a_pos_move;
-  glm::vec2 b_pos_move;
+  vec2 a_pos_move;
+  vec2 b_pos_move;
 
   // Make sure they dont moved beyond the border
   if (a_pos.x + a_move_x >= 0.0f + ar &&
@@ -665,20 +690,20 @@ void ParticleManager::separate(Particle &a, Particle &b) const noexcept {
 }
 
 static void gravitational_force(Particle &a, const Particle &b) {
-  const float x1 = a.pos.x;
-  const float y1 = a.pos.y;
-  const float x2 = b.pos.x;
-  const float y2 = b.pos.y;
-  const float m1 = a.mass;
-  const float m2 = b.mass;
+  const f32 x1 = a.pos.x;
+  const f32 y1 = a.pos.y;
+  const f32 x2 = b.pos.x;
+  const f32 y2 = b.pos.y;
+  const f32 m1 = a.mass;
+  const f32 m2 = b.mass;
 
-  const float dx = x2 - x1;
-  const float dy = y2 - y1;
-  const float d = sqrt(dx * dx + dy * dy);
+  const f32 dx = x2 - x1;
+  const f32 dy = y2 - y1;
+  const f32 d = sqrt(dx * dx + dy * dy);
 
-  const float angle = atan2(dy, dx);
-  const float G = gravitational_constant;
-  const float F = G * m1 * m2 / d * d;
+  const f32 angle = atan2(dy, dx);
+  const f32 G = gravitational_constant;
+  const f32 F = G * m1 * m2 / d * d;
 
   a.vel.x += F * cos(angle);
   a.vel.y += F * sin(angle);

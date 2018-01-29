@@ -58,7 +58,6 @@ struct Particle {
 
 struct ParticleManager {
   u32 particle_count{0};
-  static constexpr s32 num_verts{3};
   vector<Particle> particles;
   vector<Transform> transforms;
   vector<vec4> colors;
@@ -101,6 +100,7 @@ struct ParticleManager {
   void init() noexcept;
   void refresh_vertices() noexcept;
   void update() noexcept;
+  void rebuild_vertices(u32 num_vertices) noexcept;
   void draw() noexcept;
   void opencl_init() noexcept;
   void draw_debug_nodes() noexcept;
