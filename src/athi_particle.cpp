@@ -527,7 +527,7 @@ void ParticleManager::add(const glm::vec2 &pos, float radius,
   Particle p;
   p.pos = pos;
 
-  if (has_random_velocity) { p.vel = rand_vec2(-1.0f, 1.0f); }
+  if (has_random_velocity) { p.vel = rand_vec2(-random_velocity_force, random_velocity_force); }
   
   p.radius = radius;
   p.mass = particle_density * PI * radius * radius;

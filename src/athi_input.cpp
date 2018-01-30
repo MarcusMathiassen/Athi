@@ -40,7 +40,7 @@ static void gravity_well(Particle &a, const vec2 &point) {
   const float x2 = point.x;
   const float y2 = point.y;
   const float m1 = a.mass;
-  const float m2 = 100.0f;
+  const float m2 = 100000.0f;
 
   const float dx = x2 - x1;
   const float dy = y2 - y1;
@@ -50,8 +50,8 @@ static void gravity_well(Particle &a, const vec2 &point) {
   const float G = gravitational_constant;
   const float F = G * m1 * m2 / d * d;
 
-  a.vel.x += F * cos(angle);
-  a.vel.y += F * sin(angle);
+  a.acc.x += F * cos(angle);
+  a.acc.y += F * sin(angle);
 }
 
 void attraction_force(Particle &a, const vec2 &point) {

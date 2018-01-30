@@ -182,6 +182,8 @@ static void menu_settings() {
     // Initial state
 
     ImGui::Checkbox("give random velocity", &has_random_velocity);
+    if (has_random_velocity)
+      ImGui::SliderFloat("random starting force", &random_velocity_force, 0.1f, 10.0f);
 
 
     ImGui::PushItemWidth(100.0f);

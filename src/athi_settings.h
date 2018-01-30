@@ -57,6 +57,7 @@ extern s32 tree_radio_option;
 extern u32 num_vertices_per_particle;
 extern bool is_particles_colored_by_acc;
 extern bool has_random_velocity;
+extern f32 random_velocity_force;
 
 
 extern std::shared_ptr<spdlog::logger> console;
