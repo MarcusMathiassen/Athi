@@ -111,6 +111,8 @@ void Athi_Core::draw(GLFWwindow *window) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   if (post_processing) {
+    profile p("post processing");
+
     framebuffers[0].clear();
     draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
 
@@ -135,7 +137,7 @@ void Athi_Core::draw(GLFWwindow *window) {
     draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
   }
 
-  // particle_manager.draw();
+  particle_manager.draw();
 
   draw_rects();
   draw_lines();

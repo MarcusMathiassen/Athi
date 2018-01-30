@@ -2,6 +2,8 @@
 #pragma once
 #include "athi_typedefs.h"
 
+#include "./Utility/athi_globals.h" // kPi, kGravitationalConstant
+
 #include "athi_dispatch.h"
 #include "athi_quadtree_v2.h"
 #include "athi_quadtree.h"
@@ -58,7 +60,7 @@ struct Particle {
 
 struct ParticleManager {
   u32 particle_count{0};
-  float particle_density{1.0f};
+  f32 particle_density{1.0f};
   vector<Particle> particles;
   vector<Transform> transforms;
   vector<vec4> colors;

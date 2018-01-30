@@ -1,4 +1,7 @@
 #include "athi_particle.h"
+
+#include "./Utility/athi_globals.h" // kPi, kGravitationalConstant
+
 #include "athi_camera.h"
 #include "athi_dispatch.h"
 #include "athi_quadtree.h"

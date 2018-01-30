@@ -2,8 +2,8 @@
 
 #include <cstdint>
 #include <glm/glm.hpp>
-#include <string>
-#include <vector>
+#include <string> 
+#include <vector> 
 
 // STD
 using std::size_t;
@@ -28,7 +28,3 @@ using glm::mat4;
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
-
-// Global constants
-static constexpr f64 kPI = 3.14159265359;
-static constexpr f64 kGravitationalConstant = 6.67408e-11;
