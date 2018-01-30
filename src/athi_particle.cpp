@@ -70,7 +70,7 @@ void ParticleManager::opencl_init() noexcept {
   char device_name[64], driver_version[64], device_version[64];
   u32 val, work_item_dim;
   u64 global_mem_size;
-  std::size_t max_work_group_size, work_item_sizes[3];
+  size_t max_work_group_size, work_item_sizes[3];
   err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(char) * 64,
                         &device_name, NULL);
   err = clGetDeviceInfo(device_id, CL_DRIVER_VERSION, sizeof(char) * 64,
@@ -118,13 +118,11 @@ void ParticleManager::init() noexcept {
   shader.link();
 
   // Setup the circle vertices
-  std::vector<glm::vec2> positions;
+  vector<vec2> positions;
   positions.reserve(num_vertices_per_particle);
-  const float x_change = 1.0f;
-  const float y_change = 0.8f;
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions.emplace_back(cosf(i * PI * 2.0f / num_vertices_per_particle),
-                           sinf(i * PI * 2.0f / num_vertices_per_particle));
+    positions.emplace_back(cosf(i * kPI * 2.0f / num_vertices_per_particle),
+                           sinf(i * kPI * 2.0f / num_vertices_per_particle));
   }
 
   // VAO
@@ -136,8 +134,9 @@ void ParticleManager::init() noexcept {
 
   // POSITION
   glBindBuffer(GL_ARRAY_BUFFER, vbo[POSITION]);
-  glBufferData(GL_ARRAY_BUFFER, num_vertices_per_particle * sizeof(positions[0]), &positions[0],
-               GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER,
+               num_vertices_per_particle * sizeof(positions[0]), &positions[0],
+               GL_STATIC_DRAW);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -151,8 +150,8 @@ void ParticleManager::init() noexcept {
   glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
   for (u32 i = 0; i < 4; ++i) {
     glEnableVertexAttribArray(2 + i);
-    glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
-                          (void *)(i * sizeof(glm::vec4)));
+    glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(mat4),
+                          (void *)(i * sizeof(vec4)));
     glVertexAttribDivisor(2 + i, 1);
   }
 }
@@ -162,21 +161,19 @@ void ParticleManager::rebuild_vertices(u32 num_vertices) noexcept {
 
   glBindVertexArray(vao);
 
-
   // Setup the circle vertices
-  std::vector<glm::vec2> positions;
+  vector<vec2> positions;
   positions.reserve(num_vertices_per_particle);
-  const float x_change = 1.0f;
-  const float y_change = 0.8f;
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions.emplace_back(cosf(i * PI * 2.0f / num_vertices_per_particle),
-                           sinf(i * PI * 2.0f / num_vertices_per_particle));
+    positions.emplace_back(cosf(i * kPI * 2.0f / num_vertices_per_particle),
+                           sinf(i * kPI * 2.0f / num_vertices_per_particle));
   }
 
   // POSITION
   glBindBuffer(GL_ARRAY_BUFFER, vbo[POSITION]);
-  glBufferData(GL_ARRAY_BUFFER, num_vertices_per_particle * sizeof(positions[0]), &positions[0],
-               GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER,
+               num_vertices_per_particle * sizeof(positions[0]), &positions[0],
+               GL_STATIC_DRAW);
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 }
@@ -208,7 +205,7 @@ void ParticleManager::opencl_naive() noexcept {
   err = 0;
   err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
   err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
-  err |= clSetKernelArg(kernel, 2, sizeof(std::uint32_t), &particle_count);
+  err |= clSetKernelArg(kernel, 2, sizeof(u32), &particle_count);
   // err |= clSetKernelArg(kernel, 3, sizeof(cl_mem) * local, NULL);
   if (err != CL_SUCCESS) {
     console->error("[line {}] Failed to set kernel arguments! {}", __LINE__,
@@ -276,7 +273,7 @@ void ParticleManager::update_collisions() noexcept {
   resolutions = 0;
 
   // Use a tree to partition the data
-  std::vector<std::vector<std::int32_t>> tree_container;
+  vector<vector<s32>> tree_container;
   switch (tree_type) {
     using Tree = TreeType;
     case Tree::Quadtree: {
@@ -327,8 +324,8 @@ void ParticleManager::update_collisions() noexcept {
 
   profile p("ParticleManager::update(circle_collision");
 
-  const std::size_t total = particle_count;
-  const std::size_t container_total = tree_container.size();
+  const size_t total = particle_count;
+  const size_t container_total = tree_container.size();
 
   switch (threadpool_solution) {
     using Threads = ThreadPoolSolution;
@@ -366,7 +363,7 @@ void ParticleManager::update_collisions() noexcept {
         case Tree::Quadtree:
           [[fallthrough]];
         case Tree::UniformGrid: {
-          std::vector<std::future<void>> results(variable_thread_count);
+          vector<std::future<void>> results(variable_thread_count);
           for (int i = 0; i < variable_thread_count; ++i) {
             const auto[begin, end] =
                 get_begin_and_end(i, container_total, variable_thread_count);
@@ -377,7 +374,7 @@ void ParticleManager::update_collisions() noexcept {
         } break;
 
         case Tree::None: {
-          std::vector<std::future<void>> results(variable_thread_count);
+          vector<std::future<void>> results(variable_thread_count);
           for (int i = 0; i < variable_thread_count; ++i) {
             const auto[begin, end] =
                 get_begin_and_end(i, total, variable_thread_count);
@@ -446,7 +443,7 @@ void ParticleManager::update() noexcept {
         }
         p.update(this_sample_timestep);
       }
-      this_sample_timestep += (1.0/60.0) / physics_samples;
+      this_sample_timestep += (1.0 / 60.0) / physics_samples;
     }
   }
 
@@ -475,12 +472,11 @@ void ParticleManager::update_gpu_buffers() noexcept {
 
     // Update the buffers with the new data.
     for (const auto &p : particles) {
-
-
       if (is_particles_colored_by_acc) {
         const auto old = p.pos - p.vel;
         const auto pos_diff = p.pos - old;
-        colors[p.id] = color_by_acceleration(acceleration_color_min, acceleration_color_max, pos_diff);
+        colors[p.id] = color_by_acceleration(acceleration_color_min,
+                                             acceleration_color_max, pos_diff);
       }
 
       // Update the transform
@@ -493,7 +489,7 @@ void ParticleManager::update_gpu_buffers() noexcept {
     profile p("ParticleManager::update_gpu_buffers(GPU buffer update)");
     // Update the gpu buffers incase of more particles..
     glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
-    const auto transform_bytes_needed = sizeof(glm::mat4) * particle_count;
+    const auto transform_bytes_needed = sizeof(mat4) * particle_count;
     if (transform_bytes_needed > model_bytes_allocated) {
       glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &models[0],
                    GL_STREAM_DRAW);
@@ -503,7 +499,7 @@ void ParticleManager::update_gpu_buffers() noexcept {
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo[COLOR]);
-    const auto color_bytes_needed = sizeof(glm::vec4) * particle_count;
+    const auto color_bytes_needed = sizeof(vec4) * particle_count;
     if (color_bytes_needed > color_bytes_allocated) {
       glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0],
                    GL_STREAM_DRAW);
@@ -519,7 +515,8 @@ void ParticleManager::draw() noexcept {
   profile p("ParticleManager::draw");
   glBindVertexArray(vao);
   shader.bind();
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_vertices_per_particle, particle_count);
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_vertices_per_particle,
+                        particle_count);
 }
 
 void ParticleManager::add(const glm::vec2 &pos, float radius,
@@ -527,10 +524,12 @@ void ParticleManager::add(const glm::vec2 &pos, float radius,
   Particle p;
   p.pos = pos;
 
-  if (has_random_velocity) { p.vel = rand_vec2(-random_velocity_force, random_velocity_force); }
-  
+  if (has_random_velocity) {
+    p.vel = rand_vec2(-random_velocity_force, random_velocity_force);
+  }
+
   p.radius = radius;
-  p.mass = particle_density * PI * radius * radius;
+  p.mass = particle_density * kPI * radius * radius;
   p.id = particle_count;
   particles.emplace_back(p);
 
@@ -544,8 +543,7 @@ void ParticleManager::add(const glm::vec2 &pos, float radius,
   colors.emplace_back(color);
 }
 
-void ParticleManager::remove_all_with_id(
-    const std::vector<std::int32_t> &ids) noexcept {
+void ParticleManager::remove_all_with_id(const vector<s32> &ids) noexcept {
   for (const auto id : ids) {
     particles.erase(particles.begin() + id);
     transforms.erase(transforms.begin() + id);
@@ -694,7 +692,7 @@ static void gravitational_force(Particle &a, const Particle &b) {
   const f32 d = sqrt(dx * dx + dy * dy);
 
   const f32 angle = atan2(dy, dx);
-  const f32 G = gravitational_constant;
+  const f32 G = kGravitationalConstant;
   const f32 F = G * m1 * m2 / d * d;
 
   a.vel.x += F * cos(angle);
@@ -728,7 +726,7 @@ void ParticleManager::collision_logNxN(size_t total, size_t begin,
 }
 
 void ParticleManager::collision_quadtree(
-    const std::vector<std::vector<std::int32_t>> &tree_container, size_t begin,
+    const vector<vector<s32>> &tree_container, size_t begin,
     size_t end) noexcept {
   auto comp_counter = 0ul;
   auto res_counter = 0ul;

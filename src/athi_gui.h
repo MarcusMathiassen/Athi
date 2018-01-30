@@ -190,7 +190,7 @@ static void menu_settings() {
     // Color changed by acceleration
     ImGui::Checkbox("colored by acceleration", &is_particles_colored_by_acc);
     if (is_particles_colored_by_acc) {
-        ImGui::SliderFloat("velocity threshold", &color_by_velocity_threshold, 0.001f, 0.1f);
+        ImGui::SliderFloat("velocity threshold", &color_by_velocity_threshold, 0.001f, 0.05f);
         ImGui::Text("minimum");
         ImGui::SameLine(200);
         ImGui::Text("maximum");

@@ -6,43 +6,24 @@
 #include <atomic>
 
 #include "../dep/Universal/spdlog/spdlog.h" // Console logging
+extern std::shared_ptr<spdlog::logger> console;
 
-enum class MouseOption {
-  Color,
-  GravityWell,
-  Drag,
-  Delete,
-  None,
-};
-
+enum class MouseOption { Color, GravityWell, Drag, Delete, None };
 extern MouseOption mouse_option;
 
-enum class OS {
-  Apple,
-  Windows,
-  Linux,
-};
+enum class OS { Apple, Windows, Linux };
 #ifdef __APPLE__
-constexpr OS os{OS::Apple};
+  constexpr OS os{OS::Apple};
 #elif _WIN32
-constexpr OS os{OS::Windows};
+  constexpr OS os{OS::Windows};
 #else
-constexpr OS os{OS::Linux};
+  constexpr OS os{OS::Linux};
 #endif
 
-enum class ThreadPoolSolution {
-  AppleGCD,
-  Dispatch,
-  None
-};
+enum class ThreadPoolSolution { AppleGCD, Dispatch, None };
 extern ThreadPoolSolution threadpool_solution;
 
-// For all our tree options
-enum class TreeType {
-  Quadtree,
-  UniformGrid,
-  None,
-};
+enum class TreeType { Quadtree, UniformGrid, None };
 extern TreeType tree_type;
 
 #ifdef NDEBUG
@@ -59,9 +40,6 @@ extern bool is_particles_colored_by_acc;
 extern bool has_random_velocity;
 extern f32 random_velocity_force;
 extern f32 color_by_velocity_threshold;
-
-
-extern std::shared_ptr<spdlog::logger> console;
 
 extern vector<FrameBuffer> framebuffers;
 extern bool post_processing;

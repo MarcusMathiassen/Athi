@@ -2,31 +2,33 @@
 
 #include <cstdint>
 #include <glm/glm.hpp>
-#include <memory>
 #include <string>
 #include <vector>
 
-static constexpr double PI = 3.14159265359;
+// STD
+using std::size_t;
+using std::string;
+using std::vector;
 
 typedef std::uint8_t u8;
 typedef std::uint16_t u16;
 typedef std::uint32_t u32;
 typedef std::uint64_t u64;
 
-typedef std::size_t size_t;
-
 typedef std::int8_t s8;
 typedef std::int16_t s16;
 typedef std::int32_t s32;
 typedef std::int64_t s64;
 
-typedef float   f32;
-typedef double  f64;
+typedef float f32;
+typedef double f64;
 
-using std::string;
-using std::vector;
-
+// GLM
 using glm::mat4;
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
+
+// Global constants
+static constexpr f64 kPI = 3.14159265359;
+static constexpr f64 kGravitationalConstant = 6.67408e-11;

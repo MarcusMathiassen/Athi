@@ -2,14 +2,14 @@
 #include "athi_typedefs.h"
 #include "athi_framebuffer.h"
 
+std::shared_ptr<spdlog::logger> console;
+
 MouseOption mouse_option{MouseOption::Drag};
 TreeType tree_type{TreeType::Quadtree};
 ThreadPoolSolution threadpool_solution{ThreadPoolSolution::Dispatch};
 
-std::shared_ptr<spdlog::logger> console;
-
 std::vector<FrameBuffer> framebuffers;
-f64 frame_budget{1000.0 / 60.0};
+f64 frame_budget{1.0 / 60.0};
 
 s32 mouse_radio_options = static_cast<s32>(MouseOption::Drag);
 s32 tree_radio_option = 0;
@@ -18,7 +18,7 @@ u32 num_vertices_per_particle = 36;
 bool is_particles_colored_by_acc = true;
 bool has_random_velocity = true;
 f32 random_velocity_force = 5.0f;
-f32 color_by_velocity_threshold = 0.01f;
+f32 color_by_velocity_threshold = 0.003f;
 
 bool post_processing{true};
 f32 mouse_size{10.0f};
@@ -98,7 +98,7 @@ bool app_is_running{true};
 bool settings_changed{false};
 
 vec4 acceleration_color_min{vec4(1,1,1,1)};
-vec4 acceleration_color_max{pastel_blue};
+vec4 acceleration_color_max{vec4(1,0,0.01,1)};
 
 std::atomic<s32> universal_color_picker{0};
 vec4 background_color_dark = vec4(18.0f/255.0f, 20.0f/255.0f, 25.0f/255.0f, 1.0f);
