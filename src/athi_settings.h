@@ -1,7 +1,8 @@
 #pragma once
 
-#include "athi_framebuffer.h"
 #include "athi_typedefs.h"
+#include "./Utility/athi_globals.h"
+#include "athi_framebuffer.h"
 #include "imgui.h"
 #include <atomic>
 
@@ -126,21 +127,13 @@ extern bool settings_changed;
 
 extern std::atomic<s32> universal_color_picker;
 
-extern vec4 sw_color;
-extern vec4 se_color;
-extern vec4 nw_color;
-extern vec4 ne_color;
-
 extern vec4 acceleration_color_min;
 extern vec4 acceleration_color_max;
 
 extern vec4 background_color_dark;
 extern vec4 background_color_light;
-static const vec4 pastel_red(1, 0.411, 0.380, 1.0);
-static const vec4 pastel_green(0.466, 0.745, 0.466, 1.0);
-static const vec4 pastel_blue(0.466, 0.619, 0.796, 1.0);
-static const vec4 pastel_yellow(0.992, 0.992, 0.588, 1.0);
-static const vec4 pastel_purple(0.77647, 0.47059, 0.86667, 1.0);
-static const vec4 pastel_pink(1, 0.819, 0.862, 1.0);
-static const vec4 pastel_orange(1, 0.701, 0.278, 1.0);
-static const vec4 pastel_gray(0.333, 0.333, 0.333, 1.0);
+
+extern vec4 sw_color;
+extern vec4 se_color;
+extern vec4 nw_color;
+extern vec4 ne_color;

@@ -64,13 +64,6 @@ vec2  rand_vec2(f32 min, f32 max) noexcept;
 vec3  rand_vec3(f32 min, f32 max) noexcept;
 vec4  rand_vec4(f32 min, f32 max) noexcept;
 
-struct HSV {
-  f32 h{0.0f},s{0.0f},v{0.0f},a{1.0f};
-  HSV() = default;
-  HSV(f32 _h, f32 _s, f32 _v ,f32 _a) : h(_h), s(_s), v(_v), a(_a) {}
-};
-
-
 inline static auto get_begin_and_end(s32 i, s32 total, s32 threads) noexcept {
   const s32 parts = total / threads;
   const s32 leftovers = total % threads;
@@ -81,9 +74,9 @@ inline static auto get_begin_and_end(s32 i, s32 total, s32 threads) noexcept {
 };
 
 // Color functions
-vec4 get_hsv(s32 h, f32 s, f32 v, f32 a) noexcept;
-HSV rgb_to_hsv(vec4 in) noexcept;
-HSV LerpHSV (HSV a, HSV b, f32 t) noexcept;
+vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept;
+vec4 rgb_to_hsv(vec4 in) noexcept;
+vec4 lerp_hsv(vec4 a, vec4 b, f32 t) noexcept;
 vec4 color_by_acceleration(const vec4& min_color, const vec4& max_color, const vec2& acc) noexcept;
 void read_file(const char *file, char **buffer) noexcept;
 void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept;

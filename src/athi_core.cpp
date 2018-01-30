@@ -48,6 +48,7 @@ void Athi_Core::init() {
   console->info("{} {}", FRED("CPU:"), get_cpu_brand());
   console->info("Threads available: {}", std::thread::hardware_concurrency());
   console->info("IMGUI VERSION {}", ImGui::GetVersion());
+  //console->info("GLM VERSION {}", glm::get_version());
   console->info("GL_VERSION {}", glGetString(GL_VERSION));
   console->info("GL_VENDOR {}", glGetString(GL_VENDOR));
   console->info("GL_RENDERER {}", glGetString(GL_RENDERER));
@@ -76,7 +77,7 @@ void Athi_Core::start() {
 
   while (!glfwWindowShouldClose(window_context)) {
     const f64 time_start_frame = glfwGetTime();
-    
+
     glfwPollEvents();
     update_inputs();
 

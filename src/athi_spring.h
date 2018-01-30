@@ -1,25 +1,23 @@
 #pragma once
 
+#include "athi_typedefs.h"
+#include "./Utility/athi_globals.h"
 #include "athi_line.h"
-#include "athi_settings.h"
 
-#include <glm/vec2.hpp>
-#include <glm/vec4.hpp>
-
-template <class T> struct Athi_Spring {
+template <class T>
+struct Athi_Spring {
   T *object;
   T *anchor;
-  float length;
-  float k{0.2f};
-  float b{1.0f};
-  glm::vec4 color{pastel_green};
+  f32 length;
+  f32 k{0.2f};
+  f32 b{1.0f};
+  vec4 color{pastel_green};
 
   void update() {
-
-    const glm::vec2 p1 = object->pos;
-    const glm::vec2 p2 = anchor->pos;
-    const glm::vec2 v1 = object->vel;
-    const glm::vec2 v2 = anchor->vel;
+    const auto p1 = object->pos;
+    const auto p2 = anchor->pos;
+    const auto v1 = object->vel;
+    const auto v2 = anchor->vel;
     const auto m1 = object->mass;
     const auto m2 = anchor->mass;
 
@@ -34,8 +32,8 @@ template <class T> struct Athi_Spring {
     const auto F2 = -k * x * x_n2 - b * v2;
 
     // Update acceleration
-    object->acc = F1 / m1 * static_cast<float>(timestep);
-    anchor->acc = F2 / m2 * static_cast<float>(timestep);
+    object->acc = F1 / m1 * static_cast<f32>(timestep);
+    anchor->acc = F2 / m2 * static_cast<f32>(timestep);
   }
 
   void draw() const { draw_line(object->pos, anchor->pos, 0.3f, color); }

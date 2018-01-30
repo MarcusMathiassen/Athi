@@ -5,7 +5,8 @@
 #include "athi_transform.h"
 #include "athi_utility.h"
 
-#include <vector>
+#include <algorithm>
+#include <glm/gtx/compatibility.hpp>
 
 f32 rand_f32(f32 min, f32 max) noexcept {
   return ((f32(rand()) / f32(RAND_MAX)) * (max - min)) + min;
@@ -21,9 +22,9 @@ vec4 rand_vec4(f32 min, f32 max) noexcept {
               rand_f32(min, max));
 }
 
-HSV rgb_to_hsv(vec4 in) noexcept {
-  HSV out;
-  double min{0.0f}, max{0.0f}, delta{0.0f};
+vec4 rgb_to_hsv(vec4 in) noexcept {
+  vec4 out;
+  f64 min{0.0f}, max{0.0f}, delta{0.0f};
 
   min = in.r < in.g ? in.r : in.g;
   min = min < in.b ? min : in.b;
@@ -31,34 +32,43 @@ HSV rgb_to_hsv(vec4 in) noexcept {
   max = in.r > in.g ? in.r : in.g;
   max = max > in.b ? max : in.b;
 
-  out.v = max;  // v
+  out.z = max;  // v
+
+  out.a = in.a;
+
   delta = max - min;
   if (delta < 0.00001) {
-    out.s = 0;
-    out.h = 0;  // undefined, maybe nan?
+    out.y = 0;
+    out.x = 0;  // undefined, maybe nan?
     return out;
   }
   if (max > 0.0) {  // NOTE: if Max is == 0, this divide would cause a crash
-    out.s = (delta / max);  // s
+    out.y = (delta / max);  // s
   } else {
     // if max is 0, then r = g = b = 0
     // s = 0, h is undefined
-    out.s = 0.0;
-    out.h = NAN;  // its now undefined
+    out.y = 0.0;
+    out.x = NAN;  // its now undefined
     return out;
   }
   if (in.r >= max)                  // > is bogus, just keeps compilor happy
-    out.h = (in.g - in.b) / delta;  // between yellow & magenta
+    out.x = (in.g - in.b) / delta;  // between yellow & magenta
   else if (in.g >= max)
-    out.h = 2.0 + (in.b - in.r) / delta;  // between cyan & yellow
+    out.x = 2.0 + (in.b - in.r) / delta;  // between cyan & yellow
   else
-    out.h = 4.0 + (in.r - in.g) / delta;  // between magenta & cyan
-  out.h *= 60.0;                          // degrees
-  if (out.h < 0.0) out.h += 360.0;
+    out.x = 4.0 + (in.r - in.g) / delta;  // between magenta & cyan
+  out.x *= 60.0;                          // degrees
+  if (out.x < 0.0) out.x += 360.0;
   return out;
+
 }
 
-vec4 get_hsv(s32 h, f32 s, f32 v, f32 a) noexcept {
+vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept {
+
+  // gray
+  if (s == 0.0f)
+    return vec4(v,v,v,a);
+
   h = (h >= 360) ? 0 : h;
   const f32 hue = h * 1.0f/60.0f;
 
@@ -82,15 +92,12 @@ vec4 get_hsv(s32 h, f32 s, f32 v, f32 a) noexcept {
   return vec4(r, g, b, a);
 }
 
-HSV LerpHSV(HSV a, HSV b, f32 t) noexcept {
+vec4 lerp_hsv(vec4 a, vec4 b, f32 t) noexcept {
   // Hue interpolation
   f32 h{0.0f};
-  f32 d = b.h - a.h;
-  if (a.h > b.h) {
-    // Swap (a.h, b.h)
-    f32 h3 = b.h;
-    b.h = a.h;
-    a.h = h3;
+  f32 d = b.x - a.x;
+  if (a.x > b.x) {
+    std::swap(a.x, b.x);
 
     d = -d;
     t = 1 - t;
@@ -98,21 +105,21 @@ HSV LerpHSV(HSV a, HSV b, f32 t) noexcept {
 
   if (d > 0.5)  // 180deg
   {
-    a.h = a.h + 1;                // 360deg
-    h = (a.h + t * (b.h - a.h));  // 360deg
+    a.x = a.x + 1;                // 360deg
+    h = (a.x + t * (b.x - a.x));  // 360deg
   }
   if (d <= 0.5)  // 180deg
   {
-    h = a.h + t * d;
+    h = a.x + t * d;
   }
 
   h = h > 360 ? 360 : h < 0 ? 0 : h;
 
   // Interpolates the rest
-  return HSV(h,                      // H
-             a.s + t * (b.s - a.s),  // S
-             a.v + t * (b.v - a.v),  // V
-             a.a + t * (b.a - a.a)   // A
+  return vec4(h,                      // H
+              a.y + t * (b.y - a.y),  // S
+              a.z + t * (b.z - a.z),  // V
+              a.a + t * (b.a - a.a)   // A
   );
 }
 
@@ -128,8 +135,8 @@ vec4 color_by_acceleration(const vec4 &min_color, const vec4 &max_color,
   const auto c1 = rgb_to_hsv(min_color);
   const auto c2 = rgb_to_hsv(max_color);
 
-  const auto c3 = LerpHSV(c1, c2, mg);
-  return get_hsv(c3.h, c3.s, c3.v, c3.a);
+  const auto c3 = lerp_hsv(c1, c2, mg);
+  return hsv_to_rgb(c3.x, c3.y, c3.z, c3.w);
 }
 
 std::unordered_map<string, f64> time_taken_by;

@@ -1,5 +1,7 @@
 
 #include "athi_typedefs.h"
+#include "./Utility/athi_globals.h"
+
 #include "athi_input.h"
 #include "athi_line.h"
 #include "athi_particle.h"
@@ -42,18 +44,18 @@ static void gravity_well(Particle &a, const vec2 &point) {
   const f32 x2 = point.x;
   const f32 y2 = point.y;
   const f32 m1 = a.mass;
-  const f32 m2 = 100000.0f;
+  const f32 m2 = 1e10;
 
   const f32 dx = x2 - x1;
   const f32 dy = y2 - y1;
   const f32 d = sqrt(dx * dx + dy * dy);
 
   const f32 angle = atan2(dy, dx);
-  const f32 G = gravitational_constant;
+  const f32 G = kGravitationalConstant;
   const f32 F = G * m1 * m2 / d * d;
 
-  a.acc.x += F * cos(angle);
-  a.acc.y += F * sin(angle);
+  a.vel.x += F * cos(angle);
+  a.vel.y += F * sin(angle);
 }
 
 void attraction_force(Particle &a, const vec2 &point) {

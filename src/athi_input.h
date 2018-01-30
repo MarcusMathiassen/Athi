@@ -56,8 +56,7 @@ static void scroll_callback(GLFWwindow *window, f64 xoffset,
   // If color wheel
   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
     hue += yoffset;
-    hue = hue < 0 ? 360 : hue > 360 ? 0 : hue;
-    circle_color = get_hsv(hue, 1.0, 1.0, 1.0);
+    circle_color = hsv_to_rgb(hue, 1.0, 1.0, 1.0);
     return;
   }
 
