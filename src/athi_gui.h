@@ -64,9 +64,12 @@ static void menu_profiler() {
   profile p("menu_profiler");
 
   ImGui::Begin("Profiler");
+
+  ImGui::Text("Frametime: %.3f", frametime);
+
   ImGui::Columns(3, "mycolumns");
   ImGui::Separator();
-  ImGui::Text("Component");
+  ImGui::Text("Function(s)");
   ImGui::NextColumn();
   ImGui::Text("Time (ms)");
   ImGui::NextColumn();

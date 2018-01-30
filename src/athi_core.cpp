@@ -76,8 +76,7 @@ void Athi_Core::start() {
 
   while (!glfwWindowShouldClose(window_context)) {
     const f64 time_start_frame = glfwGetTime();
-    profile p("Complete frame");
-
+    
     glfwPollEvents();
     update_inputs();
 

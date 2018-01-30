@@ -1,3 +1,5 @@
+
+#include "athi_typedefs.h"
 #include "athi_input.h"
 #include "athi_line.h"
 #include "athi_particle.h"
@@ -14,41 +16,41 @@ Athi_Input_Manager athi_input_manager;
 
 void init_input_manager() { athi_input_manager.init(); }
 
-glm::vec2 get_mouse_viewspace_pos() {
+vec2 get_mouse_viewspace_pos() {
   auto context = glfwGetCurrentContext();
-  double mouse_pos_x, mouse_pos_y;
+  f64 mouse_pos_x, mouse_pos_y;
   glfwGetCursorPos(context, &mouse_pos_x, &mouse_pos_y);
 
-  std::int32_t width, height;
+  s32 width, height;
   glfwGetWindowSize(context, &width, &height);
   mouse_pos_x = -1.0f + 2 * mouse_pos_x / width;
   mouse_pos_y = 1.0f - 2 * mouse_pos_y / height;
 
-  return glm::vec2(mouse_pos_x, mouse_pos_y);
+  return vec2(mouse_pos_x, mouse_pos_y);
 }
 
-std::int32_t get_mouse_button_state(std::int32_t button) {
-  const int state = glfwGetMouseButton(glfwGetCurrentContext(), button);
+s32 get_mouse_button_state(s32 button) {
+  const s32 state = glfwGetMouseButton(glfwGetCurrentContext(), button);
   if (state == GLFW_PRESS)
     return GLFW_PRESS;
   return GLFW_RELEASE;
 }
 
 static void gravity_well(Particle &a, const vec2 &point) {
-  const float x1 = a.pos.x;
-  const float y1 = a.pos.y;
-  const float x2 = point.x;
-  const float y2 = point.y;
-  const float m1 = a.mass;
-  const float m2 = 100000.0f;
+  const f32 x1 = a.pos.x;
+  const f32 y1 = a.pos.y;
+  const f32 x2 = point.x;
+  const f32 y2 = point.y;
+  const f32 m1 = a.mass;
+  const f32 m2 = 100000.0f;
 
-  const float dx = x2 - x1;
-  const float dy = y2 - y1;
-  const float d = sqrt(dx * dx + dy * dy);
+  const f32 dx = x2 - x1;
+  const f32 dy = y2 - y1;
+  const f32 d = sqrt(dx * dx + dy * dy);
 
-  const float angle = atan2(dy, dx);
-  const float G = gravitational_constant;
-  const float F = G * m1 * m2 / d * d;
+  const f32 angle = atan2(dy, dx);
+  const f32 G = gravitational_constant;
+  const f32 F = G * m1 * m2 / d * d;
 
   a.acc.x += F * cos(angle);
   a.acc.y += F * sin(angle);
@@ -56,17 +58,17 @@ static void gravity_well(Particle &a, const vec2 &point) {
 
 void attraction_force(Particle &a, const vec2 &point) {
   // Set up variables
-  const float x1 = a.pos.x;
-  const float y1 = a.pos.y;
-  const float x2 = point.x;
-  const float y2 = point.y;
+  const f32 x1 = a.pos.x;
+  const f32 y1 = a.pos.y;
+  const f32 x2 = point.x;
+  const f32 y2 = point.y;
 
   // Get distance between balls.
-  const float dx = x2 - x1;
-  const float dy = y2 - y1;
-  const float d = sqrt(dx * dx + dy * dy);
+  const f32 dx = x2 - x1;
+  const f32 dy = y2 - y1;
+  const f32 d = sqrt(dx * dx + dy * dy);
 
-  const float angle = atan2(dy, dx);
+  const f32 angle = atan2(dy, dx);
   a.vel.x += d * cos(angle);
   a.vel.y += d * sin(angle);
   a.vel *= 0.7f;
@@ -81,7 +83,7 @@ int32_t id1, id2;
 bool found{false};
 bool attach{false};
 static bool is_dragging{false};
-static std::vector<std::int32_t> mouse_attached_to;
+static vector<s32> mouse_attached_to;
 void drag_color_or_destroy_with_mouse() {
 
 
@@ -243,22 +245,4 @@ void update_inputs() {
     particle_system.add(mouse_pos, circle_size, circle_color);
     particle_system.add(mouse_pos, circle_size, circle_color);
   }
-
-  // if (glfwGetKey(context, GLFW_KEY_8) == GLFW_PRESS) {
-  //   Particle p;
-  //   p.pos = get_mouse_viewspace_pos();
-  //   p.radius = 0.001f; 
-  //   p.mass = 1.0f; 
-  //   particle_system.add_particle(p, circle_color);
-  //   particle_system.add_particle(p, circle_color);
-  //   particle_system.add_particle(p, circle_color);
-  //   particle_system.add_particle(p, circle_color);
-  //   particle_system.add_particle(p, circle_color);
-  //   particle_system.add_particle(p, circle_color);
-  //   particle_system.add_particle(p, circle_color);
-  //   particle_system.add_particle(p, circle_color);
-  //   particle_system.add_particle(p, circle_color);
-  //   particle_system.add_particle(p, circle_color);
-  //   console->info("particles: {}", particle_system.id.size());
-  // }
 }

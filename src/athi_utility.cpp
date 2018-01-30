@@ -1,78 +1,76 @@
 #include "athi_typedefs.h"
 
-#include "athi_utility.h"
 #include "athi_camera.h"
-#include "athi_transform.h"
 #include "athi_shader.h"
+#include "athi_transform.h"
+#include "athi_utility.h"
 
 #include <vector>
 
-f32 rand_f32(f32 min, f32 max) noexcept { 
+f32 rand_f32(f32 min, f32 max) noexcept {
   return ((f32(rand()) / f32(RAND_MAX)) * (max - min)) + min;
 }
-vec2 rand_vec2(f32 min, f32 max) noexcept { 
+vec2 rand_vec2(f32 min, f32 max) noexcept {
   return vec2(rand_f32(min, max), rand_f32(min, max));
 }
-vec3 rand_vec3(f32 min, f32 max) noexcept { 
+vec3 rand_vec3(f32 min, f32 max) noexcept {
   return vec3(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max));
 }
-vec4 rand_vec4(f32 min, f32 max) noexcept { 
-  return vec4(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max), rand_f32(min, max));
+vec4 rand_vec4(f32 min, f32 max) noexcept {
+  return vec4(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max),
+              rand_f32(min, max));
 }
 
 HSV rgb_to_hsv(vec4 in) noexcept {
-  HSV         out;
-  double      min{0.0f}, max{0.0f}, delta{0.0f};
+  HSV out;
+  double min{0.0f}, max{0.0f}, delta{0.0f};
 
   min = in.r < in.g ? in.r : in.g;
-  min = min  < in.b ? min  : in.b;
+  min = min < in.b ? min : in.b;
 
   max = in.r > in.g ? in.r : in.g;
-  max = max  > in.b ? max  : in.b;
+  max = max > in.b ? max : in.b;
 
-  out.v = max;                                // v
+  out.v = max;  // v
   delta = max - min;
-  if (delta < 0.00001) 
-  {
-      out.s = 0;
-      out.h = 0; // undefined, maybe nan?
-      return out;
+  if (delta < 0.00001) {
+    out.s = 0;
+    out.h = 0;  // undefined, maybe nan?
+    return out;
   }
-  if( max > 0.0 ) { // NOTE: if Max is == 0, this divide would cause a crash
-      out.s = (delta / max);                  // s
+  if (max > 0.0) {  // NOTE: if Max is == 0, this divide would cause a crash
+    out.s = (delta / max);  // s
   } else {
-      // if max is 0, then r = g = b = 0              
-      // s = 0, h is undefined
-      out.s = 0.0;
-      out.h = NAN;                            // its now undefined
-      return out;
+    // if max is 0, then r = g = b = 0
+    // s = 0, h is undefined
+    out.s = 0.0;
+    out.h = NAN;  // its now undefined
+    return out;
   }
-  if( in.r >= max )                           // > is bogus, just keeps compilor happy
-      out.h = ( in.g - in.b ) / delta;        // between yellow & magenta
+  if (in.r >= max)                  // > is bogus, just keeps compilor happy
+    out.h = (in.g - in.b) / delta;  // between yellow & magenta
+  else if (in.g >= max)
+    out.h = 2.0 + (in.b - in.r) / delta;  // between cyan & yellow
   else
-  if( in.g >= max )
-      out.h = 2.0 + ( in.b - in.r ) / delta;  // between cyan & yellow
-  else
-      out.h = 4.0 + ( in.r - in.g ) / delta;  // between magenta & cyan
-  out.h *= 60.0;                              // degrees
-  if( out.h < 0.0 ) out.h += 360.0;
+    out.h = 4.0 + (in.r - in.g) / delta;  // between magenta & cyan
+  out.h *= 60.0;                          // degrees
+  if (out.h < 0.0) out.h += 360.0;
   return out;
 }
 
-vec4 getHSV(u16 h, f32 s, f32 v, f32 a) noexcept {
+vec4 get_hsv(s32 h, f32 s, f32 v, f32 a) noexcept {
   h = (h >= 360) ? 0 : h;
-  const f32 hue { (f32)h * 0.016666f };
+  const f32 hue = h * 1.0f/60.0f;
 
-  const u16 i   { (u16)hue };
-  const f32 f   { hue - i };
-  const f32 p   { v * (1.0f - s) };
-  const f32 q   { v * (1.0f - s*f) };
-  const f32 t   { v * (1.0f - s*( 1.0f-f )) };
+  const s32 i = hue;
+  const f32 f = hue - i;
+  const f32 p = v * (1.0f - s);
+  const f32 q = v * (1.0f - s * f);
+  const f32 t = v * (1.0f - s * (1.0f - f));
 
   f32 r{0.0f}, g{0.0f}, b{0.0f};
 
-  switch(i)
-  {
+  switch (i) {
     case 0: r = v; g = t; b = p; break;
     case 1: r = q; g = v; b = p; break;
     case 2: r = p; g = v; b = t; break;
@@ -81,48 +79,45 @@ vec4 getHSV(u16 h, f32 s, f32 v, f32 a) noexcept {
     case 5:
     default: r = v; g = p; b = q; break;
   }
-  return vec4(r,g,b,a);
+  return vec4(r, g, b, a);
 }
 
-HSV LerpHSV (HSV a, HSV b, f32 t) noexcept {
+HSV LerpHSV(HSV a, HSV b, f32 t) noexcept {
   // Hue interpolation
   f32 h{0.0f};
   f32 d = b.h - a.h;
-  if (a.h > b.h)
-  {
-  // Swap (a.h, b.h)
-  f32 h3 = b.h;
-  b.h = a.h;
-  a.h = h3;
-  
-  d = -d;
-  t = 1 - t;
+  if (a.h > b.h) {
+    // Swap (a.h, b.h)
+    f32 h3 = b.h;
+    b.h = a.h;
+    a.h = h3;
+
+    d = -d;
+    t = 1 - t;
   }
-  
-  if (d > 0.5) // 180deg
+
+  if (d > 0.5)  // 180deg
   {
-  a.h = a.h + 1; // 360deg
-  h = ( a.h + t * (b.h - a.h) ); // 360deg
+    a.h = a.h + 1;                // 360deg
+    h = (a.h + t * (b.h - a.h));  // 360deg
   }
-  if (d <= 0.5) // 180deg
+  if (d <= 0.5)  // 180deg
   {
-  h = a.h + t * d;
+    h = a.h + t * d;
   }
- 
+
   h = h > 360 ? 360 : h < 0 ? 0 : h;
-  
+
   // Interpolates the rest
-  return HSV
-  (
-  h, // H
-  a.s + t * (b.s-a.s), // S
-  a.v + t * (b.v-a.v), // V
-  a.a + t * (b.a-a.a) // A
+  return HSV(h,                      // H
+             a.s + t * (b.s - a.s),  // S
+             a.v + t * (b.v - a.v),  // V
+             a.a + t * (b.a - a.a)   // A
   );
 }
 
-vec4 color_by_acceleration(const vec4& min_color, const vec4& max_color, const vec2& acc) noexcept {
-
+vec4 color_by_acceleration(const vec4 &min_color, const vec4 &max_color,
+                           const vec2 &acc) noexcept {
   vec2 temp = acc;
   // Get the HSV equivalent
   temp.x *= color_by_velocity_threshold;
@@ -133,47 +128,43 @@ vec4 color_by_acceleration(const vec4& min_color, const vec4& max_color, const v
   const auto c1 = rgb_to_hsv(min_color);
   const auto c2 = rgb_to_hsv(max_color);
 
-  const auto c3 = LerpHSV(c1,c2,mg);
-  return getHSV(c3.h, c3.s, c3.v, c3.a);
+  const auto c3 = LerpHSV(c1, c2, mg);
+  return get_hsv(c3.h, c3.s, c3.v, c3.a);
 }
-
 
 std::unordered_map<string, f64> time_taken_by;
 
-
 vec4 get_universal_current_color() {
-  if (universal_color_picker > 6)
-    universal_color_picker = 0;
+  if (universal_color_picker > 6) universal_color_picker = 0;
   switch (universal_color_picker) {
-  case 0:
-    return pastel_red;
-    break;
-  case 1:
-    return pastel_gray;
-    break;
-  case 2:
-    return pastel_green;
-    break;
-  case 3:
-    return pastel_orange;
-    break;
-  case 4:
-    return pastel_yellow;
-    break;
-  case 5:
-    return pastel_pink;
-    break;
-  case 6:
-    return pastel_blue;
-    break;
+    case 0:
+      return pastel_red;
+      break;
+    case 1:
+      return pastel_gray;
+      break;
+    case 2:
+      return pastel_green;
+      break;
+    case 3:
+      return pastel_orange;
+      break;
+    case 4:
+      return pastel_yellow;
+      break;
+    case 5:
+      return pastel_pink;
+      break;
+    case 6:
+      return pastel_blue;
+      break;
   }
   return vec4();
 }
 void read_file(const char *file, char **buffer) noexcept {
   string buff, line;
   std::ifstream fileIn(file);
-  while (std::getline(fileIn, line))
-    buff += line + '\n';
+  while (std::getline(fileIn, line)) buff += line + '\n';
   *buffer = (char *)malloc((buff.length() + 1) * sizeof(char));
   strcpy(*buffer, buff.c_str());
 }
@@ -184,12 +175,14 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept {
   const f64 time_to_sleep = (frametime - time_spent_frame) * 0.7;
 
   if (time_to_sleep > 0.0) {
-    if (time_to_sleep > 2.0) // because of the inconsistent wakeup times from sleep
+    if (time_to_sleep >
+        2.0)  // because of the inconsistent wakeup times from sleep
     {
 #ifdef _WIN32
       Sleep((DWORD)time_to_sleep);
 #elif __APPLE__
-      const timespec time_in_nanoseconds_to_sleep{0, (long)(time_to_sleep * 1e6)};
+      const timespec time_in_nanoseconds_to_sleep{0,
+                                                  (long)(time_to_sleep * 1e6)};
       nanosleep(&time_in_nanoseconds_to_sleep, NULL);
 #endif
     }
@@ -223,8 +216,10 @@ void setup_fullscreen_quad() {
   enum { POSITION_ATTR_LOC, TEXTCOORD_ATTR_LOC, COLOR_ATTR_LOC };
 
   fullscreen_shader.init("Fullscreen shader");
-  fullscreen_shader.load_from_file("athi_fullscreen_quad.vs", ShaderType::Vertex);
-  fullscreen_shader.load_from_file("athi_fullscreen_quad.fs", ShaderType::Fragment);
+  fullscreen_shader.load_from_file("athi_fullscreen_quad.vs",
+                                   ShaderType::Vertex);
+  fullscreen_shader.load_from_file("athi_fullscreen_quad.fs",
+                                   ShaderType::Fragment);
   fullscreen_shader.bind_attrib("position");
   fullscreen_shader.bind_attrib("texcoord");
   fullscreen_shader.bind_attrib("color");
@@ -233,7 +228,6 @@ void setup_fullscreen_quad() {
   fullscreen_shader.add_uniform("res");
   fullscreen_shader.add_uniform("tex");
   fullscreen_shader.add_uniform("dir");
-
 
   glGenVertexArrays(1, &VAO);
   glGenBuffers(NUM_BUFFERS, VBO);
@@ -247,10 +241,7 @@ void setup_fullscreen_quad() {
   // };
 
   const f32 positions[] = {
-      0.0f, 1.0f,
-      1.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
+      0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
   };
 
   const f32 textcoords[] = {
@@ -258,10 +249,8 @@ void setup_fullscreen_quad() {
   };
 
   const f32 colors[] = {
-      1.0f, 1.0f, 1.0f, 1.0f,
-      1.0f, 1.0f, 1.0f, 1.0f,
-      1.0f, 1.0f, 1.0f, 1.0f,
-      1.0f, 1.0f, 1.0f, 1.0f,
+      1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+      1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
   };
 
   glBindVertexArray(VAO);
@@ -281,23 +270,22 @@ void setup_fullscreen_quad() {
   glBindBuffer(GL_ARRAY_BUFFER, VBO[COLOR_BUFFER]);
   glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
   glEnableVertexAttribArray(COLOR_ATTR_LOC);
-  glVertexAttribPointer(COLOR_ATTR_LOC, 4, GL_FLOAT, GL_FALSE,
-                        sizeof(f32) * 4, (void *)0);
+  glVertexAttribPointer(COLOR_ATTR_LOC, 4, GL_FLOAT, GL_FALSE, sizeof(f32) * 4,
+                        (void *)0);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[INDICES_BUFFER]);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                GL_STATIC_DRAW);
 }
 
-void draw_fullscreen_quad(u32 texture, const vec2& dir) {
-
+void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
   glBindVertexArray(VAO);
   fullscreen_shader.bind();
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_2D, texture);
 
   const auto proj = camera.get_ortho_projection();
-  mat4 trans = proj *  Transform().get_model();
+  mat4 trans = proj * Transform().get_model();
 
   fullscreen_shader.setUniform("transform", trans);
   fullscreen_shader.setUniform("res", screen_width, screen_height);

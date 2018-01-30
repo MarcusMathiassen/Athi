@@ -81,7 +81,7 @@ inline static auto get_begin_and_end(s32 i, s32 total, s32 threads) noexcept {
 };
 
 // Color functions
-vec4 getHSV(u16 h, f32 s, f32 v, f32 a) noexcept;
+vec4 get_hsv(s32 h, f32 s, f32 v, f32 a) noexcept;
 HSV rgb_to_hsv(vec4 in) noexcept;
 HSV LerpHSV (HSV a, HSV b, f32 t) noexcept;
 vec4 color_by_acceleration(const vec4& min_color, const vec4& max_color, const vec2& acc) noexcept;
