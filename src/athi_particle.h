@@ -4,14 +4,14 @@
 
 #include "./Utility/athi_globals.h"  // kPi, kGravitationalConstant
 
-#include "athi_camera.h"
 #include "athi_dispatch.h"
+#include "athi_uniformgrid.h"
+
+#include "athi_camera.h"
 #include "athi_quadtree.h"
-#include "athi_quadtree_v2.h"
 #include "athi_settings.h"
 #include "athi_shader.h"
 #include "athi_transform.h"
-#include "athi_voxelgrid.h"
 
 #ifdef __APPLE__
 #include <OpenCL/OpenCL.h>
@@ -70,7 +70,7 @@ struct ParticleSystem {
   Shader shader;
 
   Quadtree<Particle> quadtree = Quadtree<Particle>(vec2(-1, -1), vec2(1, 1));
-  VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
+  UniformGrid<Particle> uniformgrid = UniformGrid<Particle>();
 
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
   u32 vao;

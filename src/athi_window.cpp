@@ -85,10 +85,10 @@ void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t wid
   }
 
   // @Hack
-  if (voxelgrid_parts != 4)
-    voxelgrid_parts = 4;
+  if (uniformgrid_parts != 4)
+    uniformgrid_parts = 4;
   else
-    voxelgrid_parts = 16;
+    uniformgrid_parts = 16;
 
   std::int32_t w, h;
   glfwGetWindowSize(window, &w, &h);

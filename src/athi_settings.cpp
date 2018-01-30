@@ -20,6 +20,8 @@ bool has_random_velocity = true;
 f32 random_velocity_force = 5.0f;
 f32 color_by_velocity_threshold = 0.003f;
 
+bool wireframe_mode{false};
+
 bool post_processing{true};
 f32 mouse_size{10.0f};
 bool mouse_busy_UI{false};
@@ -60,8 +62,8 @@ bool quadtree_active{true};
 s32 quadtree_depth{5};
 s32 quadtree_capacity{50};
 
-bool voxelgrid_active{false};
-s32 voxelgrid_parts{16};
+bool use_uniformgrid{false};
+s32 uniformgrid_parts{16};
 
 u16 monitor_refreshrate{60};
 

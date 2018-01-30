@@ -35,6 +35,8 @@ extern TreeType tree_type;
 extern s32 mouse_radio_options;
 extern s32 tree_radio_option;
 
+extern bool wireframe_mode;
+
 extern u32 num_vertices_per_particle;
 extern bool is_particles_colored_by_acc;
 extern bool has_random_velocity;
@@ -79,8 +81,8 @@ extern bool color_particles;
 extern bool draw_nodes;
 extern bool show_fps_info;
 
-extern bool voxelgrid_active;
-extern s32 voxelgrid_parts;
+extern bool use_uniformgrid;
+extern s32 uniformgrid_parts;
 
 extern bool quadtree_show_only_occupied;
 extern bool quadtree_active;

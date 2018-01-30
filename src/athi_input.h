@@ -121,31 +121,38 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     if (time_scale == 0)
       time_scale = 1;
     else time_scale = 0;
+
+    console->info("Paused: {}", time_scale ? "ON" : "OFF");
   }
 
   // TOGGLE SETTINGS UI
   if (key == GLFW_KEY_I && action == GLFW_PRESS) {
     show_settings ^= 1;
+    console->info("Show menu: {}", show_settings ? "ON" : "OFF");
   }
 
   // TOGGLE VSYNC
   if (key == GLFW_KEY_L && action == GLFW_PRESS) {
     vsync ^= 1;
+    console->info("Vsync: {}", vsync ? "ON" : "OFF");
   }
 
   // TOGGLE DEBUG UI
   if (key == GLFW_KEY_D && action == GLFW_PRESS) {
     draw_debug ^= 1;
+    console->info("Drag debug info: {}", draw_debug ? "ON" : "OFF");
   }
 
   // TOGGLE CIRCLE GRAVITY
   if (key == GLFW_KEY_G && action == GLFW_PRESS) {
     physics_gravity ^= 1;
+    console->info("Particle gravity: {}", physics_gravity ? "ON" : "OFF");
   }
 
   // TOGGLE CIRCLE COLLISIONS
   if (key == GLFW_KEY_C && action == GLFW_PRESS) {
     circle_collision ^= 1;
+    console->info("Particle intercollisions: {}", circle_collision ? "ON" : "OFF");
   }
 
   // TOGGLE GRAVITATIONAL_FORCES 
@@ -156,21 +163,25 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
   // TOGGLE MULTITHREADING
   if (key == GLFW_KEY_M && action == GLFW_PRESS) {
     use_multithreading ^= 1;
+    console->info("Multithreading: {}", use_multithreading ? "ON" : "OFF");
   }
 
   // TOGGLE OPENCL
   if (key == GLFW_KEY_A && action == GLFW_PRESS) {
     openCL_active ^= 1;
+    console->info("OpenCL: {}", openCL_active ? "ON" : "OFF");
   }
 
   // TOGGLE MOUSE GRAB LINES
   if (key == GLFW_KEY_Y && action == GLFW_PRESS) {
     show_mouse_grab_lines ^= 1;
+    console->info("Show mousegrab lines: {}", show_mouse_grab_lines ? "ON" : "OFF");
   }
 
   // TOGGLE POST PROCESSING
   if (key == GLFW_KEY_P && action == GLFW_PRESS) {
     post_processing ^= 1;
+    console->info("Post processing: {}", post_processing ? "ON" : "OFF");
   }
 
   // TOGGLE QUADTREE ACTIVE
@@ -181,29 +192,43 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     } else {
       tree_type = TreeType::Quadtree;
       quadtree_active = true;
-      voxelgrid_active = false;
+      use_uniformgrid = false;
     }
+    console->info("Quadtree: {}", quadtree_active ? "ON" : "OFF");
   }
 
-  // TOGGLE VOXELGRID ACTIVE
+  // TOGGLE WIREFRAME
+  if (key == GLFW_KEY_GRAVE_ACCENT  && action == GLFW_PRESS) {
+    if (wireframe_mode) {
+      wireframe_mode = false;
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    } else {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      wireframe_mode = true;
+    }
+    console->info("Wireframe mode: {}", wireframe_mode ? "ON" : "OFF");
+  }
+
+  // TOGGLE UniformGrid ACTIVE
   if (key == GLFW_KEY_W && action == GLFW_PRESS) {
 
-    if (voxelgrid_active) {
-      voxelgrid_active = false;
+    if (use_uniformgrid) {
+      use_uniformgrid = false;
       tree_type = TreeType::None;
     } else {
       tree_type = TreeType::UniformGrid;
-      voxelgrid_active = true;
+      use_uniformgrid = true;
       quadtree_active = false;
     }
+    console->info("UniformGrid: {}", use_uniformgrid ? "ON" : "OFF");
   }
 
-  if (key == GLFW_KEY_6 && action == GLFW_PRESS && voxelgrid_parts > 4) {
-    voxelgrid_parts *= 0.25f;
+  if (key == GLFW_KEY_6 && action == GLFW_PRESS && uniformgrid_parts > 4) {
+    uniformgrid_parts *= 0.25f;
   }
 
-  if (key == GLFW_KEY_7 && action == GLFW_PRESS && voxelgrid_parts < 512) {
-    voxelgrid_parts *= 4;
+  if (key == GLFW_KEY_7 && action == GLFW_PRESS && uniformgrid_parts < 512) {
+    uniformgrid_parts *= 4;
   }
 
   // Benchmark 1
@@ -223,7 +248,6 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
   // ERASE ALL CIRCLES
   if (key == GLFW_KEY_E && action == GLFW_PRESS) {
     particle_system.erase_all();
-    //particle_system.clear();
   }
 
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {

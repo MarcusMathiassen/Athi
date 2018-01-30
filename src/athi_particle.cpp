@@ -9,7 +9,7 @@
 #include "athi_transform.h"
 #include "athi_typedefs.h"
 #include "athi_utility.h"
-#include "athi_voxelgrid.h"
+#include "athi_uniformgrid.h"
 
 #include <algorithm>
 #include <array>
@@ -294,16 +294,16 @@ void ParticleSystem::update_collisions() noexcept {
     }
     case Tree::UniformGrid: {
       {
-        profile p("voxelgrid.reset()");
-        voxelgrid.reset();
+        profile p("uniformgrid.reset()");
+        uniformgrid.reset();
       }
       {
-        profile p("voxelgrid.input()");
-        voxelgrid.input(particles);
+        profile p("uniformgrid.input()");
+        uniformgrid.input(particles);
       }
       {
-        profile p("voxelgrid.get()");
-        voxelgrid.get(tree_container);
+        profile p("uniformgrid.get()");
+        uniformgrid.get(tree_container);
       }
       break;
     }
@@ -418,8 +418,8 @@ void ParticleSystem::draw_debug_nodes() noexcept {
       } break;
 
       case TT::UniformGrid: {
-        if (color_particles) voxelgrid.color_objects(colors);
-        if (draw_nodes) voxelgrid.draw_bounds();
+        if (color_particles) uniformgrid.color_objects(colors);
+        if (draw_nodes) uniformgrid.draw_bounds();
       } break;
 
       case TT::None: {

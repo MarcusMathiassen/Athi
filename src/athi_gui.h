@@ -48,7 +48,7 @@ static void menu_debug() {
   ImGui::Checkbox("draw_nodes", &draw_nodes);
   ImGui::Checkbox("quadtree_show_only_occupied", &quadtree_show_only_occupied);
   ImGui::Checkbox("quadtree_active", &quadtree_active);
-  ImGui::Checkbox("voxelgrid_active", &voxelgrid_active);
+  ImGui::Checkbox("use_uniformgrid", &use_uniformgrid);
   ImGui::Checkbox("vsync", &vsync);
   ImGui::Checkbox("use_gravitational_force", &use_gravitational_force);
   ImGui::Checkbox("physics_gravity", &physics_gravity);
@@ -174,7 +174,7 @@ static void menu_settings() {
     ImGui::SliderInt("capacity", &quadtree_capacity, 0, 100);
   }
   if (ImGui::CollapsingHeader("uniform grid options")) {
-    ImGui::SliderInt("nodes", &voxelgrid_parts, 4, 1024);
+    ImGui::SliderInt("nodes", &uniformgrid_parts, 4, 1024);
   }
 
   if (ImGui::CollapsingHeader("particle options")) {
