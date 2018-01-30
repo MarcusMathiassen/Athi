@@ -14,8 +14,8 @@ Athi_Rect_Manager athi_rect_manager;
 
 namespace Athi {
 bool Rect::contains(std::uint32_t id) {
-  const auto o = particle_manager.particles[id].pos;
-  const auto r = particle_manager.particles[id].radius;
+  const auto o = particle_system.particles[id].pos;
+  const auto r = particle_system.particles[id].radius;
   if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y && o.y + r > min.y)
     return true;
   return false;

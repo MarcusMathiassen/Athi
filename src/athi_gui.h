@@ -204,7 +204,7 @@ static void menu_settings() {
     // Rebuild particle vertices
     if (ImGui::Button("Apply vertices")) {
       if (vertices_to_be_applied < 3) vertices_to_be_applied = 3;
-      particle_manager.rebuild_vertices(vertices_to_be_applied);
+      particle_system.rebuild_vertices(vertices_to_be_applied);
     }
     ImGui::SameLine();
     ImGui::InputInt("Vertices per particle", &vertices_to_be_applied, 3, 999);
@@ -215,8 +215,8 @@ static void menu_settings() {
     ImGui::Text("particle color");
     ImGui::SameLine();
     if (ImGui::SmallButton("Color: Apply to all")) {
-      for (auto &p : particle_manager.particles)
-        particle_manager.colors[p.id] = circle_color;
+      for (auto &p : particle_system.particles)
+        particle_system.colors[p.id] = circle_color;
     }
     ImGui::ColorPicker4("##particle", (float *)&circle_color);
 
@@ -230,9 +230,9 @@ static void menu_settings() {
     ImGui::SliderFloat("radius", &circle_size, 0.1f, 10.0f);
     ImGui::SameLine();
     if (ImGui::SmallButton("Radius: Apply to all")) {
-      for (auto &p : particle_manager.particles) {
+      for (auto &p : particle_system.particles) {
         p.radius = circle_size;
-        particle_manager.transforms[p.id].scale = glm::vec3(circle_size, circle_size, 0);
+        particle_system.transforms[p.id].scale = glm::vec3(circle_size, circle_size, 0);
       }
     }
     ImGui::PopItemWidth();
@@ -309,7 +309,7 @@ void gui_render() {
 
     const auto yellow = ImVec4(0.1f, 8.0f, 0.8f, 1.0f);
     ImGui::PushStyleColor(ImGuiCol_Text, yellow);
-    ImGui::Text("particles: %lu", particle_manager.particles.size());
+    ImGui::Text("particles: %lu", particle_system.particles.size());
     ImGui::PopStyleColor();
     ImGui::SameLine();
 

@@ -27,9 +27,9 @@
 #endif
 
 // ParticleSystem particle_system;
-ParticleManager particle_manager;
+ParticleSystem particle_system;
 
-void ParticleManager::opencl_init() noexcept {
+void ParticleSystem::opencl_init() noexcept {
   // Read in the kernel source
   read_file("../Resources/Kernels/particle_collision.cl", &kernel_source);
   if (!kernel_source) console->error("OpenCL missing kernel source");
@@ -102,7 +102,7 @@ void ParticleManager::opencl_init() noexcept {
   console->info(FRED("OpenCL") " Max Work item dim: {}", work_item_dim);
 }
 
-void ParticleManager::init() noexcept {
+void ParticleSystem::init() noexcept {
   // Print some debug info about particle sizes
   console->info("Particle object size: {} bytes", sizeof(Particle));
   console->info("Particles per cacheline(64 bytes): {} particles",
@@ -112,7 +112,7 @@ void ParticleManager::init() noexcept {
   opencl_init();
 
   // Shaders
-  shader.init("ParticleManager::init()");
+  shader.init("ParticleSystem::init()");
   shader.load_from_file("default_particle_shader.vert", ShaderType::Vertex);
   shader.load_from_file("default_particle_shader.frag", ShaderType::Fragment);
   shader.bind_attrib("position");
@@ -159,7 +159,7 @@ void ParticleManager::init() noexcept {
   }
 }
 
-void ParticleManager::rebuild_vertices(u32 num_vertices) noexcept {
+void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
   num_vertices_per_particle = num_vertices;
 
   glBindVertexArray(vao);
@@ -181,7 +181,7 @@ void ParticleManager::rebuild_vertices(u32 num_vertices) noexcept {
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
-void ParticleManager::opencl_naive() noexcept {
+void ParticleSystem::opencl_naive() noexcept {
   const auto count = particle_count;
 
   // Create the input and output arrays in device memory
@@ -270,7 +270,7 @@ void ParticleManager::opencl_naive() noexcept {
   }
 }
 
-void ParticleManager::update_collisions() noexcept {
+void ParticleSystem::update_collisions() noexcept {
   // reset the values
   comparisons = 0;
   resolutions = 0;
@@ -325,7 +325,7 @@ void ParticleManager::update_collisions() noexcept {
   } else
     threadpool_solution = ThreadPoolSolution::None;
 
-  profile p("ParticleManager::update(circle_collision");
+  profile p("ParticleSystem::update(circle_collision");
 
   const size_t total = particle_count;
   const size_t container_total = tree_container.size();
@@ -370,7 +370,7 @@ void ParticleManager::update_collisions() noexcept {
           for (int i = 0; i < variable_thread_count; ++i) {
             const auto[begin, end] =
                 get_begin_and_end(i, container_total, variable_thread_count);
-            results[i] = pool.enqueue(&ParticleManager::collision_quadtree,
+            results[i] = pool.enqueue(&ParticleSystem::collision_quadtree,
                                       this, tree_container, begin, end);
           }
           for (auto &&res : results) res.get();
@@ -381,7 +381,7 @@ void ParticleManager::update_collisions() noexcept {
           for (int i = 0; i < variable_thread_count; ++i) {
             const auto[begin, end] =
                 get_begin_and_end(i, total, variable_thread_count);
-            results[i] = pool.enqueue(&ParticleManager::collision_logNxN, this,
+            results[i] = pool.enqueue(&ParticleSystem::collision_logNxN, this,
                                       total, begin, end);
           }
           for (auto &&res : results) res.get();
@@ -405,9 +405,9 @@ void ParticleManager::update_collisions() noexcept {
   }
 }
 
-void ParticleManager::draw_debug_nodes() noexcept {
+void ParticleSystem::draw_debug_nodes() noexcept {
   if (particles.empty()) return;
-  profile p("ParticleManager::draw_debug_nodes");
+  profile p("ParticleSystem::draw_debug_nodes");
 
   if (draw_debug) {
     switch (tree_type) {
@@ -428,7 +428,7 @@ void ParticleManager::draw_debug_nodes() noexcept {
   }
 }
 
-void ParticleManager::update() noexcept {
+void ParticleSystem::update() noexcept {
   // @TODO: This whole if statement and following logic statements. BE GONE.
   {
     profile p("update_collisions() + particles.update()");
@@ -451,14 +451,14 @@ void ParticleManager::update() noexcept {
   }
 
   if (use_gravitational_force) {
-    profile p("ParticleManager::apply_n_body()");
+    profile p("ParticleSystem::apply_n_body()");
     apply_n_body();
   }
 }
 
-void ParticleManager::update_gpu_buffers() noexcept {
+void ParticleSystem::update_gpu_buffers() noexcept {
   if (particles.empty()) return;
-  profile p("ParticleManager::update_gpu_buffers");
+  profile p("ParticleSystem::update_gpu_buffers");
 
   // Check if buffers need resizing
   if (particle_count > models.size()) {
@@ -469,7 +469,7 @@ void ParticleManager::update_gpu_buffers() noexcept {
   {
     // THIS IS THE SLOWEST THING EVER.
     profile p(
-        "ParticleManager::update_gpu_buffers(update buffers with new data)");
+        "ParticleSystem::update_gpu_buffers(update buffers with new data)");
 
     const auto proj = camera.get_ortho_projection();
 
@@ -489,7 +489,7 @@ void ParticleManager::update_gpu_buffers() noexcept {
   }
 
   {
-    profile p("ParticleManager::update_gpu_buffers(GPU buffer update)");
+    profile p("ParticleSystem::update_gpu_buffers(GPU buffer update)");
     // Update the gpu buffers incase of more particles..
     glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
     const auto transform_bytes_needed = sizeof(mat4) * particle_count;
@@ -513,16 +513,16 @@ void ParticleManager::update_gpu_buffers() noexcept {
   }
 }
 
-void ParticleManager::draw() noexcept {
+void ParticleSystem::draw() noexcept {
   if (particles.empty()) return;
-  profile p("ParticleManager::draw");
+  profile p("ParticleSystem::draw");
   glBindVertexArray(vao);
   shader.bind();
   glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_vertices_per_particle,
                         particle_count);
 }
 
-void ParticleManager::add(const glm::vec2 &pos, float radius,
+void ParticleSystem::add(const glm::vec2 &pos, float radius,
                           const glm::vec4 &color) noexcept {
   Particle p;
   p.pos = pos;
@@ -546,7 +546,7 @@ void ParticleManager::add(const glm::vec2 &pos, float radius,
   colors.emplace_back(color);
 }
 
-void ParticleManager::remove_all_with_id(const vector<s32> &ids) noexcept {
+void ParticleSystem::remove_all_with_id(const vector<s32> &ids) noexcept {
   for (const auto id : ids) {
     particles.erase(particles.begin() + id);
     transforms.erase(transforms.begin() + id);
@@ -554,14 +554,14 @@ void ParticleManager::remove_all_with_id(const vector<s32> &ids) noexcept {
   }
 }
 
-void ParticleManager::erase_all() noexcept {
+void ParticleSystem::erase_all() noexcept {
   particle_count = 0;
   particles.clear();
   colors.clear();
   transforms.clear();
 }
 
-bool ParticleManager::collision_check(const Particle &a,
+bool ParticleSystem::collision_check(const Particle &a,
                                       const Particle &b) const noexcept {
   // Local variables
   const auto ax = a.pos.x;
@@ -589,7 +589,7 @@ bool ParticleManager::collision_check(const Particle &a,
 }
 
 // Collisions response between two circles with varying radius and mass.
-void ParticleManager::collision_resolve(Particle &a, Particle &b) const
+void ParticleSystem::collision_resolve(Particle &a, Particle &b) const
     noexcept {
   // Local variables
   const auto dx = b.pos.x - a.pos.x;
@@ -635,7 +635,7 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b) const
 }
 
 // Separates two intersecting circles.
-void ParticleManager::separate(Particle &a, Particle &b) const noexcept {
+void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   // Local variables
   const auto a_pos = a.pos;
   const auto b_pos = b.pos;
@@ -702,7 +702,7 @@ static void gravitational_force(Particle &a, const Particle &b) {
   a.vel.y += F * sin(angle);
 }
 
-void ParticleManager::apply_n_body() noexcept {
+void ParticleSystem::apply_n_body() noexcept {
   for (size_t i = 0; i < particles.size(); ++i) {
     for (size_t j = 0; j < particles.size(); ++j) {
       gravitational_force(particles[i], particles[j]);
@@ -711,7 +711,7 @@ void ParticleManager::apply_n_body() noexcept {
 }
 
 // (N-1)*N/2
-void ParticleManager::collision_logNxN(size_t total, size_t begin,
+void ParticleSystem::collision_logNxN(size_t total, size_t begin,
                                        size_t end) noexcept {
   auto comp_counter = 0ul;
   auto res_counter = 0ul;
@@ -728,7 +728,7 @@ void ParticleManager::collision_logNxN(size_t total, size_t begin,
   resolutions += res_counter;
 }
 
-void ParticleManager::collision_quadtree(
+void ParticleSystem::collision_quadtree(
     const vector<vector<s32>> &tree_container, size_t begin,
     size_t end) noexcept {
   auto comp_counter = 0ul;

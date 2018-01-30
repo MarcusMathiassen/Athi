@@ -55,7 +55,7 @@ void Athi_Core::init() {
   console->info("Using GLEW {}", glewGetString(GLEW_VERSION));
   console->info("Using GLFW {}", glfwGetVersionString());
 
-  particle_manager.init();
+  particle_system.init();
 
   init_input_manager();
   init_rect_manager();
@@ -119,7 +119,7 @@ void Athi_Core::draw(GLFWwindow *window) {
     // First draw the particles to the framebuffer.
     framebuffers[0].bind();
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
-    particle_manager.draw();
+    particle_system.draw();
 
     // .. Then blur the current framebuffer
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -137,7 +137,7 @@ void Athi_Core::draw(GLFWwindow *window) {
     draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
   }
 
-  particle_manager.draw();
+  particle_system.draw();
 
   draw_rects();
   draw_lines();
@@ -158,15 +158,15 @@ void Athi_Core::draw(GLFWwindow *window) {
 void Athi_Core::update() {
   const f64 time_start_frame = glfwGetTime();
 
-  if (!particle_manager.particles.empty()) {
-    particle_manager.update();
+  if (!particle_system.particles.empty()) {
+    particle_system.update();
   }
 
   // Draw nodes and/or color objects
-  particle_manager.draw_debug_nodes();
+  particle_system.draw_debug_nodes();
 
   // Update GPU buffers
-  particle_manager.update_gpu_buffers();
+  particle_system.update_gpu_buffers();
 
   // Update timers
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;

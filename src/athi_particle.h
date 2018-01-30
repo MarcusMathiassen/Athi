@@ -2,14 +2,14 @@
 #pragma once
 #include "athi_typedefs.h"
 
-#include "./Utility/athi_globals.h" // kPi, kGravitationalConstant
+#include "./Utility/athi_globals.h"  // kPi, kGravitationalConstant
 
+#include "athi_camera.h"
 #include "athi_dispatch.h"
-#include "athi_quadtree_v2.h"
 #include "athi_quadtree.h"
+#include "athi_quadtree_v2.h"
 #include "athi_settings.h"
 #include "athi_shader.h"
-#include "athi_camera.h"
 #include "athi_transform.h"
 #include "athi_voxelgrid.h"
 
@@ -28,7 +28,6 @@ struct Particle {
   f32 radius{0.0f};
 
   void update(f32 dt) noexcept {
-
     // Update pos/vel/acc
     vel.x += acc.x * dt * time_scale * air_drag;
     vel.y += acc.y * dt * time_scale * air_drag;
@@ -58,7 +57,7 @@ struct Particle {
   }
 };
 
-struct ParticleManager {
+struct ParticleSystem {
   u32 particle_count{0};
   f32 particle_density{1.0f};
   vector<Particle> particles;
@@ -70,8 +69,7 @@ struct ParticleManager {
 
   Shader shader;
 
-  Quadtree<Particle> quadtree =
-      Quadtree<Particle>(vec2(-1, -1), vec2(1, 1));
+  Quadtree<Particle> quadtree = Quadtree<Particle>(vec2(-1, -1), vec2(1, 1));
   VoxelGrid<Particle> voxelgrid = VoxelGrid<Particle>();
 
   enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
@@ -115,22 +113,24 @@ struct ParticleManager {
   void collision_resolve(Particle &a, Particle &b) const noexcept;
   void separate(Particle &a, Particle &b) const noexcept;
   void collision_logNxN(size_t total, size_t begin, size_t end) noexcept;
-  void collision_quadtree(const vector<vector<s32>> &cont, size_t begin, size_t end) noexcept;
+  void collision_quadtree(const vector<vector<s32>> &cont, size_t begin,
+                          size_t end) noexcept;
   void add(const vec2 &pos, f32 radius,
            const vec4 &color = vec4(1, 1, 1, 1)) noexcept;
 
-  void remove_all_with_id(const vector<s32>& ids) noexcept;
+  void remove_all_with_id(const vector<s32> &ids) noexcept;
   void erase_all() noexcept;
 };
 
 // Returns a vector of ids of particles colliding with the input rectangle.
-static vector<s32> get_particles_in_rect_basic(const vector<Particle>& particles, const vec2& min, const vec2& max) noexcept {
+static vector<s32> get_particles_in_rect_basic(
+    const vector<Particle> &particles, const vec2 &min,
+    const vec2 &max) noexcept {
   vector<s32> vector_of_ids;
 
   // @Performance: Check for available tree structure used and use that instead.
   // Go through all the particles..
-  for (const auto& particle: particles) {
-    
+  for (const auto &particle : particles) {
     const auto o = particle.pos;
 
     // If the particle is inside the rectangle, add it to the output vector.
@@ -138,28 +138,30 @@ static vector<s32> get_particles_in_rect_basic(const vector<Particle>& particles
       vector_of_ids.emplace_back(particle.id);
     }
   }
-  
+
   return vector_of_ids;
 }
 
 // Returns a vector of ids of particles colliding with the input rectangle.
-static vector<s32> get_particles_in_rect(const vector<Particle>& particles, const vec2& min, const vec2& max) noexcept {
+static vector<s32> get_particles_in_rect(const vector<Particle> &particles,
+                                         const vec2 &min,
+                                         const vec2 &max) noexcept {
   vector<s32> vector_of_ids;
 
   // @Performance: Check for available tree structure used and use that instead.
   // Go through all the particles..
-  for (const auto& particle: particles) {
-    
+  for (const auto &particle : particles) {
     const auto o = particle.pos;
     const auto r = particle.radius;
 
     // If the particle is inside the rectangle, add it to the output vector.
-    if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y && o.y + r > min.y) {
+    if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
+        o.y + r > min.y) {
       vector_of_ids.emplace_back(particle.id);
     }
   }
-  
+
   return vector_of_ids;
 }
 
-extern ParticleManager particle_manager;
+extern ParticleSystem particle_system;

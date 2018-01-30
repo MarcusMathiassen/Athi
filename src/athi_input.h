@@ -95,7 +95,7 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action, in
   glm::vec2 mouse_pos = athi_input_manager.mouse.pos;
 
   if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
   }
 }
 
@@ -210,19 +210,19 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
   if (key == GLFW_KEY_B && action == GLFW_PRESS) {
     for (int j = 250; j < 500; j += 2)
       for (int k = 250; k < 500; k += 2)
-        particle_manager.add(glm::vec2(j, k), 1.0f, circle_color);
+        particle_system.add(glm::vec2(j, k), 1.0f, circle_color);
   }
 
   // Benchmark 2
   if (key == GLFW_KEY_N && action == GLFW_PRESS) {
     for (int j = 0; j < screen_width; j += 4)
       for (int k = 0; k < screen_height; k += 4)
-        particle_manager.add(glm::vec2(j, k), 1.0f, circle_color);
+        particle_system.add(glm::vec2(j, k), 1.0f, circle_color);
   }
 
   // ERASE ALL CIRCLES
   if (key == GLFW_KEY_E && action == GLFW_PRESS) {
-    particle_manager.erase_all();
+    particle_system.erase_all();
     //particle_system.clear();
   }
 

@@ -112,19 +112,19 @@ void drag_color_or_destroy_with_mouse() {
   }
 
   // Get all particles in the mouse collision box
-  const auto selected_particle_ids = get_particles_in_rect(particle_manager.particles, mouse_rect.min, mouse_rect.max);
+  const auto selected_particle_ids = get_particles_in_rect(particle_system.particles, mouse_rect.min, mouse_rect.max);
 
   switch (mouse_option) {
 
     case MouseOption::Color: { 
       for (const auto particle_id: selected_particle_ids) {
-        particle_manager.colors[particle_id] = circle_color; 
+        particle_system.colors[particle_id] = circle_color; 
       } 
     } break;
 
     case MouseOption::GravityWell: {
       // Pull the particles towards the mouse
-      for (auto& particle: particle_manager.particles) {
+      for (auto& particle: particle_system.particles) {
         gravity_well(particle, mouse_pos);
         last_state = ATTACHED;
       }
@@ -141,21 +141,21 @@ void drag_color_or_destroy_with_mouse() {
 
       // Pull the particles towards the mouse
       for (const auto particle_id: mouse_attached_to) {
-        attraction_force(particle_manager.particles[particle_id], mouse_pos);
+        attraction_force(particle_system.particles[particle_id], mouse_pos);
 
         last_state = ATTACHED;
 
         // Debug lines from particle to mouse
         if (draw_debug && show_mouse_grab_lines) {
           auto ms_view_pos = to_view_space(mouse_pos);
-          auto p_view_pos = to_view_space(particle_manager.particles[particle_id].pos);
+          auto p_view_pos = to_view_space(particle_system.particles[particle_id].pos);
           draw_line(ms_view_pos, p_view_pos, 1.0f, pastel_pink);
         }
       }
     } break;
     case MouseOption::Delete: {
       //if (!selected_particle_ids.empty()) { // DOESNT WORK
-        //particle_manager.remove_all_with_id(selected_particle_ids);
+        //particle_system.remove_all_with_id(selected_particle_ids);
       //}
     } break;
 
@@ -181,67 +181,67 @@ void update_inputs() {
 
 
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
-    particle_manager.add(mouse_pos, 1.0f, circle_color);
+    particle_system.add(mouse_pos, 1.0f, circle_color);
+    particle_system.add(mouse_pos, 1.0f, circle_color);
+    particle_system.add(mouse_pos, 1.0f, circle_color);
+    particle_system.add(mouse_pos, 1.0f, circle_color);
+    particle_system.add(mouse_pos, 1.0f, circle_color);
+    particle_system.add(mouse_pos, 1.0f, circle_color);
+    particle_system.add(mouse_pos, 1.0f, circle_color);
+    particle_system.add(mouse_pos, 1.0f, circle_color);
+    particle_system.add(mouse_pos, 1.0f, circle_color);
+    particle_system.add(mouse_pos, 1.0f, circle_color);
   }
 
   if (glfwGetKey(context, GLFW_KEY_2) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
-    particle_manager.add(mouse_pos, 2.0f, circle_color);
+    particle_system.add(mouse_pos, 2.0f, circle_color);
+    particle_system.add(mouse_pos, 2.0f, circle_color);
+    particle_system.add(mouse_pos, 2.0f, circle_color);
+    particle_system.add(mouse_pos, 2.0f, circle_color);
+    particle_system.add(mouse_pos, 2.0f, circle_color);
+    particle_system.add(mouse_pos, 2.0f, circle_color);
+    particle_system.add(mouse_pos, 2.0f, circle_color);
+    particle_system.add(mouse_pos, 2.0f, circle_color);
+    particle_system.add(mouse_pos, 2.0f, circle_color);
+    particle_system.add(mouse_pos, 2.0f, circle_color);
   }
 
   if (glfwGetKey(context, GLFW_KEY_3) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
-    particle_manager.add(mouse_pos, 3.0f, circle_color);
+    particle_system.add(mouse_pos, 3.0f, circle_color);
+    particle_system.add(mouse_pos, 3.0f, circle_color);
+    particle_system.add(mouse_pos, 3.0f, circle_color);
+    particle_system.add(mouse_pos, 3.0f, circle_color);
+    particle_system.add(mouse_pos, 3.0f, circle_color);
+    particle_system.add(mouse_pos, 3.0f, circle_color);
+    particle_system.add(mouse_pos, 3.0f, circle_color);
+    particle_system.add(mouse_pos, 3.0f, circle_color);
+    particle_system.add(mouse_pos, 3.0f, circle_color);
+    particle_system.add(mouse_pos, 3.0f, circle_color);
   }
 
   if (glfwGetKey(context, GLFW_KEY_4) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, 4.0f, circle_color);
-    particle_manager.add(mouse_pos, 4.0f, circle_color);
-    particle_manager.add(mouse_pos, 4.0f, circle_color);
-    particle_manager.add(mouse_pos, 4.0f, circle_color);
-    particle_manager.add(mouse_pos, 4.0f, circle_color);
-    particle_manager.add(mouse_pos, 4.0f, circle_color);
-    particle_manager.add(mouse_pos, 4.0f, circle_color);
-    particle_manager.add(mouse_pos, 4.0f, circle_color);
-    particle_manager.add(mouse_pos, 4.0f, circle_color);
-    particle_manager.add(mouse_pos, 4.0f, circle_color);
+    particle_system.add(mouse_pos, 4.0f, circle_color);
+    particle_system.add(mouse_pos, 4.0f, circle_color);
+    particle_system.add(mouse_pos, 4.0f, circle_color);
+    particle_system.add(mouse_pos, 4.0f, circle_color);
+    particle_system.add(mouse_pos, 4.0f, circle_color);
+    particle_system.add(mouse_pos, 4.0f, circle_color);
+    particle_system.add(mouse_pos, 4.0f, circle_color);
+    particle_system.add(mouse_pos, 4.0f, circle_color);
+    particle_system.add(mouse_pos, 4.0f, circle_color);
+    particle_system.add(mouse_pos, 4.0f, circle_color);
   }
   if (glfwGetKey(context, GLFW_KEY_5) == GLFW_PRESS) {
-    particle_manager.add(mouse_pos, circle_size, circle_color);
-    particle_manager.add(mouse_pos, circle_size, circle_color);
-    particle_manager.add(mouse_pos, circle_size, circle_color);
-    particle_manager.add(mouse_pos, circle_size, circle_color);
-    particle_manager.add(mouse_pos, circle_size, circle_color);
-    particle_manager.add(mouse_pos, circle_size, circle_color);
-    particle_manager.add(mouse_pos, circle_size, circle_color);
-    particle_manager.add(mouse_pos, circle_size, circle_color);
-    particle_manager.add(mouse_pos, circle_size, circle_color);
-    particle_manager.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
   }
 
   // if (glfwGetKey(context, GLFW_KEY_8) == GLFW_PRESS) {
