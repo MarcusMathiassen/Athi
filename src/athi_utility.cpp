@@ -123,8 +123,12 @@ HSV LerpHSV (HSV a, HSV b, f32 t) noexcept {
 
 vec4 color_by_acceleration(const vec4& min_color, const vec4& max_color, const vec2& acc) noexcept {
 
+  vec2 temp = acc;
   // Get the HSV equivalent
-  const f32 mg = sqrt(acc.x * acc.x + acc.y * acc.y);
+  temp.x *= color_by_velocity_threshold;
+  temp.y *= color_by_velocity_threshold;
+  f32 mg = glm::length(temp);
+  if (mg > 1.0) mg = 1.0;
 
   const auto c1 = rgb_to_hsv(min_color);
   const auto c2 = rgb_to_hsv(max_color);

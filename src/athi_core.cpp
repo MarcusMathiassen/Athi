@@ -110,8 +110,6 @@ void Athi_Core::draw(GLFWwindow *window) {
 
   if (post_processing) {
     framebuffers[0].clear();
-    framebuffers[0].clear();
-    
     draw_fullscreen_quad(framebuffers[0].texture, glm::vec2(0,0));
 
     // First draw the particles to the framebuffer.

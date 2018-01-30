@@ -18,6 +18,7 @@ u32 num_vertices_per_particle = 36;
 bool is_particles_colored_by_acc = true;
 bool has_random_velocity = true;
 f32 random_velocity_force = 5.0f;
+f32 color_by_velocity_threshold = 0.01f;
 
 bool post_processing{true};
 f32 mouse_size{10.0f};

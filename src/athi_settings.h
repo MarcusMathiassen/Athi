@@ -58,6 +58,7 @@ extern u32 num_vertices_per_particle;
 extern bool is_particles_colored_by_acc;
 extern bool has_random_velocity;
 extern f32 random_velocity_force;
+extern f32 color_by_velocity_threshold;
 
 
 extern std::shared_ptr<spdlog::logger> console;
