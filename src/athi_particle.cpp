@@ -182,14 +182,13 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
 }
 
 void ParticleSystem::opencl_naive() noexcept {
-  const auto count = particle_count;
 
   // Create the input and output arrays in device memory
   // for our calculation
   //
-  input = clCreateBuffer(context, CL_MEM_READ_ONLY,
+  cl_mem input = clCreateBuffer(context, CL_MEM_READ_ONLY,
                          sizeof(Particle) * particle_count, NULL, NULL);
-  output = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+  cl_mem output = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
                           sizeof(Particle) * particle_count, NULL, NULL);
   if (!input || !output) {
     console->error("Failed to allocate device memory!");
@@ -228,10 +227,10 @@ void ParticleSystem::opencl_naive() noexcept {
 
   const auto leftovers = particle_count % local;
   global_dim = particle_count - leftovers;  // 1D
-  // console->info("OpenCL particle_count: {}", particle_count);
-  // console->info("OpenCL local: {}", local);
-  // console->info("OpenCL global_dim: {}", global_dim);
-  // console->info("OpenCL leftovers run on CPU: {}", leftovers);
+  console->info("OpenCL particle_count: {}", particle_count);
+  console->info("OpenCL local: {}", local);
+  console->info("OpenCL global_dim: {}", global_dim);
+  console->info("OpenCL leftovers run on CPU: {}", leftovers);
 
   err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, &local,
                                0, NULL, NULL);
@@ -259,14 +258,36 @@ void ParticleSystem::opencl_naive() noexcept {
   // Handle any leftover that werent checked
   if (leftovers) {
     const size_t total = leftovers;
-    dispatch_apply(variable_thread_count,
-                   dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-                   ^(size_t i) {
-                     const auto[begin, end] =
-                         get_begin_and_end(i, total, variable_thread_count);
-                     collision_logNxN(total, particle_count - leftovers + begin,
-                                      end);
-                   });
+
+    switch (threadpool_solution) {
+      using Threads = ThreadPoolSolution;
+      case Threads::AppleGCD: {
+        dispatch_apply(
+            variable_thread_count,
+            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+            ^(size_t i) {
+              const auto[begin, end] =
+                  get_begin_and_end(i, total, variable_thread_count);
+              collision_logNxN(total, particle_count - leftovers + begin, end);
+            });
+      } break;
+
+      case Threads::Dispatch: {
+        vector<std::future<void>> results(variable_thread_count);
+        for (int i = 0; i < variable_thread_count; ++i) {
+          const auto[begin, end] =
+              get_begin_and_end(i, total, variable_thread_count);
+          results[i] =
+              pool.enqueue(&ParticleSystem::collision_logNxN, this, total,
+                           particle_count - leftovers + begin, end);
+        }
+        for (auto &&res : results) res.get();
+      } break;
+
+      case Threads::None: {
+        collision_logNxN(total, 0, total);
+      } break;
+    }
   }
 }
 
@@ -457,13 +478,13 @@ void ParticleSystem::update() noexcept {
 }
 
 void ParticleSystem::update_gpu_buffers() noexcept {
+
   if (particles.empty()) return;
   profile p("ParticleSystem::update_gpu_buffers");
 
   // Check if buffers need resizing
   if (particle_count > models.size()) {
     models.resize(particle_count);
-    transforms.resize(particle_count);
   }
 
   {

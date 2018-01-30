@@ -93,9 +93,6 @@ struct ParticleSystem {
   cl_command_queue commands;  // compute command queue
   cl_program program;         // compute program
   cl_kernel kernel;           // compute kernel
-
-  cl_mem input;   // device memory used for the input array
-  cl_mem output;  // device memory used for the output array
   //////////////////////////////////////////////////////////
 
   void init() noexcept;
