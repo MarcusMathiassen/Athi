@@ -433,31 +433,21 @@ void ParticleManager::update() noexcept {
   {
     profile p("update_collisions() + particles.update()");
 
-    float this_sample_timestep = 0;
+    f64 this_sample_timestep = 0.0;
     for (int i = 0; i < physics_samples; ++i) {
       const auto start = glfwGetTime();
       if (circle_collision) {
         update_collisions();
       }
 
-      {
-        profile p("ParticleManager::update(particles::update)");
-        for (auto &p : particles) {
-          // Apply gravity
-          if (physics_gravity) {
-            p.acc.y -= gravity_force * this_sample_timestep * time_scale;
-          }
-          p.update(this_sample_timestep);
+      for (auto &p : particles) {
+        if (physics_gravity) {
+          p.acc.y -= (gravity_force * p.mass) / physics_samples;
         }
+        p.update(this_sample_timestep);
       }
-
-      const auto ms_spent_this_sample = (glfwGetTime() - start) * 1000.0;
-      const auto desired_frametime = (1000.0 / 60.0);
-      // ms used / 16.6667ms per frame / samples
-      this_sample_timestep += (ms_spent_this_sample / desired_frametime);
+      this_sample_timestep += (1.0/60.0) / physics_samples;
     }
-
-    timestep = this_sample_timestep;
   }
 
   if (use_gravitational_force) {
@@ -540,7 +530,7 @@ void ParticleManager::add(const glm::vec2 &pos, float radius,
   if (has_random_velocity) { p.vel = rand_vec2(-1.0f, 1.0f); }
   
   p.radius = radius;
-  p.mass = 1.33333f * PI * radius * radius * radius;
+  p.mass = particle_density * PI * radius * radius;
   p.id = particle_count;
   particles.emplace_back(p);
 
@@ -643,7 +633,7 @@ void ParticleManager::collision_resolve(Particle &a, Particle &b) const
   }
 }
 
-// Separates two s32ersecting circles.
+// Separates two intersecting circles.
 void ParticleManager::separate(Particle &a, Particle &b) const noexcept {
   // Local variables
   const auto a_pos = a.pos;

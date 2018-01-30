@@ -168,7 +168,7 @@ void Athi_Core::update() {
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
   physics_framerate = static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
-  //timestep = (physics_frametime / (1000/60));
+  timestep = 1.0/60.0;
 }
 
 void Athi_Core::update_settings() { glfwSwapInterval(vsync); }

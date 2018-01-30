@@ -40,7 +40,7 @@ static void gravity_well(Particle &a, const vec2 &point) {
   const float x2 = point.x;
   const float y2 = point.y;
   const float m1 = a.mass;
-  const float m2 = 1000.0f;
+  const float m2 = 100.0f;
 
   const float dx = x2 - x1;
   const float dy = y2 - y1;

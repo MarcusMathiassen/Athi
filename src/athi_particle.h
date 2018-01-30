@@ -58,6 +58,7 @@ struct Particle {
 
 struct ParticleManager {
   u32 particle_count{0};
+  float particle_density{1.0f};
   vector<Particle> particles;
   vector<Transform> transforms;
   vector<vec4> colors;
