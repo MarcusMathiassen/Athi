@@ -87,16 +87,15 @@ void Shader::link() noexcept {
     glDeleteShader(shader);
   }
 
-  if (!uniforms.empty())
-    for (u32 i = 0; i < uniforms.size(); ++i) {
-      uniforms_map[uniforms[i]] = glGetUniformLocation(program, uniforms[i].c_str());
-    } 
-
   is_linked = true;
+
+  for (u32 i = 0; i < uniforms.size(); ++i) {
+    uniforms_map[uniforms[i]] = glGetUniformLocation(program, uniforms[i].c_str());
+  } 
 }
 
 void Shader::bind() noexcept { 
-  //if constexpr (ONLY_RUNS_IN_DEBUG_MODE) reload();
+  if constexpr (ONLY_RUNS_IN_DEBUG_MODE) reload();
   glUseProgram(program); 
 }
 
@@ -132,11 +131,10 @@ void Shader::finish() noexcept {
     shaders.emplace_back(file, shader);
   }
 
-  if (!attribs.empty())
-    for (u32 i = 0; i < attribs.size(); ++i) {
-      attribs_map[attribs[i]] = i;
-      glBindAttribLocation(program, i, attribs[i].c_str());
-    }
+  for (u32 i = 0; i < attribs.size(); ++i) {
+    attribs_map[attribs[i]] = i;
+    glBindAttribLocation(program, i, attribs[i].c_str());
+  }
 
   for (const auto & [name, integer]: attribs_map) {
     console->info("Attrib name: {}({})",name, integer);

@@ -1,6 +1,6 @@
 #include "athi_utility.h"
 
-#include "./Renderer/athi_buffer.h"     // GPUBuffer
+#include "./Renderer/athi_renderer.h"     // Renderer
 #include "./Renderer/athi_camera.h"     // camera,
 #include "./Renderer/athi_shader.h"     // Shader
 #include "athi_transform.h"  // Transform
@@ -227,11 +227,8 @@ vec2 to_view_space(vec2 v) noexcept {
   return v;
 }
 
-//static GPUBuffer gpu_buffer;
-//static Shader fullscreen_shader;
-
+static Renderer renderer;
 void setup_fullscreen_quad() {
-  enum { POSITION_ATTR_LOC, TEXTCOORD_ATTR_LOC, COLOR_ATTR_LOC };
 
   // fullscreen_shader.init("Fullscreen shader");
   // fullscreen_shader.load_from_file("athi_fullscreen_quad.vs",
@@ -247,46 +244,68 @@ void setup_fullscreen_quad() {
   // fullscreen_shader.add_uniform("tex");
   // fullscreen_shader.add_uniform("dir");
 
-  const u16 indices[6] = {0, 1, 2, 0, 2, 3};
-  const f32 positions[] = {
+  u16 indices[6] = {0, 1, 2, 0, 2, 3};
+  f32 positions[] = {
       0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
   };
-  const f32 texcoords[] = {
+  f32 texcoords[] = {
       0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
   };
-  const f32 colors[] = {
+  f32 colors[] = {
       1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
       1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
   };
 
-  // gpu_buffer.init();
+  auto &shader = renderer.make_shader();
+  shader.sources = {"athi_fullscreen_quad.vert", "athi_fullscreen_quad.frag"};
+  shader.attribs = {"position", "texcoord", "color"};
+  shader.uniforms = {"transform", "res", "tex", "dir"};
 
-  // gpu_buffer.add("positions", positions, sizeof(positions), ARRAY_BUFFER,
-  //                STATIC_DRAW, 2, sizeof(f32) * 2);
+  auto &vertex_buffer = renderer.make_buffer("positions");
+  vertex_buffer.data = &positions[0];
+  vertex_buffer.data_size = sizeof(positions);
+  vertex_buffer.data_members = 2;
+  vertex_buffer.stride = sizeof(f32) * 2;
 
-  // gpu_buffer.add("texcoords", texcoords, sizeof(texcoords), ARRAY_BUFFER,
-  //                STATIC_DRAW, 2, sizeof(f32) * 2);
+  auto &texcoords_buffer = renderer.make_buffer("texcoords");
+  texcoords_buffer.data = &texcoords[0];
+  texcoords_buffer.data_size = sizeof(texcoords);
+  texcoords_buffer.data_members = 2;
+  texcoords_buffer.stride = sizeof(f32) * 2;
 
-  // gpu_buffer.add("colors", colors, sizeof(colors), ARRAY_BUFFER, STATIC_DRAW, 4,
-  //                sizeof(f32) * 4);
+  auto &colors_buffer = renderer.make_buffer("colors");
+  colors_buffer.data = &colors[0];
+  colors_buffer.data_size = sizeof(colors);
+  colors_buffer.data_members = 4;
+  colors_buffer.stride = sizeof(f32) * 4;
 
-  // gpu_buffer.add("indices", indices, sizeof(indices), ELEMENT_ARRAY_BUFFER,
-  //                STATIC_DRAW);
+  auto &indices_buffer = renderer.make_buffer("indices");
+  colors_buffer.data = &indices[0];
+  colors_buffer.data_size = sizeof(indices);
+  colors_buffer.type = buffer_type::element_array;
+
+  renderer.finish();
 }
 
 void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
-  //gpu_buffer.bind();
- // fullscreen_shader.bind();
+  CommandBuffer cmd;
+
+  cmd.type = primitive::triangles;
+  cmd.count = 6;
+  cmd.has_indices = true;
+
+  renderer.bind();
+
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_2D, texture);
 
   const auto proj = camera.get_ortho_projection();
   mat4 trans = proj * Transform().get_model();
 
-  //fullscreen_shader.set_uniform("transform", trans);
-  //fullscreen_shader.set_uniform("res", screen_width, screen_height);
-  //fullscreen_shader.set_uniform("tex", 0);
-  //fullscreen_shader.set_uniform("dir", dir);
+  renderer.shader.set_uniform("transform", trans);
+  renderer.shader.set_uniform("res", screen_width, screen_height);
+  renderer.shader.set_uniform("tex", 0);
+  renderer.shader.set_uniform("dir", dir);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 }
 

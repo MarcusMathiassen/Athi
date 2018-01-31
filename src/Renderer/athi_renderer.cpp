@@ -26,8 +26,12 @@ void render() {
   command_buffer.clear();
 }
 
-
 Renderer::Renderer(const string& pname) : name(pname) {}
+void Renderer::bind() noexcept {
+  buffer.bind();
+  shader.bind();
+}
+
 void Renderer::draw(const CommandBuffer& cmd) noexcept {
   buffer.bind();
   shader.bind();
@@ -43,7 +47,7 @@ void Renderer::update_buffer(const string& name, void* data, size_t data_size) n
   buffer.update(name, data, data_size);
 }
 
-Vbo& Renderer::make_buffer(const string& name) noexcept { 
+Vbo& Renderer::make_buffer(const string& name) noexcept {
   return buffer.vbos[name]; 
 }
 

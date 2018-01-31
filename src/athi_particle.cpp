@@ -19,6 +19,60 @@
 
 ParticleSystem particle_system;
 
+void ParticleSystem::draw() noexcept {
+  if (particles.empty()) return;
+  profile p("ParticleSystem::draw");
+
+  cmd_buffer.type = primitive::triangle_fan;
+  cmd_buffer.first = 0;
+  cmd_buffer.count = num_vertices_per_particle;
+  cmd_buffer.primitive_count = particle_count;
+
+  renderer.draw(cmd_buffer);
+  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_vertices_per_particle,
+                       particle_count);
+}
+
+void ParticleSystem::update_gpu_buffers() noexcept {
+  if (particles.empty()) return;
+  profile p("ParticleSystem::update_gpu_buffers");
+
+  // Check if buffers need resizing
+  if (particle_count > models.size()) {
+    models.resize(particle_count);
+  }
+
+  {
+    // THIS IS THE SLOWEST THING EVER.
+    profile p(
+        "ParticleSystem::update_gpu_buffers(update buffers with new data)");
+
+    const auto proj = camera.get_ortho_projection();
+
+    // Update the buffers with the new data.
+    for (const auto &p : particles) {
+      if (is_particles_colored_by_acc) {
+        const auto old = p.pos - p.vel;
+        const auto pos_diff = p.pos - old;
+        colors[p.id] = color_by_acceleration(acceleration_color_min,
+                                             acceleration_color_max, pos_diff);
+      }
+
+      // Update the transform
+      transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
+      models[p.id] = proj * transforms[p.id].get_model();
+    }
+  }
+
+  {
+    profile p("ParticleSystem::update_gpu_buffers(GPU buffer update)");
+
+    // Update the gpu buffers incase of more particles..
+   renderer.update_buffer("transforms", &models[0], sizeof(mat4) * particle_count);
+   renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
+  }
+}
+
 void Particle::update(f32 dt) noexcept {
   // Update pos/vel/acc
   vel.x += acc.x * dt * time_scale * air_drag;
@@ -48,79 +102,6 @@ void Particle::update(f32 dt) noexcept {
   }
 }
 
-void ParticleSystem::opencl_init() noexcept {
-  // Read in the kernel source
-  read_file("../Resources/Kernels/particle_collision.cl", &kernel_source);
-  if (!kernel_source) console->error("OpenCL missing kernel source");
-
-  // Connect to a compute device
-  err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1,
-                       &device_id, NULL);
-  if (err != CL_SUCCESS) console->error("Failed to create a device group!");
-
-  // Create a compute context
-  context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
-  if (!context) console->error("Failed to create a compute context!");
-
-  // Create a command commands
-  commands = clCreateCommandQueue(context, device_id, 0, &err);
-  if (!commands) console->error("Failed to create a command commands!");
-
-  // Create the compute program from the source buffer
-  program = clCreateProgramWithSource(context, 1, (const char **)&kernel_source,
-                                      NULL, &err);
-  if (!program) console->error("Failed to create compute program!");
-
-  // Build the program executable
-  err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
-  if (err != CL_SUCCESS) {
-    size_t len;
-    char buffer[2048];
-
-    console->error("Failed to build program executable!");
-    clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG,
-                          sizeof(buffer), buffer, &len);
-    console->error(buffer);
-  }
-
-  // Create the compute kernel in the program we wish to run
-  kernel = clCreateKernel(program, "particle_collision", &err);
-  if (!kernel || err != CL_SUCCESS)
-    console->error("Failed to create compute kernel!");
-
-  // Print info
-  char device_name[64], driver_version[64], device_version[64];
-  u32 val, work_item_dim;
-  u64 global_mem_size;
-  size_t max_work_group_size, work_item_sizes[3];
-  err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(char) * 64,
-                        &device_name, NULL);
-  err = clGetDeviceInfo(device_id, CL_DRIVER_VERSION, sizeof(char) * 64,
-                        &driver_version, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_VERSION, sizeof(char) * 64,
-                        &device_version, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint),
-                        &val, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE,
-                        sizeof(size_t), &max_work_group_size, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_SIZES,
-                        sizeof(size_t) * 3, &work_item_sizes, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
-                        sizeof(cl_uint), &work_item_dim, NULL);
-  err = clGetDeviceInfo(device_id, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(cl_ulong),
-                        &global_mem_size, NULL);
-  console->info(FRED("OpenCL") " Device name: {}", device_name);
-  console->info(FRED("OpenCL") " Device Compute Units: {}", val);
-  const auto mem_in_gb = (static_cast<f64>(global_mem_size) / 1073741824.0);
-  console->info(FRED("OpenCL") " Device memory: {}GB", mem_in_gb);
-  console->info(FRED("OpenCL") " Device supported version: {}", device_version);
-  console->info(FRED("OpenCL") " Driver version: {}", driver_version);
-  console->info(FRED("OpenCL") " Max workgroup size: {}", max_work_group_size);
-  console->info(FRED("OpenCL") " Max workitem sizes: ({},{},{})",
-                work_item_sizes[0], work_item_sizes[1], work_item_sizes[2]);
-  console->info(FRED("OpenCL") " Max Work item dim: {}", work_item_dim);
-}
-
 void ParticleSystem::init() noexcept {
   // Print some debug info about particle sizes
   console->info("Particle object size: {} bytes", sizeof(Particle));
@@ -130,15 +111,6 @@ void ParticleSystem::init() noexcept {
   // OpenCL
   opencl_init();
 
-  // // Shaders
-  // shader.init("ParticleSystem::init()");
-  // shader.load_from_file("default_particle_shader.vert", ShaderType::Vertex);
-  // shader.load_from_file("default_particle_shader.frag", ShaderType::Fragment);
-  // shader.bind_attrib("position");
-  // shader.bind_attrib("color");
-  // shader.bind_attrib("transform");
-  // shader.link();
-
   // Setup the circle vertices
   vector<vec2> positions(num_vertices_per_particle);
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
@@ -146,37 +118,22 @@ void ParticleSystem::init() noexcept {
                     sinf(i * kPI * 2.0f / num_vertices_per_particle)};
   }
 
-  // Setup buffers
-  // gpu_buffer.init();
-
-  // gpu_buffer.add("positions", &positions[0],
-  //                num_vertices_per_particle * sizeof(positions[0]), ARRAY_BUFFER,
-  //                STATIC_DRAW, 2);
-
-  // gpu_buffer.add_prototype("colors", 4, ARRAY_BUFFER, 0, 0, 1);
-
-  // gpu_buffer.add_prototype_mat("transforms", 4, ARRAY_BUFFER, sizeof(mat4),
-  //                              sizeof(vec4), 1);
-
-
-  //renderer = make_renderer("particle_renderer");
-
-  auto shader = renderer.make_shader();
+  auto &shader = renderer.make_shader();
   shader.sources = { "default_particle_shader.vert", "default_particle_shader.frag" };
-  shader.attribs = { "position", "color", "transform" };
+  //shader.attribs = { "position", "color", "transform" };
 
-  auto vertex_buffer = renderer.make_buffer("positions");
+  auto &vertex_buffer = renderer.make_buffer("positions");
   vertex_buffer.data = &positions[0];
   vertex_buffer.data_size = num_vertices_per_particle * sizeof(positions[0]);
   vertex_buffer.data_members = 2;
   vertex_buffer.type = buffer_type::array;
   vertex_buffer.usage = buffer_usage::static_draw;
 
-  auto colors = renderer.make_buffer("colors");
+  auto &colors = renderer.make_buffer("colors");
   colors.data_members = 4;
   colors.divisor = 1;
 
-  auto transforms = renderer.make_buffer("transforms");
+  auto &transforms = renderer.make_buffer("transforms");
   transforms.data_members = 4;
   transforms.stride = sizeof(mat4);
   transforms.pointer = sizeof(vec4);
@@ -192,130 +149,14 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
   // Setup the circle vertices
   vector<vec2> positions(num_vertices_per_particle);
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
-                    sinf(i * kPI * 2.0f / num_vertices_per_particle)};
+    positions[i] = 
+    {
+      cosf(i * kPI * 2.0f / num_vertices_per_particle),
+      sinf(i * kPI * 2.0f / num_vertices_per_particle)
+    };
   }
 
-  renderer.update_buffer("positions", &positions[0],
-                     num_vertices_per_particle * sizeof(positions[0]));
-
-  // gpu_buffer.update("positions", &positions[0],
-  //                  num_vertices_per_particle * sizeof(positions[0]));
-}
-
-void ParticleSystem::opencl_naive() noexcept {
-  // Create the input and output arrays in device memory
-  // for our calculation
-  //
-  cl_mem input =
-      clCreateBuffer(context, CL_MEM_READ_ONLY,
-                     sizeof(Particle) * (particle_count), NULL, NULL);
-  cl_mem output =
-      clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-                     sizeof(Particle) * (particle_count), NULL, NULL);
-  if (!input || !output) {
-    console->error("Failed to allocate device memory!");
-    exit(1);
-  }
-
-  // Write our data set s32o the input array in device
-  // memory
-  err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0,
-                             sizeof(Particle) * particle_count, &particles[0],
-                             0, NULL, NULL);
-
-  if (err != CL_SUCCESS) console->error("Failed to write to source array!");
-
-  // Set the arguments to our compute kernel
-  err = 0;
-  err = clSetKernelArg(kernel, 0, sizeof(input), &input);
-  err |= clSetKernelArg(kernel, 1, sizeof(output), &output);
-  err |= clSetKernelArg(kernel, 2, sizeof(particle_count), &particle_count);
-  // err |= clSetKernelArg(kernel, 3, sizeof(cl_mem) * local, NULL);
-  if (err != CL_SUCCESS) {
-    console->error("[line {}] Failed to set kernel arguments! {}", __LINE__,
-                   err);
-    exit(1);
-  }
-
-  // Get the maximum work group size for executing the
-  // kernel on the device
-  err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE,
-                                 sizeof(local), &local, NULL);
-  if (err != CL_SUCCESS) {
-    console->error("[line {}] Failed to retrieve kernel work group info!{}",
-                   __LINE__, err);
-    exit(1);
-  }
-
-  const auto leftovers = particle_count % local;
-  global_dim = particle_count - leftovers;  // 1D
-  // console->info("OpenCL particle_count: {}", particle_count);
-  // console->info("OpenCL local: {}", local);
-  // console->info("OpenCL global_dim: {}", global_dim);
-  // console->info("OpenCL leftovers run on CPU: {}", leftovers);
-
-  err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, &local,
-                               0, NULL, NULL);
-  // err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, NULL,
-  // 0, NULL, NULL);
-  if (err) {
-    console->error("[line {}] Failed to execute kernel! {}", __LINE__, err);
-    exit(1);
-  }
-
-  // Wait for the command commands to get serviced before
-  // reading back results
-  err = clFinish(commands);
-  if (err != CL_SUCCESS) {
-    console->error("[line {}] clFinish! {}", __LINE__, err);
-    exit(1);
-  }
-
-  // Read back the results from the device to verify the
-  // output
-  err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0,
-                            sizeof(Particle) * particle_count, &particles[0], 0,
-                            NULL, NULL);
-  if (err != CL_SUCCESS) {
-    console->error("Failed to read output array! {}", err);
-    exit(1);
-  }
-
-  // Handle any leftover that werent checked
-  if (leftovers) {
-    const size_t total = leftovers;
-
-    switch (threadpool_solution) {
-      using Threads = ThreadPoolSolution;
-      case Threads::AppleGCD: {
-        dispatch_apply(
-            variable_thread_count,
-            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-            ^(size_t i) {
-              const auto[begin, end] =
-                  get_begin_and_end(i, total, variable_thread_count);
-              collision_logNxN(total, particle_count - leftovers + begin, end);
-            });
-      } break;
-
-      case Threads::Dispatch: {
-        vector<std::future<void>> results(variable_thread_count);
-        for (int i = 0; i < variable_thread_count; ++i) {
-          const auto[begin, end] =
-              get_begin_and_end(i, total, variable_thread_count);
-          results[i] =
-              pool.enqueue(&ParticleSystem::collision_logNxN, this, total,
-                           particle_count - leftovers + begin, end);
-        }
-        for (auto &&res : results) res.get();
-      } break;
-
-      case Threads::None: {
-        collision_logNxN(total, 0, total);
-      } break;
-    }
-  }
+  renderer.update_buffer("positions", &positions[0], num_vertices_per_particle * sizeof(positions[0]));
 }
 
 void ParticleSystem::update_collisions() noexcept {
@@ -502,60 +343,6 @@ void ParticleSystem::update() noexcept {
     profile p("ParticleSystem::apply_n_body()");
     apply_n_body();
   }
-}
-
-void ParticleSystem::update_gpu_buffers() noexcept {
-  if (particles.empty()) return;
-  profile p("ParticleSystem::update_gpu_buffers");
-
-  // Check if buffers need resizing
-  if (particle_count > models.size()) {
-    models.resize(particle_count);
-  }
-
-  {
-    // THIS IS THE SLOWEST THING EVER.
-    profile p(
-        "ParticleSystem::update_gpu_buffers(update buffers with new data)");
-
-    const auto proj = camera.get_ortho_projection();
-
-    // Update the buffers with the new data.
-    for (const auto &p : particles) {
-      if (is_particles_colored_by_acc) {
-        const auto old = p.pos - p.vel;
-        const auto pos_diff = p.pos - old;
-        colors[p.id] = color_by_acceleration(acceleration_color_min,
-                                             acceleration_color_max, pos_diff);
-      }
-
-      // Update the transform
-      transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
-      models[p.id] = proj * transforms[p.id].get_model();
-    }
-  }
-
-  {
-    profile p("ParticleSystem::update_gpu_buffers(GPU buffer update)");
-
-    // Update the gpu buffers incase of more particles..
-   renderer.update_buffer("transforms", &models[0], sizeof(mat4) * particle_count);
-   renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
-  }
-}
-
-void ParticleSystem::draw() noexcept {
-  if (particles.empty()) return;
-  profile p("ParticleSystem::draw");
-
-  cmd_buffer.type = primitive::triangle_fan;
-  cmd_buffer.first = 0;
-  cmd_buffer.count = num_vertices_per_particle;
-  cmd_buffer.primitive_count = particle_count;
-
-  renderer.draw(cmd_buffer);
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_vertices_per_particle,
-                       particle_count);
 }
 
 void ParticleSystem::add(const glm::vec2 &pos, float radius,
@@ -825,4 +612,193 @@ vector<s32> get_particles_in_rect(const vector<Particle> &particles,
   }
 
   return vector_of_ids;
+}
+
+void ParticleSystem::opencl_init() noexcept {
+  // Read in the kernel source
+  read_file("../Resources/Kernels/particle_collision.cl", &kernel_source);
+  if (!kernel_source) console->error("OpenCL missing kernel source");
+
+  // Connect to a compute device
+  err = clGetDeviceIDs(NULL, gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1,
+                       &device_id, NULL);
+  if (err != CL_SUCCESS) console->error("Failed to create a device group!");
+
+  // Create a compute context
+  context = clCreateContext(0, 1, &device_id, NULL, NULL, &err);
+  if (!context) console->error("Failed to create a compute context!");
+
+  // Create a command commands
+  commands = clCreateCommandQueue(context, device_id, 0, &err);
+  if (!commands) console->error("Failed to create a command commands!");
+
+  // Create the compute program from the source buffer
+  program = clCreateProgramWithSource(context, 1, (const char **)&kernel_source,
+                                      NULL, &err);
+  if (!program) console->error("Failed to create compute program!");
+
+  // Build the program executable
+  err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+  if (err != CL_SUCCESS) {
+    size_t len;
+    char buffer[2048];
+
+    console->error("Failed to build program executable!");
+    clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG,
+                          sizeof(buffer), buffer, &len);
+    console->error(buffer);
+  }
+
+  // Create the compute kernel in the program we wish to run
+  kernel = clCreateKernel(program, "particle_collision", &err);
+  if (!kernel || err != CL_SUCCESS)
+    console->error("Failed to create compute kernel!");
+
+  // Print info
+  char device_name[64], driver_version[64], device_version[64];
+  u32 val, work_item_dim;
+  u64 global_mem_size;
+  size_t max_work_group_size, work_item_sizes[3];
+  err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(char) * 64,
+                        &device_name, NULL);
+  err = clGetDeviceInfo(device_id, CL_DRIVER_VERSION, sizeof(char) * 64,
+                        &driver_version, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_VERSION, sizeof(char) * 64,
+                        &device_version, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint),
+                        &val, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE,
+                        sizeof(size_t), &max_work_group_size, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_SIZES,
+                        sizeof(size_t) * 3, &work_item_sizes, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
+                        sizeof(cl_uint), &work_item_dim, NULL);
+  err = clGetDeviceInfo(device_id, CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(cl_ulong),
+                        &global_mem_size, NULL);
+  console->info(FRED("OpenCL") " Device name: {}", device_name);
+  console->info(FRED("OpenCL") " Device Compute Units: {}", val);
+  const auto mem_in_gb = (static_cast<f64>(global_mem_size) / 1073741824.0);
+  console->info(FRED("OpenCL") " Device memory: {}GB", mem_in_gb);
+  console->info(FRED("OpenCL") " Device supported version: {}", device_version);
+  console->info(FRED("OpenCL") " Driver version: {}", driver_version);
+  console->info(FRED("OpenCL") " Max workgroup size: {}", max_work_group_size);
+  console->info(FRED("OpenCL") " Max workitem sizes: ({},{},{})",
+                work_item_sizes[0], work_item_sizes[1], work_item_sizes[2]);
+  console->info(FRED("OpenCL") " Max Work item dim: {}", work_item_dim);
+}
+
+
+void ParticleSystem::opencl_naive() noexcept {
+  // Create the input and output arrays in device memory
+  // for our calculation
+  //
+  cl_mem input =
+      clCreateBuffer(context, CL_MEM_READ_ONLY,
+                     sizeof(Particle) * (particle_count), NULL, NULL);
+  cl_mem output =
+      clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+                     sizeof(Particle) * (particle_count), NULL, NULL);
+  if (!input || !output) {
+    console->error("Failed to allocate device memory!");
+    exit(1);
+  }
+
+  // Write our data set s32o the input array in device
+  // memory
+  err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0,
+                             sizeof(Particle) * particle_count, &particles[0],
+                             0, NULL, NULL);
+
+  if (err != CL_SUCCESS) console->error("Failed to write to source array!");
+
+  // Set the arguments to our compute kernel
+  err = 0;
+  err = clSetKernelArg(kernel, 0, sizeof(input), &input);
+  err |= clSetKernelArg(kernel, 1, sizeof(output), &output);
+  err |= clSetKernelArg(kernel, 2, sizeof(particle_count), &particle_count);
+  // err |= clSetKernelArg(kernel, 3, sizeof(cl_mem) * local, NULL);
+  if (err != CL_SUCCESS) {
+    console->error("[line {}] Failed to set kernel arguments! {}", __LINE__,
+                   err);
+    exit(1);
+  }
+
+  // Get the maximum work group size for executing the
+  // kernel on the device
+  err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE,
+                                 sizeof(local), &local, NULL);
+  if (err != CL_SUCCESS) {
+    console->error("[line {}] Failed to retrieve kernel work group info!{}",
+                   __LINE__, err);
+    exit(1);
+  }
+
+  const auto leftovers = particle_count % local;
+  global_dim = particle_count - leftovers;  // 1D
+  // console->info("OpenCL particle_count: {}", particle_count);
+  // console->info("OpenCL local: {}", local);
+  // console->info("OpenCL global_dim: {}", global_dim);
+  // console->info("OpenCL leftovers run on CPU: {}", leftovers);
+
+  err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, &local,
+                               0, NULL, NULL);
+  // err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, NULL,
+  // 0, NULL, NULL);
+  if (err) {
+    console->error("[line {}] Failed to execute kernel! {}", __LINE__, err);
+    exit(1);
+  }
+
+  // Wait for the command commands to get serviced before
+  // reading back results
+  err = clFinish(commands);
+  if (err != CL_SUCCESS) {
+    console->error("[line {}] clFinish! {}", __LINE__, err);
+    exit(1);
+  }
+
+  // Read back the results from the device to verify the
+  // output
+  err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0,
+                            sizeof(Particle) * particle_count, &particles[0], 0,
+                            NULL, NULL);
+  if (err != CL_SUCCESS) {
+    console->error("Failed to read output array! {}", err);
+    exit(1);
+  }
+
+  // Handle any leftover that werent checked
+  if (leftovers) {
+    const size_t total = leftovers;
+
+    switch (threadpool_solution) {
+      using Threads = ThreadPoolSolution;
+      case Threads::AppleGCD: {
+        dispatch_apply(
+            variable_thread_count,
+            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
+            ^(size_t i) {
+              const auto[begin, end] =
+                  get_begin_and_end(i, total, variable_thread_count);
+              collision_logNxN(total, particle_count - leftovers + begin, end);
+            });
+      } break;
+
+      case Threads::Dispatch: {
+        vector<std::future<void>> results(variable_thread_count);
+        for (int i = 0; i < variable_thread_count; ++i) {
+          const auto[begin, end] =
+              get_begin_and_end(i, total, variable_thread_count);
+          results[i] =
+              pool.enqueue(&ParticleSystem::collision_logNxN, this, total,
+                           particle_count - leftovers + begin, end);
+        }
+        for (auto &&res : results) res.get();
+      } break;
+
+      case Threads::None: {
+        collision_logNxN(total, 0, total);
+      } break;
+    }
+  }
 }

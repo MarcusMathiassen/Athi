@@ -20,14 +20,14 @@ void render_call(const std::function<void()>& f);
 
 struct Renderer
 {
-  string name{"Hello"};
+  string name;
 
   Shader shader;
   Buffer buffer;
 
   Renderer() = default;
   Renderer(const string& pname);
-
+  void bind() noexcept;
   void draw(const CommandBuffer& cmd) noexcept;
   Shader& make_shader();
   void update_buffer(const string& name, void* data, size_t data_size) noexcept;
