@@ -2,10 +2,13 @@
 
 #include "athi_typedefs.h"
 
-#include <unordered_map>
+#include <unordered_map> // unordered_map
+
+#include <string_view> // string_view
 
 #define GLEW_STATIC
 #include <GL/glew.h>
+
 
 enum class ShaderType {
   Vertex = GL_VERTEX_SHADER,
@@ -48,18 +51,18 @@ class Shader {
                       const ShaderType shader_type) noexcept;
   void bind_attrib(const char* name) noexcept;
   void add_uniform(const string& name) noexcept;
-  u32 get_attrib(const string& name) const noexcept;
+  u32  get_attrib(const string& name) const noexcept;
 
-  void setUniform(const string& name, float x, float y) const noexcept;
-  void setUniform(const string& name, float x, float y, float z) const noexcept;
-  void setUniform(const string& name, const vec2& v) const noexcept;
-  void setUniform(const string& name, const vec3& v) const noexcept;
-  void setUniform(const string& name, const vec4& v) const noexcept;
-  void setUniform(const string& name, const mat4& m) const noexcept;
-  void setUniform(const string& name, const mat3& m) const noexcept;
-  void setUniform(const string& name, float val) const noexcept;
-  void setUniform(const string& name, int val) const noexcept;
-  void setUniform(const string& name, bool val) const noexcept;
+  void set_uniform(const string& name, f32 x, f32 y) const noexcept;
+  void set_uniform(const string& name, f32 x, f32 y, f32 z) const noexcept;
+  void set_uniform(const string& name, const vec2& v) const noexcept;
+  void set_uniform(const string& name, const vec3& v) const noexcept;
+  void set_uniform(const string& name, const vec4& v) const noexcept;
+  void set_uniform(const string& name, const mat4& m) const noexcept;
+  void set_uniform(const string& name, const mat3& m) const noexcept;
+  void set_uniform(const string& name, f32 val) const noexcept;
+  void set_uniform(const string& name, s32 val) const noexcept;
+  void set_uniform(const string& name, bool val) const noexcept;
 };
 
 static u64 GetShaderFileTimestamp(const char* filename) noexcept;

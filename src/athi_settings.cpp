@@ -1,9 +1,5 @@
 #include "athi_settings.h"
 
-#include "athi_typedefs.h"
-#include "./Utility/athi_globals.h"
-#include "athi_framebuffer.h"
-
 std::shared_ptr<spdlog::logger> console;
 
 MouseOption mouse_option{MouseOption::Drag};

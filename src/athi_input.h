@@ -2,11 +2,9 @@
 
 #include "athi_typedefs.h"
 
-#include <iostream>
-#include "athi_camera.h"
-#include "athi_particle.h"
-#include "athi_rect.h"
-#include "athi_settings.h"
+#include "athi_camera.h"    // camera
+#include "athi_particle.h"  // particle_system
+#include "athi_settings.h"  // console
 
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
@@ -24,8 +22,7 @@ int32_t get_mouse_button_state(int32_t button);
 void update_inputs();
 static void mouse_button_callback(GLFWwindow *window, s32 button, s32 action,
                                   s32 mods);
-static void cursor_position_callback(GLFWwindow *window, f64 xpos,
-                                     f64 ypos);
+static void cursor_position_callback(GLFWwindow *window, f64 xpos, f64 ypos);
 static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
                          s32 mods);
 static void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset);
@@ -51,8 +48,7 @@ struct Athi_Input_Manager {
 
 extern Athi_Input_Manager athi_input_manager;
 
-static void scroll_callback(GLFWwindow *window, f64 xoffset,
-                            f64 yoffset) {
+static void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset) {
   // If color wheel
   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
     hue += yoffset;
@@ -69,8 +65,7 @@ static void scroll_callback(GLFWwindow *window, f64 xoffset,
   // camera.update();
 }
 
-static void cursor_position_callback(GLFWwindow *window, f64 xpos,
-                                     f64 ypos) {
+static void cursor_position_callback(GLFWwindow *window, f64 xpos, f64 ypos) {
   athi_input_manager.mouse.pos.x = xpos * px_scale;
   athi_input_manager.mouse.pos.y = screen_height - (ypos * px_scale);
 }

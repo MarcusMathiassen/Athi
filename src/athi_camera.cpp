@@ -1,17 +1,16 @@
 #include "athi_camera.h"
 
-#include <cmath>
-#include <glm/glm.hpp>
-#include <glm/gtx/transform.hpp>
-#include <iostream>
+#include <glm/gtc/matrix_transform.hpp> // glm::radians, glm::normalize, glm::cross, glm::perspective, glm::lookAt
 
 Camera camera;
 
-glm::mat4 Camera::get_view_projection() const { return *active_projection * view_matrix; }
+mat4 Camera::get_view_projection() const {
+  return *active_projection * view_matrix;
+}
+mat4 Camera::get_view_matrix() const { return view_matrix; }
 
-glm::mat4 Camera::get_view_matrix() const { return view_matrix; }
-
-void Camera::process_mouse_movement(float xoffset, float yoffset, bool constrain_pitch) {
+void Camera::process_mouse_movement(f32 xoffset, f32 yoffset,
+                                    bool constrain_pitch) {
   xoffset *= mouse_sensitivity;
   yoffset *= mouse_sensitivity;
 
@@ -20,10 +19,8 @@ void Camera::process_mouse_movement(float xoffset, float yoffset, bool constrain
 
   // Make sure that when pitch is out of bounds, screen doesn't get flipped
   if (constrain_pitch) {
-    if (pitch > 89.0f)
-      pitch = 89.0f;
-    if (pitch < -89.0f)
-      pitch = -89.0f;
+    if (pitch > 89.0f) pitch = 89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
   }
 
   // Update front, right and Up Vectors using the updated Eular angles
@@ -38,38 +35,30 @@ void Camera::update_camera_vectors() {
   n_front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
   front = glm::normalize(n_front);
   // Also re-calculate the right and Up vector
-  right = glm::normalize(glm::cross(front, world_up)); // Normalize the vectors,
-                                                       // because their length
-                                                       // gets closer to 0 the
-                                                       // more you look up or
-                                                       // down which results in
-                                                       // slower movement.
+  right =
+      glm::normalize(glm::cross(front, world_up));  // Normalize the vectors,
+                                                    // because their length
+                                                    // gets closer to 0 the
+                                                    // more you look up or
+                                                    // down which results in
+                                                    // slower movement.
   up = glm::normalize(glm::cross(right, front));
 }
 
-void Camera::process_mouse_scroll(float yoffset) {
-  if (zoom >= 44.0f && zoom <= 46.0f)
-    zoom -= yoffset;
-  if (zoom <= 44.0f)
-    zoom = 44.0f;
-  if (zoom >= 46.0f)
-    zoom = 46.0f;
+void Camera::process_mouse_scroll(f32 yoffset) {
+  if (zoom >= 44.0f && zoom <= 46.0f) zoom -= yoffset;
+  if (zoom <= 44.0f) zoom = 44.0f;
+  if (zoom >= 46.0f) zoom = 46.0f;
 }
 
-void Camera::process_keyboard(Camera_Movement direction, float deltaTime) {
-  const float velocity = movement_speed * deltaTime;
-  if (direction == FORWARD)
-    position += front * velocity;
-  if (direction == BACKWARD)
-    position -= front * velocity;
-  if (direction == LEFT)
-    position -= right * velocity;
-  if (direction == RIGHT)
-    position += right * velocity;
-  if (direction == DOWN)
-    position -= up * velocity;
-  if (direction == UP)
-    position += up * velocity;
+void Camera::process_keyboard(Camera_Movement direction, f32 deltaTime) {
+  const f32 velocity = movement_speed * deltaTime;
+  if (direction == FORWARD) position += front * velocity;
+  if (direction == BACKWARD) position -= front * velocity;
+  if (direction == LEFT) position -= right * velocity;
+  if (direction == RIGHT) position += right * velocity;
+  if (direction == DOWN) position -= up * velocity;
+  if (direction == UP) position += up * velocity;
 }
 
 void Camera::update() {
@@ -77,17 +66,21 @@ void Camera::update() {
   perspective_projection = glm::perspective(zoom, aspect_ratio, zNear, zFar);
 }
 
-void Camera::update_projection(float width, float height) {
+void Camera::update_projection(f32 width, f32 height) {
   aspect_ratio = width / height;
   perspective_projection = glm::perspective(zoom, aspect_ratio, zNear, zFar);
 
   ortho_projection = glm::ortho(0.0f, width, 0.0f, height);
 }
 
-glm::mat4 Camera::get_perspective_projection() const { return perspective_projection; }
+mat4 Camera::get_perspective_projection() const {
+  return perspective_projection;
+}
 
-glm::mat4 Camera::get_ortho_projection() const { return ortho_projection; }
+mat4 Camera::get_ortho_projection() const { return ortho_projection; }
 
 void Camera::use_projection_ortho() { active_projection = &ortho_projection; }
 
-void Camera::use_projection_perspective() { active_projection = &perspective_projection; }
+void Camera::use_projection_perspective() {
+  active_projection = &perspective_projection;
+}

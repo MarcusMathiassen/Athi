@@ -1,15 +1,11 @@
 #pragma once
 
 #include "athi_typedefs.h"
-#include "athi_rect.h"
-#include "athi_settings.h"
 
-#include <glm/vec2.hpp>
-#include <memory>
-#include <vector>
+#include "athi_rect.h" // Rect
+#include "athi_settings.h" // quadtree_show_only_occupied, etc.
 
 template <class T> class Quadtree {
-
 private:
   vector<s32> indices;
   static T *data;

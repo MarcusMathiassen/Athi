@@ -1,19 +1,15 @@
-
 #pragma once
+
 #include "athi_typedefs.h"
 
-#include "./Utility/athi_globals.h"  // kPi, kGravitationalConstant
+#include "athi_dispatch.h"  // Dispatch
 
-#include "athi_dispatch.h"
-#include "athi_uniformgrid.h"
+#include "athi_quadtree.h"     // Quadtree
+#include "athi_uniformgrid.h"  // UniformGrid
 
-#include "athi_shader.h"
-#include "athi_buffer.h"
-
-#include "athi_camera.h"
-#include "athi_quadtree.h"
-#include "athi_settings.h"
-#include "athi_transform.h"
+#include "athi_buffer.h"     // GPUBuffer
+#include "athi_shader.h"     // Shader
+#include "athi_transform.h"  // Transform
 
 #ifdef __APPLE__
 #include <OpenCL/OpenCL.h>
@@ -29,59 +25,25 @@ struct Particle {
   f32 mass{0.0f};
   f32 radius{0.0f};
 
-  void update(f32 dt) noexcept {
-    // Update pos/vel/acc
-    vel.x += acc.x * dt * time_scale * air_drag;
-    vel.y += acc.y * dt * time_scale * air_drag;
-    pos.x += vel.x * dt * time_scale;
-    pos.y += vel.y * dt * time_scale;
-    acc *= 0;
-
-    if (border_collision) {
-      // Border collision
-      if (pos.x < 0 + radius) {
-        pos.x = 0 + radius;
-        vel.x = -vel.x * collision_energy_loss;
-      }
-      if (pos.x > screen_width - radius) {
-        pos.x = screen_width - radius;
-        vel.x = -vel.x * collision_energy_loss;
-      }
-      if (pos.y < 0 + radius) {
-        pos.y = 0 + radius;
-        vel.y = -vel.y * collision_energy_loss;
-      }
-      if (pos.y > screen_height - radius) {
-        pos.y = screen_height - radius;
-        vel.y = -vel.y * collision_energy_loss;
-      }
-    }
-  }
+  void update(f32 dt) noexcept;
 };
 
 struct ParticleSystem {
   u32 particle_count{0};
   f32 particle_density{1.0f};
+  
   vector<Particle> particles;
   vector<Transform> transforms;
   vector<vec4> colors;
   vector<mat4> models;
 
-
+  Shader shader;
   GPUBuffer gpu_buffer;
 
   Dispatch pool;
 
-  Shader shader;
-
   Quadtree<Particle> quadtree = Quadtree<Particle>(vec2(-1, -1), vec2(1, 1));
   UniformGrid<Particle> uniformgrid = UniformGrid<Particle>();
-
-  enum { POSITION, COLOR, TRANSFORM, NUM_BUFFERS };
-  u32 vao;
-  u32 vbo[NUM_BUFFERS];
-  size_t model_bytes_allocated{0};
-  size_t color_bytes_allocated{0};
 
   // OPENCL
   // ///////////////////////////////////////////////////////
@@ -125,45 +87,12 @@ struct ParticleSystem {
 };
 
 // Returns a vector of ids of particles colliding with the input rectangle.
-static vector<s32> get_particles_in_rect_basic(
-    const vector<Particle> &particles, const vec2 &min,
-    const vec2 &max) noexcept {
-  vector<s32> vector_of_ids;
-
-  // @Performance: Check for available tree structure used and use that instead.
-  // Go through all the particles..
-  for (const auto &particle : particles) {
-    const auto o = particle.pos;
-
-    // If the particle is inside the rectangle, add it to the output vector.
-    if (o.x < max.x && o.x > min.x && o.y < max.y && o.y > min.y) {
-      vector_of_ids.emplace_back(particle.id);
-    }
-  }
-
-  return vector_of_ids;
-}
+vector<s32> get_particles_in_rect_basic(const vector<Particle> &particles,
+                                        const vec2 &min,
+                                        const vec2 &max) noexcept;
 
 // Returns a vector of ids of particles colliding with the input rectangle.
-static vector<s32> get_particles_in_rect(const vector<Particle> &particles,
-                                         const vec2 &min,
-                                         const vec2 &max) noexcept {
-  vector<s32> vector_of_ids;
-
-  // @Performance: Check for available tree structure used and use that instead.
-  // Go through all the particles..
-  for (const auto &particle : particles) {
-    const auto o = particle.pos;
-    const auto r = particle.radius;
-
-    // If the particle is inside the rectangle, add it to the output vector.
-    if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
-        o.y + r > min.y) {
-      vector_of_ids.emplace_back(particle.id);
-    }
-  }
-
-  return vector_of_ids;
-}
+vector<s32> get_particles_in_rect(const vector<Particle> &particles,
+                                  const vec2 &min, const vec2 &max) noexcept;
 
 extern ParticleSystem particle_system;

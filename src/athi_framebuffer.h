@@ -4,15 +4,14 @@
 
 #define GLEW_STATIC
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 struct FrameBuffer {
-  std::int32_t width, height;
-  std::uint32_t fbo;
-  std::uint32_t texture;
+  s32 width, height;
+  u32 fbo;
+  u32 texture;
 
-  FrameBuffer(std::uint32_t num_textures = 1, std::int32_t width = 0,
-              std::int32_t height = 0)
+  FrameBuffer(u32 num_textures = 1, s32 width = 0,
+              s32 height = 0)
       : width(width), height(height) {
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -36,7 +35,7 @@ struct FrameBuffer {
     glDeleteFramebuffers(1, &fbo);
     glDeleteTextures(1, &texture);
   }
-  void resize(std::int32_t width, std::int32_t height) noexcept {
+  void resize(s32 width, s32 height) noexcept {
     glDeleteTextures(1, &texture);
 
     this->width = width;
@@ -58,7 +57,7 @@ struct FrameBuffer {
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
-  void set_texture(std::uint32_t tex) noexcept {
+  void set_texture(u32 tex) noexcept {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glBindTexture(GL_TEXTURE_2D, tex);
 
@@ -76,7 +75,7 @@ struct FrameBuffer {
   void unbind() const noexcept { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
   void clear() const noexcept {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
 };

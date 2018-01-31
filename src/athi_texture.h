@@ -1,11 +1,14 @@
 #pragma once
 
-#include "athi_settings.h"
+#include "athi_typedefs.h"
+
+#include "athi_settings.h" // console
+
+#include "stb_image.h" // stbi_load, stbi_image_free
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 
-#include "stb_image.h"
 
 struct Texture {
   u32 id{0};
@@ -29,10 +32,6 @@ struct Texture {
     stbi_image_free(image_data);
 
     console->info("Texture loaded: {}", file);
-  }
-
-  void operator = (const Texture ID) {
-
   }
 
   Texture() = default;

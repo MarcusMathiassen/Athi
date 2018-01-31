@@ -1,20 +1,21 @@
 #pragma once
 
 #include "athi_typedefs.h"
-#include "athi_settings.h"
-#include <algorithm>
-#include <unordered_map>
+
+#include "athi_settings.h" // console
+#include <algorithm> // find
+#include <unordered_map> // unordered_map
 
 class ResourceManager {
 private:
-  std::unordered_map<std::string, std::uint32_t> resources;
+  std::unordered_map<std::string, u32> resources;
 public:
-  void add_resource(const std::string &file, std::uint32_t resource) noexcept {
+  void add_resource(const std::string &file, u32 resource) noexcept {
     resources[file] = resource;
     console->info("resource loaded: {}", file);
   }
 
-  std::uint32_t get_resource(const std::string &file) const noexcept {
+  u32 get_resource(const std::string &file) const noexcept {
     if (auto res = resources.find(file); res != resources.end()) {
       console->warn("resource already loaded: {}", file);
       return res->second;

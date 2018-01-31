@@ -2,31 +2,50 @@
 
 #include "./Utility/athi_globals.h"  // kPi, kGravitationalConstant
 
-#include "athi_camera.h"    // Camera
-#include "athi_dispatch.h"  // Dispatch
-#include "athi_quadtree.h"  // Quadtree
-#include "athi_settings.h"
-#include "athi_transform.h"  // Transform
-#include "athi_typedefs.h"
-#include "athi_uniformgrid.h"  // UniformGrid
-#include "athi_utility.h"      // read_file
+#include "athi_camera.h"   // Camera
+#include "athi_utility.h"  // read_file
 
-#include <algorithm>
-#include <array>
-#include <future>
+#include "athi_settings.h"  // console
 
-#include <glm/glm.hpp>
-#include <glm/gtx/vector_angle.hpp>
+#include <future>           // future
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 
 #ifdef __APPLE__
-#include <dispatch/dispatch.h>
+#include <dispatch/dispatch.h> // dispatch_apply
 #endif
 
-// ParticleSystem particle_system;
 ParticleSystem particle_system;
+
+void Particle::update(f32 dt) noexcept {
+  // Update pos/vel/acc
+  vel.x += acc.x * dt * time_scale * air_drag;
+  vel.y += acc.y * dt * time_scale * air_drag;
+  pos.x += vel.x * dt * time_scale;
+  pos.y += vel.y * dt * time_scale;
+  acc *= 0;
+
+  if (border_collision) {
+    // Border collision
+    if (pos.x < 0 + radius) {
+      pos.x = 0 + radius;
+      vel.x = -vel.x * collision_energy_loss;
+    }
+    if (pos.x > screen_width - radius) {
+      pos.x = screen_width - radius;
+      vel.x = -vel.x * collision_energy_loss;
+    }
+    if (pos.y < 0 + radius) {
+      pos.y = 0 + radius;
+      vel.y = -vel.y * collision_energy_loss;
+    }
+    if (pos.y > screen_height - radius) {
+      pos.y = screen_height - radius;
+      vel.y = -vel.y * collision_energy_loss;
+    }
+  }
+}
 
 void ParticleSystem::opencl_init() noexcept {
   // Read in the kernel source
@@ -122,45 +141,21 @@ void ParticleSystem::init() noexcept {
   // Setup the circle vertices
   vector<vec2> positions(num_vertices_per_particle);
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions[i] = 
-    {
-      cosf(i * kPI * 2.0f / num_vertices_per_particle),
-      sinf(i * kPI * 2.0f / num_vertices_per_particle)
-    };
+    positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
+                    sinf(i * kPI * 2.0f / num_vertices_per_particle)};
   }
 
   // Setup buffers
   gpu_buffer.init();
 
-  gpu_buffer.add
-  (
-    "positions", 
-    &positions[0], 
-    2,
-    num_vertices_per_particle * sizeof(positions[0]),
-    ARRAY_BUFFER,
-    STATIC_DRAW
-  );
+  gpu_buffer.add("positions", &positions[0],
+                 num_vertices_per_particle * sizeof(positions[0]), ARRAY_BUFFER,
+                 STATIC_DRAW, 2);
 
-  gpu_buffer.add_prototype
-  (
-    "colors",
-    4,
-    ARRAY_BUFFER,
-    0,
-    0,
-    1
-  );
+  gpu_buffer.add_prototype("colors", 4, ARRAY_BUFFER, 0, 0, 1);
 
-  gpu_buffer.add_prototype_mat
-  (
-    "transforms",
-    4,
-    ARRAY_BUFFER,
-    sizeof(mat4),
-    sizeof(vec4),
-    1
-  );
+  gpu_buffer.add_prototype_mat("transforms", 4, ARRAY_BUFFER, sizeof(mat4),
+                               sizeof(vec4), 1);
 }
 
 void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
@@ -169,19 +164,12 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
   // Setup the circle vertices
   vector<vec2> positions(num_vertices_per_particle);
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions[i] = 
-    {
-      cosf(i * kPI * 2.0f / num_vertices_per_particle),
-      sinf(i * kPI * 2.0f / num_vertices_per_particle)
-    };
+    positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
+                    sinf(i * kPI * 2.0f / num_vertices_per_particle)};
   }
 
-  gpu_buffer.update
-  (
-    "positions",
-    &positions[0],
-    num_vertices_per_particle * sizeof(positions[0])
-  );
+  gpu_buffer.update("positions", &positions[0],
+                    num_vertices_per_particle * sizeof(positions[0]));
 }
 
 void ParticleSystem::opencl_naive() noexcept {
@@ -760,4 +748,45 @@ void ParticleSystem::collision_quadtree(
   }
   comparisons += comp_counter;
   resolutions += res_counter;
+}
+
+// Returns a vector of ids of particles colliding with the input rectangle.
+vector<s32> get_particles_in_rect_basic(const vector<Particle> &particles,
+                                        const vec2 &min,
+                                        const vec2 &max) noexcept {
+  vector<s32> vector_of_ids;
+
+  // @Performance: Check for available tree structure used and use that instead.
+  // Go through all the particles..
+  for (const auto &particle : particles) {
+    const auto o = particle.pos;
+
+    // If the particle is inside the rectangle, add it to the output vector.
+    if (o.x < max.x && o.x > min.x && o.y < max.y && o.y > min.y) {
+      vector_of_ids.emplace_back(particle.id);
+    }
+  }
+
+  return vector_of_ids;
+}
+
+// Returns a vector of ids of particles colliding with the input rectangle.
+vector<s32> get_particles_in_rect(const vector<Particle> &particles,
+                                  const vec2 &min, const vec2 &max) noexcept {
+  vector<s32> vector_of_ids;
+
+  // @Performance: Check for available tree structure used and use that instead.
+  // Go through all the particles..
+  for (const auto &particle : particles) {
+    const auto o = particle.pos;
+    const auto r = particle.radius;
+
+    // If the particle is inside the rectangle, add it to the output vector.
+    if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
+        o.y + r > min.y) {
+      vector_of_ids.emplace_back(particle.id);
+    }
+  }
+
+  return vector_of_ids;
 }

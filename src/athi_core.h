@@ -2,8 +2,6 @@
 
 #include "athi_window.h"
 
-#include <memory>
-
 struct Athi_Core {
 
   Athi_Window window;

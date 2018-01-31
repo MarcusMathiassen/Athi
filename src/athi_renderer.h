@@ -1,9 +1,10 @@
 #pragma once
 
-#include <functional>
-#include <vector>
+#include "athi_typedefs.h"
 
-extern std::vector<std::function<void()>> command_buffer;
+#include <functional>
+
+extern vector<std::function<void()>> command_buffer;
 
 void render();
 

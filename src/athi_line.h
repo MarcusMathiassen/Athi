@@ -1,15 +1,12 @@
 #pragma once
+#include "athi_typedefs.h"
+
+#include "athi_transform.h"   // Transform
+#include "athi_shader.h"      // Shader
+#include "athi_buffer.h"      // GPUBuffer
 
 #define GLEW_STATIC
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <vector>
-
-#include "athi_camera.h"
-#include "athi_transform.h"
-#include "athi_shader.h"
-#include "athi_typedefs.h"
-#include "athi_utility.h"
 
 struct Athi_Line {
   vec2 p1, p2;
@@ -20,16 +17,10 @@ struct Athi_Line {
 };
 
 struct Athi_Line_Manager {
-  enum { POSITIONS, COLOR, NUM_UNIFORMS };
-
-  u32 VAO;
   Shader shader;
-  u32 shader_program;
-  u32 uniform[NUM_UNIFORMS];
+  GPUBuffer gpu_buffer;
 
   Athi_Line_Manager() = default;
-  ~Athi_Line_Manager();
-
   void init();
   void update();
   void draw();

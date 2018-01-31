@@ -1,12 +1,11 @@
-#include "athi_typedefs.h"
-
-#include "athi_camera.h"
-#include "athi_shader.h"
-#include "athi_transform.h"
 #include "athi_utility.h"
 
-#include <algorithm>
-#include <glm/gtx/compatibility.hpp>
+#include "athi_buffer.h"     // GPUBuffer
+#include "athi_camera.h"     // camera,
+#include "athi_shader.h"     // Shader
+#include "athi_transform.h"  // Transform
+
+#include <algorithm>  // std::swap
 
 f32 rand_f32(f32 min, f32 max) noexcept {
   return ((f32(rand()) / f32(RAND_MAX)) * (max - min)) + min;
@@ -60,17 +59,14 @@ vec4 rgb_to_hsv(vec4 in) noexcept {
   out.x *= 60.0;                          // degrees
   if (out.x < 0.0) out.x += 360.0;
   return out;
-
 }
 
 vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept {
-
   // gray
-  if (s == 0.0f)
-    return vec4(v,v,v,a);
+  if (s == 0.0f) return vec4(v, v, v, a);
 
   h = (h >= 360) ? 0 : h;
-  const f32 hue = h * 1.0f/60.0f;
+  const f32 hue = h * 1.0f / 60.0f;
 
   const s32 i = hue;
   const f32 f = hue - i;
@@ -81,13 +77,37 @@ vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept {
   f32 r{0.0f}, g{0.0f}, b{0.0f};
 
   switch (i) {
-    case 0: r = v; g = t; b = p; break;
-    case 1: r = q; g = v; b = p; break;
-    case 2: r = p; g = v; b = t; break;
-    case 3: r = p; g = q; b = v; break;
-    case 4: r = t; g = p; b = v; break;
+    case 0:
+      r = v;
+      g = t;
+      b = p;
+      break;
+    case 1:
+      r = q;
+      g = v;
+      b = p;
+      break;
+    case 2:
+      r = p;
+      g = v;
+      b = t;
+      break;
+    case 3:
+      r = p;
+      g = q;
+      b = v;
+      break;
+    case 4:
+      r = t;
+      g = p;
+      b = v;
+      break;
     case 5:
-    default: r = v; g = p; b = q; break;
+    default:
+      r = v;
+      g = p;
+      b = q;
+      break;
   }
   return vec4(r, g, b, a);
 }
@@ -207,18 +227,9 @@ vec2 to_view_space(vec2 v) noexcept {
   return v;
 }
 
-enum {
-  POSITION_BUFFER,
-  COLOR_BUFFER,
-  TEXTCOORD_BUFFER,
-  INDICES_BUFFER,
-  NUM_BUFFERS
-};
-u32 shader_program;
-u32 VAO;
-u32 VBO[NUM_BUFFERS];
+static GPUBuffer gpu_buffer;
+static Shader fullscreen_shader;
 
-Shader fullscreen_shader;
 void setup_fullscreen_quad() {
   enum { POSITION_ATTR_LOC, TEXTCOORD_ATTR_LOC, COLOR_ATTR_LOC };
 
@@ -236,57 +247,35 @@ void setup_fullscreen_quad() {
   fullscreen_shader.add_uniform("tex");
   fullscreen_shader.add_uniform("dir");
 
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(NUM_BUFFERS, VBO);
-
   const u16 indices[6] = {0, 1, 2, 0, 2, 3};
-  // const f32 positions[] = {
-  //     -1.0, 1.0f,
-  //     1.0f, 1.0f,
-  //     1.0f, -1.0f,
-  //     -1.0f, -1.0f,
-  // };
-
   const f32 positions[] = {
       0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
   };
-
-  const f32 textcoords[] = {
+  const f32 texcoords[] = {
       0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
   };
-
   const f32 colors[] = {
       1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
       1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
   };
 
-  glBindVertexArray(VAO);
+  gpu_buffer.init();
 
-  glBindBuffer(GL_ARRAY_BUFFER, VBO[POSITION_BUFFER]);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
-  glEnableVertexAttribArray(POSITION_ATTR_LOC);
-  glVertexAttribPointer(POSITION_ATTR_LOC, 2, GL_FLOAT, GL_FALSE,
-                        sizeof(f32) * 2, (void *)0);
+  gpu_buffer.add("positions", positions, sizeof(positions), ARRAY_BUFFER,
+                 STATIC_DRAW, 2, sizeof(f32) * 2);
 
-  glBindBuffer(GL_ARRAY_BUFFER, VBO[TEXTCOORD_BUFFER]);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(textcoords), textcoords, GL_STATIC_DRAW);
-  glEnableVertexAttribArray(TEXTCOORD_ATTR_LOC);
-  glVertexAttribPointer(TEXTCOORD_ATTR_LOC, 2, GL_FLOAT, GL_FALSE,
-                        sizeof(f32) * 2, (void *)0);
+  gpu_buffer.add("texcoords", texcoords, sizeof(texcoords), ARRAY_BUFFER,
+                 STATIC_DRAW, 2, sizeof(f32) * 2);
 
-  glBindBuffer(GL_ARRAY_BUFFER, VBO[COLOR_BUFFER]);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-  glEnableVertexAttribArray(COLOR_ATTR_LOC);
-  glVertexAttribPointer(COLOR_ATTR_LOC, 4, GL_FLOAT, GL_FALSE, sizeof(f32) * 4,
-                        (void *)0);
+  gpu_buffer.add("colors", colors, sizeof(colors), ARRAY_BUFFER, STATIC_DRAW, 4,
+                 sizeof(f32) * 4);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[INDICES_BUFFER]);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-               GL_STATIC_DRAW);
+  gpu_buffer.add("indices", indices, sizeof(indices), ELEMENT_ARRAY_BUFFER,
+                 STATIC_DRAW);
 }
 
 void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
-  glBindVertexArray(VAO);
+  gpu_buffer.bind();
   fullscreen_shader.bind();
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_2D, texture);
@@ -294,10 +283,10 @@ void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
   const auto proj = camera.get_ortho_projection();
   mat4 trans = proj * Transform().get_model();
 
-  fullscreen_shader.setUniform("transform", trans);
-  fullscreen_shader.setUniform("res", screen_width, screen_height);
-  fullscreen_shader.setUniform("tex", 0);
-  fullscreen_shader.setUniform("dir", dir);
+  fullscreen_shader.set_uniform("transform", trans);
+  fullscreen_shader.set_uniform("res", screen_width, screen_height);
+  fullscreen_shader.set_uniform("tex", 0);
+  fullscreen_shader.set_uniform("dir", dir);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 }
 

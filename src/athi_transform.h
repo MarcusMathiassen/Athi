@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/gtx/transform.hpp>
+#include <glm/gtx/transform.hpp> // glm::translate, glm::rotate, glm::scale
 
 struct Transform {
   glm::vec3 pos{0, 0, 0};

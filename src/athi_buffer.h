@@ -2,10 +2,10 @@
 
 #include "athi_typedefs.h"
 
+#include <unordered_map> // unordered_map
+
 #define GLEW_STATIC
 #include <GL/glew.h>
-
-#include <unordered_map>
 
 enum buffer_usage {
   STREAM_DRAW = GL_STREAM_DRAW,
@@ -36,7 +36,7 @@ enum buffer_type {
   UNIFORM_BUFFER = GL_UNIFORM_BUFFER,
 };
 
-struct VBO  {
+struct VBO {
   u32 handle;
   u32 attrib_num;
   size_t data_size;
@@ -54,6 +54,10 @@ class GPUBuffer {
 
  public:
   GPUBuffer() = default;
+  ~GPUBuffer() {
+    glDeleteVertexArrays(1, &vao);
+    for (auto & [ name, vbo ] : vbos) glDeleteBuffers(1, &vbo.handle);
+  }
 
   void init() noexcept {
     glGenVertexArrays(1, &vao);
@@ -77,9 +81,10 @@ class GPUBuffer {
   }
 
   template <class T>
-  void add(const string& name, T* data, u32 data_members, size_t data_size,
+  void add(const string& name, T* data, size_t data_size,
            buffer_type type = ARRAY_BUFFER, buffer_usage usage = STATIC_DRAW,
-           u32 stride = 0, void* pointer = 0, u32 divisor = 0) noexcept {
+           u32 data_members = 1, u32 stride = 0, void* pointer = 0,
+           u32 divisor = 0) noexcept {
     VBO vbo;
     vbo.attrib_num = attrib_counter;
     vbo.usage = usage;
@@ -87,14 +92,20 @@ class GPUBuffer {
 
     glGenBuffers(1, &vbo.handle);
     glBindBuffer(type, vbo.handle);
-
     glBufferData(type, data_size, &data[0], usage);
 
-    glEnableVertexAttribArray(attrib_counter);
-    glVertexAttribPointer(attrib_counter, data_members, GL_FLOAT, GL_FALSE,
-                          stride, (void*)pointer);
+    switch (type) {
+      case ELEMENT_ARRAY_BUFFER: { /* Do nothing */
+      } break;
 
-    if (divisor) glVertexAttribDivisor(attrib_counter, divisor);
+      default: {
+        glEnableVertexAttribArray(attrib_counter);
+        glVertexAttribPointer(attrib_counter, data_members, GL_FLOAT, GL_FALSE,
+                              stride, (void*)pointer);
+
+        if (divisor) glVertexAttribDivisor(attrib_counter, divisor);
+      } break;
+    }
 
     ++attrib_counter;
 

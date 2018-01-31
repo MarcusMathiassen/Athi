@@ -1,12 +1,10 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-
-#include "athi_rect.h"
-#include "athi_settings.h"
 #include "athi_typedefs.h"
-#include "athi_utility.h"
+
+#include "athi_rect.h"  // draw_hollow_rect, Rect
+#include "athi_settings.h" // universal_color_picker
+#include "athi_utility.h" // get_universal_current_color
 
 #define GLEW_STATIC
 #include <GL/glew.h>

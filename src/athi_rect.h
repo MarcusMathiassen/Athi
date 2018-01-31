@@ -1,23 +1,23 @@
 #pragma once
 
+#include "athi_typedefs.h"  
+
+#include "athi_shader.h"  // Shader
+#include "athi_buffer.h"  // GPUBuffer
+#include "athi_transform.h" // Transform
+
 #define GLEW_STATIC
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <vector>
-
-#include "athi_shader.h"
-#include "athi_transform.h"
-#include "athi_typedefs.h"
 
 static constexpr u16 indices[]{0, 1, 2, 0, 2, 3};
 
 struct Rect {
-  glm::vec2 min_pos{0.0f, 0.0f}, max_pos{0.0f, 0.0f};
-  glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+  vec2 min_pos{0.0f, 0.0f}, max_pos{0.0f, 0.0f};
+  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
   Rect() = default;
-  Rect(const glm::vec2 &min, const glm::vec2 &max) noexcept
+  Rect(const vec2 &min, const vec2 &max) noexcept
       : min_pos(min), max_pos(max) {}
-  constexpr bool contains(const glm::vec2 &pos, float radius) const noexcept {
+  constexpr bool contains(const vec2 &pos, f32 radius) const noexcept {
     if (pos.x - radius < max_pos.x && pos.x + radius > min_pos.x &&
         pos.y - radius < max_pos.y && pos.y + radius > min_pos.y)
       return true;
@@ -55,17 +55,8 @@ struct Athi_Rect {
 };
 
 struct Athi_Rect_Manager {
-  enum { TRANSFORM, COLOR, NUM_UNIFORMS };
-  enum { POSITION, INDICES, NUM_BUFFERS };
-
-  u32 VAO;
-  u32 VBO[NUM_BUFFERS];
   Shader shader;
-  u32 uniform[NUM_UNIFORMS];
-
-  Athi_Rect_Manager() = default;
-  ~Athi_Rect_Manager();
-
+  GPUBuffer gpu_buffer;
   void init();
   void update();
   void draw();

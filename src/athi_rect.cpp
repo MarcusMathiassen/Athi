@@ -1,12 +1,9 @@
-
 #include "athi_rect.h"
-#include "athi_camera.h"
-#include "athi_particle.h"
-#include "athi_renderer.h"
-#include "athi_transform.h"
-#include "athi_utility.h"
 
-#include <iostream>
+#include "athi_camera.h"    // camera
+#include "athi_particle.h"  // particle_system
+#include "athi_renderer.h"  // render_call
+#include "athi_utility.h"   // profile
 
 std::vector<Athi_Rect> rect_immediate_buffer;
 std::vector<Athi_Rect *> rect_buffer;
@@ -32,36 +29,25 @@ bool Rect::contain_rect(const Rect &r) const {
 }
 }  // namespace Athi
 
-Athi_Rect_Manager::~Athi_Rect_Manager() {
-  glDeleteBuffers(NUM_BUFFERS, VBO);
-  glDeleteVertexArrays(1, &VAO);
-}
-
 void Athi_Rect_Manager::init() {
   shader.init("Athi_Rect_Manager::init()");
-  shader.load_from_file("default_rect_shader.vert",
-                        ShaderType::Vertex);
-  shader.load_from_file("default_rect_shader.frag",
-                        ShaderType::Fragment);
+  shader.load_from_file("default_rect_shader.vert", ShaderType::Vertex);
+  shader.load_from_file("default_rect_shader.frag", ShaderType::Fragment);
   shader.link();
   shader.add_uniform("color");
   shader.add_uniform("transform");
 
-  glGenVertexArrays(1, &VAO);
-  glBindVertexArray(VAO);
-
-  glGenBuffers(NUM_BUFFERS, VBO);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[INDICES]);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-               GL_STATIC_DRAW);
+  // Setup buffers
+  gpu_buffer.init();
+  gpu_buffer.add("indices", indices, sizeof(indices), ELEMENT_ARRAY_BUFFER,
+                 STATIC_DRAW);
 }
 
 void Athi_Rect_Manager::draw() {
   if (rect_buffer.empty() && rect_immediate_buffer.empty()) return;
   profile p("draw_rects");
 
-  glBindVertexArray(VAO);
+  gpu_buffer.bind();
   shader.bind();
 
   const auto proj = camera.get_ortho_projection();
@@ -71,8 +57,8 @@ void Athi_Rect_Manager::draw() {
     rect->transform.scale = vec3(rect->width, rect->height, 0);
 
     mat4 trans = proj * rect->transform.get_model();
-    shader.setUniform("color", rect->color);
-    shader.setUniform("transform", trans);
+    shader.set_uniform("color", rect->color);
+    shader.set_uniform("transform", trans);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
   }
 
@@ -81,8 +67,8 @@ void Athi_Rect_Manager::draw() {
     rect.transform.scale = vec3(rect.width, rect.height, 0);
 
     mat4 trans = proj * rect.transform.get_model();
-    shader.setUniform("color", rect.color);
-    shader.setUniform("transform", trans);
+    shader.set_uniform("color", rect.color);
+    shader.set_uniform("transform", trans);
     glDrawElements(rect.draw_mode, 6, GL_UNSIGNED_SHORT, NULL);
   }
   rect_immediate_buffer.clear();
@@ -118,7 +104,7 @@ void draw_rect(const vec2 &min, float width, float height, const vec4 &color,
 
 void draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color) {
   render_call([min, max, color]() {
-    glBindVertexArray(athi_rect_manager.VAO);
+    athi_rect_manager.gpu_buffer.bind();
     athi_rect_manager.shader.bind();
 
     auto max_ = max;
@@ -137,8 +123,8 @@ void draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color) {
     temp.scale = vec3(width, height, 0);
     mat4 trans = proj * temp.get_model();
 
-    athi_rect_manager.shader.setUniform("color", color);
-    athi_rect_manager.shader.setUniform("transform", trans);
+    athi_rect_manager.shader.set_uniform("color", color);
+    athi_rect_manager.shader.set_uniform("transform", trans);
     glDrawArrays(GL_LINE_LOOP, 0, 4);
   });
 }

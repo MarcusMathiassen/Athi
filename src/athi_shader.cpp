@@ -1,16 +1,6 @@
 #include "athi_shader.h"
 
-#include "athi_typedefs.h"
-
-#include "athi_resource.h"
-
 #include "athi_utility.h"  // read_file
-
-#include <string_view>
-#include <unordered_map>
-
-#define GLEW_STATIC
-#include <GL/glew.h>
 
 #ifdef _WIN32
 #include <sys/stat.h>
@@ -142,36 +132,36 @@ u32 Shader::get_attrib(const string& name) const noexcept {
   return attribs.at(name);
 }
 
-void Shader::setUniform(const string& name, float x, float y) const noexcept {
+void Shader::set_uniform(const string& name, float x, float y) const noexcept {
   glUniform2f(uniforms.at(name), x, y);
 }
 
-void Shader::setUniform(const string& name, float x, float y, float z) const
+void Shader::set_uniform(const string& name, float x, float y, float z) const
     noexcept {
   glUniform3f(uniforms.at(name), x, y, z);
 }
-void Shader::setUniform(const string& name, const vec2& v) const noexcept {
+void Shader::set_uniform(const string& name, const vec2& v) const noexcept {
   glUniform2f(uniforms.at(name), v.x, v.y);
 }
-void Shader::setUniform(const string& name, const vec3& v) const noexcept {
+void Shader::set_uniform(const string& name, const vec3& v) const noexcept {
   glUniform3f(uniforms.at(name), v.x, v.y, v.z);
 }
-void Shader::setUniform(const string& name, const vec4& v) const noexcept {
+void Shader::set_uniform(const string& name, const vec4& v) const noexcept {
   glUniform4f(uniforms.at(name), v.x, v.y, v.z, v.w);
 }
-void Shader::setUniform(const string& name, const mat4& m) const noexcept {
+void Shader::set_uniform(const string& name, const mat4& m) const noexcept {
   glUniformMatrix4fv(uniforms.at(name), 1, GL_FALSE, &m[0][0]);
 }
-void Shader::setUniform(const string& name, const mat3& m) const noexcept {
+void Shader::set_uniform(const string& name, const mat3& m) const noexcept {
   glUniformMatrix3fv(uniforms.at(name), 1, GL_FALSE, &m[0][0]);
 }
-void Shader::setUniform(const string& name, float val) const noexcept {
+void Shader::set_uniform(const string& name, float val) const noexcept {
   glUniform1f(uniforms.at(name), val);
 }
-void Shader::setUniform(const string& name, int val) const noexcept {
+void Shader::set_uniform(const string& name, int val) const noexcept {
   glUniform1i(uniforms.at(name), val);
 }
-void Shader::setUniform(const string& name, bool val) const noexcept {
+void Shader::set_uniform(const string& name, bool val) const noexcept {
   glUniform1i(uniforms.at(name), val);
 }
 

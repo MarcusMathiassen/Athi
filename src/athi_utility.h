@@ -1,15 +1,13 @@
 #pragma once
 
 #include "athi_typedefs.h"
+
 #include "athi_settings.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include <GLFW/glfw3.h>  // glfwGetTime
 
-#include <condition_variable>
-#include <mutex>
-#include <thread>
 #include <unordered_map>
 
 #ifdef _WIN32
@@ -32,19 +30,17 @@
 #include <fstream>
 #include <sstream>
 
-#include <vector>
-
-#include <cstdlib> // rand
+#include <cstdlib>  // rand
 
 /* FOREGROUND */
-#define RST  "\x1B[0m"
-#define KRED  "\x1B[31m"
-#define KGRN  "\x1B[32m"
-#define KYEL  "\x1B[33m"
-#define KBLU  "\x1B[34m"
-#define KMAG  "\x1B[35m"
-#define KCYN  "\x1B[36m"
-#define KWHT  "\x1B[37m"
+#define RST "\x1B[0m"
+#define KRED "\x1B[31m"
+#define KGRN "\x1B[32m"
+#define KYEL "\x1B[33m"
+#define KBLU "\x1B[34m"
+#define KMAG "\x1B[35m"
+#define KCYN "\x1B[36m"
+#define KWHT "\x1B[37m"
 
 #define FRED(x) KRED x RST
 #define FGRN(x) KGRN x RST
@@ -57,12 +53,11 @@
 #define BOLD(x) "\x1B[1m" x RST
 #define UNDL(x) "\x1B[4m" x RST
 
-
 // Random number functions
-f32   rand_f32(f32 min, f32 max) noexcept;
-vec2  rand_vec2(f32 min, f32 max) noexcept;
-vec3  rand_vec3(f32 min, f32 max) noexcept;
-vec4  rand_vec4(f32 min, f32 max) noexcept;
+f32 rand_f32(f32 min, f32 max) noexcept;
+vec2 rand_vec2(f32 min, f32 max) noexcept;
+vec3 rand_vec3(f32 min, f32 max) noexcept;
+vec4 rand_vec4(f32 min, f32 max) noexcept;
 
 inline static auto get_begin_and_end(s32 i, s32 total, s32 threads) noexcept {
   const s32 parts = total / threads;
@@ -77,22 +72,24 @@ inline static auto get_begin_and_end(s32 i, s32 total, s32 threads) noexcept {
 vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept;
 vec4 rgb_to_hsv(vec4 in) noexcept;
 vec4 lerp_hsv(vec4 a, vec4 b, f32 t) noexcept;
-vec4 color_by_acceleration(const vec4& min_color, const vec4& max_color, const vec2& acc) noexcept;
+vec4 color_by_acceleration(const vec4 &min_color, const vec4 &max_color,
+                           const vec2 &acc) noexcept;
 void read_file(const char *file, char **buffer) noexcept;
 void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept;
 string get_cpu_brand();
 vec4 get_universal_current_color();
 vec2 to_view_space(vec2 v) noexcept;
 void setup_fullscreen_quad();
-void draw_fullscreen_quad(u32 texture, const vec2& dir);
+void draw_fullscreen_quad(u32 texture, const vec2 &dir);
 
 extern std::unordered_map<string, f64> time_taken_by;
 
 class profile {
-private:
+ private:
   f64 start{0.0};
   string id;
-public:
+
+ public:
   profile(const char *id_) noexcept {
     if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
       id = id_;
@@ -106,20 +103,19 @@ public:
   }
 };
 
-template <class T, size_t S> 
+template <class T, size_t S>
 class Smooth_Average {
-public:
+ public:
   Smooth_Average(T *var) : var(var) {}
   void add_new_frametime(T newtick) {
     tick_sum -= tick_list[tick_index];
     tick_sum += newtick;
     tick_list[tick_index] = newtick;
-    if (++tick_index == S)
-      tick_index = 0;
+    if (++tick_index == S) tick_index = 0;
     *var = (static_cast<T>(tick_sum) / S);
   }
 
-private:
+ private:
   T *var;
   size_t tick_index{0};
   T tick_sum{0};

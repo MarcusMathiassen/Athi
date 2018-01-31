@@ -1,14 +1,12 @@
 #pragma once
 
-#include "athi_particle.h"
-#include "athi_settings.h"
+#include "athi_typedefs.h"
+
+#include "athi_particle.h" // particle_system
+#include "athi_settings.h" // has_random_velocity, etc.
+
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
-
-#include <array>
-#include <iostream>
-#include <sstream>
-#include <string>
 
 static bool open_settings = false;
 static bool open_profiler = false;

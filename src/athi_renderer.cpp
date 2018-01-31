@@ -1,9 +1,10 @@
 #include "athi_renderer.h"
-#include "athi_utility.h"
+
+#include "athi_utility.h" // profile
 #include <mutex>
 
 std::mutex render_mutex;
-std::vector<std::function<void()>> command_buffer;
+vector<std::function<void()>> command_buffer;
 
 void render_call(const std::function<void()> &f) {
   std::lock_guard<std::mutex> lock(render_mutex);

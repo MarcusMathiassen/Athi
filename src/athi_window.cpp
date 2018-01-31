@@ -1,9 +1,9 @@
+#include "athi_window.h" 
 
-#include "../dep/Universal/imgui.h"
-#include "athi_camera.h"
-#include "athi_settings.h"
-#include "athi_window.h"
-#include "athi_utility.h"
+#include "../dep/Universal/imgui.h" // ImGUI
+#include "athi_camera.h" // camera
+#include "athi_settings.h" // console
+#include "athi_utility.h" // FRED
 
 void Athi_Window::init() {
 
@@ -23,7 +23,7 @@ void Athi_Window::init() {
 #endif
 
   // Gather monitor info
-  std::int32_t count;
+  s32 count;
   auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
   glfwWindowHint(GLFW_RED_BITS, modes->redBits);
   glfwWindowHint(GLFW_GREEN_BITS, modes->greenBits);
@@ -49,7 +49,7 @@ void Athi_Window::init() {
     console->error("Error initializing GLEW!");
   }
 
-  std::int32_t width, height;
+  s32 width, height;
   glfwGetFramebufferSize(context, &width, &height);
   glViewport(0, 0, width, height);
   screen_width = width;
@@ -61,17 +61,18 @@ void Athi_Window::init() {
   glEnable(GL_BLEND);
 
   glDisable(GL_DEPTH_BUFFER);
+  glDisable(GL_STENCIL_BUFFER);
 
   glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
 
 GLFWwindow *Athi_Window::get_window_context() { return context; }
 
-void Athi_Window::window_size_callback(GLFWwindow *window, std::int32_t xpos, std::int32_t ypos) {
+void Athi_Window::window_size_callback(GLFWwindow *window, s32 xpos, s32 ypos) {
   console->info("window size: {}x{}", xpos, ypos);
 }
 
-void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t width, std::int32_t height) {
+void Athi_Window::framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height) {
   screen_width = width;
   screen_height = height;
   camera.update_projection(static_cast<float>(width), static_cast<float>(height));
@@ -90,7 +91,7 @@ void Athi_Window::framebuffer_size_callback(GLFWwindow *window, std::int32_t wid
   else
     uniformgrid_parts = 16;
 
-  std::int32_t w, h;
+  s32 w, h;
   glfwGetWindowSize(window, &w, &h);
   px_scale = static_cast<float>(width) / static_cast<float>(w);
 

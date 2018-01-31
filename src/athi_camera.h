@@ -1,60 +1,58 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
+#include "athi_typedefs.h"
 
 enum Camera_Movement { FORWARD, BACKWARD, LEFT, RIGHT, DOWN, UP };
 
 // Default camera values
-const float YAW = -90.0f;
-const float PITCH = 0.0f;
-const float SPEED = 4.5f;
-const float SENSITIVTY = 0.1f;
-const float ZOOM = 45.0f;
+const f32 YAW = -90.0f;
+const f32 PITCH = 0.0f;
+const f32 SPEED = 4.5f;
+const f32 SENSITIVTY = 0.1f;
+const f32 ZOOM = 45.0f;
 
 struct Camera {
-
   // Camera Attributes
-  glm::vec3 position{0.0f, 0.0f, 0.0f};
-  glm::vec3 front{0.0f, 0.0f, -1.0f};
-  glm::vec3 up{0, 1, 0};
-  glm::vec3 right;
-  glm::vec3 world_up{0, 1, 0};
+  vec3 position{0.0f, 0.0f, 0.0f};
+  vec3 front{0.0f, 0.0f, -1.0f};
+  vec3 up{0, 1, 0};
+  vec3 right;
+  vec3 world_up{0, 1, 0};
 
   // Eular Angles
-  float yaw{YAW};
-  float pitch{PITCH};
+  f32 yaw{YAW};
+  f32 pitch{PITCH};
 
   // Camera options
-  float movement_speed{SPEED};
-  float mouse_sensitivity{SENSITIVTY};
-  float zoom{ZOOM};
+  f32 movement_speed{SPEED};
+  f32 mouse_sensitivity{SENSITIVTY};
+  f32 zoom{ZOOM};
 
-  float fov{45.0f};
-  float aspect_ratio{1280 / 720};
-  float zNear{0.1f};
-  float zFar{1000.0f};
-  float moveSpeed{0.02f};
+  f32 fov{45.0f};
+  f32 aspect_ratio{1280 / 720};
+  f32 zNear{0.1f};
+  f32 zFar{1000.0f};
+  f32 moveSpeed{0.02f};
 
-  glm::mat4 view_matrix;
-  glm::mat4 *active_projection;
-  glm::mat4 perspective_projection;
-  glm::mat4 ortho_projection;
+  mat4 view_matrix;
+  mat4 *active_projection;
+  mat4 perspective_projection;
+  mat4 ortho_projection;
 
   Camera() { update_camera_vectors(); }
 
   void update();
-  void update_projection(float width, float height);
+  void update_projection(f32 width, f32 height);
 
-  glm::mat4 get_view_matrix() const;
-  glm::mat4 get_view_projection() const;
-  glm::mat4 get_perspective_projection() const;
-  glm::mat4 get_ortho_projection() const;
+  mat4 get_view_matrix() const;
+  mat4 get_view_projection() const;
+  mat4 get_perspective_projection() const;
+  mat4 get_ortho_projection() const;
 
-  void process_mouse_scroll(float yoffset);
-  void process_mouse_movement(float xoffset, float yoffset, bool constrain_pitch = true);
-  void process_keyboard(Camera_Movement direction, float deltaTime);
+  void process_mouse_scroll(f32 yoffset);
+  void process_mouse_movement(f32 xoffset, f32 yoffset,
+                              bool constrain_pitch = true);
+  void process_keyboard(Camera_Movement direction, f32 deltaTime);
   void update_camera_vectors();
   void use_projection_ortho();
   void use_projection_perspective();

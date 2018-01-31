@@ -1,14 +1,15 @@
+#include "athi_core.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 
-#include "athi_core.h"
-#include "athi_gui.h"
-#include "athi_input.h"
-#include "athi_line.h"
-#include "athi_rect.h"
-#include "athi_renderer.h"
-#include "athi_settings.h"
 #include "athi_typedefs.h"
-#include "athi_utility.h"
+#include "athi_gui.h" // gui_init, gui_render, gui_shutdown
+#include "athi_input.h" // update_inputs
+#include "athi_line.h" // draw_lines
+#include "athi_rect.h" // draw_rects
+#include "athi_renderer.h" // render
+#include "athi_settings.h" // console, ThreadPoolSolution
+#include "athi_utility.h" // profile, Smooth_Average
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -107,7 +108,7 @@ void Athi_Core::draw(GLFWwindow *window) {
   glClearColor(background_color_dark.r, background_color_dark.g,
                background_color_dark.b, background_color_dark.a);
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT);
 
   if (post_processing) {
     profile p("post processing");

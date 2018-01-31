@@ -1,18 +1,10 @@
+#include "athi_input.h"
 
-#include "athi_typedefs.h"
 #include "./Utility/athi_globals.h"
 
-#include "athi_input.h"
-#include "athi_line.h"
-#include "athi_particle.h"
-#include "athi_rect.h"
-#include "athi_renderer.h"
-#include "athi_settings.h"
-#include "athi_spring.h"
-#include "athi_utility.h"
-
-#include <glm/vec2.hpp>
-#include <iostream>
+#include "athi_line.h"  // draw_line
+#include "athi_rect.h"     // draw_hollow_rect
+#include "athi_utility.h"  // profile
 
 Athi_Input_Manager athi_input_manager;
 
@@ -33,8 +25,7 @@ vec2 get_mouse_viewspace_pos() {
 
 s32 get_mouse_button_state(s32 button) {
   const s32 state = glfwGetMouseButton(glfwGetCurrentContext(), button);
-  if (state == GLFW_PRESS)
-    return GLFW_PRESS;
+  if (state == GLFW_PRESS) return GLFW_PRESS;
   return GLFW_RELEASE;
 }
 
@@ -76,19 +67,17 @@ void attraction_force(Particle &a, const vec2 &point) {
   a.vel *= 0.7f;
 }
 
-int32_t mouse_attached_to_single{-1};
+s32 mouse_attached_to_single{-1};
 enum { ATTACHED, PRESSED, NOTHING };
 bool mouse_pressed{false};
-uint16_t last_state{NOTHING};
+u16 last_state{NOTHING};
 
-int32_t id1, id2;
+s32 id1, id2;
 bool found{false};
 bool attach{false};
 static bool is_dragging{false};
 static vector<s32> mouse_attached_to;
 void drag_color_or_destroy_with_mouse() {
-
-
   // Get the mouse state
   const auto state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 
@@ -116,35 +105,35 @@ void drag_color_or_destroy_with_mouse() {
   }
 
   // Get all particles in the mouse collision box
-  const auto selected_particle_ids = get_particles_in_rect(particle_system.particles, mouse_rect.min, mouse_rect.max);
+  const auto selected_particle_ids = get_particles_in_rect(
+      particle_system.particles, mouse_rect.min, mouse_rect.max);
 
   switch (mouse_option) {
-
-    case MouseOption::Color: { 
-      for (const auto particle_id: selected_particle_ids) {
-        particle_system.colors[particle_id] = circle_color; 
-      } 
+    case MouseOption::Color: {
+      for (const auto particle_id : selected_particle_ids) {
+        particle_system.colors[particle_id] = circle_color;
+      }
     } break;
 
     case MouseOption::GravityWell: {
       // Pull the particles towards the mouse
-      for (auto& particle: particle_system.particles) {
+      for (auto &particle : particle_system.particles) {
         gravity_well(particle, mouse_pos);
         last_state = ATTACHED;
       }
     } break;
 
-    case MouseOption::Drag: { 
-
-      // Add all selected particles to our list of attached particles. If not already attached
+    case MouseOption::Drag: {
+      // Add all selected particles to our list of attached particles. If not
+      // already attached
       if (!is_dragging) {
-        for (const auto particle_id: selected_particle_ids) {
+        for (const auto particle_id : selected_particle_ids) {
           mouse_attached_to.emplace_back(particle_id);
         }
       }
 
       // Pull the particles towards the mouse
-      for (const auto particle_id: mouse_attached_to) {
+      for (const auto particle_id : mouse_attached_to) {
         attraction_force(particle_system.particles[particle_id], mouse_pos);
 
         last_state = ATTACHED;
@@ -152,14 +141,15 @@ void drag_color_or_destroy_with_mouse() {
         // Debug lines from particle to mouse
         if (draw_debug && show_mouse_grab_lines) {
           auto ms_view_pos = to_view_space(mouse_pos);
-          auto p_view_pos = to_view_space(particle_system.particles[particle_id].pos);
+          auto p_view_pos =
+              to_view_space(particle_system.particles[particle_id].pos);
           draw_line(ms_view_pos, p_view_pos, 1.0f, pastel_pink);
         }
       }
     } break;
     case MouseOption::Delete: {
-      //if (!selected_particle_ids.empty()) { // DOESNT WORK
-        //particle_system.remove_all_with_id(selected_particle_ids);
+      // if (!selected_particle_ids.empty()) { // DOESNT WORK
+      // particle_system.remove_all_with_id(selected_particle_ids);
       //}
     } break;
 
@@ -182,7 +172,6 @@ void update_inputs() {
   // Draw Mouse
   const Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
   draw_hollow_rect(mouse_rect.min, mouse_rect.max, circle_color);
-
 
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
     particle_system.add(mouse_pos, 1.0f, circle_color);

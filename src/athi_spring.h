@@ -1,8 +1,9 @@
 #pragma once
 
 #include "athi_typedefs.h"
-#include "./Utility/athi_globals.h"
-#include "athi_line.h"
+
+#include "./Utility/athi_globals.h" // colors
+#include "athi_line.h"  // draw_line
 
 template <class T>
 struct Athi_Spring {
@@ -13,7 +14,7 @@ struct Athi_Spring {
   f32 b{1.0f};
   vec4 color{pastel_green};
 
-  void update() {
+  void update(float dt) {
     const auto p1 = object->pos;
     const auto p2 = anchor->pos;
     const auto v1 = object->vel;
@@ -32,8 +33,8 @@ struct Athi_Spring {
     const auto F2 = -k * x * x_n2 - b * v2;
 
     // Update acceleration
-    object->acc = F1 / m1 * static_cast<f32>(timestep);
-    anchor->acc = F2 / m2 * static_cast<f32>(timestep);
+    object->acc = F1 / m1 * dt;
+    anchor->acc = F2 / m2 * dt;
   }
 
   void draw() const { draw_line(object->pos, anchor->pos, 0.3f, color); }
