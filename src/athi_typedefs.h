@@ -3,7 +3,9 @@
 #include <cstdint>
 #include <string> 
 #include <vector> 
+#include <array> 
 
+#include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -13,6 +15,7 @@
 using std::size_t;
 using std::string;
 using std::vector;
+using std::array;
 
 typedef std::uint8_t u8;
 typedef std::uint16_t u16;
@@ -28,6 +31,7 @@ typedef float f32;
 typedef double f64;
 
 // GLM
+using glm::mat3;
 using glm::mat4;
 using glm::vec2;
 using glm::vec3;

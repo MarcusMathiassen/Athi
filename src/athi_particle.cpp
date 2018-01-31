@@ -1,20 +1,19 @@
 #include "athi_particle.h"
 
-#include "./Utility/athi_globals.h" // kPi, kGravitationalConstant
+#include "./Utility/athi_globals.h"  // kPi, kGravitationalConstant
 
-#include "athi_camera.h"
-#include "athi_dispatch.h"
-#include "athi_quadtree.h"
+#include "athi_camera.h"    // Camera
+#include "athi_dispatch.h"  // Dispatch
+#include "athi_quadtree.h"  // Quadtree
 #include "athi_settings.h"
-#include "athi_transform.h"
+#include "athi_transform.h"  // Transform
 #include "athi_typedefs.h"
-#include "athi_utility.h"
-#include "athi_uniformgrid.h"
+#include "athi_uniformgrid.h"  // UniformGrid
+#include "athi_utility.h"      // read_file
 
 #include <algorithm>
 #include <array>
 #include <future>
-#include <iostream>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/vector_angle.hpp>
@@ -121,75 +120,80 @@ void ParticleSystem::init() noexcept {
   shader.link();
 
   // Setup the circle vertices
-  vector<vec2> positions;
-  positions.reserve(num_vertices_per_particle);
+  vector<vec2> positions(num_vertices_per_particle);
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions.emplace_back(cosf(i * kPI * 2.0f / num_vertices_per_particle),
-                           sinf(i * kPI * 2.0f / num_vertices_per_particle));
+    positions[i] = 
+    {
+      cosf(i * kPI * 2.0f / num_vertices_per_particle),
+      sinf(i * kPI * 2.0f / num_vertices_per_particle)
+    };
   }
 
-  // VAO
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
+  // Setup buffers
+  gpu_buffer.init();
 
-  // VBO
-  glGenBuffers(NUM_BUFFERS, vbo);
+  gpu_buffer.add
+  (
+    "positions", 
+    &positions[0], 
+    2,
+    num_vertices_per_particle * sizeof(positions[0]),
+    ARRAY_BUFFER,
+    STATIC_DRAW
+  );
 
-  // POSITION
-  glBindBuffer(GL_ARRAY_BUFFER, vbo[POSITION]);
-  glBufferData(GL_ARRAY_BUFFER,
-               num_vertices_per_particle * sizeof(positions[0]), &positions[0],
-               GL_STATIC_DRAW);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  gpu_buffer.add_prototype
+  (
+    "colors",
+    4,
+    ARRAY_BUFFER,
+    0,
+    0,
+    1
+  );
 
-  // COLOR
-  glBindBuffer(GL_ARRAY_BUFFER, vbo[COLOR]);
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
-  glVertexAttribDivisor(1, 1);
-
-  // TRANSFORM
-  glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
-  for (u32 i = 0; i < 4; ++i) {
-    glEnableVertexAttribArray(2 + i);
-    glVertexAttribPointer(2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(mat4),
-                          (void *)(i * sizeof(vec4)));
-    glVertexAttribDivisor(2 + i, 1);
-  }
+  gpu_buffer.add_prototype_mat
+  (
+    "transforms",
+    4,
+    ARRAY_BUFFER,
+    sizeof(mat4),
+    sizeof(vec4),
+    1
+  );
 }
 
 void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
   num_vertices_per_particle = num_vertices;
 
-  glBindVertexArray(vao);
-
   // Setup the circle vertices
-  vector<vec2> positions;
-  positions.reserve(num_vertices_per_particle);
+  vector<vec2> positions(num_vertices_per_particle);
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions.emplace_back(cosf(i * kPI * 2.0f / num_vertices_per_particle),
-                           sinf(i * kPI * 2.0f / num_vertices_per_particle));
+    positions[i] = 
+    {
+      cosf(i * kPI * 2.0f / num_vertices_per_particle),
+      sinf(i * kPI * 2.0f / num_vertices_per_particle)
+    };
   }
 
-  // POSITION
-  glBindBuffer(GL_ARRAY_BUFFER, vbo[POSITION]);
-  glBufferData(GL_ARRAY_BUFFER,
-               num_vertices_per_particle * sizeof(positions[0]), &positions[0],
-               GL_STATIC_DRAW);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  gpu_buffer.update
+  (
+    "positions",
+    &positions[0],
+    num_vertices_per_particle * sizeof(positions[0])
+  );
 }
 
 void ParticleSystem::opencl_naive() noexcept {
-
   // Create the input and output arrays in device memory
   // for our calculation
   //
-  cl_mem input = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                         sizeof(Particle) * particle_count, NULL, NULL);
-  cl_mem output = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-                          sizeof(Particle) * particle_count, NULL, NULL);
+  cl_mem input =
+      clCreateBuffer(context, CL_MEM_READ_ONLY,
+                     sizeof(Particle) * (particle_count), NULL, NULL);
+  cl_mem output =
+      clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+                     sizeof(Particle) * (particle_count), NULL, NULL);
   if (!input || !output) {
     console->error("Failed to allocate device memory!");
     exit(1);
@@ -205,9 +209,9 @@ void ParticleSystem::opencl_naive() noexcept {
 
   // Set the arguments to our compute kernel
   err = 0;
-  err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &input);
-  err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &output);
-  err |= clSetKernelArg(kernel, 2, sizeof(u32), &particle_count);
+  err = clSetKernelArg(kernel, 0, sizeof(input), &input);
+  err |= clSetKernelArg(kernel, 1, sizeof(output), &output);
+  err |= clSetKernelArg(kernel, 2, sizeof(particle_count), &particle_count);
   // err |= clSetKernelArg(kernel, 3, sizeof(cl_mem) * local, NULL);
   if (err != CL_SUCCESS) {
     console->error("[line {}] Failed to set kernel arguments! {}", __LINE__,
@@ -227,10 +231,10 @@ void ParticleSystem::opencl_naive() noexcept {
 
   const auto leftovers = particle_count % local;
   global_dim = particle_count - leftovers;  // 1D
-  console->info("OpenCL particle_count: {}", particle_count);
-  console->info("OpenCL local: {}", local);
-  console->info("OpenCL global_dim: {}", global_dim);
-  console->info("OpenCL leftovers run on CPU: {}", leftovers);
+  // console->info("OpenCL particle_count: {}", particle_count);
+  // console->info("OpenCL local: {}", local);
+  // console->info("OpenCL global_dim: {}", global_dim);
+  // console->info("OpenCL leftovers run on CPU: {}", leftovers);
 
   err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, &local,
                                0, NULL, NULL);
@@ -243,7 +247,11 @@ void ParticleSystem::opencl_naive() noexcept {
 
   // Wait for the command commands to get serviced before
   // reading back results
-  clFinish(commands);
+  err = clFinish(commands);
+  if (err != CL_SUCCESS) {
+    console->error("[line {}] clFinish! {}", __LINE__, err);
+    exit(1);
+  }
 
   // Read back the results from the device to verify the
   // output
@@ -391,8 +399,8 @@ void ParticleSystem::update_collisions() noexcept {
           for (int i = 0; i < variable_thread_count; ++i) {
             const auto[begin, end] =
                 get_begin_and_end(i, container_total, variable_thread_count);
-            results[i] = pool.enqueue(&ParticleSystem::collision_quadtree,
-                                      this, tree_container, begin, end);
+            results[i] = pool.enqueue(&ParticleSystem::collision_quadtree, this,
+                                      tree_container, begin, end);
           }
           for (auto &&res : results) res.get();
         } break;
@@ -478,7 +486,6 @@ void ParticleSystem::update() noexcept {
 }
 
 void ParticleSystem::update_gpu_buffers() noexcept {
-
   if (particles.empty()) return;
   profile p("ParticleSystem::update_gpu_buffers");
 
@@ -511,40 +518,24 @@ void ParticleSystem::update_gpu_buffers() noexcept {
 
   {
     profile p("ParticleSystem::update_gpu_buffers(GPU buffer update)");
-    // Update the gpu buffers incase of more particles..
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[TRANSFORM]);
-    const auto transform_bytes_needed = sizeof(mat4) * particle_count;
-    if (transform_bytes_needed > model_bytes_allocated) {
-      glBufferData(GL_ARRAY_BUFFER, transform_bytes_needed, &models[0],
-                   GL_STREAM_DRAW);
-      model_bytes_allocated = transform_bytes_needed;
-    } else {
-      glBufferSubData(GL_ARRAY_BUFFER, 0, model_bytes_allocated, &models[0]);
-    }
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo[COLOR]);
-    const auto color_bytes_needed = sizeof(vec4) * particle_count;
-    if (color_bytes_needed > color_bytes_allocated) {
-      glBufferData(GL_ARRAY_BUFFER, color_bytes_needed, &colors[0],
-                   GL_STREAM_DRAW);
-      color_bytes_allocated = color_bytes_needed;
-    } else {
-      glBufferSubData(GL_ARRAY_BUFFER, 0, color_bytes_allocated, &colors[0]);
-    }
+    // Update the gpu buffers incase of more particles..
+    gpu_buffer.update("transforms", &models[0], sizeof(mat4) * particle_count);
+    gpu_buffer.update("colors", &colors[0], sizeof(vec4) * particle_count);
   }
 }
 
 void ParticleSystem::draw() noexcept {
   if (particles.empty()) return;
   profile p("ParticleSystem::draw");
-  glBindVertexArray(vao);
+  gpu_buffer.bind();
   shader.bind();
   glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_vertices_per_particle,
                         particle_count);
 }
 
 void ParticleSystem::add(const glm::vec2 &pos, float radius,
-                          const glm::vec4 &color) noexcept {
+                         const glm::vec4 &color) noexcept {
   Particle p;
   p.pos = pos;
 
@@ -582,8 +573,8 @@ void ParticleSystem::erase_all() noexcept {
   transforms.clear();
 }
 
-bool ParticleSystem::collision_check(const Particle &a,
-                                      const Particle &b) const noexcept {
+bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const
+    noexcept {
   // Local variables
   const auto ax = a.pos.x;
   const auto ay = a.pos.y;
@@ -733,7 +724,7 @@ void ParticleSystem::apply_n_body() noexcept {
 
 // (N-1)*N/2
 void ParticleSystem::collision_logNxN(size_t total, size_t begin,
-                                       size_t end) noexcept {
+                                      size_t end) noexcept {
   auto comp_counter = 0ul;
   auto res_counter = 0ul;
   for (size_t i = begin; i < end; ++i) {

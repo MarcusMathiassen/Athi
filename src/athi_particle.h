@@ -7,10 +7,12 @@
 #include "athi_dispatch.h"
 #include "athi_uniformgrid.h"
 
+#include "athi_shader.h"
+#include "athi_buffer.h"
+
 #include "athi_camera.h"
 #include "athi_quadtree.h"
 #include "athi_settings.h"
-#include "athi_shader.h"
 #include "athi_transform.h"
 
 #ifdef __APPLE__
@@ -64,6 +66,9 @@ struct ParticleSystem {
   vector<Transform> transforms;
   vector<vec4> colors;
   vector<mat4> models;
+
+
+  GPUBuffer gpu_buffer;
 
   Dispatch pool;
 

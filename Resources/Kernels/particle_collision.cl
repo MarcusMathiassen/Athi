@@ -132,6 +132,6 @@ __kernel void particle_collision(__global Particle *input,
                                  const unsigned int count)
 {
   int g_id = get_global_id(0);
-  //Particle p1 = input[g_id];
-  output[g_id] = input[g_id];
+  Particle p1 = input[g_id];
+  output[g_id] = p1;
 }
