@@ -1,8 +1,8 @@
 #include "athi_utility.h"
 
-#include "athi_buffer.h"     // GPUBuffer
-#include "athi_camera.h"     // camera,
-#include "athi_shader.h"     // Shader
+#include "./Renderer/athi_buffer.h"     // GPUBuffer
+#include "./Renderer/athi_camera.h"     // camera,
+#include "./Renderer/athi_shader.h"     // Shader
 #include "athi_transform.h"  // Transform
 
 #include <algorithm>  // std::swap

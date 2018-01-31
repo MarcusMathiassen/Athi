@@ -2,7 +2,7 @@
 
 #include "./Utility/athi_globals.h"  // kPi, kGravitationalConstant
 
-#include "athi_camera.h"   // Camera
+#include "./Renderer/athi_camera.h"   // Camera
 #include "athi_utility.h"  // read_file
 
 #include "athi_settings.h"  // console

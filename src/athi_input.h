@@ -2,7 +2,7 @@
 
 #include "athi_typedefs.h"
 
-#include "athi_camera.h"    // camera
+#include "./Renderer/athi_camera.h"    // camera
 #include "athi_particle.h"  // particle_system
 #include "athi_settings.h"  // console
 

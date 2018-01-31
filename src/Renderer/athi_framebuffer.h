@@ -1,6 +1,6 @@
 #pragma once
 
-#include "athi_typedefs.h"
+#include "../athi_typedefs.h"
 
 #define GLEW_STATIC
 #include <GL/glew.h>

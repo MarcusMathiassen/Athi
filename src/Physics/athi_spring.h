@@ -1,8 +1,8 @@
 #pragma once
 
-#include "athi_typedefs.h"
+#include "../athi_typedefs.h"
 
-#include "./Utility/athi_globals.h" // colors
+#include "../Utility/athi_globals.h" // colors
 #include "athi_line.h"  // draw_line
 
 template <class T>

@@ -1,8 +1,8 @@
 #include "athi_rect.h"
 
-#include "athi_camera.h"    // camera
+#include "./Renderer/athi_camera.h"    // camera
 #include "athi_particle.h"  // particle_system
-#include "athi_renderer.h"  // render_call
+#include "./Renderer/athi_renderer.h"  // render_call
 #include "athi_utility.h"   // profile
 
 std::vector<Athi_Rect> rect_immediate_buffer;

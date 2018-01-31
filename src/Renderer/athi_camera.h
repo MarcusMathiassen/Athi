@@ -1,6 +1,6 @@
 #pragma once
 
-#include "athi_typedefs.h"
+#include "../athi_typedefs.h"
 
 enum Camera_Movement { FORWARD, BACKWARD, LEFT, RIGHT, DOWN, UP };
 

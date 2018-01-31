@@ -1,6 +1,6 @@
-#include "athi_renderer.h"
+#include "./Renderer/athi_renderer.h"
 
-#include "athi_utility.h" // profile
+#include "../athi_utility.h" // profile
 #include <mutex>
 
 std::mutex render_mutex;

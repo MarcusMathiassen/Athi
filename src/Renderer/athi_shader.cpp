@@ -1,6 +1,6 @@
-#include "athi_shader.h"
+#include "./Renderer/athi_shader.h"
 
-#include "athi_utility.h"  // read_file
+#include "../athi_utility.h"  // read_file
 
 #ifdef _WIN32
 #include <sys/stat.h>

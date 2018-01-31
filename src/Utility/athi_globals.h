@@ -1,6 +1,6 @@
 #pragma once
 
-#include "athi_typedefs.h"
+#include "../athi_typedefs.h"
 
 // Constants
 static constexpr f64 kPI = 3.14159265359;

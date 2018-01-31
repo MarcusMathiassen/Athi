@@ -1,8 +1,8 @@
 #pragma once
 
-#include "athi_typedefs.h"
+#include "../athi_typedefs.h"
 
-#include "athi_settings.h" // console
+#include "../athi_settings.h" // console
 
 #include "stb_image.h" // stbi_load, stbi_image_free
 

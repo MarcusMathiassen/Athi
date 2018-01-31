@@ -1,7 +1,7 @@
 #include "athi_window.h" 
 
 #include "../dep/Universal/imgui.h" // ImGUI
-#include "athi_camera.h" // camera
+#include "./Renderer/athi_camera.h" // camera
 #include "athi_settings.h" // console
 #include "athi_utility.h" // FRED
 

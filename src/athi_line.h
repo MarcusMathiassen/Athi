@@ -2,8 +2,8 @@
 #include "athi_typedefs.h"
 
 #include "athi_transform.h"   // Transform
-#include "athi_shader.h"      // Shader
-#include "athi_buffer.h"      // GPUBuffer
+#include "./Renderer/athi_shader.h"      // Shader
+#include "./Renderer/athi_buffer.h"      // GPUBuffer
 
 #define GLEW_STATIC
 #include <GL/glew.h>

@@ -7,8 +7,8 @@
 #include "athi_quadtree.h"     // Quadtree
 #include "athi_uniformgrid.h"  // UniformGrid
 
-#include "athi_buffer.h"     // GPUBuffer
-#include "athi_shader.h"     // Shader
+#include "./Renderer/athi_buffer.h"     // GPUBuffer
+#include "./Renderer/athi_shader.h"     // Shader
 #include "athi_transform.h"  // Transform
 
 #ifdef __APPLE__

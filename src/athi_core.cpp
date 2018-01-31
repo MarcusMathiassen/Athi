@@ -7,7 +7,7 @@
 #include "athi_input.h" // update_inputs
 #include "athi_line.h" // draw_lines
 #include "athi_rect.h" // draw_rects
-#include "athi_renderer.h" // render
+#include "./Renderer/athi_renderer.h" // render
 #include "athi_settings.h" // console, ThreadPoolSolution
 #include "athi_utility.h" // profile, Smooth_Average
 

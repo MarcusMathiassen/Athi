@@ -5,8 +5,8 @@
 #include "athi_particle.h" // particle_system
 #include "athi_settings.h" // has_random_velocity, etc.
 
-#include "imgui.h"
-#include "imgui_impl_glfw_gl3.h"
+#include "../dep/Universal/imgui.h"
+#include "../dep/Universal/imgui_impl_glfw_gl3.h"
 
 static bool open_settings = false;
 static bool open_profiler = false;
