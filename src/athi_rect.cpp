@@ -30,25 +30,25 @@ bool Rect::contain_rect(const Rect &r) const {
 }  // namespace Athi
 
 void Athi_Rect_Manager::init() {
-  shader.init("Athi_Rect_Manager::init()");
-  shader.load_from_file("default_rect_shader.vert", ShaderType::Vertex);
-  shader.load_from_file("default_rect_shader.frag", ShaderType::Fragment);
-  shader.link();
-  shader.add_uniform("color");
-  shader.add_uniform("transform");
+  // shader.init("Athi_Rect_Manager::init()");
+  // shader.load_from_file("default_rect_shader.vert", ShaderType::Vertex);
+  // shader.load_from_file("default_rect_shader.frag", ShaderType::Fragment);
+  // shader.link();
+  // shader.add_uniform("color");
+  // shader.add_uniform("transform");
 
   // Setup buffers
-  gpu_buffer.init();
-  gpu_buffer.add("indices", indices, sizeof(indices), ELEMENT_ARRAY_BUFFER,
-                 STATIC_DRAW);
+  // gpu_buffer.init();
+  // gpu_buffer.add("indices", indices, sizeof(indices), ELEMENT_ARRAY_BUFFER,
+  //                STATIC_DRAW);
 }
 
 void Athi_Rect_Manager::draw() {
   if (rect_buffer.empty() && rect_immediate_buffer.empty()) return;
   profile p("draw_rects");
 
-  gpu_buffer.bind();
-  shader.bind();
+  //gpu_buffer.bind();
+  // shader.bind();
 
   const auto proj = camera.get_ortho_projection();
 
@@ -57,8 +57,8 @@ void Athi_Rect_Manager::draw() {
     rect->transform.scale = vec3(rect->width, rect->height, 0);
 
     mat4 trans = proj * rect->transform.get_model();
-    shader.set_uniform("color", rect->color);
-    shader.set_uniform("transform", trans);
+    // shader.set_uniform("color", rect->color);
+    // shader.set_uniform("transform", trans);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
   }
 
@@ -67,8 +67,8 @@ void Athi_Rect_Manager::draw() {
     rect.transform.scale = vec3(rect.width, rect.height, 0);
 
     mat4 trans = proj * rect.transform.get_model();
-    shader.set_uniform("color", rect.color);
-    shader.set_uniform("transform", trans);
+    // shader.set_uniform("color", rect.color);
+    // shader.set_uniform("transform", trans);
     glDrawElements(rect.draw_mode, 6, GL_UNSIGNED_SHORT, NULL);
   }
   rect_immediate_buffer.clear();
@@ -104,8 +104,8 @@ void draw_rect(const vec2 &min, float width, float height, const vec4 &color,
 
 void draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color) {
   render_call([min, max, color]() {
-    athi_rect_manager.gpu_buffer.bind();
-    athi_rect_manager.shader.bind();
+    //athi_rect_manager.gpu_buffer.bind();
+    //athi_rect_manager.shader.bind();
 
     auto max_ = max;
     auto min_ = min;
@@ -123,8 +123,8 @@ void draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color) {
     temp.scale = vec3(width, height, 0);
     mat4 trans = proj * temp.get_model();
 
-    athi_rect_manager.shader.set_uniform("color", color);
-    athi_rect_manager.shader.set_uniform("transform", trans);
+    // athi_rect_manager.shader.set_uniform("color", color);
+    // athi_rect_manager.shader.set_uniform("transform", trans);
     glDrawArrays(GL_LINE_LOOP, 0, 4);
   });
 }

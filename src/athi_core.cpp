@@ -110,32 +110,32 @@ void Athi_Core::draw(GLFWwindow *window) {
 
   glClear(GL_COLOR_BUFFER_BIT);
 
-  if (post_processing) {
-    profile p("post processing");
+  // if (post_processing) {
+  //   profile p("post processing");
 
-    framebuffers[0].clear();
-    draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
+  //   framebuffers[0].clear();
+  //   draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
 
-    // First draw the particles to the framebuffer.
-    framebuffers[0].bind();
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
-    particle_system.draw();
+  //   // First draw the particles to the framebuffer.
+  //   framebuffers[0].bind();
+  //   glDrawBuffer(GL_COLOR_ATTACHMENT0);
+  //   particle_system.draw();
 
-    // .. Then blur the current framebuffer
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+  //   // .. Then blur the current framebuffer
+  //   glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-    for (s32 i = 0; i < post_processing_samples; i++) {
-      draw_fullscreen_quad(framebuffers[0].texture,
-                           vec2(0, 1 * blur_strength));  // first pass
-      draw_fullscreen_quad(framebuffers[0].texture,
-                           vec2(1 * blur_strength, 0));  // first pass
-    }
-  }
+  //   for (s32 i = 0; i < post_processing_samples; i++) {
+  //     draw_fullscreen_quad(framebuffers[0].texture,
+  //                          vec2(0, 1 * blur_strength));  // first pass
+  //     draw_fullscreen_quad(framebuffers[0].texture,
+  //                          vec2(1 * blur_strength, 0));  // first pass
+  //   }
+  // }
 
-  if (post_processing) {
-    framebuffers[0].unbind();
-    draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
-  }
+  // if (post_processing) {
+  //   framebuffers[0].unbind();
+  //   draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
+  // }
 
   particle_system.draw();
 

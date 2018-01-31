@@ -3,6 +3,7 @@
 #include "./Utility/athi_globals.h"  // kPi, kGravitationalConstant
 
 #include "./Renderer/athi_camera.h"   // Camera
+#include "./Renderer/athi_renderer.h"   // Renderer
 #include "athi_utility.h"  // read_file
 
 #include "athi_settings.h"  // console
@@ -129,14 +130,14 @@ void ParticleSystem::init() noexcept {
   // OpenCL
   opencl_init();
 
-  // Shaders
-  shader.init("ParticleSystem::init()");
-  shader.load_from_file("default_particle_shader.vert", ShaderType::Vertex);
-  shader.load_from_file("default_particle_shader.frag", ShaderType::Fragment);
-  shader.bind_attrib("position");
-  shader.bind_attrib("color");
-  shader.bind_attrib("transform");
-  shader.link();
+  // // Shaders
+  // shader.init("ParticleSystem::init()");
+  // shader.load_from_file("default_particle_shader.vert", ShaderType::Vertex);
+  // shader.load_from_file("default_particle_shader.frag", ShaderType::Fragment);
+  // shader.bind_attrib("position");
+  // shader.bind_attrib("color");
+  // shader.bind_attrib("transform");
+  // shader.link();
 
   // Setup the circle vertices
   vector<vec2> positions(num_vertices_per_particle);
@@ -146,16 +147,43 @@ void ParticleSystem::init() noexcept {
   }
 
   // Setup buffers
-  gpu_buffer.init();
+  // gpu_buffer.init();
 
-  gpu_buffer.add("positions", &positions[0],
-                 num_vertices_per_particle * sizeof(positions[0]), ARRAY_BUFFER,
-                 STATIC_DRAW, 2);
+  // gpu_buffer.add("positions", &positions[0],
+  //                num_vertices_per_particle * sizeof(positions[0]), ARRAY_BUFFER,
+  //                STATIC_DRAW, 2);
 
-  gpu_buffer.add_prototype("colors", 4, ARRAY_BUFFER, 0, 0, 1);
+  // gpu_buffer.add_prototype("colors", 4, ARRAY_BUFFER, 0, 0, 1);
 
-  gpu_buffer.add_prototype_mat("transforms", 4, ARRAY_BUFFER, sizeof(mat4),
-                               sizeof(vec4), 1);
+  // gpu_buffer.add_prototype_mat("transforms", 4, ARRAY_BUFFER, sizeof(mat4),
+  //                              sizeof(vec4), 1);
+
+
+  //renderer = make_renderer("particle_renderer");
+
+  auto shader = renderer.make_shader();
+  shader.sources = { "default_particle_shader.vert", "default_particle_shader.frag" };
+  shader.attribs = { "position", "color", "transform" };
+
+  auto vertex_buffer = renderer.make_buffer("positions");
+  vertex_buffer.data = &positions[0];
+  vertex_buffer.data_size = num_vertices_per_particle * sizeof(positions[0]);
+  vertex_buffer.data_members = 2;
+  vertex_buffer.type = buffer_type::array;
+  vertex_buffer.usage = buffer_usage::static_draw;
+
+  auto colors = renderer.make_buffer("colors");
+  colors.data_members = 4;
+  colors.divisor = 1;
+
+  auto transforms = renderer.make_buffer("transforms");
+  transforms.data_members = 4;
+  transforms.stride = sizeof(mat4);
+  transforms.pointer = sizeof(vec4);
+  transforms.divisor = 1;
+  transforms.is_matrix = true;
+
+  renderer.finish();
 }
 
 void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
@@ -168,8 +196,11 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
                     sinf(i * kPI * 2.0f / num_vertices_per_particle)};
   }
 
-  gpu_buffer.update("positions", &positions[0],
-                    num_vertices_per_particle * sizeof(positions[0]));
+  renderer.update_buffer("positions", &positions[0],
+                     num_vertices_per_particle * sizeof(positions[0]));
+
+  // gpu_buffer.update("positions", &positions[0],
+  //                  num_vertices_per_particle * sizeof(positions[0]));
 }
 
 void ParticleSystem::opencl_naive() noexcept {
@@ -508,18 +539,23 @@ void ParticleSystem::update_gpu_buffers() noexcept {
     profile p("ParticleSystem::update_gpu_buffers(GPU buffer update)");
 
     // Update the gpu buffers incase of more particles..
-    gpu_buffer.update("transforms", &models[0], sizeof(mat4) * particle_count);
-    gpu_buffer.update("colors", &colors[0], sizeof(vec4) * particle_count);
+   renderer.update_buffer("transforms", &models[0], sizeof(mat4) * particle_count);
+   renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
   }
 }
 
 void ParticleSystem::draw() noexcept {
   if (particles.empty()) return;
   profile p("ParticleSystem::draw");
-  gpu_buffer.bind();
-  shader.bind();
+
+  cmd_buffer.type = primitive::triangle_fan;
+  cmd_buffer.first = 0;
+  cmd_buffer.count = num_vertices_per_particle;
+  cmd_buffer.primitive_count = particle_count;
+
+  renderer.draw(cmd_buffer);
   glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_vertices_per_particle,
-                        particle_count);
+                       particle_count);
 }
 
 void ParticleSystem::add(const glm::vec2 &pos, float radius,

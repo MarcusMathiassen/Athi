@@ -55,8 +55,8 @@ struct Athi_Rect {
 };
 
 struct Athi_Rect_Manager {
-  Shader shader;
-  GPUBuffer gpu_buffer;
+  //Shader shader;
+  //GPUBuffer gpu_buffer;
   void init();
   void update();
   void draw();

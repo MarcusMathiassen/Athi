@@ -1,6 +1,7 @@
-#include "./Renderer/athi_renderer.h"
+#include "athi_renderer.h"
 
 #include "../athi_utility.h" // profile
+#include "../athi_settings.h" // console
 #include <mutex>
 
 std::mutex render_mutex;
@@ -23,4 +24,30 @@ void render() {
 
   // Clear the buffer for next frame
   command_buffer.clear();
+}
+
+
+Renderer::Renderer(const string& pname) : name(pname) {}
+void Renderer::draw(const CommandBuffer& cmd) noexcept {
+  buffer.bind();
+  shader.bind();
+  cmd.commit();
+}
+
+Shader& Renderer::make_shader() {
+  return shader;
+}
+
+void Renderer::update_buffer(const string& name, void* data, size_t data_size) noexcept {
+  buffer.bind();
+  buffer.update(name, data, data_size);
+}
+
+Vbo& Renderer::make_buffer(const string& name) noexcept { 
+  return buffer.vbos[name]; 
+}
+
+void Renderer::finish() noexcept {
+  shader.finish();
+  buffer.finish();
 }
