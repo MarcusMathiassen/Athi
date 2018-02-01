@@ -5,11 +5,6 @@
 #include "./Renderer/athi_renderer.h"  // Renderer
 #include "athi_transform.h" // Transform
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-static constexpr u16 indices[]{0, 1, 2, 0, 2, 3};
-
 struct Rect {
   vec2 min_pos{0.0f, 0.0f}, max_pos{0.0f, 0.0f};
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};

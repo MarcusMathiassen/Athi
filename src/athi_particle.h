@@ -7,9 +7,7 @@
 #include "athi_quadtree.h"     // Quadtree
 #include "athi_uniformgrid.h"  // UniformGrid
 
-#include "./Renderer/athi_renderer.h"    // GPUBuffer
-//#include "./Renderer/athi_buffer.h"     // GPUBuffer
-//#include "./Renderer/athi_shader.h"     // Shader
+#include "./Renderer/athi_renderer.h"    // Renderer
 #include "athi_transform.h"  // Transform
 
 #ifdef __APPLE__
@@ -38,10 +36,7 @@ struct ParticleSystem {
   vector<vec4> colors;
   vector<mat4> models;
 
-  CommandBuffer cmd_buffer;
   Renderer renderer;
-  //Shader shader;
-  //GPUBuffer gpu_buffer;
 
   Dispatch pool;
 

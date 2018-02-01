@@ -7,44 +7,39 @@ Athi_Line_Manager athi_line_manager;
 
 void Athi_Line_Manager::init() {
 
-  //renderer = &make_renderer("Athi_Line_Manager");
+  auto &shader = renderer.make_shader();
+  shader.sources =  {"default_line_shader.vert", "default_line_shader.geom", "default_line_shader.frag"};
+  shader.uniforms = { "positions", "color"};
 
-  //auto &shader = renderer->make_shader();
-  //shader.sources =  {"default_line_shader.vert", "default_line_shader.geom", "default_line_shader.frag"};
-  //shader.uniforms = { "positions", "color"};
+  auto &vertex_buffer = renderer.make_buffer("empty");
 
-  //auto &vertex_buffer = renderer->make_buffer("empty");
-
-  // shader.init("Athi_Line_Manager::init()");
-  // shader.load_from_file("default_line_shader.vert", ShaderType::Vertex);
-  // shader.load_from_file("default_line_shader.geom", ShaderType::Geometry);
-  // shader.load_from_file("default_line_shader.frag", ShaderType::Fragment);
-  // shader.link();
-  // shader.add_uniform("positions");
-  // shader.add_uniform("color");
-
-  // gpu_buffer.init();
-  //renderer->finish();
+  renderer.finish();
 }
 
 void Athi_Line_Manager::draw() {
   if (line_buffer.empty() && line_immediate_buffer.empty()) return;
   profile p("Athi_Line_Manager::draw()");
 
-  //CommandBuffer cmd;
-  //renderer->draw(cmd);
+  CommandBuffer l_cmd, r_cmd;
+  l_cmd.type = primitive::lines;
+  l_cmd.count = 2;
+  r_cmd.type = primitive::points;
+  r_cmd.count = 2;
+  renderer.bind();
 
   for (const auto &line : line_buffer) {
 
-    //renderer->shader.set_uniform("color", line->color);
-    //renderer->shader.set_uniform("positions", vec4(line->p1.x, line->p1.y, line->p2.x, line->p2.y));
+    renderer.shader.set_uniform("color", line->color);
+    renderer.shader.set_uniform("positions", vec4(line->p1.x, line->p1.y, line->p2.x, line->p2.y));
     glDrawArrays(GL_LINES, 0, 2);
+    renderer.draw(l_cmd);
   }
 
   for (const auto &line : line_immediate_buffer) {
-    //renderer->shader.set_uniform("color", line.color);
-    //renderer->shader.set_uniform("positions", vec4(line.p1.x, line.p1.y, line.p2.x, line.p2.y));
-    glDrawArrays(GL_POINTS, 0, 2);
+    renderer.shader.set_uniform("color", line.color);
+    renderer.shader.set_uniform("positions", vec4(line.p1.x, line.p1.y, line.p2.x, line.p2.y));
+    //glDrawArrays(GL_POINTS, 0, 2);
+    renderer.draw(r_cmd);
   }
   line_immediate_buffer.clear();
 }

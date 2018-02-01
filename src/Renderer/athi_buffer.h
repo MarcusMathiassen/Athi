@@ -43,7 +43,7 @@ struct Vbo {
   size_t data_size{0};
   buffer_usage usage{buffer_usage::static_draw};
   buffer_type type{buffer_type::array};
-  u32 data_members{0};
+  u32 data_members{1};
   size_t stride{0};
   size_t pointer{0};
   u32 divisor{0};

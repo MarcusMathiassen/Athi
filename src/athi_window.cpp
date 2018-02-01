@@ -4,6 +4,7 @@
 #include "./Renderer/athi_camera.h" // camera
 #include "athi_settings.h" // console
 #include "athi_utility.h" // FRED
+#include "./Renderer/opengl_utility.h" // MessageCallback
 
 void Athi_Window::init() {
 
@@ -57,13 +58,14 @@ void Athi_Window::init() {
   camera.update_projection(width, height);
   camera.update();
 
+  // During init, enable debug output
+  //glEnable              ( GL_DEBUG_OUTPUT );
+  //glDebugMessageCallback( (GLDEBUGPROC) MessageCallback, 0 ); OpenGL 4.3 needed
+
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
-
-  glDisable(GL_DEPTH_BUFFER);
-  glDisable(GL_STENCIL_BUFFER);
-
   glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+  check_gl_error();
 }
 
 GLFWwindow *Athi_Window::get_window_context() { return context; }
@@ -93,7 +95,10 @@ void Athi_Window::framebuffer_size_callback(GLFWwindow *window, s32 width, s32 h
 
   s32 w, h;
   glfwGetWindowSize(window, &w, &h);
+
   px_scale = static_cast<float>(width) / static_cast<float>(w);
 
   console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
+
+  check_gl_error();
 }

@@ -49,7 +49,7 @@ elseif(APPLE)
 
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-  set(CMAKE_CXX_FLAGS_DEBUG "-O3 -DNDEBUG -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
+  set(CMAKE_CXX_FLAGS_DEBUG "-O3 -march=native -DNDEBUG -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
   message("-- Debug   flags: ${CMAKE_CXX_FLAGS_DEBUG}")

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../athi_typedefs.h"
+#include "opengl_utility.h" //   check_gl_error();
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -33,14 +34,18 @@ struct CommandBuffer {
     if (primitive_count != -1) {
       if (has_indices) {
         glDrawElementsInstanced(type, count, GL_UNSIGNED_SHORT, NULL, primitive_count);
+        check_gl_error();
       } else {
         glDrawArraysInstanced(type, first, count, primitive_count);
+        check_gl_error();
       }
     } else {
       if (has_indices) {
         glDrawElements(type, count, GL_UNSIGNED_SHORT, NULL);
+        check_gl_error();
       } else {
         glDrawArrays(type, first, count);
+        check_gl_error();
       }
     }
   }

@@ -6,9 +6,6 @@
 #include "athi_settings.h" // universal_color_picker
 #include "athi_utility.h" // get_universal_current_color
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-
 template <class T>
 class UniformGrid {
  protected:

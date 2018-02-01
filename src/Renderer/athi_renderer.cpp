@@ -33,8 +33,6 @@ void Renderer::bind() noexcept {
 }
 
 void Renderer::draw(const CommandBuffer& cmd) noexcept {
-  buffer.bind();
-  shader.bind();
   cmd.commit();
 }
 

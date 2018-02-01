@@ -3,15 +3,10 @@
 #include "./Utility/athi_globals.h"  // kPi, kGravitationalConstant
 
 #include "./Renderer/athi_camera.h"   // Camera
-#include "./Renderer/athi_renderer.h"   // Renderer
 #include "athi_utility.h"  // read_file
-
 #include "athi_settings.h"  // console
 
 #include <future>           // future
-
-#define GLEW_STATIC
-#include <GL/glew.h>
 
 #ifdef __APPLE__
 #include <dispatch/dispatch.h> // dispatch_apply
@@ -23,14 +18,14 @@ void ParticleSystem::draw() noexcept {
   if (particles.empty()) return;
   profile p("ParticleSystem::draw");
 
+  CommandBuffer cmd_buffer;
   cmd_buffer.type = primitive::triangle_fan;
   cmd_buffer.first = 0;
   cmd_buffer.count = num_vertices_per_particle;
   cmd_buffer.primitive_count = particle_count;
 
+  renderer.bind();
   renderer.draw(cmd_buffer);
-  glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, num_vertices_per_particle,
-                       particle_count);
 }
 
 void ParticleSystem::update_gpu_buffers() noexcept {

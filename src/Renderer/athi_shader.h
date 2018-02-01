@@ -2,12 +2,11 @@
 
 #include "../athi_typedefs.h"
 
-#include <unordered_map> // unordered_map
-#include <memory> // unique_ptr
+#include <memory>         // unique_ptr
+#include <unordered_map>  // unordered_map
 
 #define GLEW_STATIC
 #include <GL/glew.h>
-
 
 #ifdef _WIN32
 #include <sys/stat.h>
@@ -19,7 +18,6 @@
 #endif
 
 struct Shader {
-
   enum class shader_type {
     vertex = GL_VERTEX_SHADER,
     fragment = GL_FRAGMENT_SHADER,
@@ -47,7 +45,8 @@ struct Shader {
 
   ~Shader();
 
-  void validate_shader(const string& file, const char* type, u32 shader) const noexcept;
+  void validate_shader(const string& file, const char* type, u32 shader) const
+      noexcept;
   void validate_shader_program() const noexcept;
   u32 create_shader(const string& file, const shader_type type) const noexcept;
 

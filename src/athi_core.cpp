@@ -2,6 +2,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
+#include "./Renderer/opengl_utility.h" // check_gl_error();
 #include "athi_typedefs.h"
 #include "athi_gui.h" // gui_init, gui_render, gui_shutdown
 #include "athi_input.h" // update_inputs
@@ -40,6 +41,7 @@ void Athi_Core::init() {
 
   int width, height;
   glfwGetFramebufferSize(window.get_window_context(), &width, &height);
+  check_gl_error();
   px_scale = static_cast<f32>(width) / static_cast<f32>(window.scene.width);
 
   gui_init(window.get_window_context(), px_scale);
@@ -64,11 +66,13 @@ void Athi_Core::init() {
 
   glClearColor(background_color_dark.r, background_color_dark.g,
                background_color_dark.b, background_color_dark.a);
+  check_gl_error();
 }
 
 void Athi_Core::start() {
   auto window_context = window.get_window_context();
   glfwMakeContextCurrent(window_context);
+  check_gl_error();
 
   setup_fullscreen_quad();
 
@@ -89,6 +93,7 @@ void Athi_Core::start() {
     {
       profile p("glfwSwapBuffers");
       glfwSwapBuffers(window_context);
+      check_gl_error();
     }
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
@@ -107,8 +112,10 @@ void Athi_Core::draw(GLFWwindow *window) {
   const f64 time_start_frame = glfwGetTime();
   glClearColor(background_color_dark.r, background_color_dark.g,
                background_color_dark.b, background_color_dark.a);
+  check_gl_error();
 
   glClear(GL_COLOR_BUFFER_BIT);
+  check_gl_error();
 
   if (post_processing) {
     profile p("post processing");
@@ -119,10 +126,12 @@ void Athi_Core::draw(GLFWwindow *window) {
     // First draw the particles to the framebuffer.
     framebuffers[0].bind();
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    check_gl_error();
     particle_system.draw();
 
     // .. Then blur the current framebuffer
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
+    check_gl_error();
 
     for (s32 i = 0; i < post_processing_samples; i++) {
       draw_fullscreen_quad(framebuffers[0].texture,

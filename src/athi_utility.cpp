@@ -268,8 +268,8 @@ void setup_fullscreen_quad() {
 }
 
 void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
-  CommandBuffer cmd;
 
+  CommandBuffer cmd;
   cmd.type = primitive::triangles;
   cmd.count = 6;
   cmd.has_indices = true;
@@ -286,7 +286,8 @@ void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
   renderer.shader.set_uniform("res", screen_width, screen_height);
   renderer.shader.set_uniform("tex", 0);
   renderer.shader.set_uniform("dir", dir);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+
+  renderer.draw(cmd);
 }
 
 string get_cpu_brand() {

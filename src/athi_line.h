@@ -3,8 +3,6 @@
 
 #include "athi_transform.h"   // Transform
 #include "./Renderer/athi_renderer.h"      // Shader
-//#include "./Renderer/athi_buffer.h"      // GPUBuffer
-//#include "./Renderer/athi_buffer.h"      // GPUBuffer
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -18,9 +16,7 @@ struct Athi_Line {
 };
 
 struct Athi_Line_Manager {
-  // Shader shader;
-  // GPUBuffer gpu_buffer;
-  Renderer* renderer;
+  Renderer renderer;
 
   Athi_Line_Manager() = default;
   void init();
