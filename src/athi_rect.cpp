@@ -56,9 +56,9 @@ void Athi_Rect_Manager::init() {
   shader.sources = {"default_rect_shader.vert", "default_rect_shader.frag"};
   shader.uniforms = {"color", "transform"};
 
-  u16 indices[]{0, 1, 2, 0, 2, 3};
+  constexpr u16 indices[]{0, 1, 2, 0, 2, 3};
   auto &indices_buffer = renderer.make_buffer("indices");
-  indices_buffer.data = indices;
+  indices_buffer.data = (void*)indices;
   indices_buffer.data_size = sizeof(indices);
   indices_buffer.type = buffer_type::element_array;
 

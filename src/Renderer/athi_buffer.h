@@ -20,10 +20,10 @@
 
 #pragma once
 
-#include "../athi_typedefs.h"
 #include "../athi_settings.h"
+#include "../athi_typedefs.h"
 
-#include <unordered_map> // unordered_map
+#include <unordered_map>  // unordered_map
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -72,14 +72,15 @@ struct Vbo {
 };
 
 struct Buffer {
-
   u32 vao;
   std::unordered_map<string, Vbo> vbos;
   u32 attrib_counter{0};
 
   Buffer() = default;
   ~Buffer();
+
   void update(const string& name, void* data, size_t data_size) noexcept;
+
   void bind() const noexcept;
   void finish() noexcept;
 };

@@ -1,4 +1,4 @@
-#version 330
+#version 410
 
 uniform vec4 color;
 uniform mat4 transform;

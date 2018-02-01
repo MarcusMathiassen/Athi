@@ -21,7 +21,7 @@
 #pragma once
 
 #include "../athi_typedefs.h"
-#include "opengl_utility.h" //   check_gl_error();
+#include "opengl_utility.h"  //   check_gl_error();
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -42,7 +42,6 @@ enum primitive {
 };
 
 struct CommandBuffer {
-
   primitive type{primitive::triangles};
   s32 count{0};
   s32 first{0};
@@ -53,7 +52,8 @@ struct CommandBuffer {
     // Are we instanced drawing?
     if (primitive_count != -1) {
       if (has_indices) {
-        glDrawElementsInstanced(type, count, GL_UNSIGNED_SHORT, NULL, primitive_count);
+        glDrawElementsInstanced(type, count, GL_UNSIGNED_SHORT, NULL,
+                                primitive_count);
         check_gl_error();
       } else {
         glDrawArraysInstanced(type, first, count, primitive_count);

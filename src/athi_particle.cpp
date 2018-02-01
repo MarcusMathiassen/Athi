@@ -18,19 +18,18 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
 #include "athi_particle.h"
 
 #include "./Utility/athi_globals.h"  // kPi, kGravitationalConstant
 
-#include "./Renderer/athi_camera.h"   // Camera
-#include "athi_utility.h"  // read_file
-#include "athi_settings.h"  // console
+#include "./Renderer/athi_camera.h"  // Camera
+#include "athi_settings.h"           // console
+#include "athi_utility.h"            // read_file
 
-#include <future>           // future
+#include <future>  // future
 
 #ifdef __APPLE__
-#include <dispatch/dispatch.h> // dispatch_apply
+#include <dispatch/dispatch.h>  // dispatch_apply
 #endif
 
 ParticleSystem particle_system;
@@ -84,8 +83,9 @@ void ParticleSystem::update_gpu_buffers() noexcept {
     profile p("ParticleSystem::update_gpu_buffers(GPU buffer update)");
 
     // Update the gpu buffers incase of more particles..
-   renderer.update_buffer("transforms", &models[0], sizeof(mat4) * particle_count);
-   renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
+    renderer.update_buffer("transforms", &models[0],
+                           sizeof(mat4) * particle_count);
+    renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
   }
 }
 
@@ -127,7 +127,7 @@ void ParticleSystem::init() noexcept {
   // OpenCL
   opencl_init();
 
-  // Setup the circle vertices
+  // Setup the particle vertices
   vector<vec2> positions(num_vertices_per_particle);
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
     positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
@@ -135,8 +135,9 @@ void ParticleSystem::init() noexcept {
   }
 
   auto &shader = renderer.make_shader();
-  shader.sources = { "default_particle_shader.vert", "default_particle_shader.frag" };
-  shader.attribs = { "position", "color", "transform" };
+  shader.sources = {"default_particle_shader.vert",
+                    "default_particle_shader.frag"};
+  shader.attribs = {"position", "color", "transform"};
 
   auto &vertex_buffer = renderer.make_buffer("positions");
   vertex_buffer.data = &positions[0];
@@ -162,17 +163,15 @@ void ParticleSystem::init() noexcept {
 void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
   num_vertices_per_particle = num_vertices;
 
-  // Setup the circle vertices
+  // Setup the particle vertices
   vector<vec2> positions(num_vertices_per_particle);
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions[i] = 
-    {
-      cosf(i * kPI * 2.0f / num_vertices_per_particle),
-      sinf(i * kPI * 2.0f / num_vertices_per_particle)
-    };
+    positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
+                    sinf(i * kPI * 2.0f / num_vertices_per_particle)};
   }
 
-  renderer.update_buffer("positions", &positions[0], num_vertices_per_particle * sizeof(positions[0]));
+  renderer.update_buffer("positions", &positions[0],
+                         num_vertices_per_particle * sizeof(positions[0]));
 }
 
 void ParticleSystem::update_collisions() noexcept {
@@ -549,6 +548,10 @@ void ParticleSystem::apply_n_body() noexcept {
   }
 }
 
+// Each thread gets a copy of the particles;
+
+// thread_local auto particles_copy = particles;
+
 // (N-1)*N/2
 void ParticleSystem::collision_logNxN(size_t total, size_t begin,
                                       size_t end) noexcept {
@@ -703,7 +706,6 @@ void ParticleSystem::opencl_init() noexcept {
   console->info(FRED("OpenCL") " Max Work item dim: {}", work_item_dim);
 }
 
-
 void ParticleSystem::opencl_naive() noexcept {
   // Create the input and output arrays in device memory
   // for our calculation
@@ -781,6 +783,11 @@ void ParticleSystem::opencl_naive() noexcept {
   if (err != CL_SUCCESS) {
     console->error("Failed to read output array! {}", err);
     exit(1);
+  }
+
+  if (particle_count != particles.size()) {
+    console->error("Size of particle_count and particles.size() differ! {}!={}",
+                   particle_count, particles.size());
   }
 
   // Handle any leftover that werent checked

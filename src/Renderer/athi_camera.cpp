@@ -18,10 +18,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
 #include "athi_camera.h"
 
-#include <glm/gtc/matrix_transform.hpp> // glm::radians, glm::normalize, glm::cross, glm::perspective, glm::lookAt
+#include <glm/gtc/matrix_transform.hpp>  // glm::radians, glm::normalize, glm::cross, glm::perspective, glm::lookAt
 
 Camera camera;
 

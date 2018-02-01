@@ -22,15 +22,15 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
+#include "./Renderer/athi_renderer.h"   // render
+#include "./Renderer/opengl_utility.h"  // check_gl_error();
+#include "athi_gui.h"                   // gui_init, gui_render, gui_shutdown
+#include "athi_input.h"                 // update_inputs
+#include "athi_line.h"                  // draw_lines
+#include "athi_rect.h"                  // draw_rects
+#include "athi_settings.h"              // console, ThreadPoolSolution
 #include "athi_typedefs.h"
-#include "./Renderer/opengl_utility.h" // check_gl_error();
-#include "athi_gui.h" // gui_init, gui_render, gui_shutdown
-#include "athi_input.h" // update_inputs
-#include "athi_line.h" // draw_lines
-#include "athi_rect.h" // draw_rects
-#include "./Renderer/athi_renderer.h" // render
-#include "athi_settings.h" // console, ThreadPoolSolution
-#include "athi_utility.h" // profile, Smooth_Average
+#include "athi_utility.h"  // profile, Smooth_Average
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -41,16 +41,18 @@
 #include "../dep/Universal/spdlog/spdlog.h"
 
 static Smooth_Average<f64, 30> smooth_frametime_avg(&smoothed_frametime);
-static Smooth_Average<f64, 30> smooth_physics_rametime_avg(&smoothed_physics_frametime);
-static Smooth_Average<f64, 30> smooth_render_rametime_avg(&smoothed_render_frametime);
+static Smooth_Average<f64, 30> smooth_physics_rametime_avg(
+    &smoothed_physics_frametime);
+static Smooth_Average<f64, 30> smooth_render_rametime_avg(
+    &smoothed_render_frametime);
 
 void Athi_Core::init() {
   spdlog::set_pattern("[%H:%M:%S] %v");
   console = spdlog::stdout_color_mt("Athi");
   if constexpr (ONLY_RUNS_IN_DEBUG_MODE) console->critical("DEBUG MODE: ON");
 
-  window.scene.width = 512;
-  window.scene.height = 512;
+  window.scene.width = 800;
+  window.scene.height = 500;
   window.init();
 
   // Apple specific settings
@@ -70,7 +72,7 @@ void Athi_Core::init() {
   console->info("{} {}", FRED("CPU:"), get_cpu_brand());
   console->info("Threads available: {}", std::thread::hardware_concurrency());
   console->info("IMGUI VERSION {}", ImGui::GetVersion());
-  //console->info("GLM VERSION {}", glm::get_version());
+  // console->info("GLM VERSION {}", glm::get_version());
   console->info("GL_VERSION {}", glGetString(GL_VERSION));
   console->info("GL_VENDOR {}", glGetString(GL_VENDOR));
   console->info("GL_RENDERER {}", glGetString(GL_RENDERER));
@@ -98,20 +100,31 @@ void Athi_Core::start() {
   framebuffers[0].resize(screen_width, screen_height);
   framebuffers[1].resize(screen_width, screen_height);
 
+  glfwMakeContextCurrent(NULL);
+
+  // Start the updater
+  auto update_fut = dispatcher.enqueue([this]
+  { 
+    while(true) 
+      this->update(); 
+  });
+
+  // Start the drawer
+  auto draw_fut = dispatcher.enqueue([this, window_context]
+  { 
+    while(true) 
+      this->draw(window_context); 
+  });
+
   while (!glfwWindowShouldClose(window_context)) {
     const f64 time_start_frame = glfwGetTime();
 
     glfwPollEvents();
-    update_inputs();
+    //update_inputs();
 
-    update();
+    //update();
 
-    draw(window_context);
-
-    {
-      profile p("glfwSwapBuffers");
-      glfwSwapBuffers(window_context);
-    }
+    //draw(window_context);
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
@@ -124,6 +137,12 @@ void Athi_Core::start() {
 }
 
 void Athi_Core::draw(GLFWwindow *window) {
+
+  glfwMakeContextCurrent(window);
+  
+  update_inputs();
+
+
   profile p("Athi_Core::draw");
 
   const f64 time_start_frame = glfwGetTime();
@@ -151,10 +170,8 @@ void Athi_Core::draw(GLFWwindow *window) {
     check_gl_error();
 
     for (s32 i = 0; i < post_processing_samples; i++) {
-      draw_fullscreen_quad(framebuffers[0].texture,
-                           vec2(0, 1 * blur_strength));
-      draw_fullscreen_quad(framebuffers[0].texture,
-                           vec2(1 * blur_strength, 0));
+      draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 1 * blur_strength));
+      draw_fullscreen_quad(framebuffers[0].texture, vec2(1 * blur_strength, 0));
     }
   }
 
@@ -173,6 +190,11 @@ void Athi_Core::draw(GLFWwindow *window) {
   if (show_settings) {
     update_settings();
     gui_render();
+  }
+
+  {
+    profile p("glfwSwapBuffers");
+    glfwSwapBuffers(window);
   }
 
   render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;

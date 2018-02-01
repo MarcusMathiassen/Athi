@@ -20,7 +20,7 @@
 
 
 #include "athi_settings.h"
-
+Dispatch dispatcher;
 std::shared_ptr<spdlog::logger> console;
 
 MouseOption mouse_option{MouseOption::Drag};

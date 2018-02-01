@@ -25,10 +25,13 @@
 
 #include "./Utility/athi_globals.h"
 #include "./Renderer/athi_framebuffer.h"
+#include "athi_dispatch.h"
 #include "imgui.h"
 #include <atomic>
 
 #include "../dep/Universal/spdlog/spdlog.h" // Console logging
+
+extern Dispatch dispatcher;
 extern std::shared_ptr<spdlog::logger> console;
 
 enum class MouseOption { Color, GravityWell, Drag, Delete, None };
