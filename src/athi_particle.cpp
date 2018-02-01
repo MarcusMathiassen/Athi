@@ -120,7 +120,7 @@ void ParticleSystem::init() noexcept {
 
   auto &shader = renderer.make_shader();
   shader.sources = { "default_particle_shader.vert", "default_particle_shader.frag" };
-  //shader.attribs = { "position", "color", "transform" };
+  shader.attribs = { "position", "color", "transform" };
 
   auto &vertex_buffer = renderer.make_buffer("positions");
   vertex_buffer.data = &positions[0];

@@ -230,31 +230,11 @@ vec2 to_view_space(vec2 v) noexcept {
 static Renderer renderer;
 void setup_fullscreen_quad() {
 
-  // fullscreen_shader.init("Fullscreen shader");
-  // fullscreen_shader.load_from_file("athi_fullscreen_quad.vs",
-  //                                  ShaderType::Vertex);
-  // fullscreen_shader.load_from_file("athi_fullscreen_quad.fs",
-  //                                  ShaderType::Fragment);
-  // fullscreen_shader.bind_attrib("position");
-  // fullscreen_shader.bind_attrib("texcoord");
-  // fullscreen_shader.bind_attrib("color");
-  // fullscreen_shader.link();
-  // fullscreen_shader.add_uniform("transform");
-  // fullscreen_shader.add_uniform("res");
-  // fullscreen_shader.add_uniform("tex");
-  // fullscreen_shader.add_uniform("dir");
-
   u16 indices[6] = {0, 1, 2, 0, 2, 3};
-  f32 positions[] = {
-      0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-  };
-  f32 texcoords[] = {
-      0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-  };
-  f32 colors[] = {
-      1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-      1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-  };
+  f32 positions[] = {0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f};
+  f32 texcoords[] = {0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f};
+  f32 colors[] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+                  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
 
   auto &shader = renderer.make_shader();
   shader.sources = {"athi_fullscreen_quad.vert", "athi_fullscreen_quad.frag"};

@@ -2,8 +2,7 @@
 
 #include "athi_typedefs.h"  
 
-#include "./Renderer/athi_shader.h"  // Shader
-#include "./Renderer/athi_buffer.h"  // GPUBuffer
+#include "./Renderer/athi_renderer.h"  // Renderer
 #include "athi_transform.h" // Transform
 
 #define GLEW_STATIC
@@ -48,15 +47,12 @@ struct Athi_Rect {
   f32 height;
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
 
-  GLenum draw_mode{GL_TRIANGLES};
-
   Athi_Rect() = default;
   void draw() const {}
 };
 
 struct Athi_Rect_Manager {
-  //Shader shader;
-  //GPUBuffer gpu_buffer;
+  Renderer renderer;
   void init();
   void update();
   void draw();

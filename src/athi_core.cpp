@@ -126,9 +126,9 @@ void Athi_Core::draw(GLFWwindow *window) {
 
     for (s32 i = 0; i < post_processing_samples; i++) {
       draw_fullscreen_quad(framebuffers[0].texture,
-                           vec2(0, 1 * blur_strength));  // first pass
+                           vec2(0, 1 * blur_strength));
       draw_fullscreen_quad(framebuffers[0].texture,
-                           vec2(1 * blur_strength, 0));  // first pass
+                           vec2(1 * blur_strength, 0));
     }
   }
 

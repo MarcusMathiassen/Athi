@@ -26,11 +26,7 @@ void Buffer::finish() noexcept {
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
 
-  u32 attrib_counter = 0;
   for (auto& [name, vbo] : vbos) {
-
-    console->info("name: {}, data_members: {}, data_size: {}, is_matrix: {}", 
-      name, vbo.data_members, vbo.data_size, vbo.is_matrix);
 
     glGenBuffers(1, &vbo.handle);
     glBindBuffer(vbo.type, vbo.handle);
@@ -40,18 +36,15 @@ void Buffer::finish() noexcept {
     }
 
     if (!vbo.is_matrix) {
-      glEnableVertexAttribArray(attrib_counter);
-      glVertexAttribPointer(attrib_counter, vbo.data_members, GL_FLOAT, GL_FALSE, vbo.stride, (void*)vbo.pointer);
-      if (vbo.divisor) glVertexAttribDivisor(attrib_counter, vbo.divisor);
-      ++attrib_counter;
+      glEnableVertexAttribArray(vbo.attrib_num);
+      glVertexAttribPointer(vbo.attrib_num, vbo.data_members, GL_FLOAT, GL_FALSE, vbo.stride, (void*)vbo.pointer);
+      if (vbo.divisor) glVertexAttribDivisor(vbo.attrib_num, vbo.divisor);
     } else {
       for (u32 i = 0; i < vbo.data_members; ++i) {
-        glEnableVertexAttribArray(i + attrib_counter);
-        glVertexAttribPointer(i + attrib_counter, vbo.data_members, GL_FLOAT, GL_FALSE, vbo.stride, (void*)(i * vbo.pointer));
-        if (vbo.divisor) glVertexAttribDivisor(i + attrib_counter, vbo.divisor);
+        glEnableVertexAttribArray(i + vbo.attrib_num);
+        glVertexAttribPointer(i + vbo.attrib_num, vbo.data_members, GL_FLOAT, GL_FALSE, vbo.stride, (void*)(i * vbo.pointer));
+        if (vbo.divisor) glVertexAttribDivisor(i + vbo.attrib_num, vbo.divisor);
       }
-      attrib_counter += vbo.data_members;
     }
-    console->info("attrib_counter: {}", attrib_counter);
   }
 }

@@ -48,12 +48,14 @@ struct Vbo {
   size_t pointer{0};
   u32 divisor{0};
   bool is_matrix{false};
+  u32 attrib_num{0};
 };
 
 struct Buffer {
 
   u32 vao;
   std::unordered_map<string, Vbo> vbos;
+  u32 attrib_counter{0};
 
   Buffer() = default;
   ~Buffer();

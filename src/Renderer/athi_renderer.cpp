@@ -48,6 +48,7 @@ void Renderer::update_buffer(const string& name, void* data, size_t data_size) n
 }
 
 Vbo& Renderer::make_buffer(const string& name) noexcept {
+  buffer.vbos[name].attrib_num = buffer.attrib_counter++;
   return buffer.vbos[name]; 
 }
 
