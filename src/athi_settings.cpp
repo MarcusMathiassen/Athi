@@ -1,3 +1,24 @@
+// Copyright (c) 2018 Marcus Mathiassen
+
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+
+
 #include "athi_settings.h"
 
 std::shared_ptr<spdlog::logger> console;
@@ -16,7 +37,7 @@ u32 num_vertices_per_particle = 36;
 bool is_particles_colored_by_acc = true;
 bool has_random_velocity = true;
 f32 random_velocity_force = 5.0f;
-f32 color_by_velocity_threshold = 0.002f;
+f32 color_by_velocity_threshold = 0.003f;
 
 bool wireframe_mode{false};
 
@@ -41,7 +62,7 @@ f32 collision_energy_loss{0.99f};
 bool circle_collision{true};
 bool border_collision{true};
 
-s32 physics_samples{2};
+s32 physics_samples{8};
 s32 post_processing_samples{2};
 s32 blur_strength{2};
 
@@ -100,7 +121,7 @@ bool settings_changed{false};
 std::atomic<s32> universal_color_picker{0};
 
 vec4 acceleration_color_min{vec4(1,1,1,1)};
-vec4 acceleration_color_max{vec4(1,0,0.01,0.02)};
+vec4 acceleration_color_max{vec4(0.315f, 1.000f, 0.000f, 0.100f)};
 
 vec4 background_color_dark = vec4(18.0f/255.0f, 20.0f/255.0f, 25.0f/255.0f, 1.0f);
 vec4 background_color_light = vec4(0.7f, 0.7f, 0.7f, 1.0f);

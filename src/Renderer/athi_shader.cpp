@@ -1,3 +1,23 @@
+// Copyright (c) 2018 Marcus Mathiassen
+
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+
 #include "athi_shader.h"
 
 #include "../athi_utility.h"  // read_file
@@ -110,7 +130,7 @@ void Shader::link() noexcept {
 }
 
 void Shader::bind() noexcept { 
-  //if constexpr (ONLY_RUNS_IN_DEBUG_MODE) reload();
+  if constexpr (ONLY_RUNS_IN_DEBUG_MODE) reload();
   glUseProgram(program); 
   check_gl_error();
 }
@@ -155,15 +175,7 @@ void Shader::finish() noexcept {
   }
   check_gl_error();
 
-  for (const auto & [name, integer]: attribs_map) {
-    console->info("Attrib name: {}({})",name, integer);
-  }
-
   link();
-
-  for (const auto & [name, integer]: uniforms_map) {
-    console->info("Uniform name: {}({})", name, integer);
-  }
 }
 
 void Shader::set_uniform(const string& name, f32 x, f32 y) const noexcept {

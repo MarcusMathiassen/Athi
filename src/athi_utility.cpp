@@ -1,9 +1,30 @@
+// Copyright (c) 2018 Marcus Mathiassen
+
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+
+
 #include "athi_utility.h"
 
-#include "./Renderer/athi_renderer.h"     // Renderer
-#include "./Renderer/athi_camera.h"     // camera,
-#include "./Renderer/athi_shader.h"     // Shader
-#include "athi_transform.h"  // Transform
+#include "./Renderer/athi_camera.h"    // camera,
+#include "./Renderer/athi_renderer.h"  // Renderer
+#include "./Renderer/athi_shader.h"    // Shader
+#include "athi_transform.h"            // Transform
 
 #include <algorithm>  // std::swap
 
@@ -229,7 +250,6 @@ vec2 to_view_space(vec2 v) noexcept {
 
 static Renderer renderer;
 void setup_fullscreen_quad() {
-
   u16 indices[6] = {0, 1, 2, 0, 2, 3};
   f32 positions[] = {0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f};
   f32 texcoords[] = {0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f};
@@ -268,7 +288,6 @@ void setup_fullscreen_quad() {
 }
 
 void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
-
   CommandBuffer cmd;
   cmd.type = primitive::triangles;
   cmd.count = 6;
