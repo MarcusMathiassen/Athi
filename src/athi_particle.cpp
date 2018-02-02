@@ -114,8 +114,8 @@ void ParticleSystem::update_gpu_buffers() noexcept {
 
 void Particle::update(f32 dt) noexcept {
   // Update pos/vel/acc
-  vel.x += acc.x * dt * time_scale * air_drag;
-  vel.y += acc.y * dt * time_scale * air_drag;
+  vel.x += acc.x * dt * time_scale * air_resistance;
+  vel.y += acc.y * dt * time_scale * air_resistance;
   pos.x += vel.x * dt * time_scale;
   pos.y += vel.y * dt * time_scale;
   acc *= 0;
@@ -390,7 +390,7 @@ void ParticleSystem::draw_debug_nodes() noexcept {
 void ParticleSystem::update() noexcept {
   profile p("update_collisions() + particles.update()");
 
-  f64 this_sample_timestep = 0.0;
+  f64 this_sample_timestep = (1.0 / 60.0) / physics_samples;
   for (s32 i = 0; i < physics_samples; ++i) {
     const auto start = glfwGetTime();
     if (circle_collision) {

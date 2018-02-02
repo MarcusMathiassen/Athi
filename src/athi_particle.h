@@ -52,6 +52,9 @@ struct Particle {
 struct ParticleSystem {
   u32 particle_count{0};
   f32 particle_density{1.0f};
+
+  // Data information
+  size_t particles_vertices_size{0};
   
   vector<Particle> particles;
   vector<Transform> transforms;

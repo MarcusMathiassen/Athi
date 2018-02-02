@@ -132,33 +132,37 @@ static void menu_profiler() {
 
 
 static int vertices_to_be_applied = 36;
-
 static void menu_settings() {
   profile p("menu_settings");
 
   ImGui::Begin("Settings", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-  ImGui::InputInt("Physics samples", &physics_samples);
+  ImGui::PushItemWidth(100.0f);
 
-  ImGui::Checkbox("VSync", &vsync);
-  ImGui::SameLine();
-  ImGui::Checkbox("Particle Collisions", &circle_collision);
-  ImGui::SameLine();
-  ImGui::Checkbox("Border Collisions", &border_collision);
-  ImGui::SliderFloat("time scale", &time_scale, 0.0001f, 2.0f);
+  if (ImGui::CollapsingHeader("Renderer")) {
+    ImGui::Checkbox("VSync", &vsync); 
+    ImGui::SameLine();
+    ImGui::InputInt("framerate limit", &framerate_limit, 0, 1000);
+    ImGui::Checkbox("draw nodes ", &draw_nodes);
+    ImGui::SameLine();
+    ImGui::Checkbox("color particles based on node", &color_particles);
+  }
 
-  ImGui::InputInt("framerate limit", &framerate_limit, 0, 1000);
+  if (ImGui::CollapsingHeader("Simulation")) {
+    ImGui::InputInt("Physics samples", &physics_samples);
+    if (physics_samples < 1) physics_samples = 1;
+    ImGui::Checkbox("Particle intercollision", &circle_collision);
+    ImGui::SameLine();
+    ImGui::Checkbox("Border Collisions", &border_collision);
+    ImGui::SliderFloat("time scale", &time_scale, 0.0001f, 2.0f);
 
-  ImGui::Checkbox("gravitational force", &use_gravitational_force);
-  ImGui::SameLine();
-  ImGui::SliderFloat("", &gravitational_constant,  100, 10000);
+    ImGui::Checkbox("gravity", &physics_gravity);
+    ImGui::SameLine();
+    ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);
 
-  ImGui::Checkbox("gravity", &physics_gravity);
-  ImGui::SameLine();
-  ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);
-
-  ImGui::Checkbox("draw nodes ", &draw_nodes);
-  ImGui::SameLine();
-  ImGui::Checkbox("color particles based on node", &color_particles);
+    ImGui::Checkbox("gravitational force", &use_gravitational_force);
+    ImGui::SameLine();
+    ImGui::SliderFloat("", &gravitational_constant,  100, 10000);
+  }
 
   if (ImGui::CollapsingHeader("Post-processing")) {
     ImGui::Checkbox("Post-processing on", &post_processing);
@@ -208,7 +212,6 @@ static void menu_settings() {
       ImGui::SliderFloat("random starting force", &random_velocity_force, 0.1f, 10.0f);
 
 
-    ImGui::PushItemWidth(100.0f);
     // Color changed by acceleration
     ImGui::Checkbox("colored by acceleration", &is_particles_colored_by_acc);
     if (is_particles_colored_by_acc) {
@@ -224,12 +227,11 @@ static void menu_settings() {
     ImGui::Separator();
 
     // Rebuild particle vertices
-    if (ImGui::Button("Apply vertices")) {
+    ImGui::InputInt("Vertices per particle", &vertices_to_be_applied, 1, 999);
+    if (vertices_to_be_applied != num_vertices_per_particle) {
       if (vertices_to_be_applied < 3) vertices_to_be_applied = 3;
       particle_system.rebuild_vertices(vertices_to_be_applied);
     }
-    ImGui::SameLine();
-    ImGui::InputInt("Vertices per particle", &vertices_to_be_applied, 3, 999);
 
     ImGui::Separator();
 
@@ -257,10 +259,8 @@ static void menu_settings() {
         particle_system.transforms[p.id].scale = glm::vec3(circle_size, circle_size, 0);
       }
     }
-    ImGui::PopItemWidth();
   }
   if (ImGui::CollapsingHeader("color options")) {
-    ImGui::PushItemWidth(100.0f);
     ImGui::Text("background color");
     ImGui::ColorPicker4("##Background", (float *)&background_color_dark);
 
@@ -280,9 +280,8 @@ static void menu_settings() {
     ImGui::ColorPicker4("##nw", (float *)&nw_color);
     ImGui::SameLine();
     ImGui::ColorPicker4("##ne", (float *)&ne_color);
-
-    ImGui::PopItemWidth();
   }
+  ImGui::PopItemWidth();
   ImGui::End();
 }
 
