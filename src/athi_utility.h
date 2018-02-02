@@ -100,8 +100,6 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept;
 string get_cpu_brand();
 vec4 get_universal_current_color();
 vec2 to_view_space(vec2 v) noexcept;
-void setup_fullscreen_quad();
-void draw_fullscreen_quad(u32 texture, const vec2 &dir);
 
 extern std::unordered_map<string, f64> time_taken_by;
 

@@ -248,67 +248,6 @@ vec2 to_view_space(vec2 v) noexcept {
   return v;
 }
 
-static Renderer renderer;
-void setup_fullscreen_quad() {
-  u16 indices[6] = {0, 1, 2, 0, 2, 3};
-  f32 positions[] = {0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f};
-  f32 texcoords[] = {0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f};
-  f32 colors[] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-                  1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
-
-  auto &shader = renderer.make_shader();
-  shader.sources = {"athi_fullscreen_quad.vert", "athi_fullscreen_quad.frag"};
-  shader.attribs = {"position", "texcoord", "color"};
-  shader.uniforms = {"transform", "res", "tex", "dir"};
-
-  auto &vertex_buffer = renderer.make_buffer("positions");
-  vertex_buffer.data = &positions[0];
-  vertex_buffer.data_size = sizeof(positions);
-  vertex_buffer.data_members = 2;
-  vertex_buffer.stride = sizeof(f32) * 2;
-
-  auto &texcoords_buffer = renderer.make_buffer("texcoords");
-  texcoords_buffer.data = &texcoords[0];
-  texcoords_buffer.data_size = sizeof(texcoords);
-  texcoords_buffer.data_members = 2;
-  texcoords_buffer.stride = sizeof(f32) * 2;
-
-  auto &colors_buffer = renderer.make_buffer("colors");
-  colors_buffer.data = &colors[0];
-  colors_buffer.data_size = sizeof(colors);
-  colors_buffer.data_members = 4;
-  colors_buffer.stride = sizeof(f32) * 4;
-
-  auto &indices_buffer = renderer.make_buffer("indices");
-  colors_buffer.data = &indices[0];
-  colors_buffer.data_size = sizeof(indices);
-  colors_buffer.type = buffer_type::element_array;
-
-  renderer.finish();
-}
-
-void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
-  CommandBuffer cmd;
-  cmd.type = primitive::triangles;
-  cmd.count = 6;
-  cmd.has_indices = true;
-
-  renderer.bind();
-
-  glActiveTexture(GL_TEXTURE0 + 0);
-  glBindTexture(GL_TEXTURE_2D, texture);
-
-  const auto proj = camera.get_ortho_projection();
-  mat4 trans = proj * Transform().get_model();
-
-  renderer.shader.set_uniform("transform", trans);
-  renderer.shader.set_uniform("res", screen_width, screen_height);
-  renderer.shader.set_uniform("tex", 0);
-  renderer.shader.set_uniform("dir", dir);
-
-  renderer.draw(cmd);
-}
-
 string get_cpu_brand() {
 #ifdef _WIN32
   s32 CPUInfo[4] = {-1};

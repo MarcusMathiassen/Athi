@@ -333,25 +333,22 @@ void ParticleSystem::draw_debug_nodes() noexcept {
 }
 
 void ParticleSystem::update() noexcept {
-  // @TODO: This whole if statement and following logic statements. BE GONE.
-  {
-    profile p("update_collisions() + particles.update()");
+  profile p("update_collisions() + particles.update()");
 
-    f64 this_sample_timestep = 0.0;
-    for (int i = 0; i < physics_samples; ++i) {
-      const auto start = glfwGetTime();
-      if (circle_collision) {
-        update_collisions();
-      }
-
-      for (auto &p : particles) {
-        if (physics_gravity) {
-          p.acc.y -= (gravity_force * p.mass) / physics_samples;
-        }
-        p.update(this_sample_timestep);
-      }
-      this_sample_timestep += (1.0 / 60.0) / physics_samples;
+  f64 this_sample_timestep = 0.0;
+  for (s32 i = 0; i < physics_samples; ++i) {
+    const auto start = glfwGetTime();
+    if (circle_collision) {
+      update_collisions();
     }
+
+    for (auto &p : particles) {
+      if (physics_gravity) {
+        p.acc.y -= (gravity_force * p.mass) / physics_samples;
+      }
+      p.update(this_sample_timestep);
+    }
+    this_sample_timestep += (1.0 / 60.0) / physics_samples;
   }
 }
 
@@ -392,6 +389,7 @@ void ParticleSystem::erase_all() noexcept {
   particles.clear();
   colors.clear();
   transforms.clear();
+  models.clear();
 }
 
 bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const

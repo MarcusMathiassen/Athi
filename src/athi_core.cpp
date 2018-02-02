@@ -47,6 +47,44 @@ static Smooth_Average<f64, 30> smooth_physics_rametime_avg(
 static Smooth_Average<f64, 30> smooth_render_rametime_avg(
     &smoothed_render_frametime);
 
+static Renderer renderer;
+
+static void setup_fullscreen_quad() {
+  auto &shader = renderer.make_shader();
+  shader.sources = {"athi_fullscreen_quad.vert", "athi_fullscreen_quad.frag"};
+  shader.uniforms = {"transform", "res", "tex", "dir"};
+
+  constexpr u16 indices[6] = {0, 1, 2, 0, 2, 3};
+  auto &indices_buffer = renderer.make_buffer("indices");
+  indices_buffer.data = (void*)indices;
+  indices_buffer.data_size = sizeof(indices);
+  indices_buffer.type = buffer_type::element_array;
+
+  renderer.finish();
+}
+
+static void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
+  CommandBuffer cmd;
+  cmd.type = primitive::triangles;
+  cmd.count = 6;
+  cmd.has_indices = true;
+
+  renderer.bind();
+
+  glActiveTexture(GL_TEXTURE0 + 0);
+  glBindTexture(GL_TEXTURE_2D, texture);
+
+  const auto proj = camera.get_ortho_projection();
+  mat4 trans = proj * Transform().get_model();
+
+  renderer.shader.set_uniform("transform", trans);
+  renderer.shader.set_uniform("res", screen_width, screen_height);
+  renderer.shader.set_uniform("tex", 0);
+  renderer.shader.set_uniform("dir", dir);
+
+  renderer.draw(cmd);
+}
+
 void Athi_Core::init() {
   spdlog::set_pattern("[%H:%M:%S] %v");
   console = spdlog::stdout_color_mt("Athi");

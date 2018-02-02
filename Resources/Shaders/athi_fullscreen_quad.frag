@@ -6,7 +6,6 @@ uniform vec2 dir;
 uniform vec2 res;
 
 in Vertex {
-  vec4 color;
   vec2 texcoord;
 }
 frag;
@@ -28,7 +27,6 @@ vec4 blur13(sampler2D image, vec2 uv, vec2 resolution, vec2 direction) {
   return color;
 }
 
-void main()
-{
+void main() {
   frag_color = blur13(tex, frag.texcoord, vec2(res.x, res.y), dir);
 }

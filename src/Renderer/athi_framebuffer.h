@@ -26,6 +26,17 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+// @Todo: These are not all the available enums, add more.
+enum texture_filter {
+  nearest = GL_NEAREST,
+  linear = GL_LINEAR,
+};
+
+struct Fbo {
+  u32 resolution[2];
+  texture_filter fiter;
+};
+
 struct FrameBuffer {
   s32 width, height;
   u32 fbo;

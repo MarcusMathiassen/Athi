@@ -1,12 +1,13 @@
 #version 410
 
-in vec2 position;
-in vec4 color;
-in vec2 texcoord;
-
 uniform vec2 res;
 uniform mat4 transform;
-uniform vec2 dir;
+
+const vec2 texcoords[4] = vec2[4](
+  vec2(0.0f, 1.0f), 
+  vec2(1.0f, 1.0f), 
+  vec2(1.0f, 0.0f), 
+  vec2(0.0f, 0.0f));
 
 const vec2 positions[4] = vec2[4](
     vec2(0.0f, 1.0f),
@@ -15,7 +16,6 @@ const vec2 positions[4] = vec2[4](
     vec2(0.0f, 0.0f));
 
 out Vertex {
-  vec4 color;
   vec2 texcoord;
 } vertex;
 
@@ -24,6 +24,5 @@ void main() {
     pos.x  = pos.x * res.x;
     pos.y  = pos.y * res.y;
    gl_Position = transform * vec4(pos, 0.0, 1.0);
-   vertex.color = color;
-   vertex.texcoord = texcoord;
+   vertex.texcoord = texcoords[gl_VertexID];
 }
