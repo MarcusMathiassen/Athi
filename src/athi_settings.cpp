@@ -62,7 +62,7 @@ f32 collision_energy_loss{0.99f};
 bool circle_collision{true};
 bool border_collision{true};
 
-s32 physics_samples{8};
+s32 physics_samples{2};
 s32 post_processing_samples{2};
 s32 blur_strength{2};
 

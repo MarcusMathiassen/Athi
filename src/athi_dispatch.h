@@ -20,8 +20,9 @@
 
 #pragma once
 
-#include "athi_typedefs.h"
+#include "./Utility/athi_globals.h" // os
 
+#include <thread>
 #include <cassert>
 #include <condition_variable>
 #include <mutex>
@@ -29,6 +30,10 @@
 #include <future>
 #include <queue>
 #include <thread>
+
+#ifdef __APPLE__
+  #include <dispatch/dispatch.h>  // dispatch_apply
+#endif
 
 class Dispatch {
  private:
@@ -68,9 +73,9 @@ class Dispatch {
     condition.notify_all();
     for (auto&& worker : workers) worker.join();
   }
+
   template <class F, class... Args>
-  auto enqueue(F&& f, Args&&... args)
-      -> std::future<std::result_of_t<F(Args...)>> {
+  auto enqueue(F&& f, Args&&... args) -> std::future<std::result_of_t<F(Args...)>> {
     using return_type = std::result_of_t<F(Args...)>;
     auto task = std::make_shared<std::packaged_task<return_type()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...));

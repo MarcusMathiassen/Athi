@@ -24,13 +24,14 @@
 
 #include "./Renderer/athi_renderer.h"   // render
 #include "./Renderer/opengl_utility.h"  // check_gl_error();
+#include "./Utility/athi_globals.h"     // os
 #include "athi_gui.h"                   // gui_init, gui_render, gui_shutdown
 #include "athi_input.h"                 // update_inputs
 #include "athi_line.h"                  // draw_lines
 #include "athi_rect.h"                  // draw_rects
 #include "athi_settings.h"              // console, ThreadPoolSolution
 #include "athi_typedefs.h"
-#include "athi_utility.h"  // profile, Smooth_Average
+#include "athi_utility.h"               // profile, Smooth_Average
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -99,32 +100,24 @@ void Athi_Core::start() {
   framebuffers.resize(2);
   framebuffers[0].resize(screen_width, screen_height);
   framebuffers[1].resize(screen_width, screen_height);
-
-  glfwMakeContextCurrent(NULL);
-
-  // Start the updater
-  auto update_fut = dispatcher.enqueue([this]
-  { 
-    while(true) 
-      this->update(); 
-  });
-
-  // Start the drawer
-  auto draw_fut = dispatcher.enqueue([this, window_context]
-  { 
-    while(true) 
-      this->draw(window_context); 
-  });
+  
+  std::future<void> update_fut, draw_fut;
+  if constexpr (multithreaded_engine) { 
+    glfwMakeContextCurrent(NULL);
+    update_fut = dispatcher.enqueue(&Athi_Core::physics_loop, this);
+    draw_fut = dispatcher.enqueue(&Athi_Core::draw_loop, this);
+  }
 
   while (!glfwWindowShouldClose(window_context)) {
     const f64 time_start_frame = glfwGetTime();
 
     glfwPollEvents();
-    //update_inputs();
 
-    //update();
-
-    //draw(window_context);
+    if constexpr (!multithreaded_engine) { 
+      update_inputs();
+      update();
+      draw(window_context);
+    }
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
@@ -132,17 +125,16 @@ void Athi_Core::start() {
     smooth_frametime_avg.add_new_frametime(frametime);
   }
 
+  if constexpr (multithreaded_engine) { 
+    draw_fut.get();
+    update_fut.get();
+  }
+
   app_is_running = false;
   shutdown();
 }
 
 void Athi_Core::draw(GLFWwindow *window) {
-
-  glfwMakeContextCurrent(window);
-  
-  update_inputs();
-
-
   profile p("Athi_Core::draw");
 
   const f64 time_start_frame = glfwGetTime();
@@ -196,7 +188,6 @@ void Athi_Core::draw(GLFWwindow *window) {
     profile p("glfwSwapBuffers");
     glfwSwapBuffers(window);
   }
-
   render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
   render_framerate =
       static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
@@ -208,6 +199,11 @@ void Athi_Core::update() {
 
   if (!particle_system.particles.empty()) {
     particle_system.update();
+  }
+
+  if (use_gravitational_force) {
+    profile p("ParticleSystem::apply_n_body()");
+    particle_system.apply_n_body();
   }
 
   // Draw nodes and/or color objects
@@ -222,6 +218,25 @@ void Athi_Core::update() {
       static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
   timestep = 1.0 / 60.0;
+}
+
+void Athi_Core::draw_loop()
+{
+  auto window_context = window.get_window_context();
+  glfwMakeContextCurrent(window_context);
+  while (app_is_running)
+  {
+    if constexpr (multithreaded_engine) update_inputs();
+    draw(window_context);
+  }
+}
+
+void Athi_Core::physics_loop()
+{
+  while (app_is_running)
+  {
+    update();
+  }
 }
 
 void Athi_Core::update_settings() { glfwSwapInterval(vsync); }

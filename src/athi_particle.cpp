@@ -353,11 +353,6 @@ void ParticleSystem::update() noexcept {
       this_sample_timestep += (1.0 / 60.0) / physics_samples;
     }
   }
-
-  if (use_gravitational_force) {
-    profile p("ParticleSystem::apply_n_body()");
-    apply_n_body();
-  }
 }
 
 void ParticleSystem::add(const glm::vec2 &pos, float radius,
@@ -547,10 +542,6 @@ void ParticleSystem::apply_n_body() noexcept {
     }
   }
 }
-
-// Each thread gets a copy of the particles;
-
-// thread_local auto particles_copy = particles;
 
 // (N-1)*N/2
 void ParticleSystem::collision_logNxN(size_t total, size_t begin,

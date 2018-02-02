@@ -37,27 +37,6 @@ extern std::shared_ptr<spdlog::logger> console;
 enum class MouseOption { Color, GravityWell, Drag, Delete, None };
 extern MouseOption mouse_option;
 
-enum class OS { Apple, Windows, Linux };
-#ifdef __APPLE__
-  constexpr OS os{OS::Apple};
-#elif _WIN32
-  constexpr OS os{OS::Windows};
-#else
-  constexpr OS os{OS::Linux};
-#endif
-
-enum class ThreadPoolSolution { AppleGCD, Dispatch, None };
-extern ThreadPoolSolution threadpool_solution;
-
-enum class TreeType { Quadtree, UniformGrid, None };
-extern TreeType tree_type;
-
-#ifdef NDEBUG
-  static constexpr bool ONLY_RUNS_IN_DEBUG_MODE{true};
-#else
-  static constexpr bool ONLY_RUNS_IN_DEBUG_MODE{false};
-#endif
-
 extern s32 mouse_radio_options;
 extern s32 tree_radio_option;
 

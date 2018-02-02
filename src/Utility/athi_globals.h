@@ -2,6 +2,29 @@
 
 #include "../athi_typedefs.h"
 
+enum class OS { Apple, Windows, Linux };
+#ifdef __APPLE__
+  static constexpr OS os{OS::Apple};
+#elif _WIN32
+  static constexpr OS os{OS::Windows};
+#else
+  static constexpr OS os{OS::Linux};
+#endif
+
+enum class ThreadPoolSolution { AppleGCD, Dispatch, None };
+extern ThreadPoolSolution threadpool_solution;
+
+enum class TreeType { Quadtree, UniformGrid, None };
+extern TreeType tree_type;
+
+#ifdef NDEBUG
+  static constexpr bool ONLY_RUNS_IN_DEBUG_MODE{true};
+#else
+  static constexpr bool ONLY_RUNS_IN_DEBUG_MODE{false};
+#endif
+
+static constexpr bool multithreaded_engine{false};
+
 // Constants
 static constexpr f64 kPI = 3.14159265359;
 static constexpr f64 kGravitationalConstant = 6.67408e-11;
