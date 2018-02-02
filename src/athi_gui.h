@@ -150,6 +150,7 @@ static void menu_settings() {
   if (ImGui::CollapsingHeader("Simulation")) {
     ImGui::InputInt("Physics samples", &physics_samples);
     if (physics_samples < 1) physics_samples = 1;
+    ImGui::Checkbox("Multithreaded particle update", &multithreaded_particle_update);
     ImGui::Checkbox("Particle intercollision", &circle_collision);
     ImGui::SameLine();
     ImGui::Checkbox("Border Collisions", &border_collision);

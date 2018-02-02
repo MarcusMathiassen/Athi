@@ -63,7 +63,7 @@ void ParticleSystem::draw() noexcept {
   }
 }
 
-vector<float> radii;
+static vector<float> radii;
 void ParticleSystem::update_gpu_buffers() noexcept {
   if (particles.empty()) return;
   profile p("ParticleSystem::update_gpu_buffers");
@@ -105,10 +105,10 @@ void ParticleSystem::update_gpu_buffers() noexcept {
     profile p("ParticleSystem::update_gpu_buffers(GPU buffer update)");
 
     // Update the gpu buffers incase of more particles..
-    if constexpr (use_textured_particles)
-      renderer.update_buffer("radius", &radii[0], sizeof(float) * particle_count);
     renderer.update_buffer("transforms", &models[0], sizeof(mat4) * particle_count);
     renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
+    if constexpr (use_textured_particles)
+      renderer.update_buffer("radius", &radii[0], sizeof(float) * particle_count);
   }
 }
 
@@ -226,7 +226,7 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
   }
 
   if constexpr (!use_textured_particles)
-  renderer.update_buffer("positions", &positions[0], num_vertices_per_particle * sizeof(positions[0]));
+    renderer.update_buffer("positions", &positions[0], num_vertices_per_particle * sizeof(positions[0]));
 }
 
 void ParticleSystem::update_collisions() noexcept {
@@ -387,23 +387,51 @@ void ParticleSystem::draw_debug_nodes() noexcept {
   }
 }
 
-void ParticleSystem::update() noexcept {
-  profile p("update_collisions() + particles.update()");
+void ParticleSystem::threaded_particle_update(size_t begin, size_t end) noexcept {
+  for (size_t i = begin; i < end; ++i)
+  {
+    if (physics_gravity) particles[i].acc.y -= (gravity_force * particles[i].mass);
+    particles[i].update(timestep);
+  }
+}
 
-  f64 this_sample_timestep = (1.0 / 60.0) / physics_samples;
-  for (s32 i = 0; i < physics_samples; ++i) {
-    const auto start = glfwGetTime();
-    if (circle_collision) {
+void ParticleSystem::update() noexcept {
+  
+  // Check for collisions and resolve if needed
+  if (circle_collision) {
+    profile p("update_collisions()");
+    for (s32 i = 0; i < physics_samples; ++i) {
       update_collisions();
     }
-
-    for (auto &p : particles) {
-      if (physics_gravity) {
-        p.acc.y -= (gravity_force * p.mass) / physics_samples;
+  }
+  {
+  profile p("particles.update()");
+    // Update particles positions
+    if (multithreaded_particle_update)
+    {
+      switch (threadpool_solution) {
+        using Threads = ThreadPoolSolution;
+        case Threads::AppleGCD: {
+          dispatch_apply(variable_thread_count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(size_t i) {
+                const auto[begin, end] = get_begin_and_end( i, particle_count, variable_thread_count);
+                threaded_particle_update(begin, end);
+              });
+        } break;
+        case Threads::Dispatch: {
+              vector<std::future<void>> results(variable_thread_count);
+              for (int i = 0; i < variable_thread_count; ++i) {
+                const auto[begin, end] = get_begin_and_end(i, particle_count, variable_thread_count);
+                results[i] = pool.enqueue(&ParticleSystem::threaded_particle_update, this, begin, end);
+              }
+              for (auto &&res : results) res.get();
+        } break;
+        case Threads::None: { 
+          threaded_particle_update(0, particle_count);
+        } break;
       }
-      p.update(this_sample_timestep);
+    } else {
+      threaded_particle_update(0, particle_count);
     }
-    this_sample_timestep += (1.0 / 60.0) / physics_samples;
   }
 }
 
@@ -529,6 +557,8 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   const f32 br = b.radius;
 
   const f32 collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
+
+  if (collision_depth < 0) return;
 
   const f32 dx = b_pos.x - a_pos.x;
   const f32 dy = b_pos.y - a_pos.y;

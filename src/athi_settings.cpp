@@ -62,6 +62,7 @@ f32 collision_energy_loss{0.99f};
 bool circle_collision{true};
 bool border_collision{true};
 
+bool multithreaded_particle_update{true};
 s32 physics_samples{2};
 s32 post_processing_samples{2};
 s32 blur_strength{2};
@@ -123,7 +124,7 @@ std::atomic<s32> universal_color_picker{0};
 vec4 acceleration_color_min{vec4(1,1,1,1)};
 vec4 acceleration_color_max{vec4(0.315f, 1.000f, 0.000f, 0.100f)};
 
-vec4 background_color_dark = vec4(0.157f, 0.173f, 0.204f, 1.000f);
+vec4 background_color_dark = vec4(0.0f, 0.0f, 0.0f, 1.000f);
 vec4 background_color_light = vec4(0.7f, 0.7f, 0.7f, 1.0f);
 
 vec4 sw_color{pastel_red};

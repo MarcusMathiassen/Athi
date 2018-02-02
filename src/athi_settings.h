@@ -72,6 +72,7 @@ extern float collision_energy_loss;
 extern bool circle_collision;
 extern bool border_collision;
 
+extern bool multithreaded_particle_update;
 extern s32 physics_samples;
 extern s32 post_processing_samples;
 extern s32 blur_strength;
