@@ -24,7 +24,6 @@
 #include "athi_typedefs.h"
 
 #include "athi_rect.h" // Rect
-#include "athi_settings.h" // quadtree_show_only_occupied, etc.
 
 template <class T> class Quadtree {
 private:
@@ -86,7 +85,9 @@ private:
     }
   }
 
-  constexpr bool contains(s32 id) const noexcept { return bounds.contains(data[id].pos, data[id].radius); }
+  constexpr bool contains(s32 id) const noexcept {
+    return bounds.contains(data[id].pos, data[id].radius);
+  }
 
 public:
   constexpr Quadtree(s32 level, const Rect &bounds) noexcept : bounds(bounds), level(level) {}
@@ -115,22 +116,22 @@ public:
       cont.emplace_back(indices);
   }
 
-  void draw_bounds() noexcept {
+  void draw_bounds(bool show_occupied_only) noexcept {
     if (sw) {
       sw->bounds.color = sw_color;
       se->bounds.color = se_color;
       nw->bounds.color = nw_color;
       ne->bounds.color = ne_color;
-      sw->draw_bounds();
-      se->draw_bounds();
-      nw->draw_bounds();
-      ne->draw_bounds();
+      sw->draw_bounds(show_occupied_only);
+      se->draw_bounds(show_occupied_only);
+      nw->draw_bounds(show_occupied_only);
+      ne->draw_bounds(show_occupied_only);
       return;
     }
 
-    if (!indices.empty() && quadtree_show_only_occupied)
+    if (!indices.empty() && show_occupied_only)
       draw_hollow_rect(bounds.min_pos, bounds.max_pos, bounds.color);
-    else if (!quadtree_show_only_occupied)
+    else if (!show_occupied_only)
       draw_hollow_rect(bounds.min_pos, bounds.max_pos, bounds.color);
   }
 

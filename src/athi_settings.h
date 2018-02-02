@@ -90,6 +90,7 @@ extern bool show_fps_info;
 extern bool use_uniformgrid;
 extern s32 uniformgrid_parts;
 
+extern bool use_quadtree_optimized_size;
 extern bool quadtree_show_only_occupied;
 extern bool quadtree_active;
 extern s32 quadtree_depth;

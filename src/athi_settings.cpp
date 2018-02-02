@@ -77,6 +77,7 @@ bool draw_debug{false};
 bool color_particles{true};
 bool draw_nodes{true};
 
+bool use_quadtree_optimized_size{true};
 bool quadtree_show_only_occupied{true};
 bool quadtree_active{true};
 s32 quadtree_depth{5};

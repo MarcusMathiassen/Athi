@@ -26,6 +26,7 @@
 #include "athi_settings.h"           // console
 #include "athi_utility.h"            // read_file
 
+#include <algorithm>    // std::min_element, std::max_element
 #include <future>  // future
 
 #ifdef __APPLE__
@@ -36,7 +37,7 @@ ParticleSystem particle_system;
 
 void ParticleSystem::draw() noexcept {
   if (particles.empty()) return;
-  profile p("ParticleSystem::draw");
+  profile p("PS::draw");
 
   if constexpr (!use_textured_particles) {
     CommandBuffer cmd_buffer;
@@ -66,7 +67,7 @@ void ParticleSystem::draw() noexcept {
 static vector<float> radii;
 void ParticleSystem::update_gpu_buffers() noexcept {
   if (particles.empty()) return;
-  profile p("ParticleSystem::update_gpu_buffers");
+  profile p("PS::update_gpu_buffers");
 
   // Check if buffers need resizing
   if (particle_count > models.size()) {
@@ -79,7 +80,7 @@ void ParticleSystem::update_gpu_buffers() noexcept {
   {
     // THIS IS THE SLOWEST THING EVER.
     profile p(
-        "ParticleSystem::update_gpu_buffers(update buffers with new data)");
+        "PS::update_gpu_buffers(update buffers with new data)");
 
     const auto proj = camera.get_ortho_projection();
 
@@ -102,7 +103,7 @@ void ParticleSystem::update_gpu_buffers() noexcept {
   }
 
   {
-    profile p("ParticleSystem::update_gpu_buffers(GPU buffer update)");
+    profile p("PS::update_gpu_buffers(GPU buffer update)");
 
     // Update the gpu buffers incase of more particles..
     renderer.update_buffer("transforms", &models[0], sizeof(mat4) * particle_count);
@@ -160,10 +161,14 @@ void ParticleSystem::init() noexcept {
     positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
                     sinf(i * kPI * 2.0f / num_vertices_per_particle)};
   }
+
   if constexpr (!use_textured_particles) {
+
     auto &shader = renderer.make_shader();
-    shader.sources = {"default_particle_shader.vert",
-                      "default_particle_shader.frag"};
+    shader.sources = {
+      "default_particle_shader.vert",
+      "default_particle_shader.frag"
+    };
     shader.attribs = {"position", "color", "transform"};
 
     auto &vertex_buffer = renderer.make_buffer("positions");
@@ -183,12 +188,13 @@ void ParticleSystem::init() noexcept {
     transforms.pointer = sizeof(vec4);
     transforms.divisor = 1;
     transforms.is_matrix = true;
+
   } else {
-  auto &shader = renderer.make_shader();
+
+    auto &shader = renderer.make_shader();
     shader.sources = {"billboard_particle_shader.vert",
                       "billboard_particle_shader.frag"};
     shader.attribs = {"radius", "color", "transform"};
-
 
     auto &radius = renderer.make_buffer("radius");
     radius.data_members = 1;
@@ -221,13 +227,28 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
   // Setup the particle vertices
   vector<vec2> positions(num_vertices_per_particle);
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
-                    sinf(i * kPI * 2.0f / num_vertices_per_particle)};
+    positions[i] =
+    {
+      cosf(i * kPI * 2.0f / num_vertices_per_particle),
+      sinf(i * kPI * 2.0f / num_vertices_per_particle)
+    };
   }
 
   if constexpr (!use_textured_particles)
     renderer.update_buffer("positions", &positions[0], num_vertices_per_particle * sizeof(positions[0]));
 }
+
+auto get_min_and_max_pos = [](const vector<Particle>& particles) {
+  float max_x{-1}, max_y{-1};
+  float min_x{20000}, min_y{20000};
+  for (auto &p: particles) {
+    max_x = (p.pos.x > max_x) ? p.pos.x : max_x;
+    max_y = (p.pos.y > max_y) ? p.pos.y : max_y;
+    min_x = (p.pos.x < min_x) ? p.pos.x : min_x;
+    min_y = (p.pos.y < min_y) ? p.pos.y : min_y;
+  }
+  return std::tuple<vec2, vec2>(vec2(min_x, min_y),vec2(max_x, max_y));
+};
 
 void ParticleSystem::update_collisions() noexcept {
   // reset the values
@@ -239,8 +260,13 @@ void ParticleSystem::update_collisions() noexcept {
   switch (tree_type) {
     using Tree = TreeType;
     case Tree::Quadtree: {
-      quadtree =
-          Quadtree<Particle>({0.0f, 0.0f}, {screen_width, screen_height});
+      if (use_quadtree_optimized_size) {
+        const auto [min, max] = get_min_and_max_pos(particles);
+        quadtree = Quadtree<Particle>(min*0.99f, max*1.01f);
+      }
+      else 
+        quadtree = Quadtree<Particle>({0.0f, 0.0f}, {screen_width, screen_height});
+      
       {
         profile p("Quadtree.input()");
         quadtree.input(particles);
@@ -283,8 +309,6 @@ void ParticleSystem::update_collisions() noexcept {
     }
   } else
     threadpool_solution = ThreadPoolSolution::None;
-
-  profile p("ParticleSystem::update(circle_collision");
 
   const size_t total = particle_count;
   const size_t container_total = tree_container.size();
@@ -366,14 +390,14 @@ void ParticleSystem::update_collisions() noexcept {
 
 void ParticleSystem::draw_debug_nodes() noexcept {
   if (particles.empty()) return;
-  profile p("ParticleSystem::draw_debug_nodes");
+  profile p("PS::draw_debug_nodes");
 
   if (draw_debug) {
     switch (tree_type) {
       using TT = TreeType;
       case TT::Quadtree: {
         if (color_particles) quadtree.color_objects(colors);
-        if (draw_nodes) quadtree.draw_bounds();
+        if (draw_nodes) quadtree.draw_bounds(quadtree_show_only_occupied);
       } break;
 
       case TT::UniformGrid: {
@@ -388,8 +412,7 @@ void ParticleSystem::draw_debug_nodes() noexcept {
 }
 
 void ParticleSystem::threaded_particle_update(size_t begin, size_t end) noexcept {
-  for (size_t i = begin; i < end; ++i)
-  {
+  for (size_t i = begin; i < end; ++i) {
     if (physics_gravity) particles[i].acc.y -= (gravity_force * particles[i].mass);
     particles[i].update(timestep);
   }
@@ -399,13 +422,13 @@ void ParticleSystem::update() noexcept {
   
   // Check for collisions and resolve if needed
   if (circle_collision) {
-    profile p("update_collisions()");
+    profile p("PS::update_collisions()");
     for (s32 i = 0; i < physics_samples; ++i) {
       update_collisions();
     }
   }
   {
-  profile p("particles.update()");
+  profile p("PS::particles.update()");
     // Update particles positions
     if (multithreaded_particle_update)
     {
@@ -440,12 +463,11 @@ void ParticleSystem::add(const glm::vec2 &pos, float radius,
   Particle p;
   p.pos = pos;
 
-  if (has_random_velocity) {
+  if (has_random_velocity)
     p.vel = rand_vec2(-random_velocity_force, random_velocity_force);
-  }
 
   p.radius = radius;
-  p.mass = particle_density * kPI * radius * radius;
+  p.mass = particle_density * kPI * radius * radius * radius;
   p.id = particle_count;
   particles.emplace_back(p);
 
