@@ -38,16 +38,32 @@ void ParticleSystem::draw() noexcept {
   if (particles.empty()) return;
   profile p("ParticleSystem::draw");
 
-  CommandBuffer cmd_buffer;
-  cmd_buffer.type = primitive::triangle_fan;
-  cmd_buffer.first = 0;
-  cmd_buffer.count = num_vertices_per_particle;
-  cmd_buffer.primitive_count = particle_count;
+  if constexpr (!use_textured_particles) {
+    CommandBuffer cmd_buffer;
+    cmd_buffer.type = primitive::triangle_fan;
+    cmd_buffer.count = num_vertices_per_particle;
+    cmd_buffer.primitive_count = particle_count;
 
-  renderer.bind();
-  renderer.draw(cmd_buffer);
+    renderer.bind();
+    renderer.draw(cmd_buffer);
+  } else {
+
+    // Billboard
+    CommandBuffer cmd_buffer;
+    cmd_buffer.type = primitive::triangles;
+    cmd_buffer.count = 6;
+    cmd_buffer.has_indices = true;
+    cmd_buffer.primitive_count = particle_count;
+
+    renderer.bind();
+
+    tex.bind(0);
+
+    renderer.draw(cmd_buffer);  
+  }
 }
 
+vector<float> radii;
 void ParticleSystem::update_gpu_buffers() noexcept {
   if (particles.empty()) return;
   profile p("ParticleSystem::update_gpu_buffers");
@@ -55,6 +71,9 @@ void ParticleSystem::update_gpu_buffers() noexcept {
   // Check if buffers need resizing
   if (particle_count > models.size()) {
     models.resize(particle_count);
+
+    if constexpr (use_textured_particles)
+      radii.resize(particle_count);
   }
 
   {
@@ -76,6 +95,9 @@ void ParticleSystem::update_gpu_buffers() noexcept {
       // Update the transform
       transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
       models[p.id] = proj * transforms[p.id].get_model();
+
+      if constexpr (use_textured_particles)
+        radii[p.id] = p.radius;
     }
   }
 
@@ -83,8 +105,9 @@ void ParticleSystem::update_gpu_buffers() noexcept {
     profile p("ParticleSystem::update_gpu_buffers(GPU buffer update)");
 
     // Update the gpu buffers incase of more particles..
-    renderer.update_buffer("transforms", &models[0],
-                           sizeof(mat4) * particle_count);
+    if constexpr (use_textured_particles)
+      renderer.update_buffer("radius", &radii[0], sizeof(float) * particle_count);
+    renderer.update_buffer("transforms", &models[0], sizeof(mat4) * particle_count);
     renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
   }
 }
@@ -127,35 +150,67 @@ void ParticleSystem::init() noexcept {
   // OpenCL
   opencl_init();
 
+  if constexpr (use_textured_particles)
+    tex = {"particle_texture.png", GL_LINEAR};
+
+
   // Setup the particle vertices
   vector<vec2> positions(num_vertices_per_particle);
   for (u32 i = 0; i < num_vertices_per_particle; ++i) {
     positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
                     sinf(i * kPI * 2.0f / num_vertices_per_particle)};
   }
+  if constexpr (!use_textured_particles) {
+    auto &shader = renderer.make_shader();
+    shader.sources = {"default_particle_shader.vert",
+                      "default_particle_shader.frag"};
+    shader.attribs = {"position", "color", "transform"};
 
+    auto &vertex_buffer = renderer.make_buffer("positions");
+    vertex_buffer.data = &positions[0];
+    vertex_buffer.data_size = num_vertices_per_particle * sizeof(positions[0]);
+    vertex_buffer.data_members = 2;
+    vertex_buffer.type = buffer_type::array;
+    vertex_buffer.usage = buffer_usage::static_draw;
+
+    auto &colors = renderer.make_buffer("colors");
+    colors.data_members = 4;
+    colors.divisor = 1;
+
+    auto &transforms = renderer.make_buffer("transforms");
+    transforms.data_members = 4;
+    transforms.stride = sizeof(mat4);
+    transforms.pointer = sizeof(vec4);
+    transforms.divisor = 1;
+    transforms.is_matrix = true;
+  } else {
   auto &shader = renderer.make_shader();
-  shader.sources = {"default_particle_shader.vert",
-                    "default_particle_shader.frag"};
-  shader.attribs = {"position", "color", "transform"};
+    shader.sources = {"billboard_particle_shader.vert",
+                      "billboard_particle_shader.frag"};
+    shader.attribs = {"radius", "color", "transform"};
 
-  auto &vertex_buffer = renderer.make_buffer("positions");
-  vertex_buffer.data = &positions[0];
-  vertex_buffer.data_size = num_vertices_per_particle * sizeof(positions[0]);
-  vertex_buffer.data_members = 2;
-  vertex_buffer.type = buffer_type::array;
-  vertex_buffer.usage = buffer_usage::static_draw;
 
-  auto &colors = renderer.make_buffer("colors");
-  colors.data_members = 4;
-  colors.divisor = 1;
+    auto &radius = renderer.make_buffer("radius");
+    radius.data_members = 1;
+    radius.divisor = 1;
 
-  auto &transforms = renderer.make_buffer("transforms");
-  transforms.data_members = 4;
-  transforms.stride = sizeof(mat4);
-  transforms.pointer = sizeof(vec4);
-  transforms.divisor = 1;
-  transforms.is_matrix = true;
+    auto &colors = renderer.make_buffer("colors");
+    colors.data_members = 4;
+    colors.divisor = 1;
+
+    auto &transforms = renderer.make_buffer("transforms");
+    transforms.data_members = 4;
+    transforms.stride = sizeof(mat4);
+    transforms.pointer = sizeof(vec4);
+    transforms.divisor = 1;
+    transforms.is_matrix = true;
+
+    constexpr u16 indices[6] = {0, 1, 2, 0, 2, 3};
+    auto &indices_buffer = renderer.make_buffer("indices");
+    indices_buffer.data = (void*)indices;
+    indices_buffer.data_size = sizeof(indices);
+    indices_buffer.type = buffer_type::element_array;
+  }
 
   renderer.finish();
 }
@@ -170,8 +225,8 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
                     sinf(i * kPI * 2.0f / num_vertices_per_particle)};
   }
 
-  renderer.update_buffer("positions", &positions[0],
-                         num_vertices_per_particle * sizeof(positions[0]));
+  if constexpr (!use_textured_particles)
+  renderer.update_buffer("positions", &positions[0], num_vertices_per_particle * sizeof(positions[0]));
 }
 
 void ParticleSystem::update_collisions() noexcept {

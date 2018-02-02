@@ -46,7 +46,8 @@ extern TreeType tree_type;
 
 
 // Engine
-static constexpr bool multithreaded_engine{false};
+static constexpr bool multithreaded_engine{false};  // Rendering and Update are run on separate threads.
+static constexpr bool use_textured_particles{true}; // Particles are rendered using textured billboards
 
 // Constants
 static constexpr f64 kPI = 3.14159265359;

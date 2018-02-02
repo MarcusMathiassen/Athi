@@ -30,6 +30,7 @@
 
 #include "./Renderer/athi_renderer.h"    // Renderer
 #include "athi_transform.h"  // Transform
+#include "./Renderer/athi_texture.h"  // texture
 
 #ifdef __APPLE__
 #include <OpenCL/OpenCL.h>
@@ -58,6 +59,7 @@ struct ParticleSystem {
   vector<mat4> models;
 
   Renderer renderer;
+  Texture tex;
 
   Dispatch pool;
 

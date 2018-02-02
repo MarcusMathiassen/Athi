@@ -33,12 +33,13 @@
 struct Texture {
   u32 id{0};
   f32 filtering{GL_LINEAR};
-  Texture(const char *file, f32 _filtering) : filtering(_filtering) {
+  static constexpr const char* default_path{"../Resources/Textures/"};
+  Texture(const std::string &file, f32 _filtering) : filtering(_filtering) {
+    std::string file_name = default_path + file;
     s32 width{0}, height{0}, num_comp{0};
-    u8 *image_data = stbi_load(file, &width, &height, &num_comp, 4);
+    u8 *image_data = stbi_load(file_name.c_str(), &width, &height, &num_comp, 4);
     if (NULL == image_data)
       console->info("Texture loading failed: {}", file);
-
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (s32)_filtering);

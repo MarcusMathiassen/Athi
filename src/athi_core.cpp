@@ -93,6 +93,8 @@ void Athi_Core::init() {
   window.scene.width = 800;
   window.scene.height = 500;
   window.init();
+  
+  stbi_set_flip_vertically_on_load(true);
 
   // Apple specific settings
 #if __APPLE__
