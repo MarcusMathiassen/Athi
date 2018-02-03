@@ -212,7 +212,7 @@ void Athi_Core::draw(GLFWwindow *window) {
     draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
   }
 
-  particle_system.draw();
+  if (draw_particles) particle_system.draw();
 
   draw_rects();
   draw_lines();

@@ -118,10 +118,6 @@ public:
 
   void draw_bounds(bool show_occupied_only) noexcept {
     if (sw) {
-      sw->bounds.color = sw_color;
-      se->bounds.color = se_color;
-      nw->bounds.color = nw_color;
-      ne->bounds.color = ne_color;
       sw->draw_bounds(show_occupied_only);
       se->draw_bounds(show_occupied_only);
       nw->draw_bounds(show_occupied_only);

@@ -255,17 +255,25 @@ void ParticleSystem::update_collisions() noexcept {
   comparisons = 0;
   resolutions = 0;
 
+  vec2 min, max;
+  if (tree_optimized_size) {
+    const auto[mi, ma] = get_min_and_max_pos(particles);
+    min = mi;
+    max = ma;
+  }
+
   // Use a tree to partition the data
   vector<vector<s32>> tree_container;
   switch (tree_type) {
     using Tree = TreeType;
     case Tree::Quadtree: {
-      if (use_quadtree_optimized_size) {
-        const auto [min, max] = get_min_and_max_pos(particles);
+      
+      if (tree_optimized_size) {
         quadtree = Quadtree<Particle>(min*0.99f, max*1.01f);
       }
-      else 
+      else {
         quadtree = Quadtree<Particle>({0.0f, 0.0f}, {screen_width, screen_height});
+      }
       
       {
         profile p("Quadtree.input()");
@@ -280,7 +288,10 @@ void ParticleSystem::update_collisions() noexcept {
     case Tree::UniformGrid: {
       {
         profile p("uniformgrid.reset()");
-        uniformgrid.reset();
+        if (tree_optimized_size)
+          uniformgrid.init(min*0.99f, max*1.01f);
+        else 
+          uniformgrid.reset();
       }
       {
         profile p("uniformgrid.input()");

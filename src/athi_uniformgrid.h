@@ -57,18 +57,18 @@ class UniformGrid {
   static s32 current_uniformgrid_part;
 
  public:
-  void init(f32 width, f32 height) {
+  void init(const vec2& min, const vec2& max) {
     nodes.clear();
 
     const f32 sqrtGrid = sqrt(uniformgrid_parts);
-    const f32 col = width / sqrtGrid;
-    const f32 row = height / sqrtGrid;
+    const f32 col = max.x / sqrtGrid;
+    const f32 row = max.y / sqrtGrid;
 
-    for (f32 y = 0.0f; y < height; y += row) {
-      for (f32 x = 0.0f; x < width; x += col) {
+    for (f32 y = min.y; y < max.y; y += row) {
+      for (f32 x = min.x; x < max.x; x += col) {
         Rect bounds(vec2(x, y), vec2(x + col, y + row));
-        bounds.color = get_universal_current_color();
-        ++universal_color_picker;
+        //bounds.color = get_universal_current_color();
+        //++universal_color_picker;
         nodes.emplace_back(std::make_unique<Node>(bounds));
       }
     }
@@ -76,8 +76,8 @@ class UniformGrid {
   };
 
   void input(const vector<T> &objects) {
-    if (uniformgrid_parts != current_uniformgrid_part)
-      init(screen_width, screen_height);
+    //if (uniformgrid_parts != current_uniformgrid_part)
+    //init(min, max);
     data = objects;
 
     for (const auto &obj : data) {

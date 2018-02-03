@@ -58,8 +58,9 @@ static void menu_debug() {
   ImGui::Begin("Debug Options", NULL, ImGuiWindowFlags_AlwaysAutoResize);
 
   ImGui::Checkbox("give random velocity", &has_random_velocity);
+  ImGui::Checkbox("draw_particles", &draw_particles);
   ImGui::Checkbox("Particles colored by acceleration", &is_particles_colored_by_acc);
-  ImGui::Checkbox("use_quadtree_optimized_size", &use_quadtree_optimized_size);
+  ImGui::Checkbox("tree_optimized_size", &tree_optimized_size);
   ImGui::Checkbox("mouse_grab", &mouse_grab);
   ImGui::Checkbox("show_mouse_collision_box", &show_mouse_collision_box);
   ImGui::Checkbox("show_mouse_grab_lines", &show_mouse_grab_lines);

@@ -40,6 +40,7 @@ f32 random_velocity_force = 5.0f;
 f32 color_by_velocity_threshold = 0.003f;
 
 bool wireframe_mode{false};
+bool draw_particles{true};
 
 bool post_processing{true};
 f32 mouse_size{10.0f};
@@ -74,14 +75,14 @@ std::atomic<u64> comparisons{0};
 std::atomic<u64> resolutions{0};
 
 bool draw_debug{false};
-bool color_particles{true};
+bool color_particles{false};
 bool draw_nodes{true};
 
-bool use_quadtree_optimized_size{true};
-bool quadtree_show_only_occupied{true};
+bool tree_optimized_size{true};
+bool quadtree_show_only_occupied{false};
 bool quadtree_active{true};
-s32 quadtree_depth{5};
-s32 quadtree_capacity{50};
+s32 quadtree_depth{10};
+s32 quadtree_capacity{100};
 
 bool use_uniformgrid{false};
 s32 uniformgrid_parts{16};
