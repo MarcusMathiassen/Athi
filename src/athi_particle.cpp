@@ -157,7 +157,7 @@ void ParticleSystem::init() noexcept {
 
   // Setup the particle vertices
   vector<vec2> positions(num_vertices_per_particle);
-  for (u32 i = 0; i < num_vertices_per_particle; ++i) {
+  for (s32 i = 0; i < num_vertices_per_particle; ++i) {
     positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
                     sinf(i * kPI * 2.0f / num_vertices_per_particle)};
   }
@@ -226,7 +226,7 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
 
   // Setup the particle vertices
   vector<vec2> positions(num_vertices_per_particle);
-  for (u32 i = 0; i < num_vertices_per_particle; ++i) {
+  for (s32 i = 0; i < num_vertices_per_particle; ++i) {
     positions[i] =
     {
       cosf(i * kPI * 2.0f / num_vertices_per_particle),
@@ -239,8 +239,10 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
 }
 
 auto get_min_and_max_pos = [](const vector<Particle>& particles) {
-  float max_x{-1}, max_y{-1};
-  float min_x{20000}, min_y{20000};
+  float max_x = -INT_MAX;
+  float max_y = -INT_MAX;
+  float min_x = INT_MAX;
+  float min_y = INT_MAX;
   for (auto &p: particles) {
     max_x = (p.pos.x > max_x) ? p.pos.x : max_x;
     max_y = (p.pos.y > max_y) ? p.pos.y : max_y;
@@ -267,14 +269,15 @@ void ParticleSystem::update_collisions() noexcept {
   switch (tree_type) {
     using Tree = TreeType;
     case Tree::Quadtree: {
-      
-      if (tree_optimized_size) {
-        quadtree = Quadtree<Particle>(min*0.99f, max*1.01f);
-      }
-      else {
+
+      Quadtree<Particle>::max_depth = quadtree_depth;
+      Quadtree<Particle>::max_capacity = quadtree_capacity;
+
+      if (tree_optimized_size)
+        quadtree = Quadtree<Particle>(min, max);
+      else
         quadtree = Quadtree<Particle>({0.0f, 0.0f}, {screen_width, screen_height});
-      }
-      
+    
       {
         profile p("Quadtree.input()");
         quadtree.input(particles);
@@ -289,7 +292,7 @@ void ParticleSystem::update_collisions() noexcept {
       {
         profile p("uniformgrid.reset()");
         if (tree_optimized_size)
-          uniformgrid.init(min*0.99f, max*1.01f);
+          uniformgrid.init(min, max);
         else 
           uniformgrid.reset();
       }
@@ -407,12 +410,12 @@ void ParticleSystem::draw_debug_nodes() noexcept {
     switch (tree_type) {
       using TT = TreeType;
       case TT::Quadtree: {
-        if (color_particles) quadtree.color_objects(colors);
+        //if (color_particles) quadtree.color_objects(colors);
         if (draw_nodes) quadtree.draw_bounds(quadtree_show_only_occupied);
       } break;
 
       case TT::UniformGrid: {
-        if (color_particles) uniformgrid.color_objects(colors);
+        //if (color_particles) uniformgrid.color_objects(colors);
         if (draw_nodes) uniformgrid.draw_bounds();
       } break;
 
@@ -734,6 +737,19 @@ vector<s32> get_particles_in_rect(const vector<Particle> &particles,
     if (o.x - r < max.x && o.x + r > min.x && o.y - r < max.y &&
         o.y + r > min.y) {
       vector_of_ids.emplace_back(particle.id);
+    }
+  }
+
+  return vector_of_ids;
+}
+
+// Returns a vector of ids of particles colliding with the input rectangle.
+vector<s32> get_particles_in_circle(const vector<s32> &ids, const Particle &p) noexcept {
+
+  vector<s32> vector_of_ids;
+  for (const auto &i : ids) {
+    if (particle_system.collision_check(particle_system.particles[i], p)) {
+      vector_of_ids.emplace_back(i);
     }
   }
 

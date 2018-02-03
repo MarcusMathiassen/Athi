@@ -21,9 +21,8 @@
 
 #pragma once
 
+#include "athi_rect.h"
 #include "athi_typedefs.h"
-
-#include "athi_rect.h" // Rect
 
 template <class T> class Quadtree {
 private:
@@ -36,11 +35,11 @@ private:
   std::unique_ptr<Quadtree<T>> ne;
 
   Rect bounds;
-  s32 level{0};
+  size_t level{0};
 
   constexpr void split() noexcept {
-    const auto min = bounds.min_pos;
-    const auto max = bounds.max_pos;
+    const auto min = bounds.min;
+    const auto max = bounds.max;
 
     const auto x = min.x;
     const auto y = min.y;
@@ -72,7 +71,7 @@ private:
 
     indices.emplace_back(id);
 
-    if (static_cast<s32>(indices.size()) > quadtree_capacity && level < quadtree_depth) {
+    if (indices.size() > max_capacity && level < max_depth) {
       split();
 
       for (const auto index : indices) {
@@ -90,17 +89,37 @@ private:
   }
 
 public:
-  constexpr Quadtree(s32 level, const Rect &bounds) noexcept : bounds(bounds), level(level) {}
+
+  static size_t max_depth;
+  static size_t max_capacity;
+
+  constexpr Quadtree(s32 level, const Rect &bounds) noexcept : bounds(bounds), level(level) {
+    indices.reserve(max_capacity);
+  }
   constexpr Quadtree(const vec2 &min, const vec2 &max) noexcept {
-    bounds.color = pastel_gray;
-    bounds.min_pos = min;
-    bounds.max_pos = max;
+    indices.reserve(max_capacity);
+    bounds.color = vec4(1,1,1,1);
+    bounds.min = min;
+    bounds.max = max;
   }
   constexpr void input(vector<T> &data_) noexcept {
     data = &data_[0];
-    indices.reserve(quadtree_capacity);
+    indices.reserve(max_capacity);
     for (const auto &obj : data_)
       insert(obj.id);
+  }
+
+  constexpr void get_neighbours(vector<vector<s32>> &cont, const T& p) const noexcept {
+    if (sw) {
+      if (sw->bounds.contains(p.pos, p.radius)) sw->get_neighbours(cont, p);
+      if (se->bounds.contains(p.pos, p.radius)) se->get_neighbours(cont, p);
+      if (nw->bounds.contains(p.pos, p.radius)) nw->get_neighbours(cont, p);
+      if (ne->bounds.contains(p.pos, p.radius)) ne->get_neighbours(cont, p);
+      return;
+    }
+
+     if (!indices.empty())
+      cont.emplace_back(indices);
   }
 
   constexpr void get(vector<vector<s32>> &cont) const noexcept {
@@ -126,27 +145,29 @@ public:
     }
 
     if (!indices.empty() && show_occupied_only)
-      draw_hollow_rect(bounds.min_pos, bounds.max_pos, bounds.color);
+      draw_hollow_rect(bounds.min, bounds.max, bounds.color);
     else if (!show_occupied_only)
-      draw_hollow_rect(bounds.min_pos, bounds.max_pos, bounds.color);
+      draw_hollow_rect(bounds.min, bounds.max, bounds.color);
   }
 
-  void color_objects(vector<vec4> &color) const noexcept {
-    if (sw) {
-      sw->bounds.color = sw_color;
-      se->bounds.color = se_color;
-      nw->bounds.color = nw_color;
-      ne->bounds.color = ne_color;
-      sw->color_objects(color);
-      se->color_objects(color);
-      nw->color_objects(color);
-      ne->color_objects(color);
-      return;
-    }
+  // void color_objects(vector<vec4> &color) const noexcept {
+  //   if (sw) {
+  //     sw->bounds.color = sw_color;
+  //     se->bounds.color = se_color;
+  //     nw->bounds.color = nw_color;
+  //     ne->bounds.color = ne_color;
+  //     sw->color_objects(color);
+  //     se->color_objects(color);
+  //     nw->color_objects(color);
+  //     ne->color_objects(color);
+  //     return;
+  //   }
 
-    for (const auto id : indices)
-      color[id] = bounds.color;
-  }
+  //   for (const auto id : indices)
+  //     color[id] = bounds.color;
+  // }
 };
 
 template <class T> T *Quadtree<T>::data;
+template <class T> size_t Quadtree<T>::max_depth;
+template <class T> size_t Quadtree<T>::max_capacity;

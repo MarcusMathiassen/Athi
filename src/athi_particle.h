@@ -120,4 +120,8 @@ vector<s32> get_particles_in_rect_basic(const vector<Particle> &particles,
 vector<s32> get_particles_in_rect(const vector<Particle> &particles,
                                   const vec2 &min, const vec2 &max) noexcept;
 
+// Returns a vector of ids of particles colliding with the input particle.
+vector<s32> get_particles_in_circle(const vector<s32> &ids, const Particle &p) noexcept;
+
+
 extern ParticleSystem particle_system;

@@ -130,7 +130,6 @@ void draw_rect(const vec2 &min, float width, float height, const vec4 &color,
 }
 
 void draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color) {
-
   render_call([min, max, color]{
     profile p("draw_hollow_rect");
 

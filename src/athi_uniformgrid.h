@@ -40,7 +40,7 @@ class UniformGrid {
     void insert(s32 id) { index.emplace_back(id); }
     void get(vector<vector<s32>> &cont) { cont.emplace_back(index); }
     void draw_bounds() const {
-      draw_hollow_rect(bounds.min_pos, bounds.max_pos, bounds.color);
+      draw_hollow_rect(bounds.min, bounds.max, bounds.color);
     }
     void color_objects(vector<vec4> &color) const {
       for (const auto i : index) {

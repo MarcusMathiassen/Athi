@@ -29,6 +29,7 @@
 #include "athi_input.h"                 // update_inputs
 #include "athi_line.h"                  // draw_lines
 #include "athi_rect.h"                  // draw_rects
+#include "./Renderer/athi_circle.h"     // draw_circle
 #include "athi_settings.h"              // console, ThreadPoolSolution
 #include "athi_typedefs.h"
 #include "athi_utility.h"               // profile, Smooth_Average
@@ -122,6 +123,7 @@ void Athi_Core::init() {
 
   particle_system.init();
 
+  init_circle_renderer();
   init_input_manager();
   init_rect_manager();
   init_line_manager();

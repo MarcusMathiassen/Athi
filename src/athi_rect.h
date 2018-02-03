@@ -27,14 +27,14 @@
 #include "athi_transform.h" // Transform
 
 struct Rect {
-  vec2 min_pos{0.0f, 0.0f}, max_pos{0.0f, 0.0f};
+  vec2 min{0.0f, 0.0f}, max{0.0f, 0.0f};
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
   Rect() = default;
-  Rect(const vec2 &min, const vec2 &max) noexcept
-      : min_pos(min), max_pos(max) {}
+  Rect(const vec2 &min_pos, const vec2 &max_pos) noexcept
+      : min(min_pos), max(max_pos) {}
   constexpr bool contains(const vec2 &pos, f32 radius) const noexcept {
-    if (pos.x - radius < max_pos.x && pos.x + radius > min_pos.x &&
-        pos.y - radius < max_pos.y && pos.y + radius > min_pos.y)
+    if (pos.x - radius < max.x && pos.x + radius > min.x &&
+        pos.y - radius < max.y && pos.y + radius > min.y)
       return true;
     return false;
   }

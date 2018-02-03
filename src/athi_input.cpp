@@ -25,6 +25,7 @@
 
 #include "athi_line.h"  // draw_line
 #include "athi_rect.h"     // draw_hollow_rect
+#include "./Renderer/athi_circle.h"     // draw_hollow_circle
 #include "athi_utility.h"  // profile
 
 Athi_Input_Manager athi_input_manager;
@@ -108,7 +109,8 @@ void drag_color_or_destroy_with_mouse() {
   // Setup a rect and draw to screen if needed
   const Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
   if (draw_debug && show_mouse_collision_box) {
-    draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
+    //draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
+    //draw_hollow_circle(mouse_pos, mouse_size, pastel_green);
   }
 
   // If the mouse left button is released, just exit the function.
@@ -126,8 +128,20 @@ void drag_color_or_destroy_with_mouse() {
   }
 
   // Get all particles in the mouse collision box
-  const auto selected_particle_ids = get_particles_in_rect(
-      particle_system.particles, mouse_rect.min, mouse_rect.max);
+  // const auto selected_particle_ids = get_particles_in_circle(particle_system.particles, mouse_rect.min, mouse_rect.max);
+  vector<vector<s32>> cont;
+  Particle p;
+  p.pos = mouse_pos;
+  p.radius = mouse_size;
+  particle_system.quadtree.get_neighbours(cont, p);
+
+  vector<s32> ids;
+  for (const auto& node: cont) {
+    ids.reserve(node.size());
+    for (const auto& id: node)
+      ids.emplace_back(id);
+  }
+  const auto selected_particle_ids = get_particles_in_circle(ids, p);
 
   switch (mouse_option) {
     case MouseOption::Color: {
@@ -192,7 +206,8 @@ void update_inputs() {
 
   // Draw Mouse
   const Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
-  draw_hollow_rect(mouse_rect.min, mouse_rect.max, circle_color);
+  //draw_hollow_rect(mouse_rect.min, mouse_rect.max, circle_color);
+  draw_hollow_circle(mouse_pos, mouse_size, circle_color);
 
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
     particle_system.add(mouse_pos, 1.0f, circle_color);

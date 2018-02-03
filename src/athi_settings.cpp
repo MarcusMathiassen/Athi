@@ -33,7 +33,7 @@ f64 frame_budget{1.0 / 60.0};
 s32 mouse_radio_options = static_cast<s32>(MouseOption::Drag);
 s32 tree_radio_option = 0;
 
-u32 num_vertices_per_particle = 36;
+s32 num_vertices_per_particle = 36;
 bool is_particles_colored_by_acc = true;
 bool has_random_velocity = true;
 f32 random_velocity_force = 5.0f;
@@ -85,7 +85,7 @@ s32 quadtree_depth{10};
 s32 quadtree_capacity{100};
 
 bool use_uniformgrid{false};
-s32 uniformgrid_parts{16};
+s32 uniformgrid_parts{256};
 
 u16 monitor_refreshrate{60};
 
