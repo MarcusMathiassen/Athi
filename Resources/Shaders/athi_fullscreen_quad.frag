@@ -5,12 +5,13 @@ out vec4 frag_color;
 uniform vec2 dir;
 uniform vec2 res;
 
+uniform sampler2D tex;
+
 in Vertex {
   vec2 texcoord;
 }
 frag;
 
-uniform sampler2D tex;
 
 vec4 blur13(sampler2D image, vec2 uv, vec2 resolution, vec2 direction) {
   vec4 color = vec4(0.0);

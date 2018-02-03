@@ -40,6 +40,7 @@ extern MouseOption mouse_option;
 extern s32 mouse_radio_options;
 extern s32 tree_radio_option;
 
+extern bool use_fxaa;
 extern bool wireframe_mode;
 extern bool draw_particles;
 

@@ -32,6 +32,11 @@ void render_call(const std::function<void()> &f) {
   command_buffer.emplace_back(std::move(f));
 }
 
+void render_clear() {
+  // Clear the buffer for next frame
+  command_buffer.clear();
+}
+
 void render() {
   if (command_buffer.empty())
     return;
@@ -43,7 +48,7 @@ void render() {
     c();
 
   // Clear the buffer for next frame
-  command_buffer.clear();
+  //command_buffer.clear();
 }
 
 Renderer::Renderer(const string& pname) : name(pname) {}

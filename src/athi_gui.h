@@ -27,6 +27,7 @@
 #include "athi_settings.h" // has_random_velocity, etc.
 
 #include "../dep/Universal/imgui.h"
+#include "../dep/Universal/imgui_internal.h"
 #include "../dep/Universal/imgui_impl_glfw_gl3.h"
 
 static bool open_settings = false;
@@ -54,29 +55,56 @@ static std::multimap<B, A> flip_map(const M<A, B, Args...> &src) {
   return dst;
 }
 
-static void menu_debug() {
-  ImGui::Begin("Debug Options", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+static void ToggleButton(const char* str_id, bool* v)
+{
+  ImVec2 p = ImGui::GetCursorScreenPos();
+  ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-  ImGui::Checkbox("give random velocity", &has_random_velocity);
-  ImGui::Checkbox("draw_particles", &draw_particles);
-  ImGui::Checkbox("Particles colored by acceleration", &is_particles_colored_by_acc);
-  ImGui::Checkbox("tree_optimized_size", &tree_optimized_size);
-  ImGui::Checkbox("mouse_grab", &mouse_grab);
-  ImGui::Checkbox("show_mouse_collision_box", &show_mouse_collision_box);
-  ImGui::Checkbox("show_mouse_grab_lines", &show_mouse_grab_lines);
-  ImGui::Checkbox("draw_debug", &draw_debug);
-  ImGui::Checkbox("color_particles", &color_particles);
-  ImGui::Checkbox("draw_nodes", &draw_nodes);
-  ImGui::Checkbox("quadtree_show_only_occupied", &quadtree_show_only_occupied);
-  ImGui::Checkbox("quadtree_active", &quadtree_active);
-  ImGui::Checkbox("use_uniformgrid", &use_uniformgrid);
-  ImGui::Checkbox("vsync", &vsync);
-  ImGui::Checkbox("use_gravitational_force", &use_gravitational_force);
-  ImGui::Checkbox("physics_gravity", &physics_gravity);
-  ImGui::Checkbox("use_multithreading", &use_multithreading);
-  ImGui::Checkbox("use_libdispatch", &use_libdispatch);
-  ImGui::Checkbox("openCL_active", &openCL_active);
-  ImGui::Checkbox("post_processing", &post_processing);
+  float height = ImGui::GetFrameHeight() * 0.7f;
+  float width = height * 1.55f;
+  float radius = height * 0.50f;
+
+  if (ImGui::InvisibleButton(str_id, ImVec2(width, height)))
+      *v = !*v;
+  ImU32 col_bg;
+  if (ImGui::IsItemHovered())
+      col_bg = *v ? IM_COL32(145+20, 211, 68+20, 255) : IM_COL32(218-20, 218-20, 218-20, 255);
+  else
+      col_bg = *v ? IM_COL32(145, 211, 68, 255) : IM_COL32(218, 218, 218, 255);
+
+  draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height), col_bg, height * 0.5f);
+  draw_list->AddCircleFilled(ImVec2(*v ? (p.x + width - radius) : (p.x + radius), p.y + radius), radius - 1.5f, IM_COL32(255, 255, 255, 255));
+  ImGui::SameLine();  
+  ImGui::Text("%s",str_id);
+}
+
+static void menu_debug() {
+  //ImGui::Begin("Debug Options", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+  ImGui::SetNextWindowSizeConstraints(ImVec2(-1, 0),    ImVec2(-1, FLT_MAX));
+  ImGui::Begin("Debug Options");
+
+  ToggleButton("use_fxaa", &use_fxaa);
+  ToggleButton("wireframe_mode", &wireframe_mode);
+  ToggleButton("has_random_velocity", &has_random_velocity);
+  ToggleButton("draw_particles", &draw_particles);
+  ToggleButton("is_particles_colored_by_acc", &is_particles_colored_by_acc);
+  ToggleButton("tree_optimized_size", &tree_optimized_size);
+  ToggleButton("mouse_grab", &mouse_grab);
+  ToggleButton("show_mouse_collision_box", &show_mouse_collision_box);
+  ToggleButton("show_mouse_grab_lines", &show_mouse_grab_lines);
+  ToggleButton("draw_debug", &draw_debug);
+  ToggleButton("color_particles", &color_particles);
+  ToggleButton("draw_nodes", &draw_nodes);
+  ToggleButton("quadtree_show_only_occupied", &quadtree_show_only_occupied);
+  ToggleButton("quadtree_active", &quadtree_active);
+  ToggleButton("use_uniformgrid", &use_uniformgrid);
+  ToggleButton("vsync", &vsync);
+  ToggleButton("use_gravitational_force", &use_gravitational_force);
+  ToggleButton("physics_gravity", &physics_gravity);
+  ToggleButton("use_multithreading", &use_multithreading);
+  ToggleButton("use_libdispatch", &use_libdispatch);
+  ToggleButton("openCL_active", &openCL_active);
+  ToggleButton("post_processing", &post_processing);
 
   ImGui::End();
 }
@@ -411,7 +439,7 @@ static void new_style() {
   style->Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
   style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
   style->Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
-  style->Colors[ImGuiCol_ComboBg] = ImVec4(0.19f, 0.18f, 0.21f, 1.00f);
+  //style->Colors[ImGuiCol_ComboBg] = ImVec4(0.19f, 0.18f, 0.21f, 1.00f);
   style->Colors[ImGuiCol_CheckMark] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
   style->Colors[ImGuiCol_SliderGrab] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
   style->Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
@@ -466,7 +494,7 @@ static void SetupImGuiStyle(bool bStyleDark_, float alpha_) {
   style.Colors[ImGuiCol_ScrollbarGrab] = imgui_pastel_red;
   style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.59f, 0.59f, 0.59f, 1.00f);
   style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
-  style.Colors[ImGuiCol_ComboBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
+  //style.Colors[ImGuiCol_ComboBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
   style.Colors[ImGuiCol_CheckMark] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
   style.Colors[ImGuiCol_SliderGrab] = imgui_pastel_red;
   style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);

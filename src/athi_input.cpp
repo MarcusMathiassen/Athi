@@ -108,10 +108,6 @@ void drag_color_or_destroy_with_mouse() {
 
   // Setup a rect and draw to screen if needed
   const Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
-  if (draw_debug && show_mouse_collision_box) {
-    //draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
-    //draw_hollow_circle(mouse_pos, mouse_size, pastel_green);
-  }
 
   // If the mouse left button is released, just exit the function.
   if (state == GLFW_RELEASE) {
@@ -208,6 +204,9 @@ void update_inputs() {
   const Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
   //draw_hollow_rect(mouse_rect.min, mouse_rect.max, circle_color);
   draw_hollow_circle(mouse_pos, mouse_size, circle_color);
+  if (draw_debug && show_mouse_collision_box) {
+    draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
+  }
 
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
     particle_system.add(mouse_pos, 1.0f, circle_color);

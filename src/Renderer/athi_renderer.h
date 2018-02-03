@@ -35,7 +35,7 @@
 extern vector<std::function<void()>> command_buffer;
 
 void render();
-
+void render_clear();
 void render_call(const std::function<void()>& f);
 
 struct Renderer

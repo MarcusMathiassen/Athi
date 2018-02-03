@@ -51,6 +51,7 @@ static Smooth_Average<f64, 30> smooth_render_rametime_avg(
 static Renderer renderer;
 
 static void setup_fullscreen_quad() {
+
   auto &shader = renderer.make_shader();
   shader.sources = {"athi_fullscreen_quad.vert", "athi_fullscreen_quad.frag"};
   shader.uniforms = {"transform", "res", "tex", "dir"};
@@ -191,7 +192,6 @@ void Athi_Core::draw(GLFWwindow *window) {
     profile p("post processing");
 
     framebuffers[0].clear();
-    draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
 
     // First draw the particles to the framebuffer.
     framebuffers[0].bind();
@@ -199,10 +199,9 @@ void Athi_Core::draw(GLFWwindow *window) {
     check_gl_error();
     particle_system.draw();
 
-    // .. Then blur the current framebuffer
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
-    check_gl_error();
+    draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
 
+    // .. Then blur the current framebuffer
     for (s32 i = 0; i < post_processing_samples; i++) {
       draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 1 * blur_strength));
       draw_fullscreen_quad(framebuffers[0].texture, vec2(1 * blur_strength, 0));
@@ -218,7 +217,8 @@ void Athi_Core::draw(GLFWwindow *window) {
 
   draw_rects();
   draw_lines();
-  render();
+  
+  render(); render_clear();
 
   //@Bug: rects and lines are being drawn over the Gui.
   if (show_settings) {

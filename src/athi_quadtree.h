@@ -109,6 +109,18 @@ public:
       insert(obj.id);
   }
 
+  constexpr void color_neighbours(const T& p, const vec4& color) {
+    if (sw) {
+      if (sw->bounds.contains(p.pos, p.radius)) sw->color_neighbours(p, color);
+      if (se->bounds.contains(p.pos, p.radius)) se->color_neighbours(p, color);
+      if (nw->bounds.contains(p.pos, p.radius)) nw->color_neighbours(p, color);
+      if (ne->bounds.contains(p.pos, p.radius)) ne->color_neighbours(p, color);
+      return;
+    }
+
+    bounds.color = color;
+  }
+
   constexpr void get_neighbours(vector<vector<s32>> &cont, const T& p) const noexcept {
     if (sw) {
       if (sw->bounds.contains(p.pos, p.radius)) sw->get_neighbours(cont, p);

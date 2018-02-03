@@ -34,11 +34,12 @@ s32 mouse_radio_options = static_cast<s32>(MouseOption::Drag);
 s32 tree_radio_option = 0;
 
 s32 num_vertices_per_particle = 36;
-bool is_particles_colored_by_acc = true;
+bool is_particles_colored_by_acc = false;
 bool has_random_velocity = true;
 f32 random_velocity_force = 5.0f;
 f32 color_by_velocity_threshold = 0.003f;
 
+bool use_fxaa{true};
 bool wireframe_mode{false};
 bool draw_particles{true};
 
@@ -64,7 +65,7 @@ bool circle_collision{true};
 bool border_collision{true};
 
 bool multithreaded_particle_update{true};
-s32 physics_samples{2};
+s32 physics_samples{8};
 s32 post_processing_samples{2};
 s32 blur_strength{2};
 
