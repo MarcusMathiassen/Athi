@@ -35,6 +35,40 @@
 
 ParticleSystem particle_system;
 
+void Particle::update(f32 dt) noexcept {
+  // Update pos/vel/acc
+  vel.x += acc.x * dt * time_scale * air_resistance;
+  vel.y += acc.y * dt * time_scale * air_resistance;
+  pos.x += vel.x * dt * time_scale;
+  pos.y += vel.y * dt * time_scale;
+  acc *= 0;
+
+  #ifdef PARTICLE_HAS_TRANSFORM
+  transform.pos.x = pos.x;
+  transform.pos.y = pos.y;
+  #endif
+
+  if (border_collision) {
+    // Border collision
+    if (pos.x < 0 + radius) {
+      pos.x = 0 + radius;
+      vel.x = -vel.x * collision_energy_loss;
+    }
+    if (pos.x > screen_width - radius) {
+      pos.x = screen_width - radius;
+      vel.x = -vel.x * collision_energy_loss;
+    }
+    if (pos.y < 0 + radius) {
+      pos.y = 0 + radius;
+      vel.y = -vel.y * collision_energy_loss;
+    }
+    if (pos.y > screen_height - radius) {
+      pos.y = screen_height - radius;
+      vel.y = -vel.y * collision_energy_loss;
+    }
+  }
+}
+
 void ParticleSystem::draw() noexcept {
   if (particles.empty()) return;
   profile p("PS::draw");
@@ -65,6 +99,29 @@ void ParticleSystem::draw() noexcept {
 }
 
 static vector<float> radii;
+
+void ParticleSystem::threaded_buffer_update(size_t begin, size_t end) noexcept
+{
+  const auto proj = camera.get_ortho_projection();
+  for (size_t i = begin; i < end; ++i)
+  {
+    auto &p = particles[i];
+    if (is_particles_colored_by_acc) {
+      const auto old = p.pos - p.vel;
+      const auto pos_diff = p.pos - old;
+      colors[p.id] = color_by_acceleration(acceleration_color_min,
+                                           acceleration_color_max, pos_diff);
+    }
+
+    // Update the transform
+    transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
+    models[p.id] = proj * transforms[p.id].get_model();
+
+    if constexpr (use_textured_particles)
+      radii[p.id] = p.radius;
+  }
+}
+
 void ParticleSystem::update_gpu_buffers() noexcept {
   if (particles.empty()) return;
   profile p("PS::update_gpu_buffers");
@@ -82,24 +139,74 @@ void ParticleSystem::update_gpu_buffers() noexcept {
     profile p(
         "PS::update_gpu_buffers(update buffers with new data)");
 
-    const auto proj = camera.get_ortho_projection();
+    //const auto proj = camera.get_ortho_projection();
 
     // Update the buffers with the new data.
-    for (const auto &p : particles) {
-      if (is_particles_colored_by_acc) {
-        const auto old = p.pos - p.vel;
-        const auto pos_diff = p.pos - old;
-        colors[p.id] = color_by_acceleration(acceleration_color_min,
-                                             acceleration_color_max, pos_diff);
+
+    if (multithreaded_particle_update)
+    {
+      switch (threadpool_solution) {
+        using Threads = ThreadPoolSolution;
+        case Threads::AppleGCD: {
+          dispatch_apply(variable_thread_count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(size_t i) {
+                const auto[begin, end] = get_begin_and_end( i, particle_count, variable_thread_count);
+                threaded_buffer_update(begin, end);
+              });
+        } break;
+        case Threads::Dispatch: {
+              vector<std::future<void>> results(variable_thread_count);
+              for (int i = 0; i < variable_thread_count; ++i) {
+                const auto[begin, end] = get_begin_and_end(i, particle_count, variable_thread_count);
+                results[i] = pool.enqueue(&ParticleSystem::threaded_buffer_update, this, begin, end);
+              }
+              for (auto &&res : results) res.get();
+        } break;
+        case Threads::None: { 
+          threaded_buffer_update(0, particle_count);
+        } break;
       }
-
-      // Update the transform
-      transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
-      models[p.id] = proj * transforms[p.id].get_model();
-
-      if constexpr (use_textured_particles)
-        radii[p.id] = p.radius;
+    } else {
+      threaded_buffer_update(0, particle_count);
     }
+
+    // #ifdef PARTICLE_HAS_TRANSFORM
+    // for (s32 i = 0; i < particle_count; ++i) {
+    //   if (is_particles_colored_by_acc) {
+    //     profile p("color_by_acceleration");
+    //     const auto old = particles[i].pos - particles[i].vel;
+    //     const auto pos_diff = particles[i].pos - old;
+    //     colors[i] = color_by_acceleration(acceleration_color_min,
+    //                                          acceleration_color_max, pos_diff);
+    //   }
+    //   { 
+    //     profile p("proj*particles[i].transform.get_model()");
+    //     models[i] = proj*particles[i].transform.get_model();
+    //   }
+    //   if constexpr (use_textured_particles)
+    //     radii[i] = particles[i].radius;
+    // } 
+    // #else
+    // for (const auto &p : particles) {
+    //   profile x("buffers with new data");
+    //   if (is_particles_colored_by_acc) {
+    //     const auto old = p.pos - p.vel;
+    //     const auto pos_diff = p.pos - old;
+    //     colors[p.id] = color_by_acceleration(acceleration_color_min,
+    //                                          acceleration_color_max, pos_diff);
+    //   }
+
+    //   { 
+    //     profile x("Update the transform");
+    //   // Update the transform
+    //   transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
+    //   models[p.id] = proj * transforms[p.id].get_model();
+    //   }
+
+    //   if constexpr (use_textured_particles)
+    //     radii[p.id] = p.radius;
+    // }
+
+    // #endif
   }
 
   {
@@ -113,35 +220,6 @@ void ParticleSystem::update_gpu_buffers() noexcept {
   }
 }
 
-void Particle::update(f32 dt) noexcept {
-  // Update pos/vel/acc
-  vel.x += acc.x * dt * time_scale * air_resistance;
-  vel.y += acc.y * dt * time_scale * air_resistance;
-  pos.x += vel.x * dt * time_scale;
-  pos.y += vel.y * dt * time_scale;
-  acc *= 0;
-
-  if (border_collision) {
-    // Border collision
-    if (pos.x < 0 + radius) {
-      pos.x = 0 + radius;
-      vel.x = -vel.x * collision_energy_loss;
-    }
-    if (pos.x > screen_width - radius) {
-      pos.x = screen_width - radius;
-      vel.x = -vel.x * collision_energy_loss;
-    }
-    if (pos.y < 0 + radius) {
-      pos.y = 0 + radius;
-      vel.y = -vel.y * collision_energy_loss;
-    }
-    if (pos.y > screen_height - radius) {
-      pos.y = screen_height - radius;
-      vel.y = -vel.y * collision_energy_loss;
-    }
-  }
-}
-
 void ParticleSystem::init() noexcept {
   // Print some debug info about particle sizes
   console->info("Particle object size: {} bytes", sizeof(Particle));
@@ -150,10 +228,6 @@ void ParticleSystem::init() noexcept {
 
   // OpenCL
   opencl_init();
-
-  if constexpr (use_textured_particles)
-    tex = {"particle_texture.png", GL_LINEAR};
-
 
   // Setup the particle vertices
   vector<vec2> positions(num_vertices_per_particle);
@@ -189,7 +263,11 @@ void ParticleSystem::init() noexcept {
     transforms.divisor = 1;
     transforms.is_matrix = true;
 
+    renderer.finish();
+
   } else {
+
+    tex = {"particle_texture.png", GL_LINEAR};
 
     auto &shader = renderer.make_shader();
     shader.sources = {"billboard_particle_shader.vert",
@@ -216,9 +294,9 @@ void ParticleSystem::init() noexcept {
     indices_buffer.data = (void*)indices;
     indices_buffer.data_size = sizeof(indices);
     indices_buffer.type = buffer_type::element_array;
-  }
 
-  renderer.finish();
+    renderer.finish();
+  }
 }
 
 void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
@@ -483,6 +561,11 @@ void ParticleSystem::add(const glm::vec2 &pos, float radius,
   p.radius = radius;
   p.mass = particle_density * kPI * radius * radius * radius;
   p.id = particle_count;
+
+  #ifdef PARTICLE_HAS_TRANSFORM
+  p.transform.pos = {pos.x, pos.y, 0};
+  p.transform.scale = {radius, radius, 0};
+  #endif
   particles.emplace_back(p);
 
   ++particle_count;

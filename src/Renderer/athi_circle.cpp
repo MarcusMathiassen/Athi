@@ -28,7 +28,7 @@
 
 static Renderer circle_renderer;
 
-static constexpr s32 circle_vertices = 360;  
+static constexpr s32 circle_vertices = 36;
 
 void init_circle_renderer() {
 
@@ -52,6 +52,13 @@ void init_circle_renderer() {
   vertex_buffer.usage = buffer_usage::static_draw;
 
   circle_renderer.finish();
+}
+    
+void draw_circle(const vec2 &pos, float radius, const vec4 &color, primitive prim_type = primitive::triangle_fan)
+{
+    CommandBuffer cmd;
+    cmd.type = prim_type;
+    cmd.count = circle_vertices;
 }
 
 void draw_filled_circle(const vec2 &pos, float radius, const vec4 &color) noexcept {
@@ -77,25 +84,25 @@ void draw_filled_circle(const vec2 &pos, float radius, const vec4 &color) noexce
   });
 }
 
-void draw_hollow_circle(const vec2 &pos, float radius, const vec4 &color) noexcept {
-  render_call([pos, radius, color]{
+void draw_hollow_circle(const vec2 &pos, float radius, const vec4 &color) noexcept
+{
+    render_call([pos, radius, color]
+    {
+        profile p("draw_hollow_circle");
+        CommandBuffer cmd;
+        cmd.type = primitive::line_loop;
+        cmd.count = circle_vertices;
+        circle_renderer.bind();
 
-    profile p("draw_hollow_circle");
-    CommandBuffer cmd;
-    cmd.type = primitive::line_loop;
-    cmd.count = circle_vertices;
-    circle_renderer.bind();
+        const auto proj = camera.get_ortho_projection();
 
-    const auto proj = camera.get_ortho_projection();
+        Transform temp;
+        temp.pos = {pos.x, pos.y, 0.0f};
+        temp.scale = {radius, radius, 0.0f};
+        mat4 model = proj * temp.get_model();
 
-    Transform temp;
-    temp.pos = {pos.x, pos.y, 0.0f};
-    temp.scale = {radius, radius, 0.0f};
-    mat4 model = proj * temp.get_model();
-
-    circle_renderer.shader.set_uniform("color", color);
-    circle_renderer.shader.set_uniform("transform", model);
-    circle_renderer.draw(cmd);
-
-  });
+        circle_renderer.shader.set_uniform("color", color);
+        circle_renderer.shader.set_uniform("transform", model);
+        circle_renderer.draw(cmd);
+    });
 }

@@ -69,11 +69,11 @@ extern Athi_Input_Manager athi_input_manager;
 
 static void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset) {
   // If color wheel
-  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-    hue += yoffset;
+  //if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+    hue += xoffset;
     circle_color = hsv_to_rgb(hue, 1.0, 1.0, 1.0);
-    return;
-  }
+    //return;
+  //}
 
   mouse_size -= yoffset * 0.5f;
   if (mouse_size < 0.000f) mouse_size = 0.5f;
@@ -111,7 +111,7 @@ static void mouse_button_callback(GLFWwindow *window, s32 button, s32 action,
   glm::vec2 mouse_pos = athi_input_manager.mouse.pos;
 
   if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, mouse_size, circle_color);
   }
 }
 

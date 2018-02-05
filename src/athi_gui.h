@@ -83,7 +83,6 @@ static void menu_debug() {
   ImGui::SetNextWindowSizeConstraints(ImVec2(-1, 0),    ImVec2(-1, FLT_MAX));
   ImGui::Begin("Debug Options");
 
-  ToggleButton("use_fxaa", &use_fxaa);
   ToggleButton("wireframe_mode", &wireframe_mode);
   ToggleButton("has_random_velocity", &has_random_velocity);
   ToggleButton("draw_particles", &draw_particles);
@@ -114,7 +113,7 @@ static void menu_profiler() {
 
   ImGui::Begin("Profiler");
 
-  ImGui::Text("Frametime: %.3f", frametime);
+  ImGui::Text("Frametime: %.3f", smoothed_render_frametime);
 
   ImGui::Columns(3, "mycolumns");
   ImGui::Separator();

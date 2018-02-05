@@ -86,7 +86,7 @@ vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept {
   // gray
   if (s == 0.0f) return vec4(v, v, v, a);
 
-  h = (h >= 360) ? 0 : h;
+  h = (h < 0) ? 360 : (h > 360) ? 0 : h;
   const f32 hue = h * 1.0f / 60.0f;
 
   const s32 i = hue;

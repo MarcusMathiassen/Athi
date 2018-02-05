@@ -23,12 +23,14 @@
 
 #include "../athi_typedefs.h"
 
+
+//@DoNotTouch
 enum class OS { Apple, Windows, Linux };
 #ifdef __APPLE__
   static constexpr OS os{OS::Apple};
 #elif _WIN32
   static constexpr OS os{OS::Windows};
-#else
+#else 
   static constexpr OS os{OS::Linux};
 #endif
 
@@ -44,6 +46,7 @@ extern TreeType tree_type;
   static constexpr bool ONLY_RUNS_IN_DEBUG_MODE{false};
 #endif
 
+//#define PARTICLE_HAS_TRANSFORM
 
 // Engine
 static constexpr bool multithreaded_engine{false};  // Rendering and Update are run on separate threads.
