@@ -147,37 +147,20 @@ public:
       cont.emplace_back(indices);
   }
 
-  void draw_bounds(bool show_occupied_only) noexcept {
+  void draw_bounds(bool show_occupied_only, vec4 color) noexcept {
     if (sw) {
-      sw->draw_bounds(show_occupied_only);
-      se->draw_bounds(show_occupied_only);
-      nw->draw_bounds(show_occupied_only);
-      ne->draw_bounds(show_occupied_only);
+      sw->draw_bounds(show_occupied_only, color);
+      se->draw_bounds(show_occupied_only, color);
+      nw->draw_bounds(show_occupied_only, color);
+      ne->draw_bounds(show_occupied_only, color);
       return;
     }
 
     if (!indices.empty() && show_occupied_only)
-      draw_hollow_rect(bounds.min, bounds.max, bounds.color);
+      draw_hollow_rect(bounds.min, bounds.max, color);
     else if (!show_occupied_only)
-      draw_hollow_rect(bounds.min, bounds.max, bounds.color);
+      draw_hollow_rect(bounds.min, bounds.max, color);
   }
-
-  // void color_objects(vector<vec4> &color) const noexcept {
-  //   if (sw) {
-  //     sw->bounds.color = sw_color;
-  //     se->bounds.color = se_color;
-  //     nw->bounds.color = nw_color;
-  //     ne->bounds.color = ne_color;
-  //     sw->color_objects(color);
-  //     se->color_objects(color);
-  //     nw->color_objects(color);
-  //     ne->color_objects(color);
-  //     return;
-  //   }
-
-  //   for (const auto id : indices)
-  //     color[id] = bounds.color;
-  // }
 };
 
 template <class T> T *Quadtree<T>::data;

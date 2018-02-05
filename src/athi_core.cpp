@@ -237,6 +237,9 @@ void Athi_Core::draw(GLFWwindow *window) {
 }
 
 void Athi_Core::update() {
+  
+  physics_profile p("update");
+
   const f64 time_start_frame = glfwGetTime();
 
   if (!particle_system.particles.empty()) {

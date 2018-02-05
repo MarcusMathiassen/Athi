@@ -133,8 +133,13 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
 
   //
 
+  const auto key_pressed = [key, action](s32 key_code)
+  {
+    return key == key_code && action == GLFW_PRESS;
+  };
+
   // TOGGLE PAUSE
-  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_SPACE)) {
     if (time_scale == 0)
       time_scale = 1;
     else
@@ -144,68 +149,68 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
   }
 
   // TOGGLE SETTINGS UI
-  if (key == GLFW_KEY_I && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_I)) {
     show_settings ^= 1;
     console->info("Show menu: {}", show_settings ? "ON" : "OFF");
   }
 
   // TOGGLE VSYNC
-  if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_L)) {
     vsync ^= 1;
     console->info("Vsync: {}", vsync ? "ON" : "OFF");
   }
 
   // TOGGLE DEBUG UI
-  if (key == GLFW_KEY_D && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_D)) {
     draw_debug ^= 1;
     console->info("Drag debug info: {}", draw_debug ? "ON" : "OFF");
   }
 
   // TOGGLE CIRCLE GRAVITY
-  if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_G)) {
     physics_gravity ^= 1;
     console->info("Particle gravity: {}", physics_gravity ? "ON" : "OFF");
   }
 
   // TOGGLE CIRCLE COLLISIONS
-  if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_C)) {
     circle_collision ^= 1;
     console->info("Particle intercollisions: {}",
                   circle_collision ? "ON" : "OFF");
   }
 
   // TOGGLE GRAVITATIONAL_FORCES
-  if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_T)) {
     use_gravitational_force ^= 1;
   }
 
   // TOGGLE MULTITHREADING
-  if (key == GLFW_KEY_M && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_M)) {
     use_multithreading ^= 1;
     console->info("Multithreading: {}", use_multithreading ? "ON" : "OFF");
   }
 
   // TOGGLE OPENCL
-  if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_A)) {
     openCL_active ^= 1;
     console->info("OpenCL: {}", openCL_active ? "ON" : "OFF");
   }
 
   // TOGGLE MOUSE GRAB LINES
-  if (key == GLFW_KEY_Y && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_Y)) {
     show_mouse_grab_lines ^= 1;
     console->info("Show mousegrab lines: {}",
                   show_mouse_grab_lines ? "ON" : "OFF");
   }
 
   // TOGGLE POST PROCESSING
-  if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_P)) {
     post_processing ^= 1;
     console->info("Post processing: {}", post_processing ? "ON" : "OFF");
   }
 
   // TOGGLE QUADTREE ACTIVE
-  if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_Q)) {
     if (quadtree_active) {
       quadtree_active = false;
       tree_type = TreeType::None;
@@ -218,7 +223,7 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
   }
 
   // TOGGLE WIREFRAME
-  if (key == GLFW_KEY_GRAVE_ACCENT && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_GRAVE_ACCENT)) {
     if (wireframe_mode) {
       wireframe_mode = false;
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -230,7 +235,7 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
   }
 
   // TOGGLE UniformGrid ACTIVE
-  if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_W)) {
     if (use_uniformgrid) {
       use_uniformgrid = false;
       tree_type = TreeType::None;
@@ -242,34 +247,34 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
     console->info("UniformGrid: {}", use_uniformgrid ? "ON" : "OFF");
   }
 
-  if (key == GLFW_KEY_6 && action == GLFW_PRESS && uniformgrid_parts > 4) {
+  if (key_pressed(GLFW_KEY_6) && uniformgrid_parts > 4) {
     uniformgrid_parts *= 0.25f;
   }
 
-  if (key == GLFW_KEY_7 && action == GLFW_PRESS && uniformgrid_parts < 512) {
+  if (key_pressed(GLFW_KEY_7) && uniformgrid_parts < 512) {
     uniformgrid_parts *= 4;
   }
 
   // Benchmark 1
-  if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_B)) {
     for (s32 j = 250; j < 500; j += 2)
       for (s32 k = 250; k < 500; k += 2)
         particle_system.add(glm::vec2(j, k), 1.0f, circle_color);
   }
 
   // Benchmark 2
-  if (key == GLFW_KEY_N && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_N)) {
     for (s32 j = 0; j < screen_width; j += 4)
       for (s32 k = 0; k < screen_height; k += 4)
         particle_system.add(glm::vec2(j, k), 1.0f, circle_color);
   }
 
   // ERASE ALL CIRCLES
-  if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_E)) {
     particle_system.erase_all();
   }
 
-  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+  if (key_pressed(GLFW_KEY_ESCAPE)) {
     mouse_option = MouseOption::None;
     mouse_radio_options = static_cast<s32>(MouseOption::None);
   }

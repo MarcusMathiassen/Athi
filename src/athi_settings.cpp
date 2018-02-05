@@ -41,12 +41,12 @@ f32 color_by_velocity_threshold = 0.003f;
 
 bool wireframe_mode{false};
 bool draw_particles{true};
-
 bool post_processing{true};
+
 f32 mouse_size{10.0f};
 bool mouse_busy_UI{false};
-bool show_mouse_grab_lines{false};
-bool show_mouse_collision_box{false};
+bool show_mouse_grab_lines{true};
+bool show_mouse_collision_box{true};
 bool mouse_grab{true};
 s32 screen_width;
 s32 screen_height;
@@ -65,6 +65,7 @@ bool border_collision{true};
 
 bool multithreaded_particle_update{true};
 s32 physics_samples{8};
+
 s32 post_processing_samples{2};
 s32 blur_strength{2};
 

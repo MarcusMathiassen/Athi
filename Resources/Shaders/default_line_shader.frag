@@ -2,12 +2,9 @@
 
 out vec4 frag_color;
 
-in Geometry
-{
-  vec4 color;
-} frag;
+uniform vec4 color;
 
 void main()
 {
-  frag_color = frag.color;
+  frag_color = color;
 }

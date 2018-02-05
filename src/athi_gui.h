@@ -32,7 +32,10 @@
 
 static bool open_settings = false;
 static bool open_profiler = false;
+static bool open_physics_profiler = false;
 static bool open_debug_menu = false;
+
+static bool show_benchmark_menu = false;
 
 void gui_init(GLFWwindow *window, float px_scale);
 void gui_shutdown();
@@ -42,18 +45,6 @@ static void new_style();
 static void SetupImGuiStyle(bool bStyleDark_, float alpha_);
 static void menu_profiler();
 static void menu_settings();
-
-template <typename A, typename B> static std::pair<B, A> flip_pair(const std::pair<A, B> &p) {
-  return std::pair<B, A>(p.second, p.first);
-}
-
-// flips an associative container of A,B pairs to B,A pairs
-template <typename A, typename B, template <class, class, class...> class M, class... Args>
-static std::multimap<B, A> flip_map(const M<A, B, Args...> &src) {
-  std::multimap<B, A> dst;
-  std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()), flip_pair<A, B>);
-  return dst;
-}
 
 static void ToggleButton(const char* str_id, bool* v)
 {
@@ -104,6 +95,57 @@ static void menu_debug() {
   ToggleButton("use_libdispatch", &use_libdispatch);
   ToggleButton("openCL_active", &openCL_active);
   ToggleButton("post_processing", &post_processing);
+
+  ImGui::End();
+}
+
+static void menu_physics_profiler() {
+  profile p("menu_profiler");
+
+  ImGui::Begin("Profiler");
+
+  ImGui::Text("Frametime: %.3f", smoothed_physics_frametime);
+
+  ImGui::Columns(3, "mycolumns");
+  ImGui::Separator();
+  ImGui::Text("Function(s)");
+  ImGui::NextColumn();
+  ImGui::Text("Time (ms)");
+  ImGui::NextColumn();
+  ImGui::Text("%% of total");
+  ImGui::NextColumn();
+
+  ImGui::Separator();
+
+  const auto col = ImVec4(0.5f, 1.0f, 0.8f, 1.0f);
+
+  // if you want it sorted by time taken
+  // auto new_map = flip_map(time_taken_by);
+
+  for (const auto &[id, time] : profiler_physics) {
+    ImGui::PushStyleColor(ImGuiCol_Text, col);
+    ImGui::Text("%s", id.c_str());
+    ImGui::NextColumn();
+    ImGui::PopStyleColor();
+
+    ImGui::Text("%f", time);
+    ImGui::NextColumn();
+
+    auto perc = 100.0 * time / frametime;
+    // If % is over 50% color red
+    if (perc > 50) {
+      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.5f, 0.5f, 1.0f));
+      ImGui::Text("%.3f", perc);
+      ImGui::PopStyleColor();
+    } else {
+      ImGui::Text("%.3f", perc);
+    }
+    ImGui::NextColumn();
+  }
+  profiler_physics.clear();
+
+  ImGui::Columns(1);
+  ImGui::Separator();
 
   ImGui::End();
 }
@@ -159,24 +201,18 @@ static void menu_profiler() {
   ImGui::End();
 }
 
-
-static int vertices_to_be_applied = 36;
-static void menu_settings() {
-  profile p("menu_settings");
-
-  ImGui::Begin("Settings", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-  ImGui::PushItemWidth(100.0f);
-
-  if (ImGui::CollapsingHeader("Renderer")) {
+static void renderer_submenu()
+{
     ImGui::Checkbox("VSync", &vsync); 
     ImGui::SameLine();
     ImGui::InputInt("framerate limit", &framerate_limit, 0, 1000);
     ImGui::Checkbox("draw nodes ", &draw_nodes);
     ImGui::SameLine();
     ImGui::Checkbox("color particles based on node", &color_particles);
-  }
+}
 
-  if (ImGui::CollapsingHeader("Simulation")) {
+static void simulation_submenu()
+{
     ImGui::InputInt("Physics samples", &physics_samples);
     if (physics_samples < 1) physics_samples = 1;
     ImGui::Checkbox("Multithreaded particle update", &multithreaded_particle_update);
@@ -192,23 +228,38 @@ static void menu_settings() {
     ImGui::Checkbox("gravitational force", &use_gravitational_force);
     ImGui::SameLine();
     ImGui::SliderFloat("", &gravitational_constant,  100, 10000);
+}
+
+static int vertices_to_be_applied = 36;
+static void menu_settings() {
+  profile p("menu_settings");
+
+  ImGui::Begin("Settings", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+  ImGui::PushItemWidth(100.0f);
+
+  if (ImGui::CollapsingHeader("Renderer")) {
+    renderer_submenu();
   }
 
   if (ImGui::CollapsingHeader("Post-processing")) {
-    ImGui::Checkbox("Post-processing on", &post_processing);
-    ImGui::InputInt("Post-processing samples", &post_processing_samples);
-    ImGui::InputInt("Blur strength", &blur_strength);
-    if (physics_samples < 1)
-      physics_samples = 1;
+  ImGui::Checkbox("Post-processing on", &post_processing);
+  ImGui::InputInt("Post-processing samples", &post_processing_samples);
+  ImGui::InputInt("Blur strength", &blur_strength);
+  if (physics_samples < 1)
+    physics_samples = 1;
 
-    if (post_processing_samples < 1)
-      post_processing_samples = 1;
+  if (post_processing_samples < 1)
+    post_processing_samples = 1;
 
-    if (blur_strength < 1)
-      blur_strength = 1;
+  if (blur_strength < 1)
+    blur_strength = 1;
   }
 
-  // Multithreading options
+  if (ImGui::CollapsingHeader("Simulation")) {
+    simulation_submenu();
+  }
+
+        // Multithreading options
   if (ImGui::CollapsingHeader("multithreading options")) {
     // Only setup for Apple systems. Linux in the future.
 #ifdef __APPLE__
@@ -323,7 +374,11 @@ void gui_render() {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("menu")) {
       ImGui::MenuItem("settings", NULL, &open_settings);
-      if constexpr (ONLY_RUNS_IN_DEBUG_MODE) ImGui::MenuItem("profiler", NULL, &open_profiler);
+      if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
+
+        ImGui::MenuItem("profiler", NULL, &open_profiler);
+        ImGui::MenuItem("Profiler: physics", NULL, &open_physics_profiler);
+      }
       if constexpr (ONLY_RUNS_IN_DEBUG_MODE) ImGui::MenuItem("debug", NULL, &open_debug_menu);
       ImGui::EndMenu();
     }
@@ -384,10 +439,9 @@ void gui_render() {
   if (open_settings)
     menu_settings();
   if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
-    if (open_profiler)
-      menu_profiler();
-    if (open_debug_menu)
-      menu_debug();
+    if (open_physics_profiler) menu_physics_profiler();
+    if (open_profiler) menu_profiler();
+    if (open_debug_menu) menu_debug();
   }
 
   ImGui::Render();

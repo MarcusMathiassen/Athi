@@ -28,6 +28,9 @@
 
 #include <algorithm>  // std::swap
 
+std::unordered_map<string, f64> time_taken_by;
+std::vector<std::tuple<string, f64>> profiler_physics;
+
 f32 rand_f32(f32 min, f32 max) noexcept {
   return ((f32(rand()) / f32(RAND_MAX)) * (max - min)) + min;
 }
@@ -86,7 +89,7 @@ vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept {
   // gray
   if (s == 0.0f) return vec4(v, v, v, a);
 
-  h = (h < 0) ? 360 : (h > 360) ? 0 : h;
+  h = (h >= 360) ? 0 : h;
   const f32 hue = h * 1.0f / 60.0f;
 
   const s32 i = hue;
@@ -180,8 +183,6 @@ vec4 color_by_acceleration(const vec4 &min_color, const vec4 &max_color,
   return hsv_to_rgb(c3.x, c3.y, c3.z, c3.w);
 }
 
-std::unordered_map<string, f64> time_taken_by;
-
 vec4 get_universal_current_color() {
   if (universal_color_picker > 6) universal_color_picker = 0;
   switch (universal_color_picker) {
@@ -241,10 +242,9 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept {
 }
 
 vec2 to_view_space(vec2 v) noexcept {
-  s32 width, height;
-  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-  v.x = -1.0f + 2 * v.x / width;
-  v.y = 1.0f - 2 * v.y / height;
+  v.x = -1.0f + 2 * v.x / screen_width;
+  v.y = 1.0f - 2 * v.y / screen_height;
+  v.y *= -1.0f;
   return v;
 }
 

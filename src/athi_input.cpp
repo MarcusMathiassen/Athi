@@ -171,10 +171,9 @@ void drag_color_or_destroy_with_mouse() {
 
         // Debug lines from particle to mouse
         if (draw_debug && show_mouse_grab_lines) {
-          auto ms_view_pos = to_view_space(mouse_pos);
-          auto p_view_pos =
-              to_view_space(particle_system.particles[particle_id].pos);
-          draw_line(ms_view_pos, p_view_pos, 1.0f, pastel_pink);
+          auto m_v = to_view_space(mouse_pos);
+          auto p_v = to_view_space(particle_system.particles[particle_id].pos);
+          draw_line(m_v, p_v, 1.0f, pastel_pink);
         }
       }
     } break;
@@ -199,6 +198,8 @@ void update_inputs() {
     profile p("drag_color_or_destroy_with_mouse");
     drag_color_or_destroy_with_mouse();
   }
+
+  // console->info("mouse_pos: {} : {}", mouse_pos.x, mouse_pos.y);
 
   // Draw Mouse
   const Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);

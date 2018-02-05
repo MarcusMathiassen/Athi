@@ -102,6 +102,25 @@ vec4 get_universal_current_color();
 vec2 to_view_space(vec2 v) noexcept;
 
 extern std::unordered_map<string, f64> time_taken_by;
+extern std::vector<std::tuple<string, f64>> profiler_physics;
+
+class physics_profile 
+{
+private:
+  f64     m_start_time{0.0};
+  string  m_id;
+public:
+  physics_profile(const char* id) noexcept : m_id(id)
+  {    
+    if constexpr (ONLY_RUNS_IN_DEBUG_MODE) 
+      m_start_time = glfwGetTime();
+  }
+  ~physics_profile() noexcept
+  {
+    if constexpr (ONLY_RUNS_IN_DEBUG_MODE) 
+      profiler_physics.emplace_back(std::tuple<string,f64>(m_id, ((glfwGetTime() - m_start_time) * 1000.0)));
+  }
+};
 
 class profile {
  private:

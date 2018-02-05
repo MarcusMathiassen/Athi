@@ -20,6 +20,7 @@
 
 #include "athi_line.h"
 #include "athi_utility.h" // profile
+#include "athi_settings.h" // profile
 
 vector<Athi_Line> line_immediate_buffer;
 vector<Athi_Line *> line_buffer;
@@ -28,8 +29,16 @@ Athi_Line_Manager athi_line_manager;
 void Athi_Line_Manager::init() {
 
   auto &shader = renderer.make_shader();
-  shader.sources =  {"default_line_shader.vert", "default_line_shader.geom", "default_line_shader.frag"};
-  shader.uniforms = { "positions", "color"};
+  shader.sources =  {
+    "default_line_shader.vert", 
+    "default_line_shader.geom", 
+    "default_line_shader.frag",
+  };
+
+  shader.uniforms = { 
+    "positions", 
+    "color",
+  };
 
   auto &vertex_buffer = renderer.make_buffer("empty");
 
@@ -48,17 +57,18 @@ void Athi_Line_Manager::draw() {
   renderer.bind();
 
   for (const auto &line : line_buffer) {
-
+    const auto np1 = to_view_space(line->p1);
+    const auto np2 = to_view_space(line->p2);
+    const auto np = vec4(np1.x, np1.y, np2.x, np2.y);
     renderer.shader.set_uniform("color", line->color);
-    renderer.shader.set_uniform("positions", vec4(line->p1.x, line->p1.y, line->p2.x, line->p2.y));
-    glDrawArrays(GL_LINES, 0, 2);
+    renderer.shader.set_uniform("positions", np);
     renderer.draw(l_cmd);
   }
+
 
   for (const auto &line : line_immediate_buffer) {
     renderer.shader.set_uniform("color", line.color);
     renderer.shader.set_uniform("positions", vec4(line.p1.x, line.p1.y, line.p2.x, line.p2.y));
-    //glDrawArrays(GL_POINTS, 0, 2);
     renderer.draw(r_cmd);
   }
   line_immediate_buffer.clear();

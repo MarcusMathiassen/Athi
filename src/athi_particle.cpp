@@ -135,15 +135,10 @@ void ParticleSystem::update_gpu_buffers() noexcept {
   }
 
   {
-    // THIS IS THE SLOWEST THING EVER.
-    profile p(
-        "PS::update_gpu_buffers(update buffers with new data)");
-
-    //const auto proj = camera.get_ortho_projection();
+    profile p("PS::update_gpu_buffers(update buffers with new data)");
 
     // Update the buffers with the new data.
-
-    if (multithreaded_particle_update)
+    if (multithreaded_particle_update && use_multithreading)
     {
       switch (threadpool_solution) {
         using Threads = ThreadPoolSolution;
@@ -168,45 +163,6 @@ void ParticleSystem::update_gpu_buffers() noexcept {
     } else {
       threaded_buffer_update(0, particle_count);
     }
-
-    // #ifdef PARTICLE_HAS_TRANSFORM
-    // for (s32 i = 0; i < particle_count; ++i) {
-    //   if (is_particles_colored_by_acc) {
-    //     profile p("color_by_acceleration");
-    //     const auto old = particles[i].pos - particles[i].vel;
-    //     const auto pos_diff = particles[i].pos - old;
-    //     colors[i] = color_by_acceleration(acceleration_color_min,
-    //                                          acceleration_color_max, pos_diff);
-    //   }
-    //   { 
-    //     profile p("proj*particles[i].transform.get_model()");
-    //     models[i] = proj*particles[i].transform.get_model();
-    //   }
-    //   if constexpr (use_textured_particles)
-    //     radii[i] = particles[i].radius;
-    // } 
-    // #else
-    // for (const auto &p : particles) {
-    //   profile x("buffers with new data");
-    //   if (is_particles_colored_by_acc) {
-    //     const auto old = p.pos - p.vel;
-    //     const auto pos_diff = p.pos - old;
-    //     colors[p.id] = color_by_acceleration(acceleration_color_min,
-    //                                          acceleration_color_max, pos_diff);
-    //   }
-
-    //   { 
-    //     profile x("Update the transform");
-    //   // Update the transform
-    //   transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
-    //   models[p.id] = proj * transforms[p.id].get_model();
-    //   }
-
-    //   if constexpr (use_textured_particles)
-    //     radii[p.id] = p.radius;
-    // }
-
-    // #endif
   }
 
   {
@@ -486,18 +442,15 @@ void ParticleSystem::draw_debug_nodes() noexcept {
 
   if (draw_debug) {
     switch (tree_type) {
-      using TT = TreeType;
-      case TT::Quadtree: {
-        //if (color_particles) quadtree.color_objects(colors);
-        if (draw_nodes) quadtree.draw_bounds(quadtree_show_only_occupied);
+      case TreeType::Quadtree: {
+        if (draw_nodes) quadtree.draw_bounds(quadtree_show_only_occupied, pastel_green);
       } break;
 
-      case TT::UniformGrid: {
-        //if (color_particles) uniformgrid.color_objects(colors);
+      case TreeType::UniformGrid: {
         if (draw_nodes) uniformgrid.draw_bounds();
       } break;
 
-      case TT::None: {
+      case TreeType::None: {
       } break;
     }
   }
@@ -511,14 +464,6 @@ void ParticleSystem::threaded_particle_update(size_t begin, size_t end) noexcept
 }
 
 void ParticleSystem::update() noexcept {
-  
-  // Check for collisions and resolve if needed
-  if (circle_collision) {
-    profile p("PS::update_collisions()");
-    for (s32 i = 0; i < physics_samples; ++i) {
-      update_collisions();
-    }
-  }
   {
   profile p("PS::particles.update()");
     // Update particles positions
@@ -546,6 +491,14 @@ void ParticleSystem::update() noexcept {
       }
     } else {
       threaded_particle_update(0, particle_count);
+    }
+  }
+
+  // Check for collisions and resolve if needed
+  if (circle_collision) {
+    profile p("PS::update_collisions()");
+    for (s32 i = 0; i < physics_samples; ++i) {
+      update_collisions();
     }
   }
 }
