@@ -26,6 +26,21 @@
 
 template <class T> class Quadtree {
 private:
+
+  struct Rect {
+    vec2 min{0.0f, 0.0f}, max{0.0f, 0.0f};
+    vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+    Rect() = default;
+    Rect(const vec2 &min_pos, const vec2 &max_pos) noexcept
+        : min(min_pos), max(max_pos) {}
+    constexpr bool contains(const vec2 &pos, f32 radius) const noexcept {
+      if (pos.x - radius < max.x && pos.x + radius > min.x &&
+          pos.y - radius < max.y && pos.y + radius > min.y)
+        return true;
+      return false;
+    }
+  };
+
   vector<s32> indices;
   static T *data;
 
@@ -157,9 +172,9 @@ public:
     }
 
     if (!indices.empty() && show_occupied_only)
-      draw_hollow_rect(bounds.min, bounds.max, color);
+      draw_rect(bounds.min, bounds.max, color, true);
     else if (!show_occupied_only)
-      draw_hollow_rect(bounds.min, bounds.max, color);
+      draw_rect(bounds.min, bounds.max, color, true);
   }
 };
 

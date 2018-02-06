@@ -32,7 +32,6 @@ struct Athi_Line {
   vec2 p1, p2;
   f32 width;
   vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
-  Transform transform;
   Athi_Line() = default;
 };
 

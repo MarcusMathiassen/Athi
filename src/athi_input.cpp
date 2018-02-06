@@ -107,7 +107,9 @@ void drag_color_or_destroy_with_mouse() {
   const auto mouse_pos = athi_input_manager.mouse.pos;
 
   // Setup a rect and draw to screen if needed
-  const Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
+  Athi_Rect mouse_rect;
+  mouse_rect.min = mouse_pos - mouse_size;
+  mouse_rect.max = mouse_pos + mouse_size;
 
   // If the mouse left button is released, just exit the function.
   if (state == GLFW_RELEASE) {
@@ -202,11 +204,13 @@ void update_inputs() {
   // console->info("mouse_pos: {} : {}", mouse_pos.x, mouse_pos.y);
 
   // Draw Mouse
-  const Athi::Rect mouse_rect(mouse_pos - mouse_size, mouse_pos + mouse_size);
+  Athi_Rect mouse_rect;
+  mouse_rect.min = mouse_pos - mouse_size;
+  mouse_rect.max = mouse_pos + mouse_size;
   //draw_hollow_rect(mouse_rect.min, mouse_rect.max, circle_color);
   draw_hollow_circle(mouse_pos, mouse_size, circle_color);
   if (draw_debug && show_mouse_collision_box) {
-    draw_hollow_rect(mouse_rect.min, mouse_rect.max, pastel_green);
+    draw_rect(mouse_rect.min, mouse_rect.max, pastel_green, true);
   }
 
   if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {

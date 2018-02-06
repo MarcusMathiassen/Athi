@@ -23,7 +23,7 @@
 
 #include "athi_typedefs.h"
 
-#include "athi_rect.h"  // draw_hollow_rect, Rect
+#include "athi_rect.h"  // draw_rect, Rect
 #include "athi_settings.h" // universal_color_picker
 #include "athi_utility.h" // get_universal_current_color
 
@@ -33,21 +33,30 @@ class UniformGrid {
   static vector<T> data;
 
  private:
+
+  struct Rect {
+    vec2 min{0.0f, 0.0f}, max{0.0f, 0.0f};
+    vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+    Rect() = default;
+    Rect(const vec2 &min_pos, const vec2 &max_pos) noexcept
+        : min(min_pos), max(max_pos) {}
+    constexpr bool contains(const vec2 &pos, f32 radius) const noexcept {
+      if (pos.x - radius < max.x && pos.x + radius > min.x &&
+          pos.y - radius < max.y && pos.y + radius > min.y)
+        return true;
+      return false;
+    }
+  };
+  
   struct Node : public UniformGrid {
     Rect bounds;
     vector<s32> index;
     Node(const Rect &r) : bounds{r} {}
     void insert(s32 id) { index.emplace_back(id); }
     void get(vector<vector<s32>> &cont) { cont.emplace_back(index); }
-    void draw_bounds() const {
-      draw_hollow_rect(bounds.min, bounds.max, bounds.color);
+    void draw_bounds(const vec4& color) const {
+      draw_rect(bounds.min, bounds.max, color, true);
     }
-    void color_objects(vector<vec4> &color) const {
-      for (const auto i : index) {
-        color[i] = bounds.color;
-      }
-    }
-
     bool contains(s32 id) {
       return bounds.contains(this->data[id].pos, this->data[id].radius);
     }
@@ -67,8 +76,6 @@ class UniformGrid {
     for (f32 y = min.y; y < max.y; y += row) {
       for (f32 x = min.x; x < max.x; x += col) {
         Rect bounds(vec2(x, y), vec2(x + col, y + row));
-        //bounds.color = get_universal_current_color();
-        //++universal_color_picker;
         nodes.emplace_back(std::make_unique<Node>(bounds));
       }
     }
@@ -76,8 +83,6 @@ class UniformGrid {
   };
 
   void input(const vector<T> &objects) {
-    //if (uniformgrid_parts != current_uniformgrid_part)
-    //init(min, max);
     data = objects;
 
     for (const auto &obj : data) {
@@ -90,23 +95,20 @@ class UniformGrid {
       }
     }
   }
-  void color_objects(vector<vec4> &color) const {
+  void draw_bounds(const vec4& color) const noexcept {
     for (const auto &node : nodes) {
-      node->color_objects(color);
+      node->draw_bounds(color);
     }
   }
-  void draw_bounds() const {
-    for (const auto &node : nodes) {
-      node->draw_bounds();
-    }
-  }
-  void get(vector<vector<s32>> &cont) const {
+  void get(vector<vector<s32>> &cont) const noexcept {
     for (const auto &node : nodes) {
       node->get(cont);
     }
   }
   void reset() {
-    for (auto &node : nodes) node->index.clear();
+    for (auto &node : nodes) {
+      node->index.clear();
+    }
   }
 };
 

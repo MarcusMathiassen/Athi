@@ -441,13 +441,25 @@ void ParticleSystem::draw_debug_nodes() noexcept {
   profile p("PS::draw_debug_nodes");
 
   if (draw_debug) {
+
+    // draw the collision box
+    for (const auto& p: particles) {
+      draw_rect
+      (
+        p.pos - p.radius, // min
+        p.pos + p.radius, // max 
+        debug_color,      // color
+        true
+      );
+    }
+
     switch (tree_type) {
       case TreeType::Quadtree: {
-        if (draw_nodes) quadtree.draw_bounds(quadtree_show_only_occupied, pastel_green);
+        if (draw_nodes) quadtree.draw_bounds(quadtree_show_only_occupied, debug_color);
       } break;
 
       case TreeType::UniformGrid: {
-        if (draw_nodes) uniformgrid.draw_bounds();
+        if (draw_nodes) uniformgrid.draw_bounds(debug_color);
       } break;
 
       case TreeType::None: {

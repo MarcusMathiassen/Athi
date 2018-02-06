@@ -125,8 +125,8 @@ void Athi_Core::init() {
   particle_system.init();
 
   init_circle_renderer();
+  init_rect_renderer();
   init_input_manager();
-  init_rect_manager();
   init_line_manager();
 
   glClearColor(background_color_dark.r, background_color_dark.g,
