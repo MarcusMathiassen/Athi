@@ -195,13 +195,16 @@ void Athi_Core::draw(GLFWwindow *window) {
 
     framebuffers[0].clear();
 
+
     // First draw the particles to the framebuffer.
     framebuffers[0].bind();
+
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     check_gl_error();
     particle_system.draw();
 
     draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
+
 
     // .. Then blur the current framebuffer
     for (s32 i = 0; i < post_processing_samples; i++) {
@@ -214,6 +217,7 @@ void Athi_Core::draw(GLFWwindow *window) {
     framebuffers[0].unbind();
     draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
   }
+
 
   if (draw_particles) particle_system.draw();
   if (draw_rects) render_rects();

@@ -58,16 +58,16 @@ elseif(APPLE)
 
   # RESOURCE FILE LOCATION
   file(GLOB RESOURCE_FILES
-  "./Resources/*.jpg"
-  "./Resources/*.png"
-  "./Resources/*.vert"
-  "./Resources/*.frag"
-  "./Resources/*.geom"
-  "./Resources/*.comp"
-  "./Resources/*.glsl"
-  "./Resources/*.ttf"
-  "./Resources/*.ttc"
-  "./Resources/*.cl"
+  "./Resources/Fonts/*.ttf"
+  "./Resources/Fonts/*.ttc"
+  "./Resources/Kernels/*.cl"
+  "./Resources/Textures/*.jpg"
+  "./Resources/Textures/*.png"
+  "./Resources/Shaders/*.vert"
+  "./Resources/Shaders/*.frag"
+  "./Resources/Shaders/*.geom"
+  "./Resources/Shaders/*.comp"
+  "./Resources/Shaders/*.glsl"
   )
 
   add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCE_FILES})

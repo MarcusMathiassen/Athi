@@ -396,7 +396,7 @@ void ParticleSystem::draw_debug_nodes() noexcept {
         p.pos - p.radius, // min
         p.pos + p.radius, // max 
         debug_color,      // color
-        true
+        false
       );
     }
 

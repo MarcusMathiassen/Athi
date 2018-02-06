@@ -250,6 +250,10 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
     for (s32 j = 250; j < 500; j += 2)
       for (s32 k = 250; k < 500; k += 2)
         particle_system.add(glm::vec2(j, k), 1.0f, circle_color);
+
+    for (s32 j = screen_width - 250; j > screen_width-500; j -= 2)
+      for (s32 k = screen_height - 250; k > screen_height-500; k -= 2)
+        particle_system.add(glm::vec2(j, k), 1.0f, circle_color);
   }
 
   // Benchmark 2

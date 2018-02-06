@@ -114,8 +114,14 @@ void init_rect_renderer() noexcept
   immidiate_shader.uniforms = {"color", "transform"};
   immidiate_shader.preambles = {"common.glsl"};
 
+  auto &uindices_buffer = immidiate_renderer.make_buffer("indices");
+  uindices_buffer.data = (void*)indices;
+  uindices_buffer.data_size = sizeof(indices);
+  uindices_buffer.type = buffer_type::element_array;
+
   immidiate_renderer.finish();
 }
+
 
 void draw_rounded_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, bool is_hollow) noexcept
 {
@@ -191,9 +197,30 @@ void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_holl
   rect_buffer.emplace_back(rect);
 }
 
+
+void immididate_draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow) noexcept
+{
+    CommandBuffer cmd;
+    cmd.type = primitive::triangles;
+    cmd.count = 6;
+    cmd.has_indices = true;
+    immidiate_renderer.bind();
+
+    const auto proj = camera.get_ortho_projection();
+
+    Transform temp;
+    temp.pos = vec3(min, 0);
+    temp.scale = vec3(max.x - min.x, max.y - min.y, 0);
+    mat4 trans = proj * temp.get_model();
+
+    immidiate_renderer.shader.set_uniform("color", color);
+    immidiate_renderer.shader.set_uniform("transform", trans);
+    immidiate_renderer.draw(cmd);
+}
+
 void immididate_draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color) noexcept
 {
-  render_call([min, max, color] {
+  //render_call([min, max, color] {
     CommandBuffer cmd;
     cmd.type = primitive::line_loop;
     cmd.count = 4;
@@ -209,5 +236,5 @@ void immididate_draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &c
     immidiate_renderer.shader.set_uniform("color", color);
     immidiate_renderer.shader.set_uniform("transform", trans);
     immidiate_renderer.draw(cmd);
-  });
+  //});
 }

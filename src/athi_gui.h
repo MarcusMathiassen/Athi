@@ -51,6 +51,8 @@ void gui_render();
 
 // Custom GUI by Marcus
 static int button_count = 0;
+static float button_original_start_pos_x = 50.0f;
+static float button_start_pos_x = 50.0f;
 
 static bool button(
   const string& text, 
@@ -59,7 +61,7 @@ static bool button(
   const vec4& pressed_color = pastel_green
   )
 {
-  vec2 button_pos{50.0f, 50.0f + gButtonHeight*2.0f*button_count++};
+  vec2 button_pos{button_start_pos_x, 50.0f + gButtonHeight*2.0f*button_count++};
 
   int char_count = text.length();
   if (char_count == 0) char_count = 4;
@@ -150,7 +152,7 @@ static void draw_custom_gui() noexcept
 static void custom_gui_init() noexcept
 {
   font_renderer::init();
-  my_font = font_renderer::load_font("/System/Library/Fonts/Menlo.ttc", 24*2);
+  my_font = font_renderer::load_font("../Resources/Fonts/DroidSans.ttf", 24*2);
   ortho_loc = glGetUniformLocation(font_renderer::shader_program, "ortho_projection");
 }
 
@@ -356,8 +358,6 @@ static void simulation_submenu()
     ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);
 
     ImGui::Checkbox("gravitational force", &use_gravitational_force);
-    ImGui::SameLine();
-    ImGui::SliderFloat("", &gravitational_constant,  100, 10000);
 }
 
 static int vertices_to_be_applied = 36;
