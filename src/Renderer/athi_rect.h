@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "athi_typedefs.h"  
+#include "../athi_typedefs.h"  
 
 struct Athi_Rect {
   vec2 pos;

@@ -19,10 +19,9 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include "athi_line.h"
-#include "athi_utility.h" // profile
-#include "athi_settings.h" // draw_rects
+#include "../athi_utility.h" // profile
 
-#include "./Renderer/athi_renderer.h"      // Shader
+#include "athi_renderer.h"      // Shader
 
 static std::vector<Athi_Line> line_buffer;
 

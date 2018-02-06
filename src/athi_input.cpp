@@ -23,9 +23,7 @@
 
 #include "./Utility/athi_globals.h"
 
-#include "athi_line.h"  // draw_line
-#include "athi_rect.h"     // draw_hollow_rect
-#include "./Renderer/athi_circle.h"     // draw_hollow_circle
+#include "./Renderer/athi_primitives.h" // draw_hollow_circle, draw_line
 #include "athi_utility.h"  // profile
 
 Athi_Input_Manager athi_input_manager;

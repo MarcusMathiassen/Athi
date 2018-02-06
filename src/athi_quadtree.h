@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "athi_rect.h"
 #include "athi_typedefs.h"
+#include "./Renderer/athi_rect.h" // draw_rect
 
 template <class T> class Quadtree {
 private:

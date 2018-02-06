@@ -27,9 +27,7 @@
 #include "./Utility/athi_globals.h"     // os
 #include "athi_gui.h"                   // gui_init, gui_render, gui_shutdown
 #include "athi_input.h"                 // update_inputs
-#include "athi_line.h"                  // draw_lines
-#include "athi_rect.h"                  // draw_rects
-#include "./Renderer/athi_circle.h"     // draw_circle
+#include "./Renderer/athi_primitives.h"       // draw_circle, draw_rects, draw_lines
 #include "athi_settings.h"              // console, ThreadPoolSolution
 #include "athi_typedefs.h"
 #include "athi_utility.h"               // profile, Smooth_Average

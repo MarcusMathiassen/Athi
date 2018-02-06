@@ -21,12 +21,12 @@
 
 #include "athi_rect.h"
 
-#include "./Renderer/athi_camera.h"    // camera
-#include "./Renderer/athi_renderer.h"  // render_call
-
+#include "athi_camera.h"    // camera
+#include "athi_renderer.h"  // render_call
 #include "athi_line.h"   // draw_line
-#include "athi_utility.h"   // profile
-#include "athi_transform.h" // Transform
+
+#include "../athi_utility.h"   // profile
+#include "../athi_transform.h" // Transform
 
 static std::vector<Athi_Rect> rect_buffer;
 

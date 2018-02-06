@@ -22,10 +22,8 @@
 #pragma once
 
 #include "athi_typedefs.h"
-
-#include "athi_rect.h"  // draw_rect, Rect
-#include "athi_settings.h" // universal_color_picker
-#include "athi_utility.h" // get_universal_current_color
+#include "athi_settings.h" // uniformgrid_parts
+#include "./Renderer/athi_rect.h"  // draw_rect, Rect
 
 template <class T>
 class UniformGrid {
@@ -63,7 +61,6 @@ class UniformGrid {
   };
 
   vector<std::unique_ptr<Node>> nodes;
-  static s32 current_uniformgrid_part;
 
  public:
   void init(const vec2& min, const vec2& max) {
@@ -79,7 +76,6 @@ class UniformGrid {
         nodes.emplace_back(std::make_unique<Node>(bounds));
       }
     }
-    current_uniformgrid_part = uniformgrid_parts;
   };
 
   void input(const vector<T> &objects) {
@@ -114,6 +110,3 @@ class UniformGrid {
 
 template <class T>
 vector<T> UniformGrid<T>::data;
-
-template <class T>
-s32 UniformGrid<T>::current_uniformgrid_part{0};
