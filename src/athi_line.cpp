@@ -20,14 +20,19 @@
 
 #include "athi_line.h"
 #include "athi_utility.h" // profile
-#include "athi_settings.h" // profile
+#include "athi_settings.h" // draw_rects
 
-vector<Athi_Line> line_immediate_buffer;
-vector<Athi_Line *> line_buffer;
-Athi_Line_Manager athi_line_manager;
+#include "./Renderer/athi_renderer.h"      // Shader
 
-void Athi_Line_Manager::init() {
+static std::vector<Athi_Line> line_buffer;
 
+static Renderer renderer;
+
+static vector<vec4> positions;
+static vector<vec4> colors;
+
+void init_line_renderer() noexcept
+{
   auto &shader = renderer.make_shader();
   shader.sources =  {
     "default_line_shader.vert", 
@@ -35,57 +40,74 @@ void Athi_Line_Manager::init() {
     "default_line_shader.frag",
   };
 
-  shader.uniforms = { 
+  shader.attribs = { 
     "positions", 
     "color",
   };
+
+  auto &positions_buffer = renderer.make_buffer("positions");
+  positions_buffer.data_members = 4;
+  positions_buffer.divisor = 1;
+
+  auto &colors_buffer = renderer.make_buffer("color");
+  colors_buffer.data_members = 4;
+  colors_buffer.divisor = 1;
+
 
   auto &vertex_buffer = renderer.make_buffer("empty");
 
   renderer.finish();
 }
 
-void Athi_Line_Manager::draw() {
-  if (line_buffer.empty() && line_immediate_buffer.empty()) return;
-  profile p("Athi_Line_Manager::draw()");
+void render_lines() noexcept
+{
+  if (line_buffer.empty()) return;
 
-  CommandBuffer l_cmd, r_cmd;
-  l_cmd.type = primitive::lines;
-  l_cmd.count = 2;
-  r_cmd.type = primitive::points;
-  r_cmd.count = 2;
+  profile p("render_lines");
+
+  if (positions.size() < line_buffer.size()) {
+    positions.resize(line_buffer.size());
+    colors.resize(line_buffer.size());
+  }
+
+  {
+    profile p("render_lines::update_buffers with new data"); 
+    for (u32 i = 0; i < line_buffer.size(); ++i)
+    {
+      auto &p1 = line_buffer[i].p1;
+      auto &p2 = line_buffer[i].p2;
+      positions[i] = vec4(p1.x, p1.y, p2.x, p2.y);
+      colors[i] = line_buffer[i].color;
+    }
+  }
+
+  {
+    profile p("render_lines::update_buffers"); 
+    // Update the gpu buffers incase of more particles..
+    renderer.update_buffer("positions", &positions[0], sizeof(vec4) * line_buffer.size());
+    renderer.update_buffer("color", &colors[0], sizeof(vec4) * line_buffer.size());
+  }
+
+  CommandBuffer cmd;
+  cmd.type = primitive::points;
+  cmd.count = 1;
+  cmd.primitive_count = line_buffer.size();
+
   renderer.bind();
-
-  for (const auto &line : line_buffer) {
-    const auto np1 = to_view_space(line->p1);
-    const auto np2 = to_view_space(line->p2);
-    const auto np = vec4(np1.x, np1.y, np2.x, np2.y);
-    renderer.shader.set_uniform("color", line->color);
-    renderer.shader.set_uniform("positions", np);
-    renderer.draw(l_cmd);
+  {
+    profile p("render_lines::renderer.draw(cmd)");
+    renderer.draw(cmd);
   }
 
-
-  for (const auto &line : line_immediate_buffer) {
-    renderer.shader.set_uniform("color", line.color);
-    renderer.shader.set_uniform("positions", vec4(line.p1.x, line.p1.y, line.p2.x, line.p2.y));
-    renderer.draw(r_cmd);
-  }
-  line_immediate_buffer.clear();
+  line_buffer.clear();
 }
 
-void init_line_manager() { athi_line_manager.init(); }
-
-void add_line(Athi_Line *line) { line_buffer.emplace_back(line); }
-
-void draw_lines() { athi_line_manager.draw(); }
-
-void draw_line(const vec2 &p1, const vec2 &p2, f32 width, const vec4 &color) {
+void draw_line(const vec2 &p1, const vec2 &p2, f32 width, const vec4 &color) noexcept
+{
   Athi_Line line;
-  line.p1 = p1;
-  line.p2 = p2;
-  line.width = width;
+  line.p1 = to_view_space(p1);
+  line.p2 = to_view_space(p2);
   line.color = color;
 
-  line_immediate_buffer.emplace_back(line);
+  line_buffer.emplace_back(line);
 }

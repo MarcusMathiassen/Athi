@@ -74,6 +74,9 @@ static void menu_debug() {
   ImGui::SetNextWindowSizeConstraints(ImVec2(-1, 0),    ImVec2(-1, FLT_MAX));
   ImGui::Begin("Debug Options");
 
+  ToggleButton("draw_rects", &draw_rects);
+  ToggleButton("draw_circles", &draw_circles);
+  ToggleButton("draw_lines", &draw_lines);
   ToggleButton("wireframe_mode", &wireframe_mode);
   ToggleButton("has_random_velocity", &has_random_velocity);
   ToggleButton("draw_particles", &draw_particles);

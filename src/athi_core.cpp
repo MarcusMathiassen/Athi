@@ -125,9 +125,9 @@ void Athi_Core::init() {
   particle_system.init();
 
   init_circle_renderer();
+  init_line_renderer();
   init_rect_renderer();
   init_input_manager();
-  init_line_manager();
 
   glClearColor(background_color_dark.r, background_color_dark.g,
                background_color_dark.b, background_color_dark.a);
@@ -215,8 +215,8 @@ void Athi_Core::draw(GLFWwindow *window) {
 
   if (draw_particles) particle_system.draw();
 
-  draw_rects();
-  draw_lines();
+  if (draw_rects) render_rects();
+  if (draw_lines) render_lines();
   
   render(); render_clear();
 
@@ -237,7 +237,7 @@ void Athi_Core::draw(GLFWwindow *window) {
 }
 
 void Athi_Core::update() {
-  
+
   physics_profile p("update");
 
   const f64 time_start_frame = glfwGetTime();

@@ -79,6 +79,10 @@ bool draw_debug{false};
 bool color_particles{false};
 bool draw_nodes{true};
 
+bool draw_rects{true};
+bool draw_circles{true};
+bool draw_lines{true};
+
 bool tree_optimized_size{true};
 bool quadtree_show_only_occupied{false};
 bool quadtree_active{true};

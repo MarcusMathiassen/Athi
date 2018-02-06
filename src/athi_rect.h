@@ -32,4 +32,4 @@ struct Athi_Rect {
 
 void init_rect_renderer() noexcept;
 void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow = false) noexcept;
-void draw_rects() noexcept;
+void render_rects() noexcept;

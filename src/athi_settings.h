@@ -84,6 +84,11 @@ extern std::atomic<u64> comparisons;
 extern std::atomic<u64> resolutions;
 
 extern bool draw_debug;
+
+extern bool draw_rects;
+extern bool draw_circles;
+extern bool draw_lines;
+
 extern bool color_particles;
 extern bool draw_nodes;
 extern bool show_fps_info;

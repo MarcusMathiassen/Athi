@@ -173,9 +173,7 @@ void drag_color_or_destroy_with_mouse() {
 
         // Debug lines from particle to mouse
         if (draw_debug && show_mouse_grab_lines) {
-          auto m_v = to_view_space(mouse_pos);
-          auto p_v = to_view_space(particle_system.particles[particle_id].pos);
-          draw_line(m_v, p_v, 1.0f, pastel_pink);
+          draw_line(mouse_pos, particle_system.particles[particle_id].pos, 1.0f, pastel_pink);
         }
       }
     } break;

@@ -24,6 +24,7 @@
 #include "./Renderer/athi_camera.h"    // camera
 #include "./Renderer/athi_renderer.h"  // render_call
 
+#include "athi_line.h"   // draw_line
 #include "athi_utility.h"   // profile
 #include "athi_transform.h" // Transform
 
@@ -34,10 +35,11 @@ static Renderer renderer;
 static vector<mat4> models;
 static vector<vec4> colors;
 
-void draw_rects() noexcept
+void render_rects() noexcept
 {
-  profile p("draw_rects");
+  if (rect_buffer.empty()) return;
 
+  profile p("render_rects");
 
   if (models.size() < rect_buffer.size()) {
     models.resize(rect_buffer.size());
@@ -60,7 +62,7 @@ void draw_rects() noexcept
   }
 
   {
-    profile p("draw_rects::update_buffers"); 
+    profile p("render_rects::update_buffers"); 
     // Update the gpu buffers incase of more particles..
     renderer.update_buffer("transforms", &models[0], sizeof(mat4) * rect_buffer.size());
     renderer.update_buffer("colors", &colors[0], sizeof(vec4) * rect_buffer.size());
@@ -107,9 +109,16 @@ void init_rect_renderer() noexcept
 
 void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow) noexcept
 {
-  // If we're drawing a hollow rectangle, dont draw it with indices
+  // If we're drawing a hollow rectangle..
   if (is_hollow) {
-    // Draw using lines instead.
+    
+    // Draw using lines
+    draw_line(min, vec2(min.x, max.y), 1.0f, color);
+    draw_line(vec2(min.x, max.y), max, 1.0f, color);
+    draw_line(max, vec2(max.x, min.y), 1.0f, color);
+    draw_line(vec2(max.x, min.y), min, 1.0f, color);
+
+    return;
   }
 
   Athi_Rect rect;
