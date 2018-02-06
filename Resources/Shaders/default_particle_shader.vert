@@ -1,5 +1,3 @@
-#version 410
-
 in vec2 position;
 in vec4 color;
 in mat4 transform;

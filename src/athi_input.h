@@ -38,6 +38,8 @@ static bool left_shift_pressed = false;
 void init_input_manager();
 glm::vec2 get_mouse_viewspace_pos();
 int32_t get_mouse_button_state(int32_t button);
+int32_t get_mouse_button_pressed(int32_t button);
+
 void update_inputs();
 static void mouse_button_callback(GLFWwindow *window, s32 button, s32 action,
                                   s32 mods);

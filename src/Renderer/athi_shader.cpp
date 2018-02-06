@@ -54,8 +54,24 @@ void Shader::validate_shader_program() const noexcept {
 }
 
 u32 Shader::create_shader(const string& file, shader_type type) const noexcept {
-  char* source = NULL;
-  read_file(file.c_str(), &source);
+
+  vector<string> sources;
+  sources.reserve(1 + preambles_storage.size());
+
+  sources.emplace_back("\n#version 410\n");
+
+  for (const auto & [file, source] : preambles_storage)
+  {
+    sources.emplace_back(source);
+  }
+
+  sources.emplace_back(get_content_of_file(file));
+
+  // @Hack: this needs to be in a char* array for some reason
+  std::vector<const char*> charVec(sources.size(),nullptr);
+  for (u32 i = 0; i < sources.size(); ++i) {
+      charVec[i]= sources[i].c_str();
+  }
 
   u32 shader{0};
 
@@ -77,10 +93,9 @@ u32 Shader::create_shader(const string& file, shader_type type) const noexcept {
       break;
   }
 
-  if (NULL != source) {
-    glShaderSource(shader, 1, &source, NULL);
+  if (!sources.empty()) {
+    glShaderSource(shader, sources.size(), &charVec[0], NULL);
     check_gl_error();
-    free(source);
   }
 
   glCompileShader(shader);
@@ -139,6 +154,15 @@ void Shader::finish() noexcept {
   program = glCreateProgram();
   check_gl_error();
 
+
+  // Read in all preambles
+  for (const auto & file: preambles)
+  {
+    string source = get_content_of_file(shader_folder_path + file);
+    preambles_storage.emplace_back(std::tuple<string, string>(shader_folder_path + file, source + "\n"));
+    console->info("Preamble loaded: {}", file);
+  }
+
   for (u32 i = 0; i < sources.size(); ++i) {
     const auto source = shader_folder_path + sources[i];
 
@@ -164,7 +188,7 @@ void Shader::finish() noexcept {
     }
     glAttachShader(program, shader);
 
-    console->info("Shader loaded: {}", file.source);
+    console->info("Shader loaded: {}", sources[i]);
     shaders.emplace_back(file, shader);
   }
   check_gl_error();

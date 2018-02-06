@@ -187,6 +187,7 @@ namespace font_renderer {
 
   void draw_text(unsigned int font_id, const std::string &text, float x, float y, float scale, const glm::vec4 &color)
   {
+
     // dont render 100% transparent text
     if (color.a < 0.005f) return;
 

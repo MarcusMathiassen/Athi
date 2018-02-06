@@ -1,5 +1,3 @@
-#version 410
-
 in float radius;
 in vec4 color;
 in mat4 transform;

@@ -45,8 +45,22 @@ vec2 get_mouse_viewspace_pos() {
 
 s32 get_mouse_button_state(s32 button) {
   const s32 state = glfwGetMouseButton(glfwGetCurrentContext(), button);
-  if (state == GLFW_PRESS) return GLFW_PRESS;
+  if (state == GLFW_PRESS) 
+    return GLFW_PRESS;
   return GLFW_RELEASE;
+}
+
+
+static s32 last_mouse_button_state = GLFW_RELEASE;
+s32 get_mouse_button_pressed(s32 button) {
+  const s32 state = glfwGetMouseButton(glfwGetCurrentContext(), button);
+  if (last_mouse_button_state == GLFW_RELEASE && state == GLFW_PRESS)
+  {
+    last_mouse_button_state = state;
+    return true;
+  }
+  last_mouse_button_state = state;
+  return false;
 }
 
 static void gravity_well(Particle &a, const vec2 &point) {
@@ -183,7 +197,7 @@ void drag_color_or_destroy_with_mouse() {
 
 void update_inputs() {
   profile p("update_inputs");
-
+  
   auto mouse_pos = athi_input_manager.mouse.pos;
   auto context = glfwGetCurrentContext();
   {
@@ -255,15 +269,15 @@ void update_inputs() {
     particle_system.add(mouse_pos, 4.0f, circle_color);
   }
   if (glfwGetKey(context, GLFW_KEY_5) == GLFW_PRESS) {
-    particle_system.add(mouse_pos, mouse_size, circle_color);
-    particle_system.add(mouse_pos, mouse_size, circle_color);
-    particle_system.add(mouse_pos, mouse_size, circle_color);
-    particle_system.add(mouse_pos, mouse_size, circle_color);
-    particle_system.add(mouse_pos, mouse_size, circle_color);
-    particle_system.add(mouse_pos, mouse_size, circle_color);
-    particle_system.add(mouse_pos, mouse_size, circle_color);
-    particle_system.add(mouse_pos, mouse_size, circle_color);
-    particle_system.add(mouse_pos, mouse_size, circle_color);
-    particle_system.add(mouse_pos, mouse_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
+    particle_system.add(mouse_pos, circle_size, circle_color);
   }
 }

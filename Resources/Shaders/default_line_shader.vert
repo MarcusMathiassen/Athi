@@ -1,5 +1,3 @@
-#version 410
-
 in vec4 positions;
 in vec4 color;
 

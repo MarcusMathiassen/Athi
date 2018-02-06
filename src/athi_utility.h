@@ -96,6 +96,7 @@ vec4 lerp_hsv(vec4 a, vec4 b, f32 t) noexcept;
 vec4 color_by_acceleration(const vec4 &min_color, const vec4 &max_color,
                            const vec2 &acc) noexcept;
 void read_file(const char *file, char **buffer) noexcept;
+string get_content_of_file(const string& file) noexcept;
 void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept;
 string get_cpu_brand();
 vec4 get_universal_current_color();

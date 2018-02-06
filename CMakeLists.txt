@@ -64,7 +64,9 @@ elseif(APPLE)
   "./Resources/*.frag"
   "./Resources/*.geom"
   "./Resources/*.comp"
+  "./Resources/*.glsl"
   "./Resources/*.ttf"
+  "./Resources/*.ttc"
   "./Resources/*.cl"
   )
 

@@ -1,5 +1,3 @@
-#version 410
-
 uniform vec2 res;
 uniform mat4 transform;
 

@@ -23,6 +23,20 @@
 
 #include "../athi_typedefs.h"  
 
+struct Rect {
+  vec2 min{0.0f, 0.0f}, max{0.0f, 0.0f};
+  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+  Rect() = default;
+  Rect(const vec2 &min_pos, const vec2 &max_pos) noexcept
+      : min(min_pos), max(max_pos) {}
+  constexpr bool contains(const vec2 &pos, f32 radius) const noexcept {
+    if (pos.x - radius < max.x && pos.x + radius > min.x &&
+        pos.y - radius < max.y && pos.y + radius > min.y)
+      return true;
+    return false;
+  }
+};
+
 struct Athi_Rect {
   vec2 pos;
   vec2 min, max;
@@ -35,4 +49,7 @@ void draw_rounded_rect(const vec2 &min, f32 width, f32 height, const vec4 &color
 void draw_rounded_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow = false) noexcept;
 void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow = false) noexcept;
 void draw_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, bool is_hollow = false) noexcept;
+
+void immididate_draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color) noexcept;
+
 void render_rects() noexcept;

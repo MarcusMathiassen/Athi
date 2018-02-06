@@ -219,6 +219,12 @@ void read_file(const char *file, char **buffer) noexcept {
   strcpy(*buffer, buff.c_str());
 }
 
+string get_content_of_file(const string& file) noexcept
+{
+  std::ifstream ifs(file);
+  return string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+}
+
 void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept {
   const f64 frametime = (1000.0 / desired_framerate);
   f64 time_spent_frame = (glfwGetTime() - time_start_frame) * 1000.0;

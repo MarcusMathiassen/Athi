@@ -32,6 +32,7 @@
 static std::vector<Athi_Rect> rect_buffer;
 
 static Renderer renderer;
+static Renderer immidiate_renderer;
 
 static vector<mat4> models;
 static vector<vec4> colors;
@@ -82,7 +83,8 @@ void render_rects() noexcept
 }
 
 void init_rect_renderer() noexcept
-{
+{ 
+  // Static renderer
   auto &shader = renderer.make_shader();
   shader.sources = {"default_rect_shader.vert", "default_rect_shader.frag"};
   shader.attribs = {"color", "transform"};
@@ -105,6 +107,14 @@ void init_rect_renderer() noexcept
   indices_buffer.type = buffer_type::element_array;
 
   renderer.finish();
+
+  // Immidiate renderer
+  auto &immidiate_shader = immidiate_renderer.make_shader();
+  immidiate_shader.sources = {"default_rect_shader.vert", "default_rect_shader.frag"};
+  immidiate_shader.uniforms = {"color", "transform"};
+  immidiate_shader.preambles = {"common.glsl"};
+
+  immidiate_renderer.finish();
 }
 
 void draw_rounded_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, bool is_hollow) noexcept
@@ -150,6 +160,7 @@ void draw_rounded_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool
   draw_rect(vec2(min.x, min.y-circle_radius), vec2(max.x, max.y+circle_radius),  color, is_hollow);
 }
 
+
 void draw_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, bool is_hollow) noexcept
 {
   draw_rect(min, vec2(min.x+width, min.y+height), color, is_hollow);
@@ -165,6 +176,8 @@ void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_holl
     draw_line(max, vec2(max.x, min.y), 1.0f, color);
     draw_line(vec2(max.x, min.y), min, 1.0f, color);
 
+    //immididate_draw_hollow_rect(min, max, color);
+
     return;
   }
 
@@ -176,4 +189,25 @@ void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_holl
   rect.height = max.y - min.y;
 
   rect_buffer.emplace_back(rect);
+}
+
+void immididate_draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color) noexcept
+{
+  render_call([min, max, color] {
+    CommandBuffer cmd;
+    cmd.type = primitive::line_loop;
+    cmd.count = 4;
+    immidiate_renderer.bind();
+
+    const auto proj = camera.get_ortho_projection();
+
+    Transform temp;
+    temp.pos = vec3(min, 0);
+    temp.scale = vec3(max.x - min.x, max.y - min.y, 0);
+    mat4 trans = proj * temp.get_model();
+
+    immidiate_renderer.shader.set_uniform("color", color);
+    immidiate_renderer.shader.set_uniform("transform", trans);
+    immidiate_renderer.draw(cmd);
+  });
 }

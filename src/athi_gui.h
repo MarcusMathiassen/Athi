@@ -25,6 +25,10 @@
 
 #include "athi_particle.h" // particle_system
 #include "athi_settings.h" // has_random_velocity, etc.
+#include "./Renderer/athi_primitives.h" // draw_line, draw_rect, draw_circle
+#include "./Renderer/athi_camera.h" // camera
+#include "./Renderer/athi_text.h" // draw_text
+#include "athi_input.h" // mouse_pos
 
 #include "../dep/Universal/imgui.h"
 #include "../dep/Universal/imgui_internal.h"
@@ -32,14 +36,133 @@
 
 static bool open_settings = false;
 static bool open_profiler = false;
-static bool open_physics_profiler = false;
+static bool open_cpu_profiler = false;
 static bool open_debug_menu = false;
+
+static u32 my_font;
+static u32 ortho_loc;
 
 static bool show_benchmark_menu = false;
 
 void gui_init(GLFWwindow *window, float px_scale);
 void gui_shutdown();
 void gui_render();
+
+
+// Custom GUI by Marcus
+static int button_count = 0;
+
+static bool button(
+  const string& text, 
+  const vec4& color = pastel_gray,
+  const vec4& selected_color = pastel_red,
+  const vec4& pressed_color = pastel_green
+  )
+{
+  vec2 button_pos{50.0f, 50.0f + gButtonHeight*2.0f*button_count++};
+
+  int char_count = text.length();
+  if (char_count == 0) char_count = 4;
+  float button_width = 17.9f * char_count;
+  float button_height = 25.0f;
+  float stack_margin = button_height * 2.0f;
+
+  // Draw button
+  const auto ortho_proj = camera.get_ortho_projection();
+  glUseProgram(font_renderer::shader_program);
+  glUniformMatrix4fv(ortho_loc, 1, GL_FALSE, &ortho_proj[0][0]);
+
+
+  bool mouse_inside = false;
+  bool button_hold = false;
+  bool button_pressed = false;
+
+  const auto mouse_pos = athi_input_manager.mouse.pos;
+  Rect box;
+  box.min.x = button_pos.x;
+  box.min.y = button_pos.y;
+  box.max.x = button_pos.x + button_width;
+  box.max.y = button_pos.y + button_height;
+
+  string button_text = text;
+  vec4 button_color = color;
+
+  // If mouse is inside 
+  if (box.contains(mouse_pos, 0.01f))
+  {
+    button_color = selected_color;
+    mouse_inside = true;
+
+    if (get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+      button_hold = true;
+      button_color = pressed_color;
+    }
+    if (get_mouse_button_pressed(GLFW_MOUSE_BUTTON_LEFT)) {
+      button_pressed = true;
+    }
+  }
+
+  // Draw text inside this rect
+  draw_rounded_rect({button_pos.x, button_pos.y},  button_width, button_height, button_color, false);
+  font_renderer::draw_text(my_font, button_text, button_pos.x, 2.5f+button_pos.y, 1.0f * button_height * 0.1/4.0, white);
+
+
+  return button_pressed;
+}
+
+static void draw_custom_gui() noexcept
+{
+  button_count = 0;
+
+  if (button("GPU: " + std::to_string(smoothed_render_frametime) + "ms"))
+  {
+    open_profiler ^= 1;
+  }
+
+  if (button("CPU: " + std::to_string(smoothed_physics_frametime) + "ms"))
+  {
+    open_cpu_profiler ^= 1;
+  }
+
+  if (button("FPS: " + std::to_string(framerate), (framerate < 60) ? pastel_red : pastel_green))
+  {
+    vsync ^= 1;
+  }
+
+  button_count++;
+
+  if (button(string("Multithreaded: ") + (use_multithreading ? "ON" : "OFF")))
+  {
+    use_multithreading ^= 1;
+  }
+
+  if (button(string("Intercollision: ") + (circle_collision ? "ON" : "OFF")))
+  {
+    circle_collision ^= 1;
+  }
+
+  if (button(string("Color by velocity: ") + (is_particles_colored_by_acc ? "ON" : "OFF")))
+  {
+    is_particles_colored_by_acc ^= 1;
+  }
+}
+
+static void custom_gui_init() noexcept
+{
+  font_renderer::init();
+  my_font = font_renderer::load_font("/System/Library/Fonts/Menlo.ttc", 24*2);
+  ortho_loc = glGetUniformLocation(font_renderer::shader_program, "ortho_projection");
+}
+
+
+
+
+
+
+
+
+
+
 
 static void new_style();
 static void SetupImGuiStyle(bool bStyleDark_, float alpha_);
@@ -384,7 +507,7 @@ void gui_render() {
       if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
 
         ImGui::MenuItem("profiler", NULL, &open_profiler);
-        ImGui::MenuItem("Profiler: physics", NULL, &open_physics_profiler);
+        ImGui::MenuItem("Profiler: physics", NULL, &open_cpu_profiler);
       }
       if constexpr (ONLY_RUNS_IN_DEBUG_MODE) ImGui::MenuItem("debug", NULL, &open_debug_menu);
       ImGui::EndMenu();
@@ -470,7 +593,7 @@ void gui_render() {
   if (open_settings)
     menu_settings();
   if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
-    if (open_physics_profiler) menu_physics_profiler();
+    if (open_cpu_profiler) menu_physics_profiler();
     if (open_profiler) menu_profiler();
     if (open_debug_menu) menu_debug();
   }

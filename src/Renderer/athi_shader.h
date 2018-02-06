@@ -37,7 +37,8 @@
 #include <unistd.h>
 #endif
 
-struct Shader {
+class Shader {
+private:
   enum class shader_type {
     vertex = GL_VERTEX_SHADER,
     fragment = GL_FRAGMENT_SHADER,
@@ -53,15 +54,20 @@ struct Shader {
 
   string name;
   bool is_linked{false};
-  u32 program;
   vector<std::tuple<FileHandle, u32>> shaders;
   std::unordered_map<string, u32> uniforms_map;
   std::unordered_map<string, u32> attribs_map;
+  std::vector<std::tuple<string, string>> preambles_storage;
+  
+  static constexpr const char* shader_folder_path{"../Resources/Shaders/"};
+public:
+
+  u32 program;
   vector<string> sources;
+  vector<string> preambles;
   vector<string> attribs;
   vector<string> uniforms;
 
-  static constexpr const char* shader_folder_path{"../Resources/Shaders/"};
 
   ~Shader();
 
