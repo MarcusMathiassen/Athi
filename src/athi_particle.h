@@ -67,6 +67,8 @@ struct ParticleSystem {
   vector<vec4> colors;
   vector<mat4> models;
 
+  vector<vector<s32>> tree_container;
+
   Renderer renderer;
   Texture tex;
 
@@ -116,6 +118,11 @@ struct ParticleSystem {
 
   void remove_all_with_id(const vector<s32> &ids) noexcept;
   void erase_all() noexcept;
+
+  vector<s32> get_neighbours(const Particle& p) const noexcept;
+
+  // Returns a vector of ids of particles colliding with the input particle.
+  vector<s32> get_particles_in_circle(const Particle &p) noexcept;
 };
 
 // Returns a vector of ids of particles colliding with the input rectangle.
@@ -126,9 +133,5 @@ vector<s32> get_particles_in_rect_basic(const vector<Particle> &particles,
 // Returns a vector of ids of particles colliding with the input rectangle.
 vector<s32> get_particles_in_rect(const vector<Particle> &particles,
                                   const vec2 &min, const vec2 &max) noexcept;
-
-// Returns a vector of ids of particles colliding with the input particle.
-vector<s32> get_particles_in_circle(const vector<s32> &ids, const Particle &p) noexcept;
-
 
 extern ParticleSystem particle_system;

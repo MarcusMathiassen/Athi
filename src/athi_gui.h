@@ -386,6 +386,30 @@ void gui_render() {
       ImGui::EndMenu();
     }
 
+    ImGui::RadioButton("Quadtree", &tree_radio_option, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("Uniform Grid", &tree_radio_option, 1);
+    ImGui::SameLine();
+    ImGui::RadioButton("None", &tree_radio_option, 2);
+
+    switch ((TreeType)tree_radio_option) {
+      case TreeType::Quadtree: { 
+        quadtree_active = true;
+        use_uniformgrid = false;
+        tree_type = TreeType::Quadtree; 
+      } break;
+      case TreeType::UniformGrid: { 
+        use_uniformgrid = true;
+        quadtree_active = false;
+        tree_type = TreeType::UniformGrid; 
+      } break;
+      case TreeType::None: { 
+        quadtree_active = false;
+        use_uniformgrid = false;
+        tree_type = TreeType::None; 
+      } break;
+    }
+
     ImGui::RadioButton("Color", &mouse_radio_options, 0);
     ImGui::SameLine();
     ImGui::RadioButton("Gravity Well", &mouse_radio_options, 1);

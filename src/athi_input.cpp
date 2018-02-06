@@ -123,25 +123,19 @@ void drag_color_or_destroy_with_mouse() {
     is_dragging = true;
   }
 
-  // Get all particles in the mouse collision box
-  // const auto selected_particle_ids = get_particles_in_circle(particle_system.particles, mouse_rect.min, mouse_rect.max);
-  vector<vector<s32>> cont;
   Particle p;
   p.pos = mouse_pos;
   p.radius = mouse_size;
-  particle_system.quadtree.get_neighbours(cont, p);
+  vector<s32> particle_ids_in_circle;
 
-  vector<s32> ids;
-  for (const auto& node: cont) {
-    ids.reserve(node.size());
-    for (const auto& id: node)
-      ids.emplace_back(id);
+  // Dont get all the ids if we're doing GravityWell
+  if (mouse_option != MouseOption::GravityWell) {
+    particle_ids_in_circle = particle_system.get_particles_in_circle(p);
   }
-  const auto selected_particle_ids = get_particles_in_circle(ids, p);
 
   switch (mouse_option) {
     case MouseOption::Color: {
-      for (const auto particle_id : selected_particle_ids) {
+      for (const auto particle_id : particle_ids_in_circle) {
         particle_system.colors[particle_id] = circle_color;
       }
     } break;
@@ -158,7 +152,7 @@ void drag_color_or_destroy_with_mouse() {
       // Add all selected particles to our list of attached particles. If not
       // already attached
       if (!is_dragging) {
-        for (const auto particle_id : selected_particle_ids) {
+        for (const auto particle_id : particle_ids_in_circle) {
           mouse_attached_to.emplace_back(particle_id);
         }
       }

@@ -205,14 +205,9 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
 
   // TOGGLE QUADTREE ACTIVE
   if (key_pressed(GLFW_KEY_Q)) {
-    if (quadtree_active) {
-      quadtree_active = false;
-      tree_type = TreeType::None;
-    } else {
-      tree_type = TreeType::Quadtree;
-      quadtree_active = true;
-      use_uniformgrid = false;
-    }
+    if (tree_radio_option != (s32)TreeType::Quadtree)
+      tree_radio_option = (s32)TreeType::Quadtree;
+    else tree_radio_option = (s32)TreeType::None;
     console->info("Quadtree: {}", quadtree_active ? "ON" : "OFF");
   }
 
@@ -228,16 +223,15 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
     console->info("Wireframe mode: {}", wireframe_mode ? "ON" : "OFF");
   }
 
+  if (quadtree_active) tree_type = TreeType::Quadtree;
+  else if (use_uniformgrid) tree_type = TreeType::UniformGrid;
+  else tree_type = TreeType::None;
+
   // TOGGLE UniformGrid ACTIVE
   if (key_pressed(GLFW_KEY_W)) {
-    if (use_uniformgrid) {
-      use_uniformgrid = false;
-      tree_type = TreeType::None;
-    } else {
-      tree_type = TreeType::UniformGrid;
-      use_uniformgrid = true;
-      quadtree_active = false;
-    }
+    if (tree_radio_option != (s32)TreeType::UniformGrid)
+      tree_radio_option = (s32)TreeType::UniformGrid;
+    else tree_radio_option = (s32)TreeType::None;
     console->info("UniformGrid: {}", use_uniformgrid ? "ON" : "OFF");
   }
 
