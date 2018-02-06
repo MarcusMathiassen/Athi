@@ -23,6 +23,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "./Renderer/athi_renderer.h"   // render
+#include "./Renderer/athi_text.h"       // draw_text
 #include "./Renderer/opengl_utility.h"  // check_gl_error();
 #include "./Utility/athi_globals.h"     // os
 #include "athi_gui.h"                   // gui_init, gui_render, gui_shutdown
@@ -47,6 +48,9 @@ static Smooth_Average<f64, 30> smooth_render_rametime_avg(
     &smoothed_render_frametime);
 
 static Renderer renderer;
+
+static u32 my_font;
+static u32 ortho_loc;
 
 static void setup_fullscreen_quad() {
 
@@ -126,6 +130,11 @@ void Athi_Core::init() {
   init_line_renderer();
   init_rect_renderer();
   init_input_manager();
+
+  font_renderer::init();
+
+  my_font = font_renderer::load_font("/System/Library/Fonts/Menlo.ttc", 24*2);
+  ortho_loc = glGetUniformLocation(font_renderer::shader_program, "ortho_projection");
 
   glClearColor(background_color_dark.r, background_color_dark.g,
                background_color_dark.b, background_color_dark.a);
@@ -212,11 +221,45 @@ void Athi_Core::draw(GLFWwindow *window) {
   }
 
   if (draw_particles) particle_system.draw();
+      
+  const auto ortho_proj = camera.get_ortho_projection();
+  glUseProgram(font_renderer::shader_program);
+  glUniformMatrix4fv(ortho_loc, 1, GL_FALSE, &ortho_proj[0][0]);
+
+  vec2 button_pos{50.0f, 50.0f};
+  float button_width = gButtonWidth;
+  float button_height = gButtonHeight;
+  float stack_margin = button_height * 2.0f;
+  const int stack_count = 7;
+
+  const std::string names[stack_count] = {
+        "Mathiassen", 
+        "Launch", "Tree", 
+        "Save", "Particle", 
+        "Color", "Load",
+  };
+
+  const vec4 colors[stack_count] = {
+        pastel_red, 
+        pastel_green, pastel_blue, 
+        pastel_pink, pastel_orange, 
+        pastel_gray, pastel_purple,
+  };
+
+  for (int i = 0; i < stack_count; ++i) 
+  {
+    // Draw text inside this rect
+    draw_rounded_rect({button_pos.x, button_pos.y + stack_margin*i},  button_width, button_height, colors[i], false);
+    font_renderer::draw_text(my_font, names[i], button_pos.x, 2.5f+button_pos.y + stack_margin*i, 1.0f * button_height * 0.1/4.0, white);
+  }
 
   if (draw_rects) render_rects();
   if (draw_lines) render_lines();
-  
+
   render(); render_clear();
+
+
+
 
   //@Bug: rects and lines are being drawn over the Gui.
   if (show_settings) {

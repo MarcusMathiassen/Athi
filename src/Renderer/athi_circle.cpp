@@ -28,7 +28,7 @@
 
 static Renderer circle_renderer;
 
-static constexpr s32 circle_vertices = 36;
+static constexpr s32 circle_vertices = 360;
 
 void init_circle_renderer() {
 
@@ -64,7 +64,6 @@ void draw_circle(const vec2 &pos, float radius, const vec4 &color, primitive pri
 void draw_filled_circle(const vec2 &pos, float radius, const vec4 &color) noexcept {
   render_call([pos, radius, color]{
 
-    profile p("draw_hollow_circle");
     CommandBuffer cmd;
     cmd.type = primitive::triangle_fan;
     cmd.count = circle_vertices;
@@ -88,7 +87,6 @@ void draw_hollow_circle(const vec2 &pos, float radius, const vec4 &color) noexce
 {
     render_call([pos, radius, color]
     {
-        profile p("draw_hollow_circle");
         CommandBuffer cmd;
         cmd.type = primitive::line_loop;
         cmd.count = circle_vertices;

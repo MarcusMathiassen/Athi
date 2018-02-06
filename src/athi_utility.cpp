@@ -184,6 +184,7 @@ vec4 color_by_acceleration(const vec4 &min_color, const vec4 &max_color,
 }
 
 vec4 get_universal_current_color() {
+  universal_color_picker++;
   if (universal_color_picker > 6) universal_color_picker = 0;
   switch (universal_color_picker) {
     case 0:

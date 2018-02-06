@@ -24,6 +24,7 @@
 #include "athi_camera.h"    // camera
 #include "athi_renderer.h"  // render_call
 #include "athi_line.h"   // draw_line
+#include "athi_circle.h"   // draw_circle
 
 #include "../athi_utility.h"   // profile
 #include "../athi_transform.h" // Transform
@@ -106,7 +107,53 @@ void init_rect_renderer() noexcept
   renderer.finish();
 }
 
+void draw_rounded_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, bool is_hollow) noexcept
+{
+  const float circle_radius = height * 0.25f;
 
+  const vec2 max{min.x+width, min.y+height};
+
+  auto draw_circle_fp = is_hollow ? &draw_hollow_circle : &draw_filled_circle;
+
+  draw_circle_fp(vec2(min.x, max.y),  circle_radius, color); // Left top
+  draw_circle_fp(min,                 circle_radius, color); // Left bottom 
+  draw_circle_fp(vec2(max.x, min.y),  circle_radius, color); // Right bottom
+  draw_circle_fp(max,                 circle_radius, color); // Right top
+
+  // Rects
+  draw_rect(vec2(min.x-circle_radius, min.y), vec2(max.x+circle_radius, max.y),  color, is_hollow);
+  draw_rect(vec2(min.x, min.y-circle_radius), vec2(max.x, max.y+circle_radius),  color, is_hollow);
+}
+
+void draw_rounded_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow) noexcept
+{
+
+  //  o---o
+  //  |   |
+  //  |   |
+  //  o---o
+
+  // Circles
+  const float height = max.y - min.y;
+  
+  const float circle_radius = height * 0.25f;
+
+  auto draw_circle_fp = is_hollow ? &draw_hollow_circle : &draw_filled_circle;
+
+  draw_circle_fp(vec2(min.x, max.y),  circle_radius, color); // Left top
+  draw_circle_fp(min,                 circle_radius, color); // Left bottom 
+  draw_circle_fp(vec2(max.x, min.y),  circle_radius, color); // Right bottom
+  draw_circle_fp(max,                 circle_radius, color); // Right top
+
+  // Rects
+  draw_rect(vec2(min.x-circle_radius, min.y), vec2(max.x+circle_radius, max.y),  color, is_hollow);
+  draw_rect(vec2(min.x, min.y-circle_radius), vec2(max.x, max.y+circle_radius),  color, is_hollow);
+}
+
+void draw_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, bool is_hollow) noexcept
+{
+  draw_rect(min, vec2(min.x+width, min.y+height), color, is_hollow);
+}
 void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow) noexcept
 {
   // If we're drawing a hollow rectangle..

@@ -74,6 +74,10 @@ static void menu_debug() {
   ImGui::SetNextWindowSizeConstraints(ImVec2(-1, 0),    ImVec2(-1, FLT_MAX));
   ImGui::Begin("Debug Options");
 
+  ImGui::SliderFloat("gButtonWidth", &gButtonWidth,  0, 500);
+  ImGui::SliderFloat("gButtonHeight", &gButtonHeight,  0, 500);
+
+
   ToggleButton("draw_rects", &draw_rects);
   ToggleButton("draw_circles", &draw_circles);
   ToggleButton("draw_lines", &draw_lines);

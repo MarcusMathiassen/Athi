@@ -58,6 +58,8 @@ static constexpr f64 kGravitationalConstant = 6.67408e-11;
 
 // Colors
 static const vec4 debug_color(0.000f, 1.000f, 0.087f, 1.000f);
+static const vec4 white(1,1,1,1);
+static const vec4 black(0,0,0,1);
 static const vec4 pastel_red(1, 0.411, 0.380, 1.0);
 static const vec4 pastel_green(0.466, 0.745, 0.466, 1.0);
 static const vec4 pastel_blue(0.466, 0.619, 0.796, 1.0);

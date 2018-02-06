@@ -39,6 +39,10 @@ bool has_random_velocity = true;
 f32 random_velocity_force = 5.0f;
 f32 color_by_velocity_threshold = 0.003f;
 
+float gButtonWidth{200.f};
+float gButtonHeight{25.f};
+
+
 bool wireframe_mode{false};
 bool draw_particles{true};
 bool post_processing{true};

@@ -89,7 +89,7 @@ elseif(APPLE)
   set_target_properties(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
 
   # LINK TO TARGET
-  target_link_libraries(${PROJECT_NAME} glew glfw "-lpthread -framework OpenGL -framework OpenCL -framework Cocoa -framework IOKIT -framework CoreVideo")
+  target_link_libraries(${PROJECT_NAME} glew glfw "-lpthread -lfreetype -framework OpenGL -framework OpenCL -framework Cocoa -framework IOKIT -framework CoreVideo")
 
 else()
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
