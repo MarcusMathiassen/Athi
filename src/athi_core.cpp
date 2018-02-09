@@ -22,6 +22,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
+#include "./Utility/athi_config_parser.h"   // init_variables
 #include "./Renderer/athi_renderer.h"   // render
 #include "./Renderer/athi_text.h"       // draw_text
 #include "./Renderer/opengl_utility.h"  // check_gl_error();
@@ -88,9 +89,12 @@ static void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
 }
 
 void Athi_Core::init() {
+
   spdlog::set_pattern("[%H:%M:%S] %v");
   console = spdlog::stdout_color_mt("Athi");
   if constexpr (ONLY_RUNS_IN_DEBUG_MODE) console->critical("DEBUG MODE: ON");
+
+  init_variables();
 
   window.scene.width = 800;
   window.scene.height = 500;

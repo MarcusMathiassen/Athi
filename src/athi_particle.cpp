@@ -516,8 +516,8 @@ void ParticleSystem::update() noexcept {
   }
 }
 
-void ParticleSystem::add(const glm::vec2 &pos, float radius,
-                         const glm::vec4 &color) noexcept {
+void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &color) noexcept
+{
   Particle p;
   p.pos = pos;
 
@@ -822,7 +822,7 @@ vector<s32> ParticleSystem::get_particles_in_circle(const Particle &p) noexcept 
   vector<s32> ids;
 
   // Using a tree
-  if (tree_type != TreeType::None)
+  if (tree_type != TreeType::None && circle_collision)
   {
     vector<s32> potential_collisions;
     potential_collisions = get_neighbours(p);

@@ -42,7 +42,6 @@ f32 color_by_velocity_threshold = 0.003f;
 float gButtonWidth{200.f};
 float gButtonHeight{25.f};
 
-
 bool wireframe_mode{false};
 bool draw_particles{true};
 bool post_processing{true};
@@ -135,7 +134,7 @@ std::atomic<s32> universal_color_picker{0};
 vec4 acceleration_color_min{vec4(1,1,1,1)};
 vec4 acceleration_color_max{vec4(0.315f, 1.000f, 0.000f, 0.100f)};
 
-vec4 background_color_dark = vec4(0.0f, 0.0f, 0.0f, 1.000f);
+vec4 background_color_dark = vec4(0.480f, 0.487f, 1.000f, 1.000f);
 vec4 background_color_light = vec4(0.7f, 0.7f, 0.7f, 1.0f);
 
 vec4 sw_color{pastel_red};

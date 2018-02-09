@@ -24,7 +24,11 @@
 Buffer::~Buffer() {
   glDeleteVertexArrays(1, &vao);
   check_gl_error();
-  for (auto & [ name, vbo ] : vbos) glDeleteBuffers(1, &vbo.handle);
+
+  // Cleanup bufferss
+  for (auto & [ name, vbo ] : vbos) { 
+    glDeleteBuffers(1, &vbo.handle); 
+  }
   check_gl_error();
 }
 
