@@ -148,7 +148,7 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
     write_color_data(particle_system.colors);
     write_transform_data(particle_system.transforms);
 
-    console->warn("Saved!");
+    console->warn("State saved!");
   }
 
   // load state
@@ -156,14 +156,12 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
       last_key_pressed == GLFW_KEY_LEFT_SUPER &&
       key_pressed(GLFW_KEY_X)) 
   {
-    particle_system.erase_all();
     read_particle_data(particle_system.particles);
     particle_system.particle_count = particle_system.particles.size();
     read_color_data(particle_system.colors);
     read_transform_data(particle_system.transforms);
 
-    console->warn("particle_count: {}, colors size: {}", particle_system.particle_count, particle_system.colors.size());
-    console->warn("Loaded!");
+    console->warn("State loaded!");
   }
 
   // TOGGLE PAUSE

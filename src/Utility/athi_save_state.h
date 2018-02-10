@@ -23,7 +23,7 @@
 
 #include <glm/vec2.hpp>
 
-#include "../athi_particle.h"
+#include "../athi_settings.h" // console
 
 #include <algorithm>
 #include <iostream>
@@ -81,6 +81,8 @@ static void write_particle_data(const vector<T>& data)
         write_member(FILE, v.radius);
     }
     FILE.close();   
+
+    console->warn("[IO WRITE] Particle data: {} bytes", (s1));
 }
 
 template <class T>
@@ -110,6 +112,7 @@ static void read_particle_data(vector<T>& data)
     }
 
     FILE.close();   
+    console->warn("[IO READ] Particle data: {} bytes", (s1));
 }
 
 template <class T>
@@ -131,6 +134,7 @@ static void write_color_data(const vector<T>& data)
         write_member(FILE, v.w);
     }
     FILE.close();   
+    console->warn("[IO WRITE] Color data: {} bytes", (s1));
 }
 
 template <class T>
@@ -155,6 +159,7 @@ static void read_color_data(vector<T>& data)
     }
 
     FILE.close();   
+    console->warn("[IO READ] Color data: {} bytes", (s1));
 }
 
 template <class T>
@@ -183,6 +188,7 @@ static void write_transform_data(const vector<T>& data)
         write_member(FILE, v.scale.z);
     }
     FILE.close();   
+    console->warn("[IO WRITE] Transform data: {} bytes", (s1));
 }
 
 template <class T>
@@ -214,4 +220,5 @@ static void read_transform_data(vector<T>& data)
     }
 
     FILE.close();   
+    console->warn("[IO READ] Transform data: {} bytes", (s1));
 }

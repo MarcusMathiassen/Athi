@@ -400,6 +400,55 @@ static void refresh_variables() noexcept
     variable_map["draw_debug"] =  draw_debug;
 }
 
+static const string default_config = 
+    "acceleration_color_max                  : vec4(0.315000, 1.000000, 0.000000, 0.100000)\n"
+    "acceleration_color_min                  : vec4(0.891325, 0.122900, 0.122900, 1.000000)\n"
+    "air_resistance                          : 0.990000\n"
+    "background_color                        : vec4(0.129000, 0.143000, 0.225000, 1.000000)\n"
+    "blur_strength                           : 2.000000\n"
+    "circle_color                            : vec4(0.623282, 0.914004, 0.160079, 1.000000)\n"
+    "circle_size                             : 5.000000\n"
+    "color_by_velocity_threshold             : 0.003000\n"
+    "color_particles                         : NO\n"
+    "draw_circles                            : YES\n"
+    "draw_debug                              : NO\n"
+    "draw_lines                              : YES\n"
+    "draw_particles                          : YES\n"
+    "draw_rects                              : YES\n"
+    "gButtonHeight                           : 25.000000\n"
+    "gButtonWidth                            : 200.000000\n"
+    "gravity                                 : 0.000000\n"
+    "has_random_velocity                     : YES\n"
+    "is_particles_colored_by_acc             : NO\n"
+    "monitor_refreshrate                     : 60.000000\n"
+    "mouse_busy_UI                           : NO\n"
+    "mouse_size                              : 40.635612\n"
+    "multithreaded_particle_update           : YES\n"
+    "num_vertices_per_particle               : 36.000000\n"
+    "openCL_active                           : NO\n"
+    "physics_samples                         : 8.000000\n"
+    "post_processing                         : YES\n"
+    "post_processing_samples                 : 4.000000\n"
+    "px_scale                                : 2.000000\n"
+    "quadtree_active                         : YES\n"
+    "quadtree_capacity                       : 100.000000\n"
+    "quadtree_depth                          : 10.000000\n"
+    "quadtree_show_only_occupied             : NO\n"
+    "random_velocity_force                   : 5.000000\n"
+    "show_mouse_collision_box                : YES\n"
+    "show_mouse_grab_lines                   : YES\n"
+    "show_settings                           : YES\n"
+    "time_scale                              : 1.000000\n"
+    "tree_optimized_size                     : YES\n"
+    "uniformgrid_parts                       : 16.000000\n"
+    "use_gravitational_force                 : NO\n"
+    "use_libdispatch                         : YES\n"
+    "use_multithreading                      : YES\n"
+    "use_uniformgrid                         : NO\n"
+    "variable_thread_count                   : 8.000000\n"
+    "vsync                                   : 1.000000\n"
+    "wireframe_mode                          : NO\n\n";
+
 template <class T>
 static void set_variable(T* var, const string& str)
 {
@@ -413,11 +462,28 @@ static void set_variable(T* var, const string& str)
     }
 }
 
+static constexpr const char* path("../bin/config.ini");
+
+static bool fileExists(const std::string& filename)
+{
+    struct stat buf;
+    if (stat(filename.c_str(), &buf) != -1)
+    {
+        return true;
+    }
+    return false;
+}
+
 static void init_variables() noexcept
 {
-    last_write_time = GetFileTimestamp("../bin/config.ini");
 
-    const auto file_data = get_content_of_file("../bin/config.ini");
+    if (!fileExists(path)) {
+        std::ofstream file(path);
+        file << default_config;
+    }
+
+    const auto file_data = get_content_of_file(path);
+    last_write_time = GetFileTimestamp(path);
     const auto no_spaces_data = eat_spaces(file_data);
     const auto lines = split_string(no_spaces_data, '\n');
 

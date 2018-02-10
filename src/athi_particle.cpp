@@ -131,7 +131,6 @@ void ParticleSystem::update_gpu_buffers() noexcept {
     models.resize(particle_count);
     transforms.resize(particle_count);
     colors.resize(particle_count);
-
     if constexpr (use_textured_particles)
       radii.resize(particle_count);
   }
