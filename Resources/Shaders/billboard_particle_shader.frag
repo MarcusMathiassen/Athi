@@ -11,6 +11,6 @@ uniform sampler2D tex;
 
 void main() {  
   vec4 image = texture(tex, frag.texcoord);
-  if (image.r < 0.15) discard;
+  if (image.r < 0.0) discard;
   frag_color = image * frag.color;
 }

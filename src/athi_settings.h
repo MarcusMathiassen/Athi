@@ -34,6 +34,14 @@
 extern Dispatch dispatcher;
 extern std::shared_ptr<spdlog::logger> console;
 
+extern string particle_texture;
+
+enum class ThreadPoolSolution { AppleGCD, Dispatch, None };
+extern ThreadPoolSolution threadpool_solution;
+
+enum class TreeType { Quadtree, UniformGrid, None };
+extern TreeType tree_type;
+
 enum class MouseOption { Color, GravityWell, Drag, Delete, None };
 extern MouseOption mouse_option;
 
@@ -64,6 +72,10 @@ extern bool mouse_grab;
 
 extern s32 screen_width;
 extern s32 screen_height;
+extern s32 framebuffer_width;
+extern s32 framebuffer_height;
+extern vec2 window_pos;
+
 extern f32 px_scale;
 
 extern bool show_settings;

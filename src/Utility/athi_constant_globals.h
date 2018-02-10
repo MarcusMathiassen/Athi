@@ -22,14 +22,8 @@
 
 #include <glm/vec4.hpp> // glm::vec4
 
-enum class ThreadPoolSolution { AppleGCD, Dispatch, None };
-extern ThreadPoolSolution threadpool_solution;
-
-enum class TreeType { Quadtree, UniformGrid, None };
-extern TreeType tree_type;
-
 static constexpr bool multithreaded_engine{false};    // Rendering and Update are run on separate threads.
-static constexpr bool use_textured_particles{false};  // Particles are rendered using textured billboards
+static constexpr bool use_textured_particles{true};   // Particles are rendered using textured billboards
 
 // Constants
 static constexpr f64 kPI = 3.14159265359;
@@ -65,7 +59,7 @@ enum class OS { Apple, Windows, Linux };
 
 
 #ifdef NDEBUG
-  static constexpr bool ONLY_RUNS_IN_DEBUG_MODE{true};
+  static constexpr bool DEBUG_MODE{true};
 #else
-  static constexpr bool ONLY_RUNS_IN_DEBUG_MODE{false};
+  static constexpr bool DEBUG_MODE{false};
 #endif

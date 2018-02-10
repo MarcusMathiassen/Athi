@@ -500,12 +500,12 @@ void gui_render() {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("menu")) {
       ImGui::MenuItem("settings", NULL, &open_settings);
-      if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
+      if constexpr (DEBUG_MODE) {
 
         ImGui::MenuItem("profiler", NULL, &open_profiler);
         ImGui::MenuItem("Profiler: physics", NULL, &open_cpu_profiler);
       }
-      if constexpr (ONLY_RUNS_IN_DEBUG_MODE) ImGui::MenuItem("debug", NULL, &open_debug_menu);
+      if constexpr (DEBUG_MODE) ImGui::MenuItem("debug", NULL, &open_debug_menu);
       ImGui::EndMenu();
     }
 
@@ -588,7 +588,7 @@ void gui_render() {
 
   if (open_settings)
     menu_settings();
-  if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
+  if constexpr (DEBUG_MODE) {
     if (open_cpu_profiler) menu_physics_profiler();
     if (open_profiler) menu_profiler();
     if (open_debug_menu) menu_debug();

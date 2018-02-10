@@ -226,8 +226,8 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept
 
 vec2 to_view_space(vec2 v) noexcept
 {
-  v.x = -1.0f + 2 * v.x / screen_width;
-  v.y = 1.0f - 2 * v.y / screen_height;
+  v.x = -1.0f + 2 * v.x / framebuffer_width;
+  v.y = 1.0f - 2 * v.y / framebuffer_height;
   v.y *= -1.0f;
   return v;
 }

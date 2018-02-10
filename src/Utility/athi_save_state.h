@@ -60,7 +60,7 @@ static void read_member(std::istream& FILE,  T& member)
 template <class T>
 static void write_particle_data(const vector<T>& data)
 {
-    std::ofstream FILE(path_particle, std::ios::out | std::ofstream::binary);
+    std::ofstream FILE(path_particle, std::ios::out | std::ofstream::binary | std::ios::trunc);
 
     size_t s1 = data.size() * sizeof(T);
 
@@ -119,7 +119,7 @@ static void read_particle_data(vector<T>& data)
 template <class T>
 static void write_color_data(const vector<T>& data)
 {
-    std::ofstream FILE(path_color, std::ios::out | std::ofstream::binary);
+    std::ofstream FILE(path_color, std::ios::out | std::ofstream::binary | std::ios::trunc);
 
     size_t s1 = data.size() * sizeof(T);
 
@@ -149,7 +149,7 @@ static void read_color_data(vector<T>& data)
     // Store size of the outer vector
     FILE.read(reinterpret_cast<char*>(&s1), sizeof(s1));
     
-    data.resize(s1);
+    data.resize(s1 / sizeof(T));
 
     // Now write each vector one by one
     for (auto &v: data)
@@ -167,7 +167,7 @@ static void read_color_data(vector<T>& data)
 template <class T>
 static void write_transform_data(const vector<T>& data)
 {
-    std::ofstream FILE(path_transform, std::ios::out | std::ofstream::binary);
+    std::ofstream FILE(path_transform, std::ios::out | std::ofstream::binary | std::ios::trunc);
 
     size_t s1 = data.size() * sizeof(T);
 
@@ -205,7 +205,7 @@ static void read_transform_data(vector<T>& data)
     // Store size of the outer vector
     FILE.read(reinterpret_cast<char*>(&s1), sizeof(s1));
     
-    data.resize(s1);
+    data.resize(s1 / sizeof(T));
 
     // Now write each vector one by one
     for (auto &v: data)

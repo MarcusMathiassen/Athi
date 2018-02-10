@@ -34,6 +34,7 @@ private:
 public:
   static void window_size_callback(GLFWwindow *window, s32 xpos, s32 ypos);
   static void framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height);
+  static void window_pos_callback(GLFWwindow* window, int xpos, int ypos);
 
   string title{"Athi"};
   struct {

@@ -68,21 +68,38 @@ void Athi_Window::init() {
   context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(context);
 
+  glfwSetWindowPos(context, window_pos.x, window_pos.y);
+
   // glfwSetWindowAspectRatio(context, 1, 1);
   glfwSetWindowSizeCallback(context, window_size_callback);
   glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
-
+  glfwSetWindowPosCallback(context, window_pos_callback);
   // GLEW setup / experimental because of glew bugs
   glewExperimental = true;
   if (glewInit() != GLEW_OK) {
     console->error("Error initializing GLEW!");
   }
 
+  int param[10];
+  glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &param[0]);
+  glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &param[1]);
+  glGetIntegerv(GL_PRIMITIVE_RESTART, &param[2]);
+  glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &param[3]);
+  glGetIntegerv(GL_MAX_SAMPLES, &param[4]);
+  glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &param[5]);
+  console->info("GL_MAX_ELEMENTS_INDICES:          {}", param[0]);
+  console->info("GL_MAX_ELEMENTS_VERTICES:         {}", param[1]);
+  console->info("GL_PRIMITIVE_RESTART:             {}", param[2]);
+  console->info("GL_MAX_SAMPLES:                   {}", param[4]);
+  console->info("GL_MAX_COLOR_ATTACHMENTS:         {}", param[5]);
+  console->info("GL_NUM_SHADING_LANGUAGE_VERSIONS: {}", glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+
   s32 width, height;
   glfwGetFramebufferSize(context, &width, &height);
   glViewport(0, 0, width, height);
-  screen_width = width;
-  screen_height = height;
+  framebuffer_width = width;
+  framebuffer_height = height;
   camera.update_projection(width, height);
   camera.update();
 
@@ -98,13 +115,22 @@ void Athi_Window::init() {
 
 GLFWwindow *Athi_Window::get_window_context() { return context; }
 
+void Athi_Window::window_pos_callback(GLFWwindow* window, int xpos, int ypos)
+{
+  window_pos.x = xpos;
+  window_pos.y = ypos;
+  console->info("window pos: {}x{}", xpos, ypos);
+}
+
 void Athi_Window::window_size_callback(GLFWwindow *window, s32 xpos, s32 ypos) {
   console->info("window size: {}x{}", xpos, ypos);
+  screen_width = xpos;
+  screen_height = ypos;
 }
 
 void Athi_Window::framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height) {
-  screen_width = width;
-  screen_height = height;
+  framebuffer_width = width;
+  framebuffer_height = height;
   camera.update_projection(static_cast<float>(width), static_cast<float>(height));
   camera.update();
   glViewport(0.0f, 0.0f, width, height);

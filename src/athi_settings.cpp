@@ -42,8 +42,16 @@ bool mouse_busy_UI{false};
 bool show_mouse_grab_lines{true};
 bool show_mouse_collision_box{true};
 bool mouse_grab{true};
-s32 screen_width;
-s32 screen_height;
+
+
+s32 screen_width{512};
+s32 screen_height{512};
+
+s32 framebuffer_width{512};
+s32 framebuffer_height{512};
+
+vec2 window_pos{512.0f/2.0f, 512.0f/2.0f};
+
 f32 px_scale{1.0f};
 
 bool show_settings{true};
@@ -100,6 +108,7 @@ vec4 se_color{pastel_gray};
 vec4 nw_color{pastel_orange};
 vec4 ne_color{pastel_pink};
 
+string particle_texture{"particle_texture"};
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // Do not touch beyond here

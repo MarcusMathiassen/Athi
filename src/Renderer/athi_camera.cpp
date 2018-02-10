@@ -93,6 +93,10 @@ void Camera::update_projection(f32 width, f32 height) {
   ortho_projection = glm::ortho(0.0f, width, 0.0f, height);
 }
 
+void Camera::update_ortho_projection(f32 left, f32 bottom, f32 width, f32 height) {
+  ortho_projection = glm::ortho(left, width, bottom, height);
+}
+
 mat4 Camera::get_perspective_projection() const {
   return perspective_projection;
 }

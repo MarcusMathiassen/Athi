@@ -1,0 +1,16 @@
+
+
+
+
+Resolution independence:
+    
+    What currently depends on knowing the screen resolution?
+    -   particle border collision
+    -   Particles position is in screenspace, not viewspace
+    -   framebuffers // this is needed tho
+    -   quadtree size
+    -   separate function for bound checking
+    -   to_view_space function // needed
+
+Lets start by making particles position viewspace..
+

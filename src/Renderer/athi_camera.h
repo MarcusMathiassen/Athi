@@ -63,6 +63,7 @@ struct Camera {
 
   void update();
   void update_projection(f32 width, f32 height);
+  void update_ortho_projection(f32 left, f32 bottom, f32 width, f32 height);
 
   mat4 get_view_matrix() const;
   mat4 get_view_projection() const;

@@ -125,12 +125,12 @@ private:
 public:
   physics_profile(const char* id) noexcept : m_id(id)
   {    
-    if constexpr (ONLY_RUNS_IN_DEBUG_MODE) 
+    if constexpr (DEBUG_MODE) 
       m_start_time = glfwGetTime();
   }
   ~physics_profile() noexcept
   {
-    if constexpr (ONLY_RUNS_IN_DEBUG_MODE) 
+    if constexpr (DEBUG_MODE) 
       profiler_physics.emplace_back(std::tuple<string,f64>(m_id, ((glfwGetTime() - m_start_time) * 1000.0)));
   }
 };
@@ -142,13 +142,13 @@ class profile {
 
  public:
   profile(const char *id_) noexcept {
-    if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
+    if constexpr (DEBUG_MODE) {
       id = id_;
       start = glfwGetTime();
     }
   }
   ~profile() noexcept {
-    if constexpr (ONLY_RUNS_IN_DEBUG_MODE) {
+    if constexpr (DEBUG_MODE) {
       time_taken_by[id] = (glfwGetTime() - start) * 1000.0;
     }
   }

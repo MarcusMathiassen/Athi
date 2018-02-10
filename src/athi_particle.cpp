@@ -23,12 +23,15 @@
 #include "./Utility/athi_constant_globals.h"  // kPi, kGravitationalConstant
 #include "./Utility/athi_save_state.h"   // write_data, read_data
 
+#include "./Renderer/athi_circle.h"  // draw_circle
+#include "./Renderer/athi_line.h"  // draw_line
 #include "./Renderer/athi_camera.h"  // Camera
 #include "athi_settings.h"           // console
 #include "athi_utility.h"            // read_file
 
 #include <algorithm>    // std::min_element, std::max_element
 #include <future>  // future
+#include <cmath> // std::next_after
 
 #ifdef __APPLE__
 #include <dispatch/dispatch.h>  // dispatch_apply
@@ -55,16 +58,16 @@ void Particle::update(f32 dt) noexcept {
       pos.x = 0 + radius;
       vel.x = -vel.x * collision_energy_loss;
     }
-    if (pos.x > screen_width - radius) {
-      pos.x = screen_width - radius;
+    if (pos.x > framebuffer_width - radius) {
+      pos.x = framebuffer_width - radius;
       vel.x = -vel.x * collision_energy_loss;
     }
     if (pos.y < 0 + radius) {
       pos.y = 0 + radius;
       vel.y = -vel.y * collision_energy_loss;
     }
-    if (pos.y > screen_height - radius) {
-      pos.y = screen_height - radius;
+    if (pos.y > framebuffer_height - radius) {
+      pos.y = framebuffer_height - radius;
       vel.y = -vel.y * collision_energy_loss;
     }
   }
@@ -81,6 +84,7 @@ void ParticleSystem::save_state() noexcept
 
 void ParticleSystem::load_state() noexcept
 {
+    erase_all();
     read_particle_data(particles);
     particle_count = particles.size();
     read_color_data(colors);
@@ -134,7 +138,7 @@ void ParticleSystem::threaded_buffer_update(size_t begin, size_t end) noexcept
     }
 
     // Update the transform
-    transforms[p.id].pos = {p.pos.x, p.pos.y, 0.0f};
+    transforms[p.id].pos = {p.pos.x, p.pos.y, 1.0f};
     models[p.id] = proj * transforms[p.id].get_model();
 
     if constexpr (use_textured_particles)
@@ -149,8 +153,6 @@ void ParticleSystem::update_gpu_buffers() noexcept {
   // Check if buffers need resizing
   if (particle_count > models.size()) {
     models.resize(particle_count);
-    transforms.resize(particle_count);
-    colors.resize(particle_count);
     if constexpr (use_textured_particles)
       radii.resize(particle_count);
   }
@@ -244,7 +246,9 @@ void ParticleSystem::init() noexcept {
 
   } else {
 
-    tex = {"particle_texture.png", GL_LINEAR};
+    tex = {particle_texture, GL_LINEAR};
+
+    console->warn("particle texture used: {}", particle_texture);
 
     auto &shader = renderer.make_shader();
     shader.sources = {"billboard_particle_shader.vert",
@@ -419,7 +423,7 @@ void ParticleSystem::draw_debug_nodes() noexcept {
         p.pos - p.radius, // min
         p.pos + p.radius, // max 
         debug_color,      // color
-        false
+        true
       );
     }
 
@@ -501,7 +505,7 @@ void ParticleSystem::update() noexcept {
         if (tree_optimized_size)
           quadtree = Quadtree<Particle>(min, max);
         else
-          quadtree = Quadtree<Particle>({0.0f, 0.0f}, {screen_width, screen_height});
+          quadtree = Quadtree<Particle>({0.0f, 0.0f}, {framebuffer_width, framebuffer_height});
       
         {
           profile p("Quadtree.input()");
@@ -583,8 +587,8 @@ void ParticleSystem::erase_all() noexcept {
   models.clear();
 }
 
-bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const
-    noexcept {
+bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const noexcept
+{
   // Local variables
   const auto ax = a.pos.x;
   const auto ay = a.pos.y;
@@ -594,8 +598,8 @@ bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const
   const auto br = b.radius;
 
   // square collision check
-  if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br &&
-      ay + ar > by - br) {
+  if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br && ay + ar > by - br)
+  {
     const auto dx = bx - ax;
     const auto dy = by - ay;
 
@@ -611,8 +615,8 @@ bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const
 }
 
 // Collisions response between two circles with varying radius and mass.
-void ParticleSystem::collision_resolve(Particle &a, Particle &b) const
-    noexcept {
+void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
+{
   // Local variables
   const auto dx = b.pos.x - a.pos.x;
   const auto dy = b.pos.y - a.pos.y;
@@ -627,13 +631,12 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const
   // calculated values will be off.
   separate(a, b);
 
-  // A negative 'd' means the circles velocities are in opposite
-  // directions
-  const auto d = dx * vdx + dy * vdy;
+  // A negative 'd' means the circles velocities are in opposite directions
+  const float d = dx * vdx + dy * vdy;
 
-  // And we don't resolve collisions between circles moving away from
-  // eachother
-  if (d < 0) {
+  // And we don't resolve collisions between circles moving away from eachother
+  if (d < std::numeric_limits<float>::epsilon())
+  {
     const auto norm = glm::normalize(glm::vec2(dx, dy));
     const auto tang = glm::vec2{norm.y * -1.0, norm.x};
     const auto scal_norm_1 = glm::dot(norm, a_vel);
@@ -641,10 +644,8 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const
     const auto scal_tang_1 = glm::dot(tang, a_vel);
     const auto scal_tang_2 = glm::dot(tang, b_vel);
 
-    const auto scal_norm_1_after =
-        (scal_norm_1 * (m1 - m2) + 2.0f * m2 * scal_norm_2) / (m1 + m2);
-    const auto scal_norm_2_after =
-        (scal_norm_2 * (m2 - m1) + 2.0f * m1 * scal_norm_1) / (m1 + m2);
+    const auto scal_norm_1_after = (scal_norm_1 * (m1 - m2) + 2.0f * m2 * scal_norm_2) / (m1 + m2);
+    const auto scal_norm_2_after = (scal_norm_2 * (m2 - m1) + 2.0f * m1 * scal_norm_1) / (m1 + m2);
     const auto scal_norm_1_after_vec = norm * scal_norm_1_after;
     const auto scal_norm_2_after_vec = norm * scal_norm_2_after;
     const auto scal_norm_1_vec = tang * scal_tang_1;
@@ -666,7 +667,7 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
 
   const f32 collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
 
-  if (collision_depth < 0) return;
+  if (collision_depth < std::numeric_limits<float>::epsilon()) return;
 
   const f32 dx = b_pos.x - a_pos.x;
   const f32 dy = b_pos.y - a_pos.y;
@@ -676,30 +677,38 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   const f32 cos_angle = cosf(collision_angle);
   const f32 sin_angle = sinf(collision_angle);
 
+  // @Same as above, just janky not working
+  // const auto midpoint_x = (a_pos.x + b_pos.x) / 2.0f; 
+  // const auto midpoint_y = (a_pos.y + b_pos.y) / 2.0f;
+
   // TODO: could this be done using a normal vector and just inverting it?
   // amount to move each ball
-  const f32 a_move_x = -collision_depth * 0.5f * cos_angle;
-  const f32 a_move_y = -collision_depth * 0.5f * sin_angle;
-  const f32 b_move_x = collision_depth * 0.5f * cos_angle;
-  const f32 b_move_y = collision_depth * 0.5f * sin_angle;
+  const vec2 a_move = {-collision_depth * 0.5f * cos_angle, -collision_depth * 0.5f * sin_angle};
+  const vec2 b_move = { collision_depth * 0.5f * cos_angle,  collision_depth * 0.5f * sin_angle};
 
-  // store the new move values
+  // @Same as above, just janky not working
+  // const f32 a_move.x = midpoint_x + ar * (a_pos.x - b_pos.x) / collision_depth; 
+  // const f32 a_move.y = midpoint_y + ar * (a_pos.y - b_pos.y) / collision_depth; 
+  // const f32 b_move.x = midpoint_x + br * (b_pos.x - a_pos.x) / collision_depth; 
+  // const f32 b_move.y = midpoint_y + br * (b_pos.y - a_pos.y) / collision_depth;
+
+  // stores the position offsets
   vec2 a_pos_move;
   vec2 b_pos_move;
 
   // Make sure they dont moved beyond the border
-  if (a_pos.x + a_move_x >= 0.0f + ar &&
-      a_pos.x + a_move_x <= screen_width - ar)
-    a_pos_move.x += a_move_x;
-  if (a_pos.y + a_move_y >= 0.0f + ar &&
-      a_pos.y + a_move_y <= screen_height - ar)
-    a_pos_move.y += a_move_y;
-  if (b_pos.x + b_move_x >= 0.0f + br &&
-      b_pos.x + b_move_x <= screen_width - br)
-    b_pos_move.x += b_move_x;
-  if (b_pos.y + b_move_y >= 0.0f + br &&
-      b_pos.y + b_move_y <= screen_height - br)
-    b_pos_move.y += b_move_y;
+  if (a_pos.x + a_move.x >= 0.0f + ar &&
+      a_pos.x + a_move.x <= framebuffer_width - ar)
+    a_pos_move.x += a_move.x;
+  if (a_pos.y + a_move.y >= 0.0f + ar &&
+      a_pos.y + a_move.y <= framebuffer_height - ar)
+    a_pos_move.y += a_move.y;
+  if (b_pos.x + b_move.x >= 0.0f + br &&
+      b_pos.x + b_move.x <= framebuffer_width - br)
+    b_pos_move.x += b_move.x;
+  if (b_pos.y + b_move.y >= 0.0f + br &&
+      b_pos.y + b_move.y <= framebuffer_height - br)
+    b_pos_move.y += b_move.y;
 
   // Update positions
   a.pos += a_pos_move;

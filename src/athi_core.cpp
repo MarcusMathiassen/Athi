@@ -82,7 +82,7 @@ static void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
   mat4 trans = proj * Transform().get_model();
 
   renderer.shader.set_uniform("transform", trans);
-  renderer.shader.set_uniform("res", screen_width, screen_height);
+  renderer.shader.set_uniform("res", framebuffer_width, framebuffer_height);
   renderer.shader.set_uniform("tex", 0);
   renderer.shader.set_uniform("dir", dir);
 
@@ -93,12 +93,12 @@ void Athi_Core::init() {
 
   spdlog::set_pattern("[%H:%M:%S] %v");
   console = spdlog::stdout_color_mt("Athi");
-  if constexpr (ONLY_RUNS_IN_DEBUG_MODE) console->critical("DEBUG MODE: ON");
+  if constexpr (DEBUG_MODE) console->critical("DEBUG MODE: ON");
 
   init_variables();
 
-  window.scene.width = 800;
-  window.scene.height = 500;
+  window.scene.width = screen_width;
+  window.scene.height = screen_height;
   window.init();
   
   stbi_set_flip_vertically_on_load(true);
@@ -109,9 +109,7 @@ void Athi_Core::init() {
   threadpool_solution = ThreadPoolSolution::AppleGCD;
 #endif
 
-  int width, height;
-  glfwGetFramebufferSize(window.get_window_context(), &width, &height);
-  px_scale = static_cast<f32>(width) / static_cast<f32>(window.scene.width);
+  px_scale = static_cast<f32>(framebuffer_width) / static_cast<f32>(screen_width);
 
   gui_init(window.get_window_context(), px_scale);
   variable_thread_count = std::thread::hardware_concurrency();
@@ -120,7 +118,7 @@ void Athi_Core::init() {
   console->info("{} {}", FRED("CPU:"), get_cpu_brand());
   console->info("Threads available: {}", std::thread::hardware_concurrency());
   console->info("IMGUI VERSION {}", ImGui::GetVersion());
-  // console->info("GLM VERSION {}", glm::get_version());
+  console->info("GLM VERSION {}", "0.9.8");
   console->info("GL_VERSION {}", glGetString(GL_VERSION));
   console->info("GL_VENDOR {}", glGetString(GL_VENDOR));
   console->info("GL_RENDERER {}", glGetString(GL_RENDERER));
@@ -148,8 +146,8 @@ void Athi_Core::start() {
   setup_fullscreen_quad();
 
   framebuffers.resize(2);
-  framebuffers[0].resize(screen_width, screen_height);
-  framebuffers[1].resize(screen_width, screen_height);
+  framebuffers[0].resize(framebuffer_width, framebuffer_height);
+  framebuffers[1].resize(framebuffer_width, framebuffer_height);
   
   std::future<void> update_fut, draw_fut;
   if constexpr (multithreaded_engine) { 
@@ -166,7 +164,7 @@ void Athi_Core::start() {
 
     if constexpr (!multithreaded_engine) { 
 
-      if constexpr (ONLY_RUNS_IN_DEBUG_MODE) reload_variables();
+      if constexpr (DEBUG_MODE) reload_variables();
       
       update_inputs();
       update();

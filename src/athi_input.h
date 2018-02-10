@@ -83,7 +83,7 @@ static void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset) {
 
 static void cursor_position_callback(GLFWwindow *window, f64 xpos, f64 ypos) {
   athi_input_manager.mouse.pos.x = xpos * px_scale;
-  athi_input_manager.mouse.pos.y = screen_height - (ypos * px_scale);
+  athi_input_manager.mouse.pos.y = framebuffer_height - (ypos * px_scale);
 }
 
 static void char_callback(GLFWwindow *, u32 c) {
@@ -273,15 +273,15 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
       for (s32 k = 250; k < 500; k += 2)
         particle_system.add(glm::vec2(j, k), 1.0f, circle_color);
 
-    for (s32 j = screen_width - 250; j > screen_width-500; j -= 2)
-      for (s32 k = screen_height - 250; k > screen_height-500; k -= 2)
+    for (s32 j = framebuffer_width - 250; j > framebuffer_width-500; j -= 2)
+      for (s32 k = framebuffer_height - 250; k > framebuffer_height-500; k -= 2)
         particle_system.add(glm::vec2(j, k), 1.0f, circle_color);
   }
 
   // Benchmark 2
   if (key_pressed(GLFW_KEY_N)) {
-    for (s32 j = 0; j < screen_width; j += 4)
-      for (s32 k = 0; k < screen_height; k += 4)
+    for (s32 j = 0; j < framebuffer_width; j += 4)
+      for (s32 k = 0; k < framebuffer_height; k += 4)
         particle_system.add(glm::vec2(j, k), 1.0f, circle_color);
   }
 

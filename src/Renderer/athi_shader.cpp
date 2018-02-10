@@ -145,7 +145,7 @@ void Shader::link() noexcept {
 }
 
 void Shader::bind() noexcept { 
-  if constexpr (ONLY_RUNS_IN_DEBUG_MODE) reload();
+  if constexpr (DEBUG_MODE) reload();
   glUseProgram(program); 
   check_gl_error();
 }
