@@ -21,6 +21,7 @@
 #include "athi_particle.h"
 
 #include "./Utility/athi_globals.h"  // kPi, kGravitationalConstant
+#include "./Utility/athi_save_state.h"   // write_data, read_data
 
 #include "./Renderer/athi_camera.h"  // Camera
 #include "athi_settings.h"           // console
@@ -67,6 +68,25 @@ void Particle::update(f32 dt) noexcept {
       vel.y = -vel.y * collision_energy_loss;
     }
   }
+}
+
+void ParticleSystem::save_state() noexcept
+{
+    write_particle_data(particles);
+    write_color_data(colors);
+    write_transform_data(transforms);
+
+    console->warn("Particle state saved!");
+}
+
+void ParticleSystem::load_state() noexcept
+{
+    read_particle_data(particles);
+    particle_count = particles.size();
+    read_color_data(colors);
+    read_transform_data(transforms);
+
+    console->warn("Particle state loaded!");
 }
 
 void ParticleSystem::draw() noexcept {
@@ -254,6 +274,8 @@ void ParticleSystem::init() noexcept {
 
     renderer.finish();
   }
+
+  load_state();
 }
 
 void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {

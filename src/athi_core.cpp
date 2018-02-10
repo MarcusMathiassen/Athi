@@ -306,4 +306,6 @@ void Athi_Core::update_settings() { glfwSwapInterval(vsync); }
 void Athi_Core::shutdown() {
   gui_shutdown();
   glfwTerminate();
+  save_variables();
+  particle_system.save_state();
 }

@@ -95,6 +95,8 @@ struct ParticleSystem {
   //////////////////////////////////////////////////////////
 
   void init() noexcept;
+  void save_state() noexcept;
+  void load_state() noexcept;
   void refresh_vertices() noexcept;
   void update() noexcept;
   void rebuild_vertices(u32 num_vertices) noexcept;

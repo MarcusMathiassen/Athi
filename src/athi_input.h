@@ -25,7 +25,6 @@
 #include "athi_particle.h"  // particle_system
 #include "athi_settings.h"  // console
 #include "./Utility/athi_config_parser.h"  // save_variables
-#include "./Utility/athi_save_state.h"   // write_data, read_data
 
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
@@ -144,10 +143,7 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
       key_pressed(GLFW_KEY_S)) 
   {
     save_variables();
-    write_particle_data(particle_system.particles);
-    write_color_data(particle_system.colors);
-    write_transform_data(particle_system.transforms);
-
+    particle_system.save_state();
     console->warn("State saved!");
   }
 
@@ -156,11 +152,7 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
       last_key_pressed == GLFW_KEY_LEFT_SUPER &&
       key_pressed(GLFW_KEY_X)) 
   {
-    read_particle_data(particle_system.particles);
-    particle_system.particle_count = particle_system.particles.size();
-    read_color_data(particle_system.colors);
-    read_transform_data(particle_system.transforms);
-
+    particle_system.load_state();
     console->warn("State loaded!");
   }
 
