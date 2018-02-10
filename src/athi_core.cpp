@@ -27,7 +27,7 @@
 #include "./Renderer/athi_renderer.h"   // render
 #include "./Renderer/athi_text.h"       // draw_text
 #include "./Renderer/opengl_utility.h"  // check_gl_error();
-#include "./Utility/athi_globals.h"     // os
+#include "./Utility/athi_constant_globals.h"     // os
 #include "athi_gui.h"                   // gui_init, gui_render, gui_shutdown
 #include "athi_input.h"                 // update_inputs
 #include "./Renderer/athi_primitives.h"       // draw_circle, draw_rects, draw_lines
@@ -158,7 +158,8 @@ void Athi_Core::start() {
     draw_fut = dispatcher.enqueue(&Athi_Core::draw_loop, this);
   }
 
-  while (!glfwWindowShouldClose(window_context)) {
+  while (!glfwWindowShouldClose(window_context))
+  {
     const f64 time_start_frame = glfwGetTime();
 
     glfwPollEvents();

@@ -24,7 +24,7 @@
 #include "athi_renderer.h" // Renderer
 #include "athi_transform.h" // Transform
 #include "athi_camera.h" // camera
-#include "../Utility/athi_globals.h" // kPI
+#include "../Utility/athi_constant_globals.h" // kPI
 
 static Renderer circle_renderer;
 

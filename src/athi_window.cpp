@@ -27,6 +27,11 @@
 #include "athi_utility.h" // FRED
 #include "./Renderer/opengl_utility.h" // MessageCallback
 
+void glfw_error_callback(int error, const char* description)
+{
+    console->error("{}", description);
+}
+
 void Athi_Window::init() {
 
   if (!glfwInit()) {
@@ -51,6 +56,8 @@ void Athi_Window::init() {
   glfwWindowHint(GLFW_GREEN_BITS, modes->greenBits);
   glfwWindowHint(GLFW_BLUE_BITS, modes->blueBits);
   glfwWindowHint(GLFW_REFRESH_RATE, modes->refreshRate);
+
+  glfwSetErrorCallback(glfw_error_callback);
 
   monitor_refreshrate = modes->refreshRate;
 

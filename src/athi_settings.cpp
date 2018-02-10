@@ -20,18 +20,9 @@
 
 
 #include "athi_settings.h"
-Dispatch dispatcher;
-std::shared_ptr<spdlog::logger> console;
-
-MouseOption mouse_option{MouseOption::Drag};
-TreeType tree_type{TreeType::Quadtree};
-ThreadPoolSolution threadpool_solution{ThreadPoolSolution::Dispatch};
 
 std::vector<FrameBuffer> framebuffers;
 f64 frame_budget{1.0 / 60.0};
-
-s32 mouse_radio_options = static_cast<s32>(MouseOption::Drag);
-s32 tree_radio_option = 0;
 
 s32 num_vertices_per_particle = 36;
 bool is_particles_colored_by_acc = false;
@@ -74,9 +65,6 @@ s32 blur_strength{2};
 f32 circle_size{5.0f};
 vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
 
-std::atomic<u64> comparisons{0};
-std::atomic<u64> resolutions{0};
-
 bool draw_debug{false};
 bool color_particles{false};
 bool draw_nodes{true};
@@ -94,7 +82,39 @@ s32 quadtree_capacity{100};
 bool use_uniformgrid{false};
 s32 uniformgrid_parts{256};
 
-u16 monitor_refreshrate{60};
+f32 time_scale{1.0f};
+bool vsync{true};
+
+bool use_multithreading{true};
+bool use_libdispatch{false};
+
+bool openCL_active{false};
+
+vec4 acceleration_color_min{vec4(1,1,1,1)};
+vec4 acceleration_color_max{vec4(0.315f, 1.000f, 0.000f, 0.100f)};
+
+vec4 background_color = vec4(0.480f, 0.487f, 1.000f, 1.000f);
+
+vec4 sw_color{pastel_red};
+vec4 se_color{pastel_gray};
+vec4 nw_color{pastel_orange};
+vec4 ne_color{pastel_pink};
+
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Do not touch beyond here
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Dispatch dispatcher;
+std::shared_ptr<spdlog::logger> console;
+bool app_is_running{true};
+bool settings_changed{false};
+
+s32 cpu_cores;
+s32 cpu_threads;
+string cpu_brand;
+s32 variable_thread_count;
+std::atomic<s32> universal_color_picker{0};
 
 f64 frametime;
 f64 smoothed_frametime;
@@ -112,30 +132,14 @@ f64 smoothed_physics_frametime;
 s32 physics_framerate;
 s32 physics_FPS_limit{0};
 
-f32 time_scale{1.0f};
-bool vsync{true};
+u16 monitor_refreshrate{60};
 
-s32 variable_thread_count;
-bool use_multithreading{true};
-bool use_libdispatch{false};
+std::atomic<u64> comparisons{0};
+std::atomic<u64> resolutions{0};
 
-s32 cpu_cores;
-s32 cpu_threads;
-string cpu_brand;
+s32 mouse_radio_options = static_cast<s32>(MouseOption::Drag);
+s32 tree_radio_option = 0;
 
-bool openCL_active{false};
-
-bool app_is_running{true};
-bool settings_changed{false};
-
-std::atomic<s32> universal_color_picker{0};
-
-vec4 acceleration_color_min{vec4(1,1,1,1)};
-vec4 acceleration_color_max{vec4(0.315f, 1.000f, 0.000f, 0.100f)};
-
-vec4 background_color = vec4(0.480f, 0.487f, 1.000f, 1.000f);
-
-vec4 sw_color{pastel_red};
-vec4 se_color{pastel_gray};
-vec4 nw_color{pastel_orange};
-vec4 ne_color{pastel_pink};
+MouseOption mouse_option{MouseOption::Drag};
+TreeType tree_type{TreeType::Quadtree};
+ThreadPoolSolution threadpool_solution{ThreadPoolSolution::Dispatch};

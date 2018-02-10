@@ -31,21 +31,13 @@
 std::unordered_map<string, f64> time_taken_by;
 std::vector<std::tuple<string, f64>> profiler_physics;
 
-f32 rand_f32(f32 min, f32 max) noexcept {
-  return ((f32(rand()) / f32(RAND_MAX)) * (max - min)) + min;
-}
-vec2 rand_vec2(f32 min, f32 max) noexcept {
-  return vec2(rand_f32(min, max), rand_f32(min, max));
-}
-vec3 rand_vec3(f32 min, f32 max) noexcept {
-  return vec3(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max));
-}
-vec4 rand_vec4(f32 min, f32 max) noexcept {
-  return vec4(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max),
-              rand_f32(min, max));
-}
+f32  rand_f32 (f32 min, f32 max) noexcept { return ((f32(rand()) / f32(RAND_MAX)) * (max - min)) + min; }
+vec2 rand_vec2(f32 min, f32 max) noexcept { return vec2(rand_f32(min, max), rand_f32(min, max)); }
+vec3 rand_vec3(f32 min, f32 max) noexcept { return vec3(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }
+vec4 rand_vec4(f32 min, f32 max) noexcept { return vec4(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }
 
-vec4 rgb_to_hsv(vec4 in) noexcept {
+vec4 rgb_to_hsv(vec4 in) noexcept
+{
   vec4 out;
   f64 min{0.0f}, max{0.0f}, delta{0.0f};
 
@@ -85,7 +77,8 @@ vec4 rgb_to_hsv(vec4 in) noexcept {
   return out;
 }
 
-vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept {
+vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept
+{
   // gray
   if (s == 0.0f) return vec4(v, v, v, a);
 
@@ -100,43 +93,22 @@ vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept {
 
   f32 r{0.0f}, g{0.0f}, b{0.0f};
 
-  switch (i) {
-    case 0:
-      r = v;
-      g = t;
-      b = p;
-      break;
-    case 1:
-      r = q;
-      g = v;
-      b = p;
-      break;
-    case 2:
-      r = p;
-      g = v;
-      b = t;
-      break;
-    case 3:
-      r = p;
-      g = q;
-      b = v;
-      break;
-    case 4:
-      r = t;
-      g = p;
-      b = v;
-      break;
+  switch (i)
+  {
+    case 0: r = v; g = t; b = p; break;
+    case 1: r = q; g = v; b = p; break;
+    case 2: r = p; g = v; b = t; break;
+    case 3: r = p; g = q; b = v; break;
+    case 4: r = t; g = p; b = v; break;
     case 5:
-    default:
-      r = v;
-      g = p;
-      b = q;
-      break;
+    default: r = v; g = p; b = q; break;
   }
+
   return vec4(r, g, b, a);
 }
 
-vec4 lerp_hsv(vec4 a, vec4 b, f32 t) noexcept {
+vec4 lerp_hsv(vec4 a, vec4 b, f32 t) noexcept
+{
   // Hue interpolation
   f32 h{0.0f};
   f32 d = b.x - a.x;
@@ -167,8 +139,8 @@ vec4 lerp_hsv(vec4 a, vec4 b, f32 t) noexcept {
   );
 }
 
-vec4 color_by_acceleration(const vec4 &min_color, const vec4 &max_color,
-                           const vec2 &acc) noexcept {
+vec4 color_by_acceleration(const vec4 &min_color, const vec4 &max_color, const vec2 &acc) noexcept
+{
   vec2 temp = acc;
   // Get the HSV equivalent
   temp.x *= color_by_velocity_threshold;
@@ -183,7 +155,8 @@ vec4 color_by_acceleration(const vec4 &min_color, const vec4 &max_color,
   return hsv_to_rgb(c3.x, c3.y, c3.z, c3.w);
 }
 
-vec4 get_universal_current_color() {
+vec4 get_universal_current_color()
+{
   universal_color_picker++;
   if (universal_color_picker > 6) universal_color_picker = 0;
   switch (universal_color_picker) {
@@ -211,7 +184,9 @@ vec4 get_universal_current_color() {
   }
   return vec4();
 }
-void read_file(const char *file, char **buffer) noexcept {
+
+void read_file(const char *file, char **buffer) noexcept
+{
   string buff, line;
   std::ifstream fileIn(file);
   while (std::getline(fileIn, line)) buff += line + '\n';
@@ -225,7 +200,8 @@ string get_content_of_file(const string& file) noexcept
   return string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 }
 
-void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept {
+void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept
+{
   const f64 frametime = (1000.0 / desired_framerate);
   f64 time_spent_frame = (glfwGetTime() - time_start_frame) * 1000.0;
   const f64 time_to_sleep = (frametime - time_spent_frame) * 0.7;
@@ -248,14 +224,16 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept {
   }
 }
 
-vec2 to_view_space(vec2 v) noexcept {
+vec2 to_view_space(vec2 v) noexcept
+{
   v.x = -1.0f + 2 * v.x / screen_width;
   v.y = 1.0f - 2 * v.y / screen_height;
   v.y *= -1.0f;
   return v;
 }
 
-string get_cpu_brand() {
+string get_cpu_brand()
+{
 #ifdef _WIN32
   s32 CPUInfo[4] = {-1};
   u32 nExIds, i = 0;

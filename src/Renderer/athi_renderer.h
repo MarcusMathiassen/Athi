@@ -38,6 +38,27 @@ void render();
 void render_clear();
 void render_call(const std::function<void()>& f);
 
+struct render_desc
+{
+  u32 vao{0};
+  u32 count{0};
+  u32 num_indices{0};
+  bool has_indices{false};
+};
+
+/*
+
+for (auto &rnd_desc: render_descriptors)
+{
+  glBindVertexArray(rnd_desc.vao);
+  if (redn_desc.has_indicies) 
+    glDrawElements(GL_TRIANGLES, 0, num_indices, NULL);
+  else 
+    glDrawArrays(GL_TRIANGLES, 0, count);
+}
+
+*/
+
 struct Renderer
 {
   string name;

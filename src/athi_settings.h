@@ -23,7 +23,7 @@
 
 #include "athi_typedefs.h"
 
-#include "./Utility/athi_globals.h"
+#include "./Utility/athi_constant_globals.h"
 #include "./Renderer/athi_framebuffer.h"
 #include "athi_dispatch.h"
 #include "imgui.h"

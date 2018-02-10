@@ -21,7 +21,7 @@
 
 #include "athi_input.h"
 
-#include "./Utility/athi_globals.h"
+#include "./Utility/athi_constant_globals.h"
 
 #include "./Renderer/athi_primitives.h" // draw_hollow_circle, draw_line
 #include "athi_utility.h"  // profile

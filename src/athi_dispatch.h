@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "./Utility/athi_globals.h" // os
+#include "./Utility/athi_constant_globals.h" // os
 
 #include <thread>
 #include <cassert>

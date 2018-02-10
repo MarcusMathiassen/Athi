@@ -20,7 +20,7 @@
 
 #include "athi_particle.h"
 
-#include "./Utility/athi_globals.h"  // kPi, kGravitationalConstant
+#include "./Utility/athi_constant_globals.h"  // kPi, kGravitationalConstant
 #include "./Utility/athi_save_state.h"   // write_data, read_data
 
 #include "./Renderer/athi_camera.h"  // Camera
