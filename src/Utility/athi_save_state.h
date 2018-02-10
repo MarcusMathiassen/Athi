@@ -24,6 +24,7 @@
 #include <glm/vec2.hpp>
 
 #include "../athi_settings.h" // console
+#include "../athi_utility.h" // file_exists
 
 #include <algorithm>
 #include <iostream>
@@ -34,7 +35,6 @@
 static const char* path_particle("../bin/particles.dat");
 static const char* path_color("../bin/colors.dat");
 static const char* path_transform("../bin/transforms.dat");
-
 
 template <class T> 
 static void write_member(std::ostream& FILE,  T member)
@@ -88,6 +88,7 @@ static void write_particle_data(const vector<T>& data)
 template <class T>
 static void read_particle_data(vector<T>& data)
 {
+    if (!file_exists(path_particle)) return;
     std::ifstream FILE(path_particle, std::ios::in | std::ofstream::binary);
 
     size_t s1;
@@ -140,6 +141,7 @@ static void write_color_data(const vector<T>& data)
 template <class T>
 static void read_color_data(vector<T>& data)
 {
+    if (!file_exists(path_color)) return;
     std::ifstream FILE(path_color, std::ios::in | std::ofstream::binary);
 
     size_t s1;
@@ -194,6 +196,8 @@ static void write_transform_data(const vector<T>& data)
 template <class T>
 static void read_transform_data(vector<T>& data)
 {
+    if (!file_exists(path_transform)) return;
+
     std::ifstream FILE(path_transform, std::ios::in | std::ofstream::binary);
 
     size_t s1;

@@ -23,6 +23,7 @@
 
 #include "../athi_typedefs.h"
 #include "../athi_utility.h"
+#include "../athi_utility.h" // file_exists
 #include "../athi_settings.h"
 
 static void init_variables() noexcept;
@@ -347,6 +348,7 @@ static void save_variables() noexcept
 
     std::fstream file("../bin/config.ini");
     file << new_file_data;
+    console->warn("Config saved");
 }
 
 static void refresh_variables() noexcept
@@ -464,20 +466,10 @@ static void set_variable(T* var, const string& str)
 
 static constexpr const char* path("../bin/config.ini");
 
-static bool fileExists(const std::string& filename)
-{
-    struct stat buf;
-    if (stat(filename.c_str(), &buf) != -1)
-    {
-        return true;
-    }
-    return false;
-}
-
 static void init_variables() noexcept
 {
 
-    if (!fileExists(path)) {
+    if (!file_exists(path)) {
         std::ofstream file(path);
         file << default_config;
     }
@@ -559,4 +551,6 @@ static void init_variables() noexcept
     set_variable(&vsync, "vsync");
     set_variable(&background_color, "background_color");
     set_variable(&draw_debug, "draw_debug");
+
+    console->warn("Config loaded");
 }

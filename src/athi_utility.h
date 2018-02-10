@@ -89,6 +89,18 @@ inline static auto get_begin_and_end(s32 i, s32 total, s32 threads) noexcept {
   return std::tuple<size_t, size_t>{begin, end};
 };
 
+
+static bool file_exists(const std::string& filename)
+{
+    struct stat buf;
+    if (stat(filename.c_str(), &buf) != -1)
+    {
+        return true;
+    }
+    return false;
+}
+
+
 // Color functions
 vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept;
 vec4 rgb_to_hsv(vec4 in) noexcept;
