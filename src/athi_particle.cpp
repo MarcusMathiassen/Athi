@@ -96,6 +96,17 @@ void ParticleSystem::draw() noexcept {
 
     renderer.draw(cmd_buffer);  
   }
+
+  for (auto p: particles)
+  { 
+    console->info("");
+    console->info("P: id:{}",p.id);
+    console->info("P: pos:{}{}",p.pos.x, p.pos.y);
+    console->info("P: vel:{}{}",p.vel.x, p.vel.y);
+    console->info("P: acc:{}{}",p.acc.x, p.acc.y);
+    console->info("P: mass:{}",p.mass);
+    console->info("P: radius:{}",p.radius);
+  }
 }
 
 static vector<float> radii;
@@ -129,6 +140,8 @@ void ParticleSystem::update_gpu_buffers() noexcept {
   // Check if buffers need resizing
   if (particle_count > models.size()) {
     models.resize(particle_count);
+    transforms.resize(particle_count);
+    colors.resize(particle_count);
 
     if constexpr (use_textured_particles)
       radii.resize(particle_count);
@@ -417,7 +430,7 @@ void ParticleSystem::draw_debug_nodes() noexcept {
 
 void ParticleSystem::threaded_particle_update(size_t begin, size_t end) noexcept {
   for (size_t i = begin; i < end; ++i) {
-    if (physics_gravity) particles[i].acc.y -= (gravity_force * particles[i].mass);
+    particles[i].acc.y -= (gravity * particles[i].mass) * timestep;
     particles[i].update(timestep);
   }
 }

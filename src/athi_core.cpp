@@ -22,6 +22,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
+#include "./Utility/athi_save_state.h"   // write_data, read_data
 #include "./Utility/athi_config_parser.h"   // init_variables
 #include "./Renderer/athi_renderer.h"   // render
 #include "./Renderer/athi_text.h"       // draw_text
@@ -135,8 +136,8 @@ void Athi_Core::init() {
 
   custom_gui_init();
 
-  glClearColor(background_color_dark.r, background_color_dark.g,
-               background_color_dark.b, background_color_dark.a);
+  glClearColor(background_color.r, background_color.g,
+               background_color.b, background_color.a);
   check_gl_error();
 }
 
@@ -163,6 +164,9 @@ void Athi_Core::start() {
     glfwPollEvents();
 
     if constexpr (!multithreaded_engine) { 
+
+      if constexpr (ONLY_RUNS_IN_DEBUG_MODE) reload_variables();
+      
       update_inputs();
       update();
       draw(window_context);
@@ -187,8 +191,8 @@ void Athi_Core::draw(GLFWwindow *window) {
   profile p("Athi_Core::draw");
 
   const f64 time_start_frame = glfwGetTime();
-  glClearColor(background_color_dark.r, background_color_dark.g,
-               background_color_dark.b, background_color_dark.a);
+  glClearColor(background_color.r, background_color.g,
+               background_color.b, background_color.a);
   check_gl_error();
 
   glClear(GL_COLOR_BUFFER_BIT);
@@ -229,7 +233,6 @@ void Athi_Core::draw(GLFWwindow *window) {
 
 
   render(); render_clear();
-
 
 
   //@Bug: rects and lines are being drawn over the Gui.

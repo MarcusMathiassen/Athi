@@ -182,7 +182,7 @@ void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_holl
     draw_line(max, vec2(max.x, min.y), 1.0f, color);
     draw_line(vec2(max.x, min.y), min, 1.0f, color);
 
-    //immididate_draw_hollow_rect(min, max, color);
+    // immididate_draw_hollow_rect(min, max, color);
 
     return;
   }

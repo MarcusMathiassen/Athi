@@ -67,9 +67,8 @@ extern s32 screen_height;
 extern f32 px_scale;
 
 extern bool show_settings;
-extern bool physics_gravity;
 extern bool use_gravitational_force;
-extern f32 gravity_force;
+extern f32 gravity;
 extern f32 gravitational_constant;
 extern f32 air_resistance;
 extern float collision_energy_loss;
@@ -145,8 +144,7 @@ extern std::atomic<s32> universal_color_picker;
 extern vec4 acceleration_color_min;
 extern vec4 acceleration_color_max;
 
-extern vec4 background_color_dark;
-extern vec4 background_color_light;
+extern vec4 background_color;
 
 extern vec4 sw_color;
 extern vec4 se_color;

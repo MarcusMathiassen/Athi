@@ -56,9 +56,8 @@ s32 screen_height;
 f32 px_scale{1.0f};
 
 bool show_settings{true};
-bool physics_gravity{false};
 bool use_gravitational_force{false};
-f32 gravity_force{9.81f};
+f32 gravity{9.81f};
 f32 gravitational_constant{6.674e-11};
 f32 air_resistance{0.9f};
 
@@ -134,8 +133,7 @@ std::atomic<s32> universal_color_picker{0};
 vec4 acceleration_color_min{vec4(1,1,1,1)};
 vec4 acceleration_color_max{vec4(0.315f, 1.000f, 0.000f, 0.100f)};
 
-vec4 background_color_dark = vec4(0.480f, 0.487f, 1.000f, 1.000f);
-vec4 background_color_light = vec4(0.7f, 0.7f, 0.7f, 1.0f);
+vec4 background_color = vec4(0.480f, 0.487f, 1.000f, 1.000f);
 
 vec4 sw_color{pastel_red};
 vec4 se_color{pastel_gray};

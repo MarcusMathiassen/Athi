@@ -222,7 +222,6 @@ static void menu_debug() {
   ToggleButton("use_uniformgrid", &use_uniformgrid);
   ToggleButton("vsync", &vsync);
   ToggleButton("use_gravitational_force", &use_gravitational_force);
-  ToggleButton("physics_gravity", &physics_gravity);
   ToggleButton("use_multithreading", &use_multithreading);
   ToggleButton("use_libdispatch", &use_libdispatch);
   ToggleButton("openCL_active", &openCL_active);
@@ -352,10 +351,7 @@ static void simulation_submenu()
     ImGui::SameLine();
     ImGui::Checkbox("Border Collisions", &border_collision);
     ImGui::SliderFloat("time scale", &time_scale, 0.0001f, 2.0f);
-
-    ImGui::Checkbox("gravity", &physics_gravity);
-    ImGui::SameLine();
-    ImGui::SliderFloat(" ", &gravity_force, 0.01f, 20.0f);
+    ImGui::SliderFloat(" ", &gravity, 0.01f, 20.0f);
 
     ImGui::Checkbox("gravitational force", &use_gravitational_force);
 }
@@ -473,7 +469,7 @@ static void menu_settings() {
   }
   if (ImGui::CollapsingHeader("color options")) {
     ImGui::Text("background color");
-    ImGui::ColorPicker4("##Background", (float *)&background_color_dark);
+    ImGui::ColorPicker4("##Background", (float *)&background_color);
 
     ImGui::Text("quadtree colors");
     ImGui::Text("sw");
