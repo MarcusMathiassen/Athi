@@ -54,6 +54,7 @@ extern float gButtonHeight;
 extern bool wireframe_mode;
 extern bool draw_particles;
 
+extern bool cycle_particle_color;
 extern s32 num_vertices_per_particle;
 extern bool is_particles_colored_by_acc;
 extern bool has_random_velocity;

@@ -28,6 +28,17 @@
 
 #include <algorithm>  // std::swap
 
+
+#ifdef _WIN32
+#include <sys/stat.h>
+#else
+// Not Windows? Assume unix-like.
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+
 std::unordered_map<string, f64> time_taken_by;
 std::vector<std::tuple<string, f64>> profiler_physics;
 
@@ -224,6 +235,12 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept
   }
 }
 
+vec4 color_over_time(f64 time) noexcept
+{
+  time = abs(time) * 330;
+  return hsv_to_rgb(time, 1.0, 1.0, 1.0);
+}
+
 vec2 to_view_space(vec2 v) noexcept
 {
   v.x = -1.0f + 2 * v.x / framebuffer_width;
@@ -260,4 +277,90 @@ string get_cpu_brand()
   sysctlbyname("machdep.cpu.brand_string", &buffer, &bufferlen, NULL, 0);
   return string(buffer);
 #endif
+}
+
+u64 GetFileTimestamp(const char* filename) noexcept {
+  u64 timestamp = 0;
+
+#ifdef _WIN32
+  struct __stat64 stFileInfo;
+  if (_stat64(filename, &stFileInfo) == 0) {
+    timestamp = stFileInfo.st_mtime;
+  }
+#else
+  struct stat fileStat;
+
+  if (stat(filename, &fileStat) == -1) {
+    perror(filename);
+    return 0;
+  }
+
+#ifdef __APPLE__
+  timestamp = fileStat.st_mtimespec.tv_sec;
+#else
+  timestamp = fileStat.st_mtime;
+#endif
+#endif
+
+  return timestamp;
+}
+
+
+bool string_has(const string& str, char delim)
+{
+    return (str.find(delim) == std::string::npos) ? false : true;
+}
+
+
+string remove_quotes(const string& str) noexcept
+{   
+    int quote_count = 0;
+    string new_str;
+    for (auto c: str) 
+        if (c != '"') {
+            new_str += c;
+        }
+
+    return new_str;
+}
+
+string add_quotes(const string& str) noexcept
+{   
+    return '"' + str + '"';
+}
+
+vector<string> split_string(const string& str, char delim) noexcept
+{
+    vector<string> strings;
+
+    std::string::size_type pos = 0;
+    std::string::size_type prev = 0;
+    while ((pos = str.find(delim, prev)) != std::string::npos)
+    {
+        strings.emplace_back(str.substr(prev, pos - prev));
+        prev = pos + 1;
+    }
+
+    // To get the last substring (or only, if delimiter is not found)
+    strings.emplace_back(str.substr(prev));
+
+    return strings;
+}
+
+string eat_chars(const string& str, vector<char> delims) noexcept
+{
+    auto is_char = [delims](char c)
+    {
+       for (char delim: delims)
+            if (c == delim)  return true;
+        return false;
+    };
+
+    string new_str;
+    for(u32 i = 0; i < str.size(); ++i)
+    {
+        if (!is_char(str[i]))
+            new_str += str[i];
+    }
+    return new_str;
 }

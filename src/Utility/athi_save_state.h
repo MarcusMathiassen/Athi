@@ -21,26 +21,18 @@
 
 #pragma once
 
-#include <glm/vec2.hpp>
-
 #include "../athi_settings.h" // console
 #include "../athi_utility.h" // file_exists
 
-#include <algorithm>
-#include <iostream>
-#include <iterator>
-#include <vector>
-#include <fstream>
-
-static const char* path_particle("../bin/particles.dat");
-static const char* path_color("../bin/colors.dat");
-static const char* path_transform("../bin/transforms.dat");
+//#include <algorithm>    
+#include <vector>   // vector
+#include <fstream>  // ifstream, ofstream
 
 template <class T> 
 static void write_member(std::ostream& FILE,  T member)
 {
-    size_t size = sizeof(T);
     // Store its size
+    size_t size = sizeof(T);
     FILE.write(reinterpret_cast<char*>(&size), sizeof(size));
     // Store its contents
     FILE.write(reinterpret_cast<char*>(&member), sizeof(T));
@@ -49,26 +41,51 @@ static void write_member(std::ostream& FILE,  T member)
 template <class T> 
 static void read_member(std::istream& FILE,  T& member)
 {
-    size_t size = sizeof(T);
-
     // Store its size
+    size_t size = sizeof(T);
     FILE.read(reinterpret_cast<char*>(&size), sizeof(size));
     // Store its contents
     FILE.read(reinterpret_cast<char*>(&member), sizeof(T));
 }
 
-template <class T>
-static void write_particle_data(const vector<T>& data)
-{
-    std::ofstream FILE(path_particle, std::ios::out | std::ofstream::binary | std::ios::trunc);
+static string get_size(size_t size)
+{                   
+    static const char *SIZES[] = { "B", "kB", "MB", "GB" };
+    size_t div = 0;
+    size_t rem = 0;
 
-    size_t s1 = data.size() * sizeof(T);
+    while (size >= 1024 && div < (sizeof SIZES / sizeof *SIZES))
+    {
+        rem = (size % 1024);
+        div++;   
+        size /= 1024;
+    }
+
+    return std::to_string((float)size + (float)rem / 1024.0) +  SIZES[div];
+}
+
+template <class A, class B, class C>
+static void write_data(
+    const string& path, 
+    const vector<A>& particles,
+    const vector<B>& colors,
+    const vector<C>& transforms)
+{
+    // Open up the file in binary mode and overwrite any previous data
+    std::ofstream FILE(path, std::ios::out | std::ofstream::binary | std::ios::trunc);
+
+    // Total size in bytes of each vector
+    size_t s1 = particles.size()    * sizeof(A);
+    size_t s2 = colors.size()       * sizeof(B);
+    size_t s3 = transforms.size()   * sizeof(C);
 
     // Store size of the outer vector
     FILE.write(reinterpret_cast<char*>(&s1), sizeof(s1));
-    
+    FILE.write(reinterpret_cast<char*>(&s2), sizeof(s2));
+    FILE.write(reinterpret_cast<char*>(&s3), sizeof(s3));
+
     // Now write each vector one by one
-    for (const auto& v : data)
+    for (const auto& v : particles)
     {
         write_member(FILE, v.id);
         write_member(FILE, v.pos.x);
@@ -80,102 +97,18 @@ static void write_particle_data(const vector<T>& data)
         write_member(FILE, v.mass);
         write_member(FILE, v.radius);
     }
-    FILE.close();   
-
-    console->warn("[IO WRITE] Particle data: {} bytes", (s1));
-}
-
-template <class T>
-static void read_particle_data(vector<T>& data)
-{
-    if (!file_exists(path_particle)) return;
-    std::ifstream FILE(path_particle, std::ios::in | std::ofstream::binary);
-
-    size_t s1;
-
-    // Store size of the outer vector
-    FILE.read(reinterpret_cast<char*>(&s1), sizeof(s1));
-    
-    data.resize(s1 / sizeof(T));
 
     // Now write each vector one by one
-    for (auto &v: data)
-    {
-        read_member(FILE, v.id);
-        read_member(FILE, v.pos.x);
-        read_member(FILE, v.pos.y);
-        read_member(FILE, v.vel.x);
-        read_member(FILE, v.vel.y);
-        read_member(FILE, v.acc.x);
-        read_member(FILE, v.acc.y);
-        read_member(FILE, v.mass);
-        read_member(FILE, v.radius);
-    }
-
-    FILE.close();   
-    console->warn("[IO READ] Particle data: {} bytes", (s1));
-}
-
-template <class T>
-static void write_color_data(const vector<T>& data)
-{
-    std::ofstream FILE(path_color, std::ios::out | std::ofstream::binary | std::ios::trunc);
-
-    size_t s1 = data.size() * sizeof(T);
-
-    // Store size of the outer vector
-    FILE.write(reinterpret_cast<char*>(&s1), sizeof(s1));
-    
-    // Now write each vector one by one
-    for (const auto& v : data)
+    for (const auto& v : colors)
     {
         write_member(FILE, v.x);
         write_member(FILE, v.y);
         write_member(FILE, v.z);
         write_member(FILE, v.w);
     }
-    FILE.close();   
-    console->warn("[IO WRITE] Color data: {} bytes", (s1));
-}
-
-template <class T>
-static void read_color_data(vector<T>& data)
-{
-    if (!file_exists(path_color)) return;
-    std::ifstream FILE(path_color, std::ios::in | std::ofstream::binary);
-
-    size_t s1;
-
-    // Store size of the outer vector
-    FILE.read(reinterpret_cast<char*>(&s1), sizeof(s1));
-    
-    data.resize(s1 / sizeof(T));
 
     // Now write each vector one by one
-    for (auto &v: data)
-    {
-        read_member(FILE, v.x);
-        read_member(FILE, v.y);
-        read_member(FILE, v.z);
-        read_member(FILE, v.w);
-    }
-
-    FILE.close();   
-    console->warn("[IO READ] Color data: {} bytes", (s1));
-}
-
-template <class T>
-static void write_transform_data(const vector<T>& data)
-{
-    std::ofstream FILE(path_transform, std::ios::out | std::ofstream::binary | std::ios::trunc);
-
-    size_t s1 = data.size() * sizeof(T);
-
-    // Store size of the outer vector
-    FILE.write(reinterpret_cast<char*>(&s1), sizeof(s1));
-    
-    // Now write each vector one by one
-    for (const auto& v : data)
+    for (const auto& v : transforms)
     {
         write_member(FILE, v.pos.x);
         write_member(FILE, v.pos.y);
@@ -189,26 +122,61 @@ static void write_transform_data(const vector<T>& data)
         write_member(FILE, v.scale.y);
         write_member(FILE, v.scale.z);
     }
+
     FILE.close();   
-    console->warn("[IO WRITE] Transform data: {} bytes", (s1));
+    console->warn("[IO WRITE] {}", get_size(s1/sizeof(A) + s2/sizeof(B) + s3/sizeof(C)));
 }
 
-template <class T>
-static void read_transform_data(vector<T>& data)
-{
-    if (!file_exists(path_transform)) return;
+template <class A, class B, class C>
+static void read_data(
+    const string& path, 
+    vector<A>& particles,
+    vector<B>& colors,
+    vector<C>& transforms)
+{   
+    // If the file does not exist just return
+    if (!file_exists(path)) return;
 
-    std::ifstream FILE(path_transform, std::ios::in | std::ofstream::binary);
+    std::ifstream FILE(path, std::ios::in | std::ofstream::binary);
 
-    size_t s1;
+    // Stores the sizes to be read in
+    size_t s1,s2,s3;
 
     // Store size of the outer vector
     FILE.read(reinterpret_cast<char*>(&s1), sizeof(s1));
-    
-    data.resize(s1 / sizeof(T));
+    FILE.read(reinterpret_cast<char*>(&s2), sizeof(s2));
+    FILE.read(reinterpret_cast<char*>(&s3), sizeof(s3));
 
-    // Now write each vector one by one
-    for (auto &v: data)
+    // Resize our vectors to the correct size
+    particles.resize(s1 / sizeof(A));
+    colors.resize(s2 / sizeof(B));
+    transforms.resize(s3 / sizeof(C));
+
+    // Now read each vector one by one
+    for (auto& v : particles)
+    {
+        read_member(FILE, v.id);
+        read_member(FILE, v.pos.x);
+        read_member(FILE, v.pos.y);
+        read_member(FILE, v.vel.x);
+        read_member(FILE, v.vel.y);
+        read_member(FILE, v.acc.x);
+        read_member(FILE, v.acc.y);
+        read_member(FILE, v.mass);
+        read_member(FILE, v.radius);
+    }
+
+    // Now read each vector one by one
+    for (auto& v : colors)
+    {
+        read_member(FILE, v.x);
+        read_member(FILE, v.y);
+        read_member(FILE, v.z);
+        read_member(FILE, v.w);
+    }
+
+    // Now read each vector one by one
+    for (auto& v : transforms)
     {
         read_member(FILE, v.pos.x);
         read_member(FILE, v.pos.y);
@@ -224,5 +192,5 @@ static void read_transform_data(vector<T>& data)
     }
 
     FILE.close();   
-    console->warn("[IO READ] Transform data: {} bytes", (s1));
+    console->warn("[IO READ] {}", get_size(s1/sizeof(A) + s2/sizeof(B) + s3/sizeof(C)));
 }

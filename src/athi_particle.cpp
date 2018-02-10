@@ -20,21 +20,21 @@
 
 #include "athi_particle.h"
 
-#include "./Utility/athi_constant_globals.h"  // kPi, kGravitationalConstant
-#include "./Utility/athi_save_state.h"   // write_data, read_data
+#include "./Utility/athi_constant_globals.h" // kPi, kGravitationalConstant
+#include "./Utility/athi_save_state.h" // write_data, read_data
 
-#include "./Renderer/athi_circle.h"  // draw_circle
-#include "./Renderer/athi_line.h"  // draw_line
-#include "./Renderer/athi_camera.h"  // Camera
-#include "athi_settings.h"           // console
-#include "athi_utility.h"            // read_file
+#include "./Renderer/athi_circle.h" // draw_circle
+#include "./Renderer/athi_line.h" // draw_line
+#include "./Renderer/athi_camera.h" // Camera
+#include "athi_settings.h" // console
+#include "athi_utility.h" // read_file
 
-#include <algorithm>    // std::min_element, std::max_element
+#include <algorithm>  // std::min_element, std::max_element
 #include <future>  // future
 #include <cmath> // std::next_after
 
 #ifdef __APPLE__
-#include <dispatch/dispatch.h>  // dispatch_apply
+#include <dispatch/dispatch.h> // dispatch_apply
 #endif
 
 ParticleSystem particle_system;
@@ -73,24 +73,89 @@ void Particle::update(f32 dt) noexcept {
   }
 }
 
-void ParticleSystem::save_state() noexcept
-{
-    write_particle_data(particles);
-    write_color_data(colors);
-    write_transform_data(transforms);
 
-    console->warn("Particle state saved!");
-}
+void ParticleSystem::init() noexcept {
+  // Print some debug info about particle sizes
+  console->info("Particle object size: {} bytes", sizeof(Particle));
+  console->info("Particles per cacheline(64 bytes): {} particles",
+                64 / sizeof(Particle));
 
-void ParticleSystem::load_state() noexcept
-{
-    erase_all();
-    read_particle_data(particles);
-    particle_count = particles.size();
-    read_color_data(colors);
-    read_transform_data(transforms);
+  // Loads in any saved state
+  load_state();
 
-    console->warn("Particle state loaded!");
+  // OpenCL
+  opencl_init();
+
+  // Setup the particle vertices
+  vector<vec2> positions(num_vertices_per_particle);
+  for (s32 i = 0; i < num_vertices_per_particle; ++i) {
+    positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
+                    sinf(i * kPI * 2.0f / num_vertices_per_particle)};
+  }
+
+  if constexpr (!use_textured_particles) {
+
+    auto &shader = renderer.make_shader();
+    shader.sources = {
+      "default_particle_shader.vert",
+      "default_particle_shader.frag"
+    };
+    shader.attribs = {"position", "color", "transform"};
+
+    auto &vertex_buffer = renderer.make_buffer("positions");
+    vertex_buffer.data = &positions[0];
+    vertex_buffer.data_size = num_vertices_per_particle * sizeof(positions[0]);
+    vertex_buffer.data_members = 2;
+    vertex_buffer.type = buffer_type::array;
+    vertex_buffer.usage = buffer_usage::static_draw;
+
+    auto &colors = renderer.make_buffer("colors");
+    colors.data_members = 4;
+    colors.divisor = 1;
+
+    auto &transforms = renderer.make_buffer("transforms");
+    transforms.data_members = 4;
+    transforms.stride = sizeof(mat4);
+    transforms.pointer = sizeof(vec4);
+    transforms.divisor = 1;
+    transforms.is_matrix = true;
+
+    renderer.finish();
+
+  } else {
+
+    tex = {particle_texture, GL_LINEAR};
+
+    console->warn("particle texture used: {}", particle_texture);
+
+    auto &shader = renderer.make_shader();
+    shader.sources = {"billboard_particle_shader.vert",
+                      "billboard_particle_shader.frag"};
+    shader.attribs = {"radius", "color", "transform"};
+
+    auto &radius = renderer.make_buffer("radius");
+    radius.data_members = 1;
+    radius.divisor = 1;
+
+    auto &colors = renderer.make_buffer("colors");
+    colors.data_members = 4;
+    colors.divisor = 1;
+
+    auto &transforms = renderer.make_buffer("transforms");
+    transforms.data_members = 4;
+    transforms.stride = sizeof(mat4);
+    transforms.pointer = sizeof(vec4);
+    transforms.divisor = 1;
+    transforms.is_matrix = true;
+
+    constexpr u16 indices[6] = {0, 1, 2, 0, 2, 3};
+    auto &indices_buffer = renderer.make_buffer("indices");
+    indices_buffer.data = (void*)indices;
+    indices_buffer.data_size = sizeof(indices);
+    indices_buffer.type = buffer_type::element_array;
+
+    renderer.finish();
+  }
 }
 
 void ParticleSystem::draw() noexcept {
@@ -197,89 +262,6 @@ void ParticleSystem::update_gpu_buffers() noexcept {
     if constexpr (use_textured_particles)
       renderer.update_buffer("radius", &radii[0], sizeof(float) * particle_count);
   }
-}
-
-void ParticleSystem::init() noexcept {
-  // Print some debug info about particle sizes
-  console->info("Particle object size: {} bytes", sizeof(Particle));
-  console->info("Particles per cacheline(64 bytes): {} particles",
-                64 / sizeof(Particle));
-
-  // OpenCL
-  opencl_init();
-
-  // Setup the particle vertices
-  vector<vec2> positions(num_vertices_per_particle);
-  for (s32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
-                    sinf(i * kPI * 2.0f / num_vertices_per_particle)};
-  }
-
-  if constexpr (!use_textured_particles) {
-
-    auto &shader = renderer.make_shader();
-    shader.sources = {
-      "default_particle_shader.vert",
-      "default_particle_shader.frag"
-    };
-    shader.attribs = {"position", "color", "transform"};
-
-    auto &vertex_buffer = renderer.make_buffer("positions");
-    vertex_buffer.data = &positions[0];
-    vertex_buffer.data_size = num_vertices_per_particle * sizeof(positions[0]);
-    vertex_buffer.data_members = 2;
-    vertex_buffer.type = buffer_type::array;
-    vertex_buffer.usage = buffer_usage::static_draw;
-
-    auto &colors = renderer.make_buffer("colors");
-    colors.data_members = 4;
-    colors.divisor = 1;
-
-    auto &transforms = renderer.make_buffer("transforms");
-    transforms.data_members = 4;
-    transforms.stride = sizeof(mat4);
-    transforms.pointer = sizeof(vec4);
-    transforms.divisor = 1;
-    transforms.is_matrix = true;
-
-    renderer.finish();
-
-  } else {
-
-    tex = {particle_texture, GL_LINEAR};
-
-    console->warn("particle texture used: {}", particle_texture);
-
-    auto &shader = renderer.make_shader();
-    shader.sources = {"billboard_particle_shader.vert",
-                      "billboard_particle_shader.frag"};
-    shader.attribs = {"radius", "color", "transform"};
-
-    auto &radius = renderer.make_buffer("radius");
-    radius.data_members = 1;
-    radius.divisor = 1;
-
-    auto &colors = renderer.make_buffer("colors");
-    colors.data_members = 4;
-    colors.divisor = 1;
-
-    auto &transforms = renderer.make_buffer("transforms");
-    transforms.data_members = 4;
-    transforms.stride = sizeof(mat4);
-    transforms.pointer = sizeof(vec4);
-    transforms.divisor = 1;
-    transforms.is_matrix = true;
-
-    constexpr u16 indices[6] = {0, 1, 2, 0, 2, 3};
-    auto &indices_buffer = renderer.make_buffer("indices");
-    indices_buffer.data = (void*)indices;
-    indices_buffer.data_size = sizeof(indices);
-    indices_buffer.type = buffer_type::element_array;
-
-    renderer.finish();
-  }
-
-  load_state();
 }
 
 void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
@@ -571,21 +553,6 @@ void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &co
   colors.emplace_back(color);
 }
 
-void ParticleSystem::remove_all_with_id(const vector<s32> &ids) noexcept {
-  for (const auto id : ids) {
-    particles.erase(particles.begin() + id);
-    transforms.erase(transforms.begin() + id);
-    colors.erase(colors.begin() + id);
-  }
-}
-
-void ParticleSystem::erase_all() noexcept {
-  particle_count = 0;
-  particles.clear();
-  colors.clear();
-  transforms.clear();
-  models.clear();
-}
 
 bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const noexcept
 {
@@ -1066,4 +1033,46 @@ void ParticleSystem::opencl_naive() noexcept {
       } break;
     }
   }
+}
+
+void ParticleSystem::remove_all_with_id(const vector<s32> &ids) noexcept {
+  for (const auto id : ids) {
+    particles.erase(particles.begin() + id);
+    transforms.erase(transforms.begin() + id);
+    colors.erase(colors.begin() + id);
+  }
+}
+
+void ParticleSystem::erase_all() noexcept {
+  particle_count = 0;
+  particles.clear();
+  colors.clear();
+  transforms.clear();
+  models.clear();
+}
+
+void ParticleSystem::save_state() noexcept
+{
+    write_data(
+      "../bin/data.dat",
+        particles,
+        colors,
+        transforms);
+
+    console->warn("Particle state saved!");
+}
+
+void ParticleSystem::load_state() noexcept
+{
+    erase_all();
+
+    read_data(
+      "../bin/data.dat",
+        particles,
+        colors,
+        transforms);
+
+    particle_count = particles.size();
+
+    console->warn("Particle state loaded!");
 }

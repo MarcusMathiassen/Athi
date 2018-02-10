@@ -130,8 +130,6 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
   io.KeySuper =
       io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 
-  //
-
   const auto key_pressed = [key, action](s32 key_code)
   {
     return key == key_code && action == GLFW_PRESS;
@@ -144,7 +142,7 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
   {
     save_variables();
     particle_system.save_state();
-    console->warn("State saved!");
+    console->warn("config saved!");
   }
 
   // load state
@@ -153,7 +151,6 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
       key_pressed(GLFW_KEY_X)) 
   {
     particle_system.load_state();
-    console->warn("State loaded!");
   }
 
   // TOGGLE PAUSE

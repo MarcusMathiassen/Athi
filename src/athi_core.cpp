@@ -267,6 +267,9 @@ void Athi_Core::update() {
     particle_system.apply_n_body();
   }
 
+  if (cycle_particle_color)
+    circle_color = color_over_time(sinf(glfwGetTime()* 0.5));
+
   // Draw nodes and/or color objects
   particle_system.draw_debug_nodes();
 

@@ -38,12 +38,13 @@ void Athi_Window::init() {
     console->error("Error initializing GLFW!");
   }
 
-  glfwWindowHint(GLFW_SAMPLES, 4);
+  //glfwWindowHint(GLFW_SAMPLES, 4);
   //glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE); // not functional yet, add a background color pass
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+  glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
 
 #if __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);

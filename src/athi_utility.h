@@ -105,14 +105,30 @@ static bool file_exists(const std::string& filename)
 vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept;
 vec4 rgb_to_hsv(vec4 in) noexcept;
 vec4 lerp_hsv(vec4 a, vec4 b, f32 t) noexcept;
-vec4 color_by_acceleration(const vec4 &min_color, const vec4 &max_color,
-                           const vec2 &acc) noexcept;
+vec4 color_by_acceleration(const vec4 &min_color, const vec4 &max_color, const vec2 &acc) noexcept;
+vec4 get_universal_current_color();
+vec4 color_over_time(f64 time) noexcept;
+
+
+// File functions
+u64 GetFileTimestamp(const char* filename) noexcept;
 void read_file(const char *file, char **buffer) noexcept;
 string get_content_of_file(const string& file) noexcept;
+
+
+// String functions
+bool string_has(const string& str, char delim);
+string remove_quotes(const string& str) noexcept;
+string add_quotes(const string& str) noexcept;
+vector<string> split_string(const string& str, char delim) noexcept;
+string eat_chars(const string& str, vector<char> delims) noexcept;
+
+
+vec2 to_view_space(vec2 v) noexcept;
+
 void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept;
 string get_cpu_brand();
-vec4 get_universal_current_color();
-vec2 to_view_space(vec2 v) noexcept;
+
 
 extern std::unordered_map<string, f64> time_taken_by;
 extern std::vector<std::tuple<string, f64>> profiler_physics;

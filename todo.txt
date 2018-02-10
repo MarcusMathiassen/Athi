@@ -2,7 +2,7 @@
 
 
 
-Resolution independence:
+* Resolution independence:
     
     What currently depends on knowing the screen resolution?
     -   particle border collision
@@ -12,5 +12,7 @@ Resolution independence:
     -   separate function for bound checking
     -   to_view_space function // needed
 
-Lets start by making particles position viewspace..
+* Add a gradient background;
 
+
+* Framerate independence:
