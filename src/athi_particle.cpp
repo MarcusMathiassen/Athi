@@ -96,17 +96,6 @@ void ParticleSystem::draw() noexcept {
 
     renderer.draw(cmd_buffer);  
   }
-
-  for (auto p: particles)
-  { 
-    console->info("");
-    console->info("P: id:{}",p.id);
-    console->info("P: pos:{}{}",p.pos.x, p.pos.y);
-    console->info("P: vel:{}{}",p.vel.x, p.vel.y);
-    console->info("P: acc:{}{}",p.acc.x, p.acc.y);
-    console->info("P: mass:{}",p.mass);
-    console->info("P: radius:{}",p.radius);
-  }
 }
 
 static vector<float> radii;
