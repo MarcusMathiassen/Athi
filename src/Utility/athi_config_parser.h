@@ -70,7 +70,7 @@ static constexpr const char* path("../bin/config.ini");
 static std::unordered_map<string, boost::variant<string, float, vec2, vec3, vec4>> variable_map;
 static u64 last_write_time;
 
-static const string default_config = 
+static const string default_config =
 "particle_texture                        : \"particle_texture_7.png\";\n"
 "acceleration_color_max                  : vec4(1.000000, 0.000000, 0.000060, 1.000000);\n"
 "acceleration_color_min                  : vec4(1.000000, 0.125112, 0.125112, 1.000000);\n"
@@ -249,7 +249,7 @@ static std::tuple<string, string> get_variable(const string& line) noexcept
 
 static auto get_bool(const string& str) noexcept
 {
-    return 
+    return
         (str == "no"||str == "NO"||
         str == "off"||str == "OFF"||
          str == "false"||str == "FALSE") ? false :
@@ -262,22 +262,22 @@ static auto get_float(const string& str) noexcept { return std::stof(str); }
 static auto get_int(const string& str) noexcept  { return std::stoi(str); }
 
 static bool is_float(const string& str) noexcept
-{   
+{
     bool res = true;
-    for (auto c: str) 
+    for (auto c: str)
         if (c != '.' && !std::isdigit(c))
             res = false;
     return res;
 }
 
 static bool is_int(const string& str) noexcept
-{   
+{
     for (auto c: str) if (std::isdigit(c)) return true;
     return false;
 }
 
 static bool is_bool(const string& str) noexcept
-{   
+{
     return (    str == "no"||str == "NO"||
                 str == "off"||str == "OFF"||
                 str == "yes"||str == "YES"||
@@ -288,10 +288,10 @@ static bool is_bool(const string& str) noexcept
 }
 
 static bool is_string(const string& str) noexcept
-{   
+{
     int quote_count = 0;
 
-    for (auto c: str) 
+    for (auto c: str)
         if (c == '"') ++quote_count;
 
     if (quote_count == 2) return true;
@@ -304,9 +304,9 @@ static string get_value_as_string(const string& var, const string& val) noexcept
      // If has a ',' its a list of things
     if (string_has(val, ','))
     {
-        if      (is_vec2(val))   return stringify_vec2(boost::get<vec2>(variable_map.at(var)));        
-        else if (is_vec3(val))   return stringify_vec3(boost::get<vec3>(variable_map.at(var))); 
-        else if (is_vec4(val))   return stringify_vec4(boost::get<vec4>(variable_map.at(var))); 
+        if      (is_vec2(val))   return stringify_vec2(boost::get<vec2>(variable_map.at(var)));
+        else if (is_vec3(val))   return stringify_vec3(boost::get<vec3>(variable_map.at(var)));
+        else if (is_vec4(val))   return stringify_vec4(boost::get<vec4>(variable_map.at(var)));
     } else {
         if      (is_string(val)) return add_quotes(boost::get<string>(variable_map.at(var)));
         else if (is_float(val))  return std::to_string(boost::get<float>(variable_map.at(var)));
@@ -343,7 +343,7 @@ static void set_variable(T* var, const string& str)
 static void reload_variables() noexcept
 {
     const auto timestamp = GetFileTimestamp(path);
-    if (timestamp > last_write_time) 
+    if (timestamp > last_write_time)
     {
         last_write_time = timestamp;
 
@@ -412,17 +412,19 @@ static void init_variables() noexcept
         if (line.empty()) continue;
         if (line[0] == '\n') continue; // newline
         if (line[0] == '#') continue; // comment
-        
+        if (line[0] == ';') continue; // comment
+        if (line[0] == ':') continue; // comment
+
         const auto [var, val] = get_variable(line);
 
-        if (val.empty()) { continue; }
+        if (val.empty() || var.empty()) { continue; }
 
         // If has a ',' its a list of things
         if (string_has(val, ','))
         {
             if      (is_vec2(val))    { variable_map[var] = get_vec2(val); }
-            else if (is_vec3(val))    { variable_map[var] = get_vec3(val); } 
-            else if (is_vec4(val))    { variable_map[var] = get_vec4(val); }   
+            else if (is_vec3(val))    { variable_map[var] = get_vec3(val); }
+            else if (is_vec4(val))    { variable_map[var] = get_vec4(val); }
         } else {
             if      (is_string(val))  { variable_map[var] = remove_quotes(val); }
             else if (is_float(val))   { variable_map[var] = get_float(val); }
@@ -483,7 +485,7 @@ static void init_variables() noexcept
     set_variable(&draw_debug, "draw_debug");
     set_variable(&window_pos, "window_pos");
     set_variable(&screen_width, "screen_width");
-    set_variable(&screen_height, "screen_height");    
+    set_variable(&screen_height, "screen_height");
     set_variable(&framebuffer_width, "framebuffer_width");
     set_variable(&framebuffer_height, "framebuffer_height");
     set_variable(&cycle_particle_color, "cycle_particle_color");
