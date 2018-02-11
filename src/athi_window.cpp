@@ -37,6 +37,7 @@ void glfw_error_callback(int error, const char* description)
 void profiler_window_close_callback(GLFWwindow* window)
 {
   glfwSetWindowShouldClose(window, GLFW_TRUE);
+  glfwHideWindow(window);
 }
 
 void primary_window_close_callback(GLFWwindow* window)
@@ -47,6 +48,8 @@ void primary_window_close_callback(GLFWwindow* window)
 
 void open_profiler_window() noexcept
 {
+  int left, right;
+
   // if already created
   if (windows[1] != nullptr)
   {
@@ -55,22 +58,13 @@ void open_profiler_window() noexcept
     else {
       glfwShowWindow(windows[1]);
       glfwFocusWindow(windows[0]);
+
+      // Set the profilers position next to the primary window
+      glfwSetWindowSize(windows[1], screen_width, screen_height);
+      glfwSetWindowPos(windows[1], window_pos.x + screen_width, window_pos.y);
     }
     return;
   }
-
-  int xpos, ypos, left, right, win_width, win_height;
-
-  glfwWindowHint(GLFW_FOCUSED, false);
-  glfwGetWindowSize(windows[0], &win_width, &win_height);
-
-  windows[1] = glfwCreateWindow(win_width, win_height, "Profiler", NULL, windows[0]);
-  glfwSetWindowCloseCallback(windows[1], profiler_window_close_callback);
-
-  // Set the profilers position next to the primary window
-  glfwGetWindowFrameSize(windows[0], &left, NULL, &right, NULL);
-  glfwGetWindowPos(windows[0], &xpos, &ypos);
-  glfwSetWindowPos(windows[1], xpos + win_width + left + right, ypos);
 }
 
 void update_windows()
@@ -124,6 +118,18 @@ void init_window() {
   windows[0] = glfwCreateWindow(screen_width, screen_height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(windows[0]);
   glfwSetWindowPos(windows[0], window_pos.x, window_pos.y);
+
+
+
+  glfwWindowHint(GLFW_FOCUSED, false);
+  glfwWindowHint(GLFW_VISIBLE, false);
+  windows[1] = glfwCreateWindow(screen_width, screen_height, "Profiler", NULL, windows[0]);
+  glfwSetWindowCloseCallback(windows[1], profiler_window_close_callback);
+
+  // Set the profilers position next to the primary window
+  glfwSetWindowSize(windows[1], screen_width, screen_height);
+  glfwSetWindowPos(windows[1], window_pos.x + screen_width + screen_width, window_pos.y);
+
 
   // glfwSetWindowAspectRatio(windows[0], 1, 1);
   glfwSetWindowSizeCallback(windows[0], window_size_callback);

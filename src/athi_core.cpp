@@ -45,15 +45,13 @@
 #include "../dep/Universal/spdlog/spdlog.h"
 
 static Smooth_Average<f64, 30> smooth_frametime_avg(&smoothed_frametime);
-static Smooth_Average<f64, 30> smooth_physics_rametime_avg(
-    &smoothed_physics_frametime);
-static Smooth_Average<f64, 30> smooth_render_rametime_avg(
-    &smoothed_render_frametime);
+static Smooth_Average<f64, 30> smooth_physics_rametime_avg(&smoothed_physics_frametime);
+static Smooth_Average<f64, 30> smooth_render_rametime_avg(&smoothed_render_frametime);
 
 static Renderer renderer;
 
-static void setup_fullscreen_quad() {
-
+static void setup_fullscreen_quad()
+{
   auto &shader = renderer.make_shader();
   shader.sources = {"athi_fullscreen_quad.vert", "athi_fullscreen_quad.frag"};
   shader.uniforms = {"transform", "res", "tex", "dir"};
@@ -68,7 +66,8 @@ static void setup_fullscreen_quad() {
   renderer.finish();
 }
 
-static void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
+static void draw_fullscreen_quad(u32 texture, const vec2 &dir)
+{
   CommandBuffer cmd;
   cmd.type = primitive::triangles;
   cmd.count = 6;
@@ -90,8 +89,8 @@ static void draw_fullscreen_quad(u32 texture, const vec2 &dir) {
   renderer.draw(cmd);
 }
 
-void Athi_Core::init() {
-
+void Athi_Core::init()
+{
   spdlog::set_pattern("[%H:%M:%S] %v");
   console = spdlog::stdout_color_mt("Athi");
   if constexpr (DEBUG_MODE) console->critical("DEBUG MODE: ON");
@@ -138,7 +137,8 @@ void Athi_Core::init() {
   check_gl_error();
 }
 
-void Athi_Core::start() {
+void Athi_Core::start()
+{
   auto window_context = get_window_context(0);
   glfwMakeContextCurrent(window_context);
 
@@ -164,26 +164,26 @@ void Athi_Core::start() {
 
     if constexpr (!multithreaded_engine) {
 
-      if constexpr (DEBUG_MODE) reload_variables();
+      if constexpr (DEBUG_MODE) { reload_variables(); }
+
       update_inputs();
       update();
       draw(window_context);
 
-      if (auto profiler_context = get_window_context(1); profiler_context)
-      {
-        draw(profiler_context);
+      if constexpr (DEBUG_MODE) {
+        if (auto profiler_context = get_window_context(1);
+            profiler_context)
+        {
+          if (glfwGetWindowAttrib(profiler_context, GLFW_VISIBLE)) draw(profiler_context);
+        }
       }
     }
-
-
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     framerate = static_cast<u32>(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
   }
-
-  update_windows();
 
   if constexpr (multithreaded_engine) {
     draw_fut.get();
@@ -194,24 +194,24 @@ void Athi_Core::start() {
   shutdown();
 }
 
-void Athi_Core::draw(GLFWwindow *window) {
+void Athi_Core::draw(GLFWwindow *window)
+{
   profile p("Athi_Core::draw");
 
   glfwMakeContextCurrent(window);
 
   const f64 time_start_frame = glfwGetTime();
-  glClearColor(background_color.r, background_color.g,
-               background_color.b, background_color.a);
+  glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
   check_gl_error();
 
   glClear(GL_COLOR_BUFFER_BIT);
   check_gl_error();
 
-  if (post_processing) {
+  if (post_processing)
+  {
     profile p("post processing");
 
     framebuffers[0].clear();
-
 
     // First draw the particles to the framebuffer.
     framebuffers[0].bind();
@@ -224,28 +224,31 @@ void Athi_Core::draw(GLFWwindow *window) {
 
 
     // .. Then blur the current framebuffer
-    for (s32 i = 0; i < post_processing_samples; i++) {
+    for (s32 i = 0; i < post_processing_samples; i++)
+    {
       draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 1 * blur_strength));
       draw_fullscreen_quad(framebuffers[0].texture, vec2(1 * blur_strength, 0));
     }
   }
 
-  if (post_processing) {
+  if (post_processing)
+  {
     framebuffers[0].unbind();
     draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
   }
 
 
-  if (draw_particles) particle_system.draw();
-  if (draw_rects) render_rects();
-  if (draw_lines) render_lines();
+  if (draw_particles)   particle_system.draw();
+  if (draw_rects)       render_rects();
+  if (draw_lines)       render_lines();
 
 
   render(); render_clear();
 
 
   //@Bug: rects and lines are being drawn over the Gui.
-  if (show_settings) {
+  if (show_settings)
+  {
     update_settings();
     draw_custom_gui();
     gui_render();
