@@ -19,7 +19,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include "athi_window.h" 
+#include "athi_window.h"
 
 #include "../dep/Universal/imgui.h" // ImGUI
 #include "./Renderer/athi_camera.h" // camera
@@ -27,12 +27,65 @@
 #include "athi_utility.h" // FRED
 #include "./Renderer/opengl_utility.h" // MessageCallback
 
+static vector<GLFWwindow*> windows;
+
 void glfw_error_callback(int error, const char* description)
 {
     console->error("{}", description);
 }
 
-void Athi_Window::init() {
+void profiler_window_close_callback(GLFWwindow* window)
+{
+  glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+void primary_window_close_callback(GLFWwindow* window)
+{
+  glfwSetWindowShouldClose(window, GLFW_TRUE);
+  glfwSetWindowShouldClose(windows[1], GLFW_TRUE);
+}
+
+void open_profiler_window() noexcept
+{
+  // if already created
+  if (windows[1] != nullptr)
+  {
+    if (glfwGetWindowAttrib(windows[1], GLFW_VISIBLE))
+      glfwHideWindow(windows[1]);
+    else {
+      glfwShowWindow(windows[1]);
+      glfwFocusWindow(windows[0]);
+    }
+    return;
+  }
+
+  int xpos, ypos, left, right, win_width, win_height;
+
+  glfwWindowHint(GLFW_FOCUSED, false);
+  glfwGetWindowSize(windows[0], &win_width, &win_height);
+
+  windows[1] = glfwCreateWindow(win_width, win_height, "Profiler", NULL, windows[0]);
+  glfwSetWindowCloseCallback(windows[1], profiler_window_close_callback);
+
+  // Set the profilers position next to the primary window
+  glfwGetWindowFrameSize(windows[0], &left, NULL, &right, NULL);
+  glfwGetWindowPos(windows[0], &xpos, &ypos);
+  glfwSetWindowPos(windows[1], xpos + win_width + left + right, ypos);
+}
+
+void update_windows()
+{
+  for (auto & window: windows) {
+    if (window) {
+      if (glfwWindowShouldClose(window)) {
+        glfwDestroyWindow(window);
+        window = nullptr;
+      }
+    }
+  }
+}
+
+void init_window() {
 
   if (!glfwInit()) {
     console->error("Error initializing GLFW!");
@@ -66,15 +119,18 @@ void Athi_Window::init() {
 
   console->info("{} {} {}hz", FRED("Monitor:"), monitor_name, monitor_refreshrate);
 
-  context = glfwCreateWindow(scene.width, scene.height, title.c_str(), NULL, NULL);
-  glfwMakeContextCurrent(context);
+  windows.resize(2);
 
-  glfwSetWindowPos(context, window_pos.x, window_pos.y);
+  windows[0] = glfwCreateWindow(screen_width, screen_height, title.c_str(), NULL, NULL);
+  glfwMakeContextCurrent(windows[0]);
+  glfwSetWindowPos(windows[0], window_pos.x, window_pos.y);
 
-  // glfwSetWindowAspectRatio(context, 1, 1);
-  glfwSetWindowSizeCallback(context, window_size_callback);
-  glfwSetFramebufferSizeCallback(context, framebuffer_size_callback);
-  glfwSetWindowPosCallback(context, window_pos_callback);
+  // glfwSetWindowAspectRatio(windows[0], 1, 1);
+  glfwSetWindowSizeCallback(windows[0], window_size_callback);
+  glfwSetFramebufferSizeCallback(windows[0], framebuffer_size_callback);
+  glfwSetWindowPosCallback(windows[0], window_pos_callback);
+  glfwSetWindowCloseCallback(windows[0], primary_window_close_callback);
+
   // GLEW setup / experimental because of glew bugs
   glewExperimental = true;
   if (glewInit() != GLEW_OK) {
@@ -97,7 +153,7 @@ void Athi_Window::init() {
 
 
   s32 width, height;
-  glfwGetFramebufferSize(context, &width, &height);
+  glfwGetFramebufferSize(windows[0], &width, &height);
   glViewport(0, 0, width, height);
   framebuffer_width = width;
   framebuffer_height = height;
@@ -114,22 +170,22 @@ void Athi_Window::init() {
   check_gl_error();
 }
 
-GLFWwindow *Athi_Window::get_window_context() { return context; }
+GLFWwindow *get_window_context(int i) { return windows[i]; }
 
-void Athi_Window::window_pos_callback(GLFWwindow* window, int xpos, int ypos)
+void window_pos_callback(GLFWwindow* window, int xpos, int ypos)
 {
   window_pos.x = xpos;
   window_pos.y = ypos;
   console->info("window pos: {}x{}", xpos, ypos);
 }
 
-void Athi_Window::window_size_callback(GLFWwindow *window, s32 xpos, s32 ypos) {
+void window_size_callback(GLFWwindow *window, s32 xpos, s32 ypos) {
   console->info("window size: {}x{}", xpos, ypos);
   screen_width = xpos;
   screen_height = ypos;
 }
 
-void Athi_Window::framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height) {
+void framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height) {
   framebuffer_width = width;
   framebuffer_height = height;
   camera.update_projection(static_cast<float>(width), static_cast<float>(height));

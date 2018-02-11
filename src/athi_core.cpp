@@ -34,6 +34,7 @@
 #include "athi_settings.h"              // console, ThreadPoolSolution
 #include "athi_typedefs.h"
 #include "athi_utility.h"               // profile, Smooth_Average
+#include "athi_window.h"      // window
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -97,9 +98,7 @@ void Athi_Core::init() {
 
   init_variables();
 
-  window.scene.width = screen_width;
-  window.scene.height = screen_height;
-  window.init();
+  init_window();
 
   stbi_set_flip_vertically_on_load(true);
 
@@ -111,7 +110,7 @@ void Athi_Core::init() {
 
   px_scale = static_cast<f32>(framebuffer_width) / static_cast<f32>(screen_width);
 
-  gui_init(window.get_window_context(), px_scale);
+  gui_init(get_window_context(0), px_scale);
   variable_thread_count = std::thread::hardware_concurrency();
 
   // Debug information
@@ -140,7 +139,7 @@ void Athi_Core::init() {
 }
 
 void Athi_Core::start() {
-  auto window_context = window.get_window_context();
+  auto window_context = get_window_context(0);
   glfwMakeContextCurrent(window_context);
 
   setup_fullscreen_quad();
@@ -171,11 +170,15 @@ void Athi_Core::start() {
       draw(window_context);
     }
 
+
+
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     framerate = static_cast<u32>(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
   }
+
+  update_windows();
 
   if constexpr (multithreaded_engine) {
     draw_fut.get();
@@ -286,7 +289,7 @@ void Athi_Core::update() {
 
 void Athi_Core::draw_loop()
 {
-  auto window_context = window.get_window_context();
+  auto window_context = get_window_context(0);
   glfwMakeContextCurrent(window_context);
   while (app_is_running)
   {

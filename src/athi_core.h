@@ -25,8 +25,6 @@
 
 struct Athi_Core {
 
-  Athi_Window window;
-
   void update();
   void draw(GLFWwindow *window);
 

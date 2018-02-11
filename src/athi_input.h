@@ -21,6 +21,7 @@
 
 #include "athi_typedefs.h"
 
+#include "athi_window.h"    // open_profiler
 #include "./Renderer/athi_camera.h"    // camera
 #include "athi_particle.h"  // particle_system
 #include "athi_settings.h"  // console
@@ -28,6 +29,8 @@
 
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
+
+#include <deque> // std::dequeue
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -113,7 +116,9 @@ static void mouse_button_callback(GLFWwindow *window, s32 button, s32 action,
 }
 
 
-static s32 last_key_pressed;
+static s32 last_key;
+static s32 last_action;
+
 static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
                          s32 mods) {
   // IMGUI
@@ -136,9 +141,7 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
   };
 
   // Save all state
-  if (
-      last_key_pressed == GLFW_KEY_LEFT_SUPER &&
-      key_pressed(GLFW_KEY_S)) 
+  if ( last_key == GLFW_KEY_LEFT_SUPER && last_action == GLFW_PRESS && key_pressed(GLFW_KEY_S))
   {
     save_variables();
     particle_system.save_state();
@@ -147,10 +150,19 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
 
   // load state
   if (
-      last_key_pressed == GLFW_KEY_LEFT_SUPER &&
-      key_pressed(GLFW_KEY_X)) 
+      last_key == GLFW_KEY_LEFT_SUPER && last_action == GLFW_PRESS &&
+      key_pressed(GLFW_KEY_X))
   {
     particle_system.load_state();
+  }
+
+
+  // open profiler
+  if (
+      last_key == GLFW_KEY_LEFT_SUPER && last_action == GLFW_PRESS &&
+      key_pressed(GLFW_KEY_1))
+  {
+    open_profiler_window();
   }
 
   // TOGGLE PAUSE
@@ -292,8 +304,6 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
     mouse_radio_options = static_cast<s32>(MouseOption::None);
   }
 
-
-  if (action == GLFW_PRESS) {
-    last_key_pressed = key;
-  }
+  last_key = key;
+  last_action = action;
 }
