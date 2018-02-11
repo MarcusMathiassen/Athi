@@ -100,7 +100,7 @@ void Athi_Core::init() {
   window.scene.width = screen_width;
   window.scene.height = screen_height;
   window.init();
-  
+
   stbi_set_flip_vertically_on_load(true);
 
   // Apple specific settings
@@ -148,9 +148,9 @@ void Athi_Core::start() {
   framebuffers.resize(2);
   framebuffers[0].resize(framebuffer_width, framebuffer_height);
   framebuffers[1].resize(framebuffer_width, framebuffer_height);
-  
+
   std::future<void> update_fut, draw_fut;
-  if constexpr (multithreaded_engine) { 
+  if constexpr (multithreaded_engine) {
     glfwMakeContextCurrent(NULL);
     update_fut = dispatcher.enqueue(&Athi_Core::physics_loop, this);
     draw_fut = dispatcher.enqueue(&Athi_Core::draw_loop, this);
@@ -162,10 +162,10 @@ void Athi_Core::start() {
 
     glfwPollEvents();
 
-    if constexpr (!multithreaded_engine) { 
+    if constexpr (!multithreaded_engine) {
 
       if constexpr (DEBUG_MODE) reload_variables();
-      
+
       update_inputs();
       update();
       draw(window_context);
@@ -177,7 +177,7 @@ void Athi_Core::start() {
     smooth_frametime_avg.add_new_frametime(frametime);
   }
 
-  if constexpr (multithreaded_engine) { 
+  if constexpr (multithreaded_engine) {
     draw_fut.get();
     update_fut.get();
   }
@@ -240,7 +240,7 @@ void Athi_Core::draw(GLFWwindow *window) {
     draw_custom_gui();
     gui_render();
   }
-  
+
 
   {
     profile p("glfwSwapBuffers");
@@ -306,8 +306,8 @@ void Athi_Core::physics_loop()
 void Athi_Core::update_settings() { glfwSwapInterval(vsync); }
 
 void Athi_Core::shutdown() {
-  gui_shutdown();
-  glfwTerminate();
   save_variables();
   particle_system.save_state();
+  gui_shutdown();
+  glfwTerminate();
 }

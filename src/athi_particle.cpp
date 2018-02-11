@@ -47,11 +47,6 @@ void Particle::update(f32 dt) noexcept {
   pos.y += vel.y * dt * time_scale;
   acc *= 0;
 
-  #ifdef PARTICLE_HAS_TRANSFORM
-  transform.pos.x = pos.x;
-  transform.pos.y = pos.y;
-  #endif
-
   if (border_collision) {
     // Border collision
     if (pos.x < 0 + radius) {
@@ -183,7 +178,7 @@ void ParticleSystem::draw() noexcept {
 
     tex.bind(0);
 
-    renderer.draw(cmd_buffer);  
+    renderer.draw(cmd_buffer);
   }
 }
 
@@ -244,7 +239,7 @@ void ParticleSystem::update_gpu_buffers() noexcept {
               }
               for (auto &&res : results) res.get();
         } break;
-        case Threads::None: { 
+        case Threads::None: {
           threaded_buffer_update(0, particle_count);
         } break;
       }
@@ -403,7 +398,7 @@ void ParticleSystem::draw_debug_nodes() noexcept {
       draw_rect
       (
         p.pos - p.radius, // min
-        p.pos + p.radius, // max 
+        p.pos + p.radius, // max
         debug_color,      // color
         true
       );
@@ -453,7 +448,7 @@ void ParticleSystem::update() noexcept {
               }
               for (auto &&res : results) res.get();
         } break;
-        case Threads::None: { 
+        case Threads::None: {
           threaded_particle_update(0, particle_count);
         } break;
       }
@@ -488,7 +483,7 @@ void ParticleSystem::update() noexcept {
           quadtree = Quadtree<Particle>(min, max);
         else
           quadtree = Quadtree<Particle>({0.0f, 0.0f}, {framebuffer_width, framebuffer_height});
-      
+
         {
           profile p("Quadtree.input()");
           quadtree.input(particles);
@@ -503,7 +498,7 @@ void ParticleSystem::update() noexcept {
           profile p("uniformgrid.reset()");
           if (tree_optimized_size)
             uniformgrid.init(min, max, uniformgrid_parts);
-          else 
+          else
             uniformgrid.reset();
         }
         {
@@ -537,10 +532,6 @@ void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &co
   p.mass = particle_density * kPI * radius * radius * radius;
   p.id = particle_count;
 
-  #ifdef PARTICLE_HAS_TRANSFORM
-  p.transform.pos = {pos.x, pos.y, 0};
-  p.transform.scale = {radius, radius, 0};
-  #endif
   particles.emplace_back(p);
 
   ++particle_count;
@@ -645,7 +636,7 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   const f32 sin_angle = sinf(collision_angle);
 
   // @Same as above, just janky not working
-  // const auto midpoint_x = (a_pos.x + b_pos.x) / 2.0f; 
+  // const auto midpoint_x = (a_pos.x + b_pos.x) / 2.0f;
   // const auto midpoint_y = (a_pos.y + b_pos.y) / 2.0f;
 
   // TODO: could this be done using a normal vector and just inverting it?
@@ -654,9 +645,9 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   const vec2 b_move = { collision_depth * 0.5f * cos_angle,  collision_depth * 0.5f * sin_angle};
 
   // @Same as above, just janky not working
-  // const f32 a_move.x = midpoint_x + ar * (a_pos.x - b_pos.x) / collision_depth; 
-  // const f32 a_move.y = midpoint_y + ar * (a_pos.y - b_pos.y) / collision_depth; 
-  // const f32 b_move.x = midpoint_x + br * (b_pos.x - a_pos.x) / collision_depth; 
+  // const f32 a_move.x = midpoint_x + ar * (a_pos.x - b_pos.x) / collision_depth;
+  // const f32 a_move.y = midpoint_y + ar * (a_pos.y - b_pos.y) / collision_depth;
+  // const f32 b_move.x = midpoint_x + br * (b_pos.x - a_pos.x) / collision_depth;
   // const f32 b_move.y = midpoint_y + br * (b_pos.y - a_pos.y) / collision_depth;
 
   // stores the position offsets
@@ -1053,17 +1044,23 @@ void ParticleSystem::erase_all() noexcept {
 
 void ParticleSystem::save_state() noexcept
 {
+  {
+    profile p("PS::save_state");
     write_data(
       "../bin/data.dat",
         particles,
         colors,
         transforms);
 
+  }
     console->warn("Particle state saved!");
 }
 
 void ParticleSystem::load_state() noexcept
 {
+  {
+    profile p("PS::load_state");
+
     erase_all();
 
     read_data(
@@ -1073,6 +1070,7 @@ void ParticleSystem::load_state() noexcept
         transforms);
 
     particle_count = particles.size();
+  }
 
     console->warn("Particle state loaded!");
 }

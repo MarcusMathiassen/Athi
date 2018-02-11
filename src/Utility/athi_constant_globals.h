@@ -53,7 +53,7 @@ enum class OS { Apple, Windows, Linux };
   static constexpr OS os{OS::Apple};
 #elif _WIN32
   static constexpr OS os{OS::Windows};
-#else 
+#else
   static constexpr OS os{OS::Linux};
 #endif
 

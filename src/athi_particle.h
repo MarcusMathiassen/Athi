@@ -46,12 +46,6 @@ struct Particle {
   f32 mass{0.0f};
   f32 radius{0.0f};
 
-  // @Hack: These are just temporary
-  #ifdef PARTICLE_HAS_TRANSFORM
-  Transform transform;
-  vec4 color;
-  #endif
-
   void update(f32 dt) noexcept;
 };
 
@@ -61,7 +55,7 @@ struct ParticleSystem {
 
   // Data information
   size_t particles_vertices_size{0};
-  
+
   vector<Particle> particles;
   vector<Transform> transforms;
   vector<vec4> colors;
