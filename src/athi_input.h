@@ -160,7 +160,7 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
   // open profiler
   if (
       last_key == GLFW_KEY_LEFT_SUPER && last_action == GLFW_PRESS &&
-      key_pressed(GLFW_KEY_1))
+      key_pressed(GLFW_KEY_Z))
   {
     if constexpr (DEBUG_MODE) open_profiler_window();
   }

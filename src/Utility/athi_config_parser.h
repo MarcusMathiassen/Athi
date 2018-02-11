@@ -71,64 +71,62 @@ static std::unordered_map<string, boost::variant<string, float, vec2, vec3, vec4
 static u64 last_write_time;
 
 static const string default_config =
-"particle_texture                        : \"particle_texture_7.png\";\n"
-"acceleration_color_max                  : vec4(1.000000, 0.000000, 0.000060, 1.000000);\n"
-"acceleration_color_min                  : vec4(1.000000, 0.125112, 0.125112, 1.000000);\n"
-"air_resistance                          : 0.990000;\n"
-"background_color                        : vec4(0.129000, 0.143000, 0.225000, 1.000000);\n"
-"blur_strength                           : 2.000000;\n"
-"circle_color                            : vec4(1.000000, 0.999990, 0.999990, 1.000000);\n"
-"circle_size                             : 15.377001;\n"
-"color_by_velocity_threshold             : 0.002000;\n"
-"color_particles                         : NO;\n"
-"draw_circles                            : YES;\n"
-"draw_debug                              : NO;\n"
-"draw_lines                              : YES;\n"
-"draw_particles                          : YES;\n"
-"draw_rects                              : YES;\n"
-"gButtonHeight                           : 25.000000;\n"
-"gButtonWidth                            : 200.000000;\n"
-"gravity                                 : 0.000000;\n"
-"has_random_velocity                     : YES;\n"
-"is_particles_colored_by_acc             : YES;\n"
-"monitor_refreshrate                     : 60.000000;\n"
-"mouse_busy_UI                           : NO;\n"
-"mouse_size                              : 5344.563965;\n"
-"multithreaded_particle_update           : YES;\n"
-"num_vertices_per_particle               : 36.000000;\n"
-"openCL_active                           : NO;\n"
-"physics_samples                         : 2.000000;\n"
-"post_processing                         : YES;\n"
-"post_processing_samples                 : 4.000000;\n"
-"px_scale                                : 2.000000;\n"
-"quadtree_active                         : YES;\n"
-"quadtree_capacity                       : 100.000000;\n"
-"quadtree_depth                          : 10.000000;\n"
-"quadtree_show_only_occupied             : NO;\n"
-"random_velocity_force                   : 5.000000;\n"
-"show_mouse_collision_box                : YES;\n"
-"show_mouse_grab_lines                   : YES;\n"
-"show_settings                           : YES;\n"
-"time_scale                              : 0.000000;\n"
-"tree_optimized_size                     : YES;\n"
-"uniformgrid_parts                       : 4.000000;\n"
-"use_gravitational_force                 : NO;\n"
-"use_libdispatch                         : YES;\n"
-"use_multithreading                      : YES;\n"
-"use_uniformgrid                         : NO;\n"
-"variable_thread_count                   : 8.000000;\n"
-"vsync                                   : 0.000000;\n"
-"wireframe_mode                          : NO;\n"
-"circle_collision                        : YES;\n"
-"border_collision                        : YES;\n"
-"draw_debug                              : NO;\n"
-"window_pos                              : vec2(360.000000, 177.000000);\n"
-"screen_width                            : 663.000000;\n"
-"screen_height                           : 469.000000;\n"
-"framebuffer_width                       : 1326.000000;\n"
-"framebuffer_height                      : 938.000000;\n"
-"framebuffer_height                      : 938.000000;\n"
-"cycle_particle_color                    : YES;\n";
+"particle_texture                        : \"particle_texture_7.png\"\n"
+"acceleration_color_max                  : vec4(1.000000, 0.000000, 0.000060, 1.000000)\n"
+"acceleration_color_min                  : vec4(1.000000, 0.125112, 0.125112, 1.000000)\n"
+"air_resistance                          : 0.990000\n"
+"background_color                        : vec4(0.129000, 0.143000, 0.225000, 1.000000)\n"
+"blur_strength                           : 2.000000\n"
+"circle_color                            : vec4(1.000000, 0.999990, 0.999990, 1.000000)\n"
+"circle_size                             : 15.377001\n"
+"color_by_velocity_threshold             : 0.002000\n"
+"color_particles                         : NO\n"
+"draw_circles                            : YES\n"
+"draw_lines                              : YES\n"
+"draw_particles                          : YES\n"
+"draw_rects                              : YES\n"
+"gButtonHeight                           : 25.000000\n"
+"gButtonWidth                            : 200.000000\n"
+"gravity                                 : 0.000000\n"
+"has_random_velocity                     : YES\n"
+"is_particles_colored_by_acc             : YES\n"
+"monitor_refreshrate                     : 60.000000\n"
+"mouse_busy_UI                           : NO\n"
+"mouse_size                              : 5344.563965\n"
+"multithreaded_particle_update           : YES\n"
+"num_vertices_per_particle               : 36.000000\n"
+"openCL_active                           : NO\n"
+"physics_samples                         : 2.000000\n"
+"post_processing                         : YES\n"
+"post_processing_samples                 : 4.000000\n"
+"px_scale                                : 2.000000\n"
+"quadtree_active                         : YES\n"
+"quadtree_capacity                       : 100.000000\n"
+"quadtree_depth                          : 10.000000\n"
+"quadtree_show_only_occupied             : NO\n"
+"random_velocity_force                   : 5.000000\n"
+"show_mouse_collision_box                : YES\n"
+"show_mouse_grab_lines                   : YES\n"
+"show_settings                           : YES\n"
+"time_scale                              : 0.000000\n"
+"tree_optimized_size                     : YES\n"
+"uniformgrid_parts                       : 4.000000\n"
+"use_gravitational_force                 : NO\n"
+"use_libdispatch                         : YES\n"
+"use_multithreading                      : YES\n"
+"use_uniformgrid                         : NO\n"
+"variable_thread_count                   : 8.000000\n"
+"vsync                                   : 0.000000\n"
+"wireframe_mode                          : NO\n"
+"circle_collision                        : YES\n"
+"border_collision                        : YES\n"
+"draw_debug                              : NO\n"
+"window_pos                              : vec2(360.000000, 177.000000)\n"
+"screen_width                            : 663.000000\n"
+"screen_height                           : 469.000000\n"
+"framebuffer_width                       : 1326.000000\n"
+"framebuffer_height                      : 938.000000\n"
+"cycle_particle_color                    : YES\n";
 
 
 
@@ -241,8 +239,12 @@ static auto get_vec4(const string& str) noexcept
 static std::tuple<string, string> get_variable(const string& line) noexcept
 {
     const auto result = split_string(line, ':');
-    const auto variable = result[0];
-    const auto value    = result[1].substr(0, result[1].find(';'));
+
+    const auto lhs = result[0];
+    const auto rhs = result[1];
+
+    const auto variable = lhs;
+    const auto value    = rhs.substr(0, rhs.find({' ', '\n'}));
 
     return {variable, value};
 }
@@ -367,10 +369,10 @@ static void save_variables() noexcept
 
         const auto no_spaces_line = eat_chars(line, {' ', '\t'});
 
+        if (no_spaces_line[0] == '\0') break; // eof
         if (no_spaces_line[0] == '\n' ||
             no_spaces_line[0] == '#')
         {
-            new_file_data += no_spaces_line[0];
             continue;
         }
 
@@ -385,7 +387,7 @@ static void save_variables() noexcept
         const auto pos = line.find(':');
         const auto new_line = line.substr(0, pos);
 
-        new_file_data += new_line + ": " + new_val + ";\n";
+        new_file_data += new_line + ": " + new_val + "\n";
     }
 
     std::fstream file(path);
@@ -410,9 +412,9 @@ static void init_variables() noexcept
     for (auto line: lines)
     {
         if (line.empty()) continue;
+        if (line[0] == '\0') break; // eof
         if (line[0] == '\n') continue; // newline
         if (line[0] == '#') continue; // comment
-        if (line[0] == ';') continue; // comment
         if (line[0] == ':') continue; // comment
 
         const auto [var, val] = get_variable(line);
@@ -443,7 +445,6 @@ static void init_variables() noexcept
     set_variable(&color_by_velocity_threshold, "color_by_velocity_threshold");
     set_variable(&color_particles, "color_particles");
     set_variable(&draw_circles, "draw_circles");
-    set_variable(&draw_debug, "draw_debug");
     set_variable(&draw_lines, "draw_lines");
     set_variable(&draw_particles, "draw_particles");
     set_variable(&draw_rects, "draw_rects");
@@ -506,7 +507,6 @@ static void refresh_variables() noexcept
     variable_map["color_by_velocity_threshold"] = color_by_velocity_threshold;
     variable_map["color_particles"] = color_particles;
     variable_map["draw_circles"] = draw_circles;
-    variable_map["draw_debug"] = draw_debug;
     variable_map["draw_lines"] = draw_lines;
     variable_map["draw_particles"] = draw_particles;
     variable_map["draw_rects"] = draw_rects;
