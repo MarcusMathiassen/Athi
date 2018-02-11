@@ -159,15 +159,20 @@ void Athi_Core::start() {
   {
     const f64 time_start_frame = glfwGetTime();
 
+    glfwMakeContextCurrent(window_context);
     glfwPollEvents();
 
     if constexpr (!multithreaded_engine) {
 
       if constexpr (DEBUG_MODE) reload_variables();
-
       update_inputs();
       update();
       draw(window_context);
+
+      if (auto profiler_context = get_window_context(1); profiler_context)
+      {
+        draw(profiler_context);
+      }
     }
 
 
@@ -191,6 +196,8 @@ void Athi_Core::start() {
 
 void Athi_Core::draw(GLFWwindow *window) {
   profile p("Athi_Core::draw");
+
+  glfwMakeContextCurrent(window);
 
   const f64 time_start_frame = glfwGetTime();
   glClearColor(background_color.r, background_color.g,
@@ -249,6 +256,7 @@ void Athi_Core::draw(GLFWwindow *window) {
     profile p("glfwSwapBuffers");
     glfwSwapBuffers(window);
   }
+
   render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
   render_framerate =
       static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
