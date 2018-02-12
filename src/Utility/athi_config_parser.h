@@ -128,6 +128,64 @@ static const string default_config =
 "framebuffer_height                      : 938.000000\n"
 "cycle_particle_color                    : YES\n";
 
+static const vector<string> available_vars = {
+{"particle_texture"},
+{"acceleration_color_max"},
+{"acceleration_color_min"},
+{"air_resistance"},
+{"background_color"},
+{"blur_strength"},
+{"circle_color"},
+{"circle_size"},
+{"color_by_velocity_threshold"},
+{"color_particles"},
+{"draw_circles"},
+{"draw_lines"},
+{"draw_particles"},
+{"draw_rects"},
+{"gButtonHeight"},
+{"gButtonWidth"},
+{"gravity"},
+{"has_random_velocity"},
+{"is_particles_colored_by_acc"},
+{"monitor_refreshrate"},
+{"mouse_busy_UI"},
+{"mouse_size"},
+{"multithreaded_particle_update"},
+{"num_vertices_per_particle"},
+{"openCL_active"},
+{"physics_samples"},
+{"post_processing"},
+{"post_processing_samples"},
+{"px_scale"},
+{"quadtree_active"},
+{"quadtree_capacity"},
+{"quadtree_depth"},
+{"quadtree_show_only_occupied"},
+{"random_velocity_force"},
+{"show_mouse_collision_box"},
+{"show_mouse_grab_lines"},
+{"show_settings"},
+{"time_scale"},
+{"tree_optimized_size"},
+{"uniformgrid_parts"},
+{"use_gravitational_force"},
+{"use_libdispatch"},
+{"use_multithreading"},
+{"use_uniformgrid"},
+{"variable_thread_count"},
+{"vsync"},
+{"wireframe_mode"},
+{"circle_collision"},
+{"border_collision"},
+{"draw_debug"},
+{"window_pos"},
+{"screen_width"},
+{"screen_height"},
+{"framebuffer_width"},
+{"framebuffer_height"},
+{"cycle_particle_color"},
+};
 
 
 static bool starts_with(const string& str, const string& s) noexcept
@@ -395,6 +453,15 @@ static void save_variables() noexcept
     console->warn("Config saved");
 }
 
+static bool is_var(const string& var) noexcept
+{
+    for (const auto &avail_var: available_vars)
+    {
+        if (var == avail_var) return true;
+    }
+    return false;
+}
+
 static void init_variables() noexcept
 {
 
@@ -420,6 +487,8 @@ static void init_variables() noexcept
         const auto [var, val] = get_variable(line);
 
         if (val.empty() || var.empty()) { continue; }
+
+        if (!is_var(var)) continue;
 
         // If has a ',' its a list of things
         if (string_has(val, ','))
