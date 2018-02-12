@@ -38,7 +38,6 @@
 #include <unistd.h>
 #endif
 
-
 std::unordered_map<string, f64> time_taken_by;
 std::vector<std::tuple<string, f64>> profiler_physics;
 
@@ -46,6 +45,17 @@ f32  rand_f32 (f32 min, f32 max) noexcept { return ((f32(rand()) / f32(RAND_MAX)
 vec2 rand_vec2(f32 min, f32 max) noexcept { return vec2(rand_f32(min, max), rand_f32(min, max)); }
 vec3 rand_vec3(f32 min, f32 max) noexcept { return vec3(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }
 vec4 rand_vec4(f32 min, f32 max) noexcept { return vec4(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }
+
+
+std::tuple<size_t,size_t> get_begin_and_end(s32 i, s32 total, s32 threads) noexcept {
+  const s32 parts = total / threads;
+  const s32 leftovers = total % threads;
+  const s32 begin = parts * i;
+  s32 end = parts * (i + 1);
+  if (i == threads - 1) end += leftovers;
+  return std::tuple<size_t, size_t>{begin, end};
+}
+
 
 vec4 rgb_to_hsv(vec4 in) noexcept
 {

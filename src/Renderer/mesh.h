@@ -18,7 +18,23 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
 #pragma once
 
-#include "../athi_typedefs.h"
+#include "./Renderer/athi_typedefs.h"
+
+struct Mesh
+{
+    vector<vec3> vertices;
+    vector<vec2> texcoords;
+    vector<s32>  indices;
+
+    void draw() const noexcept
+    {
+        
+    }
+};
+
+struct MeshManager
+{
+    vector<Mesh> meshes;
+};

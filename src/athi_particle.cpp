@@ -27,7 +27,8 @@
 #include "./Renderer/athi_line.h" // draw_line
 #include "./Renderer/athi_camera.h" // Camera
 #include "athi_settings.h" // console
-#include "athi_utility.h" // read_file
+#include "athi_dispatch.h" // dispatch 
+#include "athi_utility.h" // read_file, get_begin_and_end
 
 #include <algorithm>  // std::min_element, std::max_element
 #include <future>  // future
@@ -184,28 +185,6 @@ void ParticleSystem::draw() noexcept {
 
 static vector<float> radii;
 
-void ParticleSystem::threaded_buffer_update(size_t begin, size_t end) noexcept
-{
-  const auto proj = camera.get_ortho_projection();
-  for (size_t i = begin; i < end; ++i)
-  {
-    auto &p = particles[i];
-    if (is_particles_colored_by_acc) {
-      const auto old = p.pos - p.vel;
-      const auto pos_diff = p.pos - old;
-      colors[p.id] = color_by_acceleration(acceleration_color_min,
-                                           acceleration_color_max, pos_diff);
-    }
-
-    // Update the transform
-    transforms[p.id].pos = {p.pos.x, p.pos.y, 1.0f};
-    models[p.id] = proj * transforms[p.id].get_model();
-
-    if constexpr (use_textured_particles)
-      radii[p.id] = p.radius;
-  }
-}
-
 void ParticleSystem::update_gpu_buffers() noexcept {
   if (particles.empty()) return;
   profile p("PS::update_gpu_buffers");
@@ -217,34 +196,51 @@ void ParticleSystem::update_gpu_buffers() noexcept {
       radii.resize(particle_count);
   }
 
+  const auto proj = camera.get_ortho_projection();
+
   {
     profile p("PS::update_gpu_buffers(update buffers with new data)");
 
     // Update the buffers with the new data.
-    if (multithreaded_particle_update && use_multithreading)
-    {
-      switch (threadpool_solution) {
-        using Threads = ThreadPoolSolution;
-        case Threads::AppleGCD: {
-          dispatch_apply(variable_thread_count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(size_t i) {
-                const auto[begin, end] = get_begin_and_end( i, particle_count, variable_thread_count);
-                threaded_buffer_update(begin, end);
-              });
-        } break;
-        case Threads::Dispatch: {
-              vector<std::future<void>> results(variable_thread_count);
-              for (int i = 0; i < variable_thread_count; ++i) {
-                const auto[begin, end] = get_begin_and_end(i, particle_count, variable_thread_count);
-                results[i] = pool.enqueue(&ParticleSystem::threaded_buffer_update, this, begin, end);
-              }
-              for (auto &&res : results) res.get();
-        } break;
-        case Threads::None: {
-          threaded_buffer_update(0, particle_count);
-        } break;
-      }
+    if (const auto proj = camera.get_ortho_projection(); multithreaded_particle_update && use_multithreading) {
+      dispatch.parallel_for_each(particles, [this, proj](size_t begin, size_t end)
+      {
+       for (size_t i = begin; i < end; ++i)
+          {
+            auto &p = particles[i];
+            if (is_particles_colored_by_acc) {
+              const auto old = p.pos - p.vel;
+              const auto pos_diff = p.pos - old;
+              colors[p.id] = color_by_acceleration(acceleration_color_min,
+                                                   acceleration_color_max, pos_diff);
+            }
+
+            // Update the transform
+            transforms[p.id].pos = {p.pos.x, p.pos.y, 1.0f};
+            models[p.id] = proj * transforms[p.id].get_model();
+
+            if constexpr (use_textured_particles)
+              radii[p.id] = p.radius;
+          }      
+        });
     } else {
-      threaded_buffer_update(0, particle_count);
+      for (size_t i = 0; i < particle_count; ++i)
+      {
+        auto &p = particles[i];
+        if (is_particles_colored_by_acc) {
+          const auto old = p.pos - p.vel;
+          const auto pos_diff = p.pos - old;
+          colors[p.id] = color_by_acceleration(acceleration_color_min,
+                                               acceleration_color_max, pos_diff);
+        }
+
+        // Update the transform
+        transforms[p.id].pos = {p.pos.x, p.pos.y, 1.0f};
+        models[p.id] = proj * transforms[p.id].get_model();
+
+        if constexpr (use_textured_particles)
+          radii[p.id] = p.radius;
+      }
     }
   }
 
@@ -276,7 +272,7 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
     renderer.update_buffer("positions", &positions[0], num_vertices_per_particle * sizeof(positions[0]));
 }
 
-auto get_min_and_max_pos = [](const vector<Particle>& particles) {
+auto get_min_and_max_pos(const vector<Particle>& particles) {
   float max_x = -INT_MAX;
   float max_y = -INT_MAX;
   float min_x = INT_MAX;
@@ -288,9 +284,10 @@ auto get_min_and_max_pos = [](const vector<Particle>& particles) {
     min_y = (p.pos.y < min_y) ? p.pos.y : min_y;
   }
   return std::tuple<vec2, vec2>(vec2(min_x, min_y),vec2(max_x, max_y));
-};
+}
 
-void ParticleSystem::update_collisions() noexcept {
+void ParticleSystem::update_collisions() noexcept
+{
   // reset the values
   comparisons = 0;
   resolutions = 0;
@@ -300,88 +297,32 @@ void ParticleSystem::update_collisions() noexcept {
     return;
   }
 
-  if (use_multithreading && variable_thread_count != 0) {
-    if constexpr (os == OS::Apple) {
-      threadpool_solution = ThreadPoolSolution::AppleGCD;
-    } else {
-      threadpool_solution = ThreadPoolSolution::Dispatch;
-    }
-  } else
-    threadpool_solution = ThreadPoolSolution::None;
-
-  const size_t total = particle_count;
-  const size_t container_total = tree_container.size();
-
-  switch (threadpool_solution) {
-    using Threads = ThreadPoolSolution;
-    case Threads::AppleGCD: {
-      switch (tree_type) {
-        using Tree = TreeType;
-        case Tree::Quadtree:
-          [[fallthrough]];
-        case Tree::UniformGrid: {
-          dispatch_apply(
-              variable_thread_count,
-              dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-              ^(size_t i) {
-                const auto[begin, end] = get_begin_and_end(
-                    i, container_total, variable_thread_count);
-                collision_quadtree(tree_container, begin, end);
-              });
-        } break;
-        case Tree::None: {
-          dispatch_apply(
-              variable_thread_count,
-              dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-              ^(size_t i) {
-                const auto[begin, end] =
-                    get_begin_and_end(i, total, variable_thread_count);
-                collision_logNxN(total, begin, end);
-              });
-        } break;
+  switch (tree_type)
+  {
+    using Tree = TreeType;
+    case Tree::Quadtree: [[fallthrough]];
+    case Tree::UniformGrid: {
+      if (use_multithreading)
+      {
+        dispatch.parallel_for_each(tree_container, [this](size_t begin, size_t end)
+        {
+          collision_quadtree(tree_container, begin, end);
+        });
+      }
+      else {
+        collision_quadtree(tree_container, 0, tree_container.size());
       }
     } break;
 
-    case Threads::Dispatch: {
-      switch (tree_type) {
-        using Tree = TreeType;
-        case Tree::Quadtree:
-          [[fallthrough]];
-        case Tree::UniformGrid: {
-          vector<std::future<void>> results(variable_thread_count);
-          for (int i = 0; i < variable_thread_count; ++i) {
-            const auto[begin, end] =
-                get_begin_and_end(i, container_total, variable_thread_count);
-            results[i] = pool.enqueue(&ParticleSystem::collision_quadtree, this,
-                                      tree_container, begin, end);
-          }
-          for (auto &&res : results) res.get();
-        } break;
-
-        case Tree::None: {
-          vector<std::future<void>> results(variable_thread_count);
-          for (int i = 0; i < variable_thread_count; ++i) {
-            const auto[begin, end] =
-                get_begin_and_end(i, total, variable_thread_count);
-            results[i] = pool.enqueue(&ParticleSystem::collision_logNxN, this,
-                                      total, begin, end);
-          }
-          for (auto &&res : results) res.get();
-        } break;
+    case Tree::None: {
+      if (use_multithreading) {
+        dispatch.parallel_for_each(particles, [this](size_t begin, size_t end)
+        {
+           collision_logNxN(particle_count, begin, end);
+        });
       }
-    } break;
-
-    case Threads::None: {
-      switch (tree_type) {
-        using Tree = TreeType;
-        case Tree::Quadtree:
-          [[fallthrough]];
-        case Tree::UniformGrid: {
-          collision_quadtree(tree_container, 0, container_total);
-        } break;
-        case Tree::None: {
-          collision_logNxN(total, 0, total);
-        } break;
+      else {
+          collision_logNxN(particle_count, 0, particle_count);
       }
     } break;
   }
@@ -419,41 +360,29 @@ void ParticleSystem::draw_debug_nodes() noexcept {
   }
 }
 
-void ParticleSystem::threaded_particle_update(size_t begin, size_t end) noexcept {
-  for (size_t i = begin; i < end; ++i) {
-    particles[i].acc.y -= (gravity * particles[i].mass) * timestep;
-    particles[i].update(timestep);
+static inline void threaded_particle_update(vector<Particle>& p, size_t begin, size_t end) noexcept
+{
+  for (size_t i = begin; i < end; ++i)
+  {
+    p[i].acc.y -= (gravity * p[i].mass) * timestep;
+    p[i].update(timestep);
   }
 }
 
-void ParticleSystem::update() noexcept {
+void ParticleSystem::update() noexcept
+{
   {
-  profile p("PS::particles.update()");
+    profile p("PS::particles.update()");
+
     // Update particles positions
     if (multithreaded_particle_update)
     {
-      switch (threadpool_solution) {
-        using Threads = ThreadPoolSolution;
-        case Threads::AppleGCD: {
-          dispatch_apply(variable_thread_count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(size_t i) {
-                const auto[begin, end] = get_begin_and_end( i, particle_count, variable_thread_count);
-                threaded_particle_update(begin, end);
-              });
-        } break;
-        case Threads::Dispatch: {
-              vector<std::future<void>> results(variable_thread_count);
-              for (int i = 0; i < variable_thread_count; ++i) {
-                const auto[begin, end] = get_begin_and_end(i, particle_count, variable_thread_count);
-                results[i] = pool.enqueue(&ParticleSystem::threaded_particle_update, this, begin, end);
-              }
-              for (auto &&res : results) res.get();
-        } break;
-        case Threads::None: {
-          threaded_particle_update(0, particle_count);
-        } break;
-      }
+      dispatch.parallel_for_each(particles, [this](size_t begin, size_t end)
+      {
+        threaded_particle_update(particles, begin, end);
+      });
     } else {
-      threaded_particle_update(0, particle_count);
+      threaded_particle_update(particles, 0, particle_count);
     }
   }
 
@@ -590,7 +519,7 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
   separate(a, b);
 
   // A negative 'd' means the circles velocities are in opposite directions
-  const float d = dx * vdx + dy * vdy;
+  const auto d = dx * vdx + dy * vdy;
 
   // And we don't resolve collisions between circles moving away from eachother
   if (d < std::numeric_limits<float>::epsilon())
@@ -993,36 +922,15 @@ void ParticleSystem::opencl_naive() noexcept {
   // Handle any leftover that werent checked
   if (leftovers) {
     const size_t total = leftovers;
-
-    switch (threadpool_solution) {
-      using Threads = ThreadPoolSolution;
-      case Threads::AppleGCD: {
-        dispatch_apply(
-            variable_thread_count,
-            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),
-            ^(size_t i) {
-              const auto[begin, end] =
-                  get_begin_and_end(i, total, variable_thread_count);
-              collision_logNxN(total, particle_count - leftovers + begin, end);
-            });
-      } break;
-
-      case Threads::Dispatch: {
-        vector<std::future<void>> results(variable_thread_count);
-        for (int i = 0; i < variable_thread_count; ++i) {
-          const auto[begin, end] =
-              get_begin_and_end(i, total, variable_thread_count);
-          results[i] =
-              pool.enqueue(&ParticleSystem::collision_logNxN, this, total,
-                           particle_count - leftovers + begin, end);
-        }
-        for (auto &&res : results) res.get();
-      } break;
-
-      case Threads::None: {
-        collision_logNxN(total, 0, total);
-      } break;
+    if (use_multithreading) {
+      dispatch.parallel_for_each(particles, [this, total](size_t begin, size_t end)
+      {
+        collision_logNxN(total, begin, end);
+      });
     }
+    else {
+        collision_logNxN(total, particle_count-total, particle_count);
+      }
   }
 }
 
@@ -1044,6 +952,7 @@ void ParticleSystem::erase_all() noexcept {
 
 void ParticleSystem::save_state() noexcept
 {
+  if (particles.empty()) return;
   {
     profile p("PS::save_state");
     write_data(
@@ -1053,7 +962,7 @@ void ParticleSystem::save_state() noexcept
         transforms);
 
   }
-    console->warn("Particle state saved!");
+  console->warn("Particle state saved!");
 }
 
 void ParticleSystem::load_state() noexcept
@@ -1072,5 +981,5 @@ void ParticleSystem::load_state() noexcept
     particle_count = particles.size();
   }
 
-    console->warn("Particle state loaded!");
+  console->warn("Particle state loaded!");
 }

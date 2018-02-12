@@ -115,7 +115,6 @@ string particle_texture{"particle_texture"};
 // Do not touch beyond here
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-Dispatch dispatcher;
 std::shared_ptr<spdlog::logger> console;
 bool app_is_running{true};
 bool settings_changed{false};
@@ -152,4 +151,3 @@ s32 tree_radio_option = 0;
 
 MouseOption mouse_option{MouseOption::Drag};
 TreeType tree_type{TreeType::Quadtree};
-ThreadPoolSolution threadpool_solution{ThreadPoolSolution::Dispatch};

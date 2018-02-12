@@ -80,16 +80,8 @@ vec2 rand_vec2(f32 min, f32 max) noexcept;
 vec3 rand_vec3(f32 min, f32 max) noexcept;
 vec4 rand_vec4(f32 min, f32 max) noexcept;
 
-inline static auto get_begin_and_end(s32 i, s32 total, s32 threads) noexcept {
-  const s32 parts = total / threads;
-  const s32 leftovers = total % threads;
-  const s32 begin = parts * i;
-  s32 end = parts * (i + 1);
-  if (i == threads - 1) end += leftovers;
-  return std::tuple<size_t, size_t>{begin, end};
-};
 
-
+std::tuple<size_t,size_t> get_begin_and_end(s32 i, s32 total, s32 threads) noexcept;
 static bool file_exists(const std::string& filename)
 {
     struct stat buf;

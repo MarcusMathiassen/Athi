@@ -131,6 +131,11 @@ static void draw_custom_gui() noexcept
     vsync ^= 1;
   }
 
+  if (button("Particles: " + std::to_string(particle_system.particle_count)))
+  {
+
+  }
+
   button_count++;
 
   if (button(string("Multithreaded: ") + (use_multithreading ? "ON" : "OFF")))

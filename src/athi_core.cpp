@@ -35,6 +35,7 @@
 #include "athi_typedefs.h"
 #include "athi_utility.h"               // profile, Smooth_Average
 #include "athi_window.h"      // window
+#include "athi_dispatch.h"      // dispatch
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -101,12 +102,6 @@ void Athi_Core::init()
 
   stbi_set_flip_vertically_on_load(true);
 
-  // Apple specific settings
-#if __APPLE__
-  use_libdispatch = true;
-  threadpool_solution = ThreadPoolSolution::AppleGCD;
-#endif
-
   px_scale = static_cast<f32>(framebuffer_width) / static_cast<f32>(screen_width);
 
   gui_init(get_window_context(0), px_scale);
@@ -151,8 +146,8 @@ void Athi_Core::start()
   std::future<void> update_fut, draw_fut;
   if constexpr (multithreaded_engine) {
     glfwMakeContextCurrent(NULL);
-    update_fut = dispatcher.enqueue(&Athi_Core::physics_loop, this);
-    draw_fut = dispatcher.enqueue(&Athi_Core::draw_loop, this);
+    update_fut = dispatch.enqueue(&Athi_Core::physics_loop, this);
+    draw_fut = dispatch.enqueue(&Athi_Core::draw_loop, this);
   }
 
   while (!glfwWindowShouldClose(window_context))
@@ -160,7 +155,6 @@ void Athi_Core::start()
     const f64 time_start_frame = glfwGetTime();
 
     glfwMakeContextCurrent(window_context);
-    glfwPollEvents();
 
     if constexpr (!multithreaded_engine) {
 
@@ -177,6 +171,14 @@ void Athi_Core::start()
           if (glfwGetWindowAttrib(profiler_context, GLFW_VISIBLE)) draw(profiler_context);
         }
       }
+    }
+
+    //@Hack @Apple: GLFW 3.3.0 has a bug that ignores vsync when not visible
+    if (glfwGetWindowAttrib(window_context, GLFW_VISIBLE)) 
+    {
+      glfwPollEvents();
+    } else {
+      glfwWaitEvents();
     }
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);

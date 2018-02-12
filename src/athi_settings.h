@@ -25,19 +25,13 @@
 
 #include "./Utility/athi_constant_globals.h"
 #include "./Renderer/athi_framebuffer.h"
-#include "athi_dispatch.h"
 #include "imgui.h"
 #include <atomic>
 
 #include "../dep/Universal/spdlog/spdlog.h" // Console logging
-
-extern Dispatch dispatcher;
 extern std::shared_ptr<spdlog::logger> console;
 
 extern string particle_texture;
-
-enum class ThreadPoolSolution { AppleGCD, Dispatch, None };
-extern ThreadPoolSolution threadpool_solution;
 
 enum class TreeType { Quadtree, UniformGrid, None };
 extern TreeType tree_type;

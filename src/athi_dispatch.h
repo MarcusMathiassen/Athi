@@ -20,16 +20,17 @@
 
 #pragma once
 
+#include "athi_typedefs.h"
 #include "./Utility/athi_constant_globals.h" // os
+#include "./athi_utility.h" // os
 
-#include <thread>
-#include <cassert>
-#include <condition_variable>
-#include <mutex>
-#include <functional>
-#include <future>
-#include <queue>
-#include <thread>
+#include <thread> // thread 
+#include <cassert> // assert
+#include <condition_variable> // condition_variable
+#include <mutex> // mutex
+#include <functional> // std::function<void()>
+#include <future> // std::future
+#include <queue> // std::queue
 
 #ifdef __APPLE__
   #include <dispatch/dispatch.h>  // dispatch_apply
@@ -37,6 +38,7 @@
 
 class Dispatch {
  private:
+  size_t num_workers;
   std::mutex queue_mutex;
   std::condition_variable condition;
   bool stop{false};
@@ -49,6 +51,7 @@ class Dispatch {
   Dispatch(int num_workers = std::thread::hardware_concurrency()) {
     assert(num_workers != 0 && "0 workers doesn't make sense.");
     workers.resize(num_workers);
+    this->num_workers = num_workers;
     for (auto&& worker : workers) {
       worker = std::thread([this] {
         while (true) {
@@ -88,4 +91,48 @@ class Dispatch {
     condition.notify_one();
     return result;
   }
+
+  template <class Container, class F>
+  void parallel_for_each(Container& container, F&& f)
+  {
+    const size_t container_size = container.size();
+
+    // Precalculate all beginnings and ends
+    vector<std::tuple<s32,s32>> begin_ends(num_workers);
+    for (u32 i = 0; i < num_workers; ++i) 
+      begin_ends[i] = get_begin_and_end( i, container_size, num_workers);
+
+    switch (os)
+    {
+      case OS::Apple: {
+
+        dispatch_apply(num_workers, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(size_t i) {
+            const auto [begin, end] = begin_ends[i];
+            f(begin, end);
+        });
+
+      } break;
+
+
+      case OS::Windows: [[fallthrough]];
+      case OS::Linux:   [[fallthrough]];
+
+
+      default: {
+
+          vector<std::future<void>> results(num_workers);
+          for (size_t i = 0; i < num_workers; ++i)
+          {
+              const auto [begin, end] = begin_ends[i];
+              results[i] = enqueue(std::forward<F>(f), begin, end);
+          }
+
+          for (auto &&res : results)
+            res.get();
+
+      } break;
+    }
+  }
 };
+
+extern Dispatch dispatch;

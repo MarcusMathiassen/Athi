@@ -28,10 +28,11 @@
 class Entity
 {
 protected:
+    s32       id;
     Buffer    buffer;
     Shader    shader;
-    vec4      color;
     Transform transform;
+    vec4      color;
 public:
     virtual void update(f32 dt) = delete;
     virtual void draw()   = delete;
@@ -40,27 +41,36 @@ public:
 struct EntityManager
 {
     vector<Entity> entities;
+    vector<s32>    is_alives;
 
     void update(f32 dt) noexcept
     {
-        for (auto & entity: entites)
+        for (const auto is_alive: is_alives)
         {
-            entity.update(f32 dt);
+            if (is_alive) 
+            {
+                entities[is_alive].update(dt)
+            }
         }
     }
 
     void draw() const noexcept
     {
-        for (const auto & entity: entities)
+        for (const auto is_alive: is_alives)
         {
-            entity.draw();
+            if (is_alive)
+            {
+                entities[is_alive].draw();
+            }
         }
     }
 
     template <class T>
-    static void add_entity(const T& entity) noexcept
+    static void add_entity(T& entity) noexcept
     {
-        entities.emplace_back(t);
+        entity.id = entities.size();
+        entity_is_live.resize(entities.size());
+        entities.emplace_back(entity);
     }
 };
 
@@ -76,8 +86,5 @@ struct Triangle: public Entity
 
     void draw() const noexcept
     {
-        set_shader(argb_shader_no_texture);
-        set_buffer(triangle_buffer);
-        draw_command(0, 3);
     }
 };

@@ -102,7 +102,6 @@ struct ParticleSystem {
   void opencl_naive() noexcept;
   void apply_n_body() noexcept;
   void threaded_buffer_update(size_t begin, size_t end) noexcept;
-  void threaded_particle_update(size_t begin, size_t end) noexcept;
   bool collision_check(const Particle &a, const Particle &b) const noexcept;
   void collision_resolve(Particle &a, Particle &b) const noexcept;
   void separate(Particle &a, Particle &b) const noexcept;
