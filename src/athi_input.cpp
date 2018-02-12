@@ -69,7 +69,7 @@ static void gravity_well(Particle &a, const vec2 &point) {
   const f32 x2 = point.x;
   const f32 y2 = point.y;
   const f32 m1 = a.mass;
-  const f32 m2 = 1e10;
+  const f32 m2 = 1e11;
 
   const f32 dx = x2 - x1;
   const f32 dy = y2 - y1;
@@ -79,8 +79,8 @@ static void gravity_well(Particle &a, const vec2 &point) {
   const f32 G = kGravitationalConstant;
   const f32 F = G * m1 * m2 / d * d;
 
-  a.vel.x += F * cos(angle);
-  a.vel.y += F * sin(angle);
+  a.acc.x += F * cos(angle);
+  a.acc.y += F * sin(angle);
 }
 
 void attraction_force(Particle &a, const vec2 &point) {
@@ -96,9 +96,9 @@ void attraction_force(Particle &a, const vec2 &point) {
   const f32 d = sqrt(dx * dx + dy * dy);
 
   const f32 angle = atan2(dy, dx);
-  a.vel.x += d * cos(angle);
-  a.vel.y += d * sin(angle);
-  a.vel *= 0.7f;
+  a.acc.x += d * cos(angle);
+  a.acc.y += d * sin(angle);
+  a.acc *= 0.7f;
 }
 
 s32 mouse_attached_to_single{-1};

@@ -47,6 +47,7 @@ void Particle::update(f32 dt) noexcept {
   pos.x += vel.x * dt * time_scale;
   pos.y += vel.y * dt * time_scale;
   acc *= 0;
+  torque *= 0.999f;
 
   if (border_collision) {
     // Border collision
@@ -217,6 +218,7 @@ void ParticleSystem::update_gpu_buffers() noexcept {
 
             // Update the transform
             transforms[p.id].pos = {p.pos.x, p.pos.y, 1.0f};
+            transforms[p.id].rot.z += p.torque;
             models[p.id] = proj * transforms[p.id].get_model();
 
             if constexpr (use_textured_particles)
@@ -360,32 +362,9 @@ void ParticleSystem::draw_debug_nodes() noexcept {
   }
 }
 
-static inline void threaded_particle_update(vector<Particle>& p, size_t begin, size_t end) noexcept
+void ParticleSystem::update(float dt) noexcept
 {
-  for (size_t i = begin; i < end; ++i)
-  {
-    p[i].acc.y -= (gravity * p[i].mass) * timestep;
-    p[i].update(timestep);
-  }
-}
-
-void ParticleSystem::update() noexcept
-{
-  {
-    profile p("PS::particles.update()");
-
-    // Update particles positions
-    if (multithreaded_particle_update)
-    {
-      dispatch.parallel_for_each(particles, [this](size_t begin, size_t end)
-      {
-        threaded_particle_update(particles, begin, end);
-      });
-    } else {
-      threaded_particle_update(particles, 0, particle_count);
-    }
-  }
-
+  if (particles.empty()) return;
 
   if (circle_collision)
   {
@@ -443,9 +422,56 @@ void ParticleSystem::update() noexcept
 
     // Check for collisions and resolve if needed
     profile p("PS::update_collisions()");
-    for (s32 i = 0; i < physics_samples; ++i) {
+    for (s32 j = 0; j < physics_samples; ++j) {
+        {
+        profile p("PS::particles.update()");
+
+        // Update particles positions
+        if (multithreaded_particle_update)
+        {
+          dispatch.parallel_for_each(particles, [dt, this](size_t begin, size_t end)
+          {
+            for (size_t i = begin; i < end; ++i)
+            {
+              particles[i].acc.y -= (gravity * particles[i].mass) * dt;
+              particles[i].update(dt);
+            }      
+          });
+
+        } else {
+          for (size_t i = 0; i < particle_count; ++i)
+          {
+            particles[i].acc.y -= (gravity * particles[i].mass) * dt;
+            particles[i].update(dt);
+          }    
+        }
+      }
       update_collisions();
     }
+  } else {
+    {
+    profile p("PS::particles.update()");
+
+    // Update particles positions
+    if (multithreaded_particle_update)
+    {
+      dispatch.parallel_for_each(particles, [dt, this](size_t begin, size_t end)
+      {
+        for (size_t i = begin; i < end; ++i)
+        {
+          particles[i].acc.y -= (gravity * particles[i].mass) * dt;
+          particles[i].update(dt);
+        }      
+      });
+
+    } else {
+      for (size_t i = 0; i < particle_count; ++i)
+      {
+        particles[i].acc.y -= (gravity * particles[i].mass) * dt;
+        particles[i].update(dt);
+      }    
+    }
+  }
   }
 }
 
@@ -458,7 +484,7 @@ void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &co
     p.vel = rand_vec2(-random_velocity_force, random_velocity_force);
 
   p.radius = radius;
-  p.mass = particle_density * kPI * radius * radius * radius;
+  p.mass = particle_density * kPI * radius * radius;
   p.id = particle_count;
 
   particles.emplace_back(p);
@@ -505,8 +531,8 @@ bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const
 void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
 {
   // Local variables
-  const auto dx = b.pos.x - a.pos.x;
-  const auto dy = b.pos.y - a.pos.y;
+  auto dx = b.pos.x - a.pos.x;
+  auto dy = b.pos.y - a.pos.y;
   const auto vdx = b.vel.x - a.vel.x;
   const auto vdy = b.vel.y - a.vel.y;
   const auto a_vel = a.vel;
@@ -520,6 +546,50 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
 
   // A negative 'd' means the circles velocities are in opposite directions
   const auto d = dx * vdx + dy * vdy;
+
+
+    // Rotation response
+  // float temp = a.torque;
+  // b.torque = temp;
+  // a.torque = b.torque;
+
+  /*
+  w is the torque, r is the vector to the collision point from the center, v is the velocity vector
+  ω = (r.x*v.y−r.y*v.x) / (r2x+r2y)
+  */
+
+  const f32 ar = a.radius;
+  const f32 br = b.radius;
+  const f32 collision_depth = glm::distance(b.pos, a.pos);
+
+  // contact angle
+  dx = b.pos.x - a.pos.x;
+  dy = b.pos.y - a.pos.y;
+  const f32 collision_angle = atan2(dy, dx);
+  const f32 cos_angle = cosf(collision_angle);
+  const f32 sin_angle = sinf(collision_angle);
+
+  vec2 r1 = {collision_depth * 0.5f *  cos_angle, collision_depth * 0.5f *  sin_angle};
+  vec2 r2 = {-collision_depth * 0.5f *  cos_angle, - collision_depth * 0.5f *  sin_angle};
+  vec2 v1 = a.vel;
+  vec2 v2 = b.vel;
+
+
+  auto cross = [](const vec2 & v1, const vec2 & v2)
+  {
+    return (v1.x*v2.y) - (v1.y*v2.x);
+  };
+
+  float friction = 0.1f;
+
+  a.torque = (cross(glm::normalize(r2), v1) / ar) * friction + b.torque * 0.1f;
+  b.torque = (cross(glm::normalize(r1), v2) / br) * friction + a.torque * 0.1f;
+
+   // draw_line(a.pos, r1, 1.0, pastel_red);
+   // draw_line(b.pos, r2, 1.0, pastel_green);
+
+  // a.torque = ((r1.x*v1.y - r1.y*v1.x) / (r2.x+r2.y)) * 0.001f;
+  // b.torque = ((r2.x*v2.y + r2.y*v2.x) / (r1.x+r1.y)) * 0.001f;
 
   // And we don't resolve collisions between circles moving away from eachother
   if (d < std::numeric_limits<float>::epsilon())
@@ -551,6 +621,8 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   const auto b_pos = b.pos;
   const f32 ar = a.radius;
   const f32 br = b.radius;
+  const f32 m1 = a.mass;
+  const f32 m2 = b.mass;
 
   const f32 collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
 
@@ -570,8 +642,9 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
 
   // TODO: could this be done using a normal vector and just inverting it?
   // amount to move each ball
-  const vec2 a_move = {-collision_depth * 0.5f * cos_angle, -collision_depth * 0.5f * sin_angle};
-  const vec2 b_move = { collision_depth * 0.5f * cos_angle,  collision_depth * 0.5f * sin_angle};
+
+  vec2 a_move = { -collision_depth * 0.5f * cos_angle,  -collision_depth * 0.5f * sin_angle};
+  vec2 b_move = {  collision_depth * 0.5f * cos_angle,   collision_depth * 0.5f * sin_angle};
 
   // @Same as above, just janky not working
   // const f32 a_move.x = midpoint_x + ar * (a_pos.x - b_pos.x) / collision_depth;

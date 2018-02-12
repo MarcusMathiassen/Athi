@@ -195,7 +195,8 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
 
   // TOGGLE CIRCLE GRAVITY
   if (key_pressed(GLFW_KEY_G)) {
-    if (gravity > 0) gravity = 0;
+    if (gravity > 0) gravity = 0.0f;
+    else gravity = 0.981f;
     console->info("Particle gravity: {}", gravity > 0 ? "ON" : "OFF");
   }
 

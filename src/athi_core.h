@@ -25,7 +25,7 @@
 
 struct Athi_Core {
 
-  void update();
+  void update(float dt);
   void draw(GLFWwindow *window);
 
   void window_loop();

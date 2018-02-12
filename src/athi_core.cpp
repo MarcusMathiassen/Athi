@@ -150,6 +150,7 @@ void Athi_Core::start()
     draw_fut = dispatch.enqueue(&Athi_Core::draw_loop, this);
   }
 
+  float dt = 1.0f/60.0f;
   while (!glfwWindowShouldClose(window_context))
   {
     const f64 time_start_frame = glfwGetTime();
@@ -161,7 +162,7 @@ void Athi_Core::start()
       if constexpr (DEBUG_MODE) { reload_variables(); }
 
       update_inputs();
-      update();
+      update(dt);
       draw(window_context);
 
       if constexpr (DEBUG_MODE) {
@@ -185,6 +186,8 @@ void Athi_Core::start()
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     framerate = static_cast<u32>(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
+
+    dt = (1.0f/60.0f);
   }
 
   if constexpr (multithreaded_engine) {
@@ -256,7 +259,6 @@ void Athi_Core::draw(GLFWwindow *window)
     gui_render();
   }
 
-
   {
     profile p("glfwSwapBuffers");
     glfwSwapBuffers(window);
@@ -268,15 +270,13 @@ void Athi_Core::draw(GLFWwindow *window)
   smooth_render_rametime_avg.add_new_frametime(render_frametime);
 }
 
-void Athi_Core::update() {
+void Athi_Core::update(float dt) {
 
   physics_profile p("update");
 
   const f64 time_start_frame = glfwGetTime();
 
-  if (!particle_system.particles.empty()) {
-    particle_system.update();
-  }
+  particle_system.update(dt);
 
   if (use_gravitational_force) {
     profile p("ParticleSystem::apply_n_body()");
@@ -315,7 +315,7 @@ void Athi_Core::physics_loop()
 {
   while (app_is_running)
   {
-    update();
+    update(timestep);
   }
 }
 

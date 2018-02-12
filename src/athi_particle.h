@@ -45,6 +45,7 @@ struct Particle {
   vec2 acc{0.0f, 0.0f};
   f32 mass{0.0f};
   f32 radius{0.0f};
+  f32 torque{0.0f};
 
   void update(f32 dt) noexcept;
 };
@@ -92,7 +93,7 @@ struct ParticleSystem {
   void save_state() noexcept;
   void load_state() noexcept;
   void refresh_vertices() noexcept;
-  void update() noexcept;
+  void update(float dt) noexcept;
   void rebuild_vertices(u32 num_vertices) noexcept;
   void draw() noexcept;
   void opencl_init() noexcept;
