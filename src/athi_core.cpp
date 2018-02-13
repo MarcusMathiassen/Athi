@@ -267,15 +267,14 @@ void Athi_Core::draw(GLFWwindow *window)
     gui_render();
   }
 
+  render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
+  render_framerate = static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
+  smooth_render_rametime_avg.add_new_frametime(render_frametime);
+
   {
     profile p("glfwSwapBuffers");
     glfwSwapBuffers(window);
   }
-
-  render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  render_framerate =
-      static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
-  smooth_render_rametime_avg.add_new_frametime(render_frametime);
 }
 
 void Athi_Core::update(float dt) {
@@ -299,8 +298,7 @@ void Athi_Core::update(float dt) {
 
   // Update timers
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  physics_framerate =
-      static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
+  physics_framerate = static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
   timestep = 1.0 / 60.0;
 }
