@@ -96,7 +96,7 @@ void init_window() {
   
   glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
   glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-  
+
   glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
   glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 
@@ -124,8 +124,6 @@ void init_window() {
   windows[0] = glfwCreateWindow(screen_width, screen_height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(windows[0]);
   glfwSetWindowPos(windows[0], window_pos.x, window_pos.y);
-
-
 
   glfwWindowHint(GLFW_FOCUSED, false);
   glfwWindowHint(GLFW_VISIBLE, false);

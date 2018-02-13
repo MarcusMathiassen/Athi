@@ -14,7 +14,7 @@
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// LIABILI OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
@@ -206,6 +206,70 @@ void update_inputs() {
   }
 
   // console->info("mouse_pos: {} : {}", mouse_pos.x, mouse_pos.y);
+    if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
+     particle_system.add(mouse_pos, 1.0f, circle_color);
+     particle_system.add(mouse_pos, 1.0f, circle_color);
+     particle_system.add(mouse_pos, 1.0f, circle_color);
+     particle_system.add(mouse_pos, 1.0f, circle_color);
+     particle_system.add(mouse_pos, 1.0f, circle_color);
+     particle_system.add(mouse_pos, 1.0f, circle_color);
+     particle_system.add(mouse_pos, 1.0f, circle_color);
+     particle_system.add(mouse_pos, 1.0f, circle_color);
+     particle_system.add(mouse_pos, 1.0f, circle_color);
+     particle_system.add(mouse_pos, 1.0f, circle_color);
+  }
+
+  if (glfwGetKey(context, GLFW_KEY_2) == GLFW_PRESS) {
+     particle_system.add(mouse_pos, 2.5f, circle_color);
+     particle_system.add(mouse_pos, 2.5f, circle_color);
+     particle_system.add(mouse_pos, 2.5f, circle_color);
+     particle_system.add(mouse_pos, 2.5f, circle_color);
+     particle_system.add(mouse_pos, 2.5f, circle_color);
+     particle_system.add(mouse_pos, 2.5f, circle_color);
+     particle_system.add(mouse_pos, 2.5f, circle_color);
+     particle_system.add(mouse_pos, 2.5f, circle_color);
+     particle_system.add(mouse_pos, 2.5f, circle_color);
+     particle_system.add(mouse_pos, 2.5f, circle_color);
+  }
+
+  if (glfwGetKey(context, GLFW_KEY_3) == GLFW_PRESS) {
+     particle_system.add(mouse_pos, 5.0f, circle_color);
+     particle_system.add(mouse_pos, 5.0f, circle_color);
+     particle_system.add(mouse_pos, 5.0f, circle_color);
+     particle_system.add(mouse_pos, 5.0f, circle_color);
+     particle_system.add(mouse_pos, 5.0f, circle_color);
+     particle_system.add(mouse_pos, 5.0f, circle_color);
+     particle_system.add(mouse_pos, 5.0f, circle_color);
+     particle_system.add(mouse_pos, 5.0f, circle_color);
+     particle_system.add(mouse_pos, 5.0f, circle_color);
+     particle_system.add(mouse_pos, 5.0f, circle_color);
+  }
+
+  if (glfwGetKey(context, GLFW_KEY_4) == GLFW_PRESS) {
+     particle_system.add(mouse_pos, 10.0f, circle_color);
+     particle_system.add(mouse_pos, 10.0f, circle_color);
+     particle_system.add(mouse_pos, 10.0f, circle_color);
+     particle_system.add(mouse_pos, 10.0f, circle_color);
+     particle_system.add(mouse_pos, 10.0f, circle_color);
+     particle_system.add(mouse_pos, 10.0f, circle_color);
+     particle_system.add(mouse_pos, 10.0f, circle_color);
+     particle_system.add(mouse_pos, 10.0f, circle_color);
+     particle_system.add(mouse_pos, 10.0f, circle_color);
+     particle_system.add(mouse_pos, 10.0f, circle_color);
+  }
+
+  if (glfwGetKey(context, GLFW_KEY_5) == GLFW_PRESS) {
+     particle_system.add(mouse_pos, circle_size, circle_color);
+     particle_system.add(mouse_pos, circle_size, circle_color);
+     particle_system.add(mouse_pos, circle_size, circle_color);
+     particle_system.add(mouse_pos, circle_size, circle_color);
+     particle_system.add(mouse_pos, circle_size, circle_color);
+     particle_system.add(mouse_pos, circle_size, circle_color);
+     particle_system.add(mouse_pos, circle_size, circle_color);
+     particle_system.add(mouse_pos, circle_size, circle_color);
+     particle_system.add(mouse_pos, circle_size, circle_color);
+     particle_system.add(mouse_pos, circle_size, circle_color);
+  }
 
   // Draw Mouse
   Athi_Rect mouse_rect;
@@ -214,69 +278,5 @@ void update_inputs() {
   draw_hollow_circle(mouse_pos, mouse_size, circle_color);
   if (draw_debug && show_mouse_collision_box) {
     draw_rect(mouse_rect.min, mouse_rect.max, pastel_green, true);
-  }
-
-  if (glfwGetKey(context, GLFW_KEY_1) == GLFW_PRESS) {
-    particle_system.add(mouse_pos, 1.0f, circle_color);
-    particle_system.add(mouse_pos, 1.0f, circle_color);
-    particle_system.add(mouse_pos, 1.0f, circle_color);
-    particle_system.add(mouse_pos, 1.0f, circle_color);
-    particle_system.add(mouse_pos, 1.0f, circle_color);
-    particle_system.add(mouse_pos, 1.0f, circle_color);
-    particle_system.add(mouse_pos, 1.0f, circle_color);
-    particle_system.add(mouse_pos, 1.0f, circle_color);
-    particle_system.add(mouse_pos, 1.0f, circle_color);
-    particle_system.add(mouse_pos, 1.0f, circle_color);
-  }
-
-  if (glfwGetKey(context, GLFW_KEY_2) == GLFW_PRESS) {
-    particle_system.add(mouse_pos, 2.0f, circle_color);
-    particle_system.add(mouse_pos, 2.0f, circle_color);
-    particle_system.add(mouse_pos, 2.0f, circle_color);
-    particle_system.add(mouse_pos, 2.0f, circle_color);
-    particle_system.add(mouse_pos, 2.0f, circle_color);
-    particle_system.add(mouse_pos, 2.0f, circle_color);
-    particle_system.add(mouse_pos, 2.0f, circle_color);
-    particle_system.add(mouse_pos, 2.0f, circle_color);
-    particle_system.add(mouse_pos, 2.0f, circle_color);
-    particle_system.add(mouse_pos, 2.0f, circle_color);
-  }
-
-  if (glfwGetKey(context, GLFW_KEY_3) == GLFW_PRESS) {
-    particle_system.add(mouse_pos, 3.0f, circle_color);
-    particle_system.add(mouse_pos, 3.0f, circle_color);
-    particle_system.add(mouse_pos, 3.0f, circle_color);
-    particle_system.add(mouse_pos, 3.0f, circle_color);
-    particle_system.add(mouse_pos, 3.0f, circle_color);
-    particle_system.add(mouse_pos, 3.0f, circle_color);
-    particle_system.add(mouse_pos, 3.0f, circle_color);
-    particle_system.add(mouse_pos, 3.0f, circle_color);
-    particle_system.add(mouse_pos, 3.0f, circle_color);
-    particle_system.add(mouse_pos, 3.0f, circle_color);
-  }
-
-  if (glfwGetKey(context, GLFW_KEY_4) == GLFW_PRESS) {
-    particle_system.add(mouse_pos, 4.0f, circle_color);
-    particle_system.add(mouse_pos, 4.0f, circle_color);
-    particle_system.add(mouse_pos, 4.0f, circle_color);
-    particle_system.add(mouse_pos, 4.0f, circle_color);
-    particle_system.add(mouse_pos, 4.0f, circle_color);
-    particle_system.add(mouse_pos, 4.0f, circle_color);
-    particle_system.add(mouse_pos, 4.0f, circle_color);
-    particle_system.add(mouse_pos, 4.0f, circle_color);
-    particle_system.add(mouse_pos, 4.0f, circle_color);
-    particle_system.add(mouse_pos, 4.0f, circle_color);
-  }
-  if (glfwGetKey(context, GLFW_KEY_5) == GLFW_PRESS) {
-    particle_system.add(mouse_pos, circle_size, circle_color);
-    particle_system.add(mouse_pos, circle_size, circle_color);
-    particle_system.add(mouse_pos, circle_size, circle_color);
-    particle_system.add(mouse_pos, circle_size, circle_color);
-    particle_system.add(mouse_pos, circle_size, circle_color);
-    particle_system.add(mouse_pos, circle_size, circle_color);
-    particle_system.add(mouse_pos, circle_size, circle_color);
-    particle_system.add(mouse_pos, circle_size, circle_color);
-    particle_system.add(mouse_pos, circle_size, circle_color);
-    particle_system.add(mouse_pos, circle_size, circle_color);
   }
 }
