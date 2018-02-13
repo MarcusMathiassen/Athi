@@ -22,8 +22,9 @@
 #include "../athi_utility.h" // profile
 
 #include "athi_renderer.h"      // Shader
+#include "../Utility/threadsafe_container.h" // ThreadSafe::vector
 
-static std::vector<Athi_Line> line_buffer;
+static ThreadSafe::vector<Athi_Line> line_buffer;
 
 static Renderer renderer;
 
@@ -70,6 +71,7 @@ void render_lines() noexcept
   }
 
   {
+    line_buffer.lock();
     profile p("render_lines::update_buffers with new data"); 
     for (u32 i = 0; i < line_buffer.size(); ++i)
     {
@@ -78,6 +80,7 @@ void render_lines() noexcept
       positions[i] = vec4(p1.x, p1.y, p2.x, p2.y);
       colors[i] = line_buffer[i].color;
     }
+    line_buffer.unlock();
   }
 
   {
@@ -100,6 +103,8 @@ void render_lines() noexcept
 
   line_buffer.clear();
 }
+
+
 
 void draw_line(const vec2 &p1, const vec2 &p2, f32 width, const vec4 &color) noexcept
 {

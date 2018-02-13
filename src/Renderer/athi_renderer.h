@@ -32,11 +32,10 @@
 #include <functional>
 #include <unordered_map>
 
-extern vector<std::function<void()>> command_buffer;
-
 void render();
 void render_clear();
-void render_call(const std::function<void()>& f);
+
+void render_call(std::function<void()>&& f) noexcept;
 
 struct render_desc
 {

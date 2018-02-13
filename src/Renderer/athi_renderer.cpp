@@ -24,10 +24,11 @@
 #include "../athi_settings.h" // console
 #include <mutex>
 
-std::mutex render_mutex;
-vector<std::function<void()>> command_buffer;
+static std::mutex render_mutex;
+static vector<std::function<void()>> command_buffer;
 
-void render_call(const std::function<void()> &f) {
+void render_call(std::function<void()>&& f) noexcept 
+{
   std::lock_guard<std::mutex> lock(render_mutex);
   command_buffer.emplace_back(std::move(f));
 }

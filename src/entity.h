@@ -74,6 +74,49 @@ struct EntityManager
     }
 };
 
+struct Particle
+{
+    s32 id{0};
+    vec2 pos{0.0f, 0.0f};
+    vec2 vel{0.0f, 0.0f};
+    vec2 acc{0.0f, 0.0f};
+    f32 mass{0.0f};
+    f32 radius{0.0f};
+    f32 torque{0.0f};
+
+    void update(f32 dt) noexcept;
+};
+
+struct ParticleSystem : public Entity
+{
+    vector<Particle> particles;
+    vector<Transform> transforms;
+    vector<vec4> colors;
+    vector<mat4> models;
+
+    void update(f32 dt) noexcept
+    {
+        for (const auto is_alive: is_alives)
+        {
+            if (is_alive) 
+            {
+                entities[is_alive].update(dt);
+            }
+        }
+    }
+
+    void draw() const noexcept
+    {
+        for (const auto is_alive: is_alives)
+        {
+            if (is_alive) 
+            {
+                entities[is_alive].draw();
+            }
+        }
+    }
+}
+
 // Example entity
 struct Triangle: public Entity
 {

@@ -21,39 +21,99 @@
 
 #pragma once
 
+#include "../athi_typedefs.h"
+
 #include <vector>
-#include <condition_variable>
 #include <mutex>
-
-template <class T>
-struct threadsafe_container
+#include <memory>
+namespace ThreadSafe
 {
-  std::vector<T> buffer;
-  std::size_t size;
-  std::condition_variable cond;
-  std::mutex buffer_mutex;
+template <class T, class A = std::allocator<T> >
+class vector {
+public:
 
-  void add(const T& item) noexcept {
-    std::unique_lock<std::mutex> lock(queue_mutex); // Lock the buffer
-    buffer.emplace_back(item);                      // Add the item
-  }
+    std::vector<T, A> buffer;
+    std::mutex buffer_mutex;
 
-  void modify() noexcept {
-    cond.wait([]{ return  });
-  }
+    typedef A allocator_type;
+    typedef typename A::value_type value_type; 
+    typedef typename A::reference reference;
+    typedef typename A::const_reference const_reference;
+    typedef typename A::difference_type difference_type;
+    typedef typename A::size_type size_type;
 
-  void done() noexcept {
-    cond.notify_one();
-  }
+    class iterator { 
+    public:
+        typedef typename A::difference_type difference_type;
+        typedef typename A::value_type value_type;
+        typedef typename A::reference reference;
+        typedef typename A::pointer pointer;
+        typedef std::random_access_iterator_tag iterator_category; //or another tag
+    };
+    class const_iterator {
+    public:
+        typedef typename A::difference_type difference_type;
+        typedef typename A::value_type value_type;
+        typedef std::random_access_iterator_tag iterator_category; //or another tag
+    };
 
-  T operator[](std::uint32_t index) const noexcept {
-    return buffer[index];
-  }
+    iterator begin() noexcept
+    {
+      return buffer.begin();
+    }
 
-  T at(std::uint32_t index) const {
-    if (index > size) throw "Out of bounds";
-    else return buffer[index];
-  }
+    const_iterator begin() const noexcept
+    {
+      return buffer.begin();
+    }
 
-  buffer.at(0) = particle3;
+    iterator end() noexcept
+    {
+      return buffer.end();
+    }
+
+    const_iterator end() const noexcept
+    {
+      return buffer.end();
+    }
+
+    template<class ...Args>
+    void emplace_back(Args&&... args) noexcept
+    {
+      std::unique_lock<std::mutex> lock(buffer_mutex);
+      buffer.emplace_back(std::forward<Args>(args)...);
+    }
+
+    reference operator[](size_type i) noexcept
+    {
+      return buffer[i];
+    }
+    const_reference operator[](size_type i) const noexcept
+    {
+      return buffer[i];
+    }
+    size_type size() const noexcept
+    {
+      return buffer.size();
+    }
+    bool empty() const noexcept
+    {
+      return buffer.empty();
+    }
+    void clear() noexcept
+    {
+      std::unique_lock<std::mutex> lock(buffer_mutex);
+      return buffer.clear();
+    }
+
+    void lock() noexcept
+    {
+      buffer_mutex.lock();
+    }
+
+    void unlock() noexcept
+    {
+      buffer_mutex.unlock();
+    }
 };
+}; // namespace ThreadSafe

@@ -37,6 +37,10 @@
 #include "athi_window.h"      // window
 #include "athi_dispatch.h"      // dispatch
 
+#include <atomic> // atomic
+#include <mutex> // mutex
+#include <condition_variable> // condition_variable
+
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -50,6 +54,12 @@ static Smooth_Average<f64, 30> smooth_physics_rametime_avg(&smoothed_physics_fra
 static Smooth_Average<f64, 30> smooth_render_rametime_avg(&smoothed_render_frametime);
 
 static Renderer renderer;
+
+static std::atomic<bool> updating{false};
+static std::atomic<bool> drawing{false};
+
+static std::mutex draw_mutex;
+static std::condition_variable pipeline_mutex;
 
 static void setup_fullscreen_quad()
 {
@@ -150,19 +160,26 @@ void Athi_Core::start()
     draw_fut = dispatch.enqueue(&Athi_Core::draw_loop, this);
   }
 
-  float dt = 1.0f/60.0f;
   while (!glfwWindowShouldClose(window_context))
   {
     const f64 time_start_frame = glfwGetTime();
 
-    glfwMakeContextCurrent(window_context);
+    //@Hack @Apple: GLFW 3.3.0 has a bug that ignores vsync when not visible
+    if (glfwGetWindowAttrib(window_context, GLFW_VISIBLE)) 
+    {
+      glfwPollEvents();
+    } else {
+      glfwWaitEvents();
+    }
 
-    if constexpr (!multithreaded_engine) {
+    update_inputs();
 
+    // Single threaded engine
+    if constexpr (!multithreaded_engine)
+    {
       if constexpr (DEBUG_MODE) { reload_variables(); }
 
-      update_inputs();
-      update(dt);
+      update(1.0f/60.0f);
       draw(window_context);
 
       if constexpr (DEBUG_MODE) {
@@ -174,28 +191,19 @@ void Athi_Core::start()
       }
     }
 
-    //@Hack @Apple: GLFW 3.3.0 has a bug that ignores vsync when not visible
-    if (glfwGetWindowAttrib(window_context, GLFW_VISIBLE)) 
-    {
-      glfwPollEvents();
-    } else {
-      glfwWaitEvents();
-    }
-
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
     frametime = (glfwGetTime() - time_start_frame) * 1000.0;
     framerate = static_cast<u32>(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
-
-    dt = (1.0f/60.0f);
   }
+
+  app_is_running = false;
 
   if constexpr (multithreaded_engine) {
     draw_fut.get();
     update_fut.get();
   }
 
-  app_is_running = false;
   shutdown();
 }
 
@@ -242,6 +250,7 @@ void Athi_Core::draw(GLFWwindow *window)
     draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
   }
 
+  particle_system.draw_debug_nodes();
 
   if (draw_particles)   particle_system.draw();
   if (draw_rects)       render_rects();
@@ -249,7 +258,6 @@ void Athi_Core::draw(GLFWwindow *window)
 
 
   render(); render_clear();
-
 
   //@Bug: rects and lines are being drawn over the Gui.
   if (show_settings)
@@ -286,9 +294,6 @@ void Athi_Core::update(float dt) {
   if (cycle_particle_color)
     circle_color = color_over_time(sinf(glfwGetTime()* 0.5));
 
-  // Draw nodes and/or color objects
-  particle_system.draw_debug_nodes();
-
   // Update GPU buffers
   particle_system.update_gpu_buffers();
 
@@ -306,8 +311,12 @@ void Athi_Core::draw_loop()
   glfwMakeContextCurrent(window_context);
   while (app_is_running)
   {
-    if constexpr (multithreaded_engine) update_inputs();
+    drawing = true;
+    std::unique_lock<std::mutex> lock(draw_mutex);
+    pipeline_mutex.wait(lock, []() { return !updating; });
     draw(window_context);
+    drawing = false;
+    pipeline_mutex.notify_one();
   }
 }
 
@@ -315,7 +324,12 @@ void Athi_Core::physics_loop()
 {
   while (app_is_running)
   {
-    update(timestep);
+    updating = true;
+    std::unique_lock<std::mutex> lock(draw_mutex);
+    pipeline_mutex.wait(lock, []() { return !drawing; });
+    update(1.0f/60.0f);
+    updating = false;
+    pipeline_mutex.notify_one();
   }
 }
 

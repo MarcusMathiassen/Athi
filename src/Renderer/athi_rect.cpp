@@ -200,6 +200,7 @@ void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_holl
 
 void immididate_draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow) noexcept
 {
+  render_call([min, max, color] {
     CommandBuffer cmd;
     cmd.type = primitive::triangles;
     cmd.count = 6;
@@ -216,11 +217,12 @@ void immididate_draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, b
     immidiate_renderer.shader.set_uniform("color", color);
     immidiate_renderer.shader.set_uniform("transform", trans);
     immidiate_renderer.draw(cmd);
+  });
 }
 
 void immididate_draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color) noexcept
 {
-  //render_call([min, max, color] {
+  render_call([min, max, color] {
     CommandBuffer cmd;
     cmd.type = primitive::line_loop;
     cmd.count = 4;
@@ -236,5 +238,5 @@ void immididate_draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &c
     immidiate_renderer.shader.set_uniform("color", color);
     immidiate_renderer.shader.set_uniform("transform", trans);
     immidiate_renderer.draw(cmd);
-  //});
+  });
 }

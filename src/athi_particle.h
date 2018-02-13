@@ -31,6 +31,8 @@
 #include "./Renderer/athi_renderer.h"    // Renderer
 #include "athi_transform.h"  // Transform
 #include "./Renderer/athi_texture.h"  // texture
+#include "./Utility/threadsafe_container.h"  // ThreadSafe::vector
+#include <mutex> // mutex
 
 #ifdef __APPLE__
 #include <OpenCL/OpenCL.h>
@@ -56,6 +58,8 @@ struct ParticleSystem {
 
   // Data information
   size_t particles_vertices_size{0};
+
+  std::mutex particles_mutex;
 
   vector<Particle> particles;
   vector<Transform> transforms;

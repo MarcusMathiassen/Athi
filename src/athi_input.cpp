@@ -178,8 +178,8 @@ void drag_color_or_destroy_with_mouse() {
         last_state = ATTACHED;
 
         // Debug lines from particle to mouse
-        if (draw_debug && show_mouse_grab_lines) {
-          draw_line(mouse_pos, particle_system.particles[particle_id].pos, 1.0f, pastel_pink);
+        if (show_mouse_grab_lines) {
+          draw_line(mouse_pos, particle_system.particles[particle_id].pos, 1.0f, vec4(pastel_pink.x, pastel_pink.y, pastel_pink.z, 0.3));
         }
       }
     } break;
@@ -211,7 +211,6 @@ void update_inputs() {
   Athi_Rect mouse_rect;
   mouse_rect.min = mouse_pos - mouse_size;
   mouse_rect.max = mouse_pos + mouse_size;
-  //draw_hollow_rect(mouse_rect.min, mouse_rect.max, circle_color);
   draw_hollow_circle(mouse_pos, mouse_size, circle_color);
   if (draw_debug && show_mouse_collision_box) {
     draw_rect(mouse_rect.min, mouse_rect.max, pastel_green, true);

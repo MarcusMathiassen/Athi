@@ -187,6 +187,10 @@ void ParticleSystem::draw() noexcept {
 static vector<float> radii;
 
 void ParticleSystem::update_gpu_buffers() noexcept {
+
+  // @Hack
+  std::unique_lock<std::mutex> lck(particles_mutex);
+
   if (particles.empty()) return;
   profile p("PS::update_gpu_buffers");
 
@@ -477,6 +481,7 @@ void ParticleSystem::update(float dt) noexcept
 
 void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &color) noexcept
 {
+
   Particle p;
   p.pos = pos;
 
@@ -485,18 +490,19 @@ void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &co
 
   p.radius = radius;
   p.mass = particle_density * kPI * radius * radius;
-  p.id = particle_count;
-
-  particles.emplace_back(p);
-
-  ++particle_count;
 
   Transform t;
   t.pos = {pos.x, pos.y, 0};
   t.scale = {radius, radius, 0};
-  transforms.emplace_back(t);
 
-  colors.emplace_back(color);
+  {
+    std::unique_lock<std::mutex> lock(particles_mutex);
+    p.id = particle_count;
+    particles.emplace_back(p);
+    ++particle_count;
+    transforms.emplace_back(t);
+    colors.emplace_back(color);
+  }
 }
 
 
@@ -584,9 +590,6 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
 
   a.torque = (cross(glm::normalize(r2), v1) / ar) * friction + b.torque * 0.1f;
   b.torque = (cross(glm::normalize(r1), v2) / br) * friction + a.torque * 0.1f;
-
-   // draw_line(a.pos, r1, 1.0, pastel_red);
-   // draw_line(b.pos, r2, 1.0, pastel_green);
 
   // a.torque = ((r1.x*v1.y - r1.y*v1.x) / (r2.x+r2.y)) * 0.001f;
   // b.torque = ((r2.x*v2.y + r2.y*v2.x) / (r1.x+r1.y)) * 0.001f;

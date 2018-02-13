@@ -18,15 +18,4 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
-#pragma once
-#include "athi_typedefs.h"
-
-struct Athi_Line {
-  vec2 p1{0.0f}, p2{0.0f};
-  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
-};
-
-void render_lines() noexcept;
-void init_line_renderer() noexcept;
-void draw_line(const vec2 &p1, const vec2 &p2, f32 width, const vec4 &color) noexcept;
+#include "threadsafe_container.h"
