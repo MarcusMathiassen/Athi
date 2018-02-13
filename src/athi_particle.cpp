@@ -27,7 +27,7 @@
 #include "./Renderer/athi_line.h" // draw_line
 #include "./Renderer/athi_camera.h" // Camera
 #include "athi_settings.h" // console
-#include "athi_dispatch.h" // dispatch 
+#include "athi_dispatch.h" // dispatch
 #include "athi_utility.h" // read_file, get_begin_and_end
 
 #include <algorithm>  // std::min_element, std::max_element
@@ -227,7 +227,7 @@ void ParticleSystem::update_gpu_buffers() noexcept {
 
             if constexpr (use_textured_particles)
               radii[p.id] = p.radius;
-          }      
+          }
         });
     } else {
       for (size_t i = 0; i < particle_count; ++i)
@@ -242,6 +242,7 @@ void ParticleSystem::update_gpu_buffers() noexcept {
 
         // Update the transform
         transforms[p.id].pos = {p.pos.x, p.pos.y, 1.0f};
+        transforms[p.id].rot.z += p.torque;
         models[p.id] = proj * transforms[p.id].get_model();
 
         if constexpr (use_textured_particles)
@@ -439,7 +440,7 @@ void ParticleSystem::update(float dt) noexcept
             {
               particles[i].acc.y -= (gravity * particles[i].mass) * dt;
               particles[i].update(dt);
-            }      
+            }
           });
 
         } else {
@@ -447,7 +448,7 @@ void ParticleSystem::update(float dt) noexcept
           {
             particles[i].acc.y -= (gravity * particles[i].mass) * dt;
             particles[i].update(dt);
-          }    
+          }
         }
       }
       update_collisions();
@@ -465,7 +466,7 @@ void ParticleSystem::update(float dt) noexcept
         {
           particles[i].acc.y -= (gravity * particles[i].mass) * dt;
           particles[i].update(dt);
-        }      
+        }
       });
 
     } else {
@@ -473,7 +474,7 @@ void ParticleSystem::update(float dt) noexcept
       {
         particles[i].acc.y -= (gravity * particles[i].mass) * dt;
         particles[i].update(dt);
-      }    
+      }
     }
   }
   }
