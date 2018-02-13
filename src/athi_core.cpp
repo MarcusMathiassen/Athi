@@ -100,6 +100,34 @@ static void draw_fullscreen_quad(u32 texture, const vec2 &dir)
   renderer.draw(cmd);
 }
 
+static void guassian_blur(int samples, int strength)
+{
+  CommandBuffer cmd;
+  cmd.type = primitive::triangles;
+  cmd.count = 6;
+  cmd.has_indices = true;
+
+  renderer.bind();
+
+  glActiveTexture(GL_TEXTURE0 + 0);
+  glBindTexture(GL_TEXTURE_2D, framebuffers[0].texture);
+
+  const auto proj = camera.get_ortho_projection();
+  const auto trans = proj;
+
+  renderer.shader.set_uniform("transform", trans);
+  renderer.shader.set_uniform("res", framebuffer_width, framebuffer_height);
+  renderer.shader.set_uniform("tex", 0);
+
+  for (s32 i = 0; i < samples; i++)
+  {
+    renderer.shader.set_uniform("dir", vec2(0, 1 * strength));
+    renderer.draw(cmd);
+    renderer.shader.set_uniform("dir", vec2(1 * strength, 0));
+    renderer.draw(cmd);
+  }
+}
+
 void Athi_Core::init()
 {
   spdlog::set_pattern("[%H:%M:%S] %v");
@@ -139,6 +167,8 @@ void Athi_Core::init()
 
   glClearColor(background_color.r, background_color.g,
                background_color.b, background_color.a);
+
+  glEnable(GL_FRAMEBUFFER_SRGB);
   check_gl_error();
 }
 
@@ -235,17 +265,9 @@ void Athi_Core::draw(GLFWwindow *window)
 
     draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
 
-
     // .. Then blur the current framebuffer
-    for (s32 i = 0; i < post_processing_samples; i++)
-    {
-      draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 1 * blur_strength));
-      draw_fullscreen_quad(framebuffers[0].texture, vec2(1 * blur_strength, 0));
-    }
-  }
+    guassian_blur(post_processing_samples, blur_strength);
 
-  if (post_processing)
-  {
     framebuffers[0].unbind();
     draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
   }

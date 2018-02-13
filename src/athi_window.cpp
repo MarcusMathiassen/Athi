@@ -90,19 +90,25 @@ void init_window() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
-  glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-
 #if __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
+  
+  glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+  glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+  
+  glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+  glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
+
 
   // Gather monitor info
   s32 count;
   auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
+  console->info("RGBA bits: {}{}{}{}", modes->redBits, modes->greenBits, modes->blueBits, 8);
   glfwWindowHint(GLFW_RED_BITS, modes->redBits);
   glfwWindowHint(GLFW_GREEN_BITS, modes->greenBits);
   glfwWindowHint(GLFW_BLUE_BITS, modes->blueBits);
+  glfwWindowHint(GLFW_ALPHA_BITS, 8);
   glfwWindowHint(GLFW_REFRESH_RATE, modes->refreshRate);
 
   glfwSetErrorCallback(glfw_error_callback);
