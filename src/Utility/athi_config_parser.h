@@ -31,12 +31,14 @@
 #include <cctype> // toupper
 #include <unordered_map> // unordered_map
 
+
+// @Hack: the apple compiler doesnt have variant yet.
 #ifdef __APPLE__
 #include <boost/variant.hpp>
 using boost::variant;
 using boost::get;
 #else
-#include <variant> // variant, get
+#include <variant> // variant, get_variable
 using std::variant;
 using std::get;
 #endif
@@ -225,8 +227,7 @@ static bool starts_with(const string& str, const string& s) noexcept
 static auto get_vec2(const string& str) noexcept
 {
     string has_val;
-    for (u32 i = 0; i < str.length(); ++i)
-    {
+    for (u32 i = 0; i < str.length(); ++i) {
         auto c = str[i];
 
         if (c == '(' || c == ')')
@@ -236,6 +237,7 @@ static auto get_vec2(const string& str) noexcept
                 auto k = str[++i];
                 has_val += k;
             }
+
             break;
         }
     }

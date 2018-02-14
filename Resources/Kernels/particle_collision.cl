@@ -6,6 +6,7 @@ typedef struct Particle {
   float2 acc;
   float mass;
   float radius;
+  float torque;
 } Particle;
 
 void separate_circles(Particle *a, Particle *b);

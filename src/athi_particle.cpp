@@ -224,6 +224,12 @@ void ParticleSystem::update_gpu_buffers() noexcept {
 
             models[p.id] = proj * transforms[p.id].get_model();
 
+
+            console->error("\n");
+            for (int i = 0; i < 4; ++i)
+              for (int j = 0; j < 4; ++j)
+                console->warn("{} {} {} {}", models[i][j].x, models[i][j].y, models[i][j].z, models[i][j].w);
+
             if constexpr (use_textured_particles)
               radii[p.id] = p.radius;
           }

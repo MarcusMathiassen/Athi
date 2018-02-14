@@ -3,7 +3,7 @@
 
 
 * Resolution independence:
-    
+
     What currently depends on knowing the screen resolution?
     -   particle border collision
     -   Particles position is in screenspace, not viewspace
