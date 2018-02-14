@@ -73,8 +73,8 @@ struct ParticleSystem {
 
   Dispatch pool;
 
-  Quadtree<Particle> quadtree = Quadtree<Particle>(vec2(-1, -1), vec2(1, 1));
-  UniformGrid<Particle> uniformgrid = UniformGrid<Particle>();
+  Quadtree<Particle>    quadtree;
+  UniformGrid<Particle> uniformgrid;
 
   // OPENCL
   // ///////////////////////////////////////////////////////

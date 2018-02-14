@@ -93,7 +93,7 @@ void init_window() {
 #if __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-  
+
   glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
   glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
 
@@ -186,11 +186,11 @@ void window_pos_callback(GLFWwindow* window, int xpos, int ypos)
 {
   window_pos.x = xpos;
   window_pos.y = ypos;
-  console->info("window pos: {}x{}", xpos, ypos);
+  //console->info("window pos: {}x{}", xpos, ypos);
 }
 
 void window_size_callback(GLFWwindow *window, s32 xpos, s32 ypos) {
-  console->info("window size: {}x{}", xpos, ypos);
+  //console->info("window size: {}x{}", xpos, ypos);
   screen_width = xpos;
   screen_height = ypos;
 }
@@ -219,7 +219,7 @@ void framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height) {
 
   px_scale = static_cast<float>(width) / static_cast<float>(w);
 
-  console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
+  //console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
 
   check_gl_error();
 }

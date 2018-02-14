@@ -81,7 +81,7 @@ vec3 rand_vec3(f32 min, f32 max) noexcept;
 vec4 rand_vec4(f32 min, f32 max) noexcept;
 
 
-std::tuple<size_t,size_t> get_begin_and_end(s32 i, s32 total, s32 threads) noexcept;
+std::tuple<s32,s32> get_begin_and_end(s32 i, s32 total, s32 threads) noexcept;
 static bool file_exists(const std::string& filename)
 {
     struct stat buf;

@@ -36,9 +36,9 @@
 using boost::variant;
 using boost::get;
 #else
+#include <variant> // variant, get
 using std::variant;
 using std::get;
-#include <variant> // variant, get
 #endif
 
 // Function forward decl

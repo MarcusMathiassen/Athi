@@ -62,7 +62,7 @@ static bool button(
 {
   vec2 button_pos{button_start_pos_x, 50.0f + gButtonHeight*2.0f*button_count++};
 
-  int char_count = text.length();
+  int char_count = static_cast<s32>(text.length());
   if (char_count == 0) char_count = 4;
   float button_width = 17.9f * char_count;
   float button_height = 25.0f;

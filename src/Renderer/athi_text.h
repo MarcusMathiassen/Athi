@@ -176,7 +176,7 @@ namespace font_renderer {
     // Destroy FreeType once we're finished
     FT_Done_Face(face);
 
-    const auto id = fonts.size();
+    const auto id = static_cast<unsigned int>(fonts.size());
 
     // Add to the pile
     fonts.emplace_back(font);

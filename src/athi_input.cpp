@@ -45,7 +45,7 @@ vec2 get_mouse_viewspace_pos() {
 
 s32 get_mouse_button_state(s32 button) {
   const s32 state = glfwGetMouseButton(glfwGetCurrentContext(), button);
-  if (state == GLFW_PRESS) 
+  if (state == GLFW_PRESS)
     return GLFW_PRESS;
   return GLFW_RELEASE;
 }
@@ -69,14 +69,14 @@ static void gravity_well(Particle &a, const vec2 &point) {
   const f32 x2 = point.x;
   const f32 y2 = point.y;
   const f32 m1 = a.mass;
-  const f32 m2 = 1e11;
+  const f32 m2 = 1e11f;
 
   const f32 dx = x2 - x1;
   const f32 dy = y2 - y1;
   const f32 d = sqrt(dx * dx + dy * dy);
 
   const f32 angle = atan2(dy, dx);
-  const f32 G = kGravitationalConstant;
+  const f64 G = kGravitationalConstant;
   const f32 F = G * m1 * m2 / d * d;
 
   a.acc.x += F * cos(angle);
@@ -197,7 +197,7 @@ void drag_color_or_destroy_with_mouse() {
 
 void update_inputs() {
   profile p("update_inputs");
-  
+
   auto mouse_pos = athi_input_manager.mouse.pos;
   auto context = glfwGetCurrentContext();
   {

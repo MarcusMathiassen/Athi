@@ -43,6 +43,8 @@ class UniformGrid {
 
  public:
 
+  UniformGrid() = default;
+
   vector<Node> nodes;
 
   void init(const vec2& min, const vec2& max, s32 parts) noexcept {

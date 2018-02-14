@@ -38,7 +38,7 @@
 
 class Dispatch {
  private:
-  size_t num_workers;
+  s32 num_workers;
   std::mutex queue_mutex;
   std::condition_variable condition;
   bool stop{false};
@@ -46,9 +46,9 @@ class Dispatch {
  public:
   std::queue<std::function<void()>> tasks;
   vector<std::thread> workers;
-  std::size_t size() { return workers.size(); }
+  s32 size() { return num_workers; }
   bool stopped() { return stop; }
-  Dispatch(int num_workers = std::thread::hardware_concurrency()) {
+  Dispatch(s32 num_workers = std::thread::hardware_concurrency()) {
     assert(num_workers != 0 && "0 workers doesn't make sense.");
     workers.resize(num_workers);
     this->num_workers = num_workers;
@@ -95,13 +95,12 @@ class Dispatch {
   template <class Container, class F>
   void parallel_for_each(Container& container, F&& f)
   {
-    const size_t container_size = container.size();
+    const s32 container_size = static_cast<s32>(container.size());
 
     // Precalculate all beginnings and ends
     vector<std::tuple<s32,s32>> begin_ends(num_workers);
-    for (u32 i = 0; i < num_workers; ++i)
+    for (s32 i = 0; i < num_workers; ++i)
       begin_ends[i] = get_begin_and_end( i, container_size, num_workers);
-
 
     if constexpr (os == OS::Apple)
     {
@@ -113,7 +112,7 @@ class Dispatch {
 #endif
     } else {
         vector<std::future<void>> results(num_workers);
-        for (size_t i = 0; i < num_workers; ++i)
+        for (s32 i = 0; i < num_workers; ++i)
         {
             const auto [begin, end] = begin_ends[i];
             results[i] = enqueue(std::forward<F>(f), begin, end);

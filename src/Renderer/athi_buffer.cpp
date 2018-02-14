@@ -26,8 +26,8 @@ Buffer::~Buffer() {
   check_gl_error();
 
   // Cleanup bufferss
-  for (auto & [ name, vbo ] : vbos) { 
-    glDeleteBuffers(1, &vbo.handle); 
+  for (auto & [ name, vbo ] : vbos) {
+    glDeleteBuffers(1, &vbo.handle);
   }
   check_gl_error();
 }

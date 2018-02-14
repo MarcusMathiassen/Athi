@@ -74,7 +74,7 @@ void render_rects() noexcept
   cmd.type = primitive::triangles;
   cmd.count = 6;
   cmd.has_indices = true;
-  cmd.primitive_count = rect_buffer.size();
+  cmd.primitive_count = static_cast<s32>(rect_buffer.size());
 
   renderer.bind();
   renderer.draw(cmd);

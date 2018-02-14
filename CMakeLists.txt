@@ -25,7 +25,7 @@ message("-- Generated with build type: ${CMAKE_BUILD_TYPE}")
 
 if(WIN32)
 
-  set(CMAKE_CXX_FLAGS "/std:c++latest -Ox -W3 /wd4530 /wd4005 /wd4996 /wd4244 /MP8")
+  set(CMAKE_CXX_FLAGS "/std:c++latest -Ox -W1 /wd4530 /wd4005 /wd4996 /wd4244 /MP8")
   set(CMAKE_GENERATOR "Visual Studio 15 2017 Win64")
 
   message("-- flags ${CMAKE_CXX_FLAGS}")
@@ -41,9 +41,12 @@ if(WIN32)
   add_library(glew STATIC IMPORTED)
   set_target_properties(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/glew32s.lib)
 
+  add_library(freetype STATIC IMPORTED)
+  set_target_properties(freetype PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/freetype271.lib)
+
   add_library(glfw STATIC IMPORTED)
   set_target_properties(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/glfw3.lib)
-  target_link_libraries(${PROJECT_NAME} opencl glew glfw opengl32.lib user32.lib gdi32.lib kernel32.lib)
+  target_link_libraries(${PROJECT_NAME} freetype opencl glew glfw opengl32.lib user32.lib gdi32.lib kernel32.lib)
 
 elseif(APPLE)
 
@@ -79,7 +82,7 @@ elseif(APPLE)
   #MACOSX_BUNDLE_ICON_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Resources/icon_16.png
   MACOSX_FRAMEWORK_IDENTIFIER org.cmake.${PROJECT_NAME}
   RESOURCE "${RESOURCE_FILES}"
-  ) 
+  )
 
   # INCLUDE DEPENDENCIES
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS)

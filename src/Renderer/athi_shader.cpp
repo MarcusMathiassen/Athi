@@ -160,7 +160,7 @@ void Shader::finish() noexcept {
   {
     string source = get_content_of_file(shader_folder_path + file);
     preambles_storage.emplace_back(std::tuple<string, string>(shader_folder_path + file, source + "\n"));
-    console->info("Preamble loaded: {}", file);
+    //console->info("Preamble loaded: {}", file);
   }
 
   for (u32 i = 0; i < sources.size(); ++i) {
@@ -188,7 +188,7 @@ void Shader::finish() noexcept {
     }
     glAttachShader(program, shader);
 
-    console->info("Shader loaded: {}", sources[i]);
+    //console->info("Shader loaded: {}", sources[i]);
     shaders.emplace_back(file, shader);
   }
   check_gl_error();
@@ -265,7 +265,7 @@ void Shader::reload() noexcept {
     program = glCreateProgram();
     check_gl_error();
     for (auto & [ file, shader ] : shaders) {
-      console->info("Reloading shader: {}", file.source);
+      console->info("reloading shader: {}", file.source);
       shader = create_shader(file.source, file.shader_type);
       glAttachShader(program, shader);
       check_gl_error();

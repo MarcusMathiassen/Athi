@@ -201,8 +201,6 @@ void ParticleSystem::update_gpu_buffers() noexcept {
       radii.resize(particle_count);
   }
 
-  const auto proj = camera.get_ortho_projection();
-
   {
     profile p("PS::update_gpu_buffers(update buffers with new data)");
 
@@ -223,6 +221,7 @@ void ParticleSystem::update_gpu_buffers() noexcept {
             // Update the transform
             transforms[p.id].pos = {p.pos.x, p.pos.y, 1.0f};
             transforms[p.id].rot.z += p.torque;
+
             models[p.id] = proj * transforms[p.id].get_model();
 
             if constexpr (use_textured_particles)
@@ -243,6 +242,7 @@ void ParticleSystem::update_gpu_buffers() noexcept {
         // Update the transform
         transforms[p.id].pos = {p.pos.x, p.pos.y, 1.0f};
         transforms[p.id].rot.z += p.torque;
+
         models[p.id] = proj * transforms[p.id].get_model();
 
         if constexpr (use_textured_particles)
@@ -280,10 +280,10 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
 }
 
 auto get_min_and_max_pos(const vector<Particle>& particles) {
-  float max_x = -INT_MAX;
-  float max_y = -INT_MAX;
-  float min_x = INT_MAX;
-  float min_y = INT_MAX;
+  float max_x = static_cast<float>(-INT_MAX);
+  float max_y = static_cast<float>(-INT_MAX);
+  float min_x = static_cast<float>(INT_MAX);
+  float min_y = static_cast<float>(INT_MAX);
   for (auto &p: particles) {
     max_x = (p.pos.x > max_x) ? p.pos.x : max_x;
     max_y = (p.pos.y > max_y) ? p.pos.y : max_y;
@@ -692,7 +692,7 @@ static void gravitational_force(Particle &a, const Particle &b) {
   const f32 d = sqrt(dx * dx + dy * dy);
 
   const f32 angle = atan2(dy, dx);
-  const f32 G = kGravitationalConstant;
+  const f64 G = kGravitationalConstant;
   const f32 F = G * m1 * m2 / d * d;
 
   a.vel.x += F * cos(angle);
@@ -1055,7 +1055,7 @@ void ParticleSystem::load_state() noexcept
         colors,
         transforms);
 
-    particle_count = particles.size();
+    particle_count = static_cast<u32>(particles.size());
   }
 
   console->warn("Particle state loaded!");

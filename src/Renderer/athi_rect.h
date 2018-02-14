@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../athi_typedefs.h"  
+#include "../athi_typedefs.h"
 
 struct Rect {
   vec2 min{0.0f, 0.0f}, max{0.0f, 0.0f};

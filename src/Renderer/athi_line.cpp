@@ -93,7 +93,7 @@ void render_lines() noexcept
   CommandBuffer cmd;
   cmd.type = primitive::points;
   cmd.count = 1;
-  cmd.primitive_count = line_buffer.size();
+  cmd.primitive_count = static_cast<s32>(line_buffer.size());
 
   renderer.bind();
   {

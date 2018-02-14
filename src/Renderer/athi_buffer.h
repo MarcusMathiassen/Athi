@@ -64,7 +64,7 @@ struct Vbo {
   buffer_usage usage{buffer_usage::static_draw};
   buffer_type type{buffer_type::array_buffer};
   u32 data_members{1};
-  size_t stride{0};
+  GLsizei stride{0};
   size_t pointer{0};
   u32 divisor{0};
   bool is_matrix{false};

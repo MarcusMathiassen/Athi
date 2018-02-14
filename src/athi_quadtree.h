@@ -23,7 +23,6 @@
 
 #include "athi_typedefs.h"
 #include "./Renderer/athi_rect.h" // draw_rect
-#include <memory>
 
 template <class T> class Quadtree {
 private:
@@ -39,21 +38,21 @@ private:
   size_t level{0};
 
   constexpr void split() noexcept {
-    const auto min = bounds.min;
-    const auto max = bounds.max;
+    const vec2 min = bounds.min;
+    const vec2 max = bounds.max;
 
-    const auto x = min.x;
-    const auto y = min.y;
-    const auto width = max.x - min.x;
-    const auto height = max.y - min.y;
+    const float x = min.x;
+    const float y = min.y;
+    const float width = max.x - min.x;
+    const float height = max.y - min.y;
 
-    const auto w = width * 0.5f;
-    const auto h = height * 0.5f;
+    const float w = width * 0.5f;
+    const float h = height * 0.5f;
 
-    const auto SW = Rect({x, y}, {x + w, y + h});
-    const auto SE = Rect({x + w, y}, {x + width, y + h});
-    const auto NW = Rect({x, y + h}, {x + w, y + height});
-    const auto NE = Rect({x + w, y + h}, {x + width, y + height});
+    const Rect SW = Rect({x, y}, {x + w, y + h});
+    const Rect SE = Rect({x + w, y}, {x + width, y + h});
+    const Rect NW = Rect({x, y + h}, {x + w, y + height});
+    const Rect NE = Rect({x + w, y + h}, {x + width, y + height});
 
     sw = std::make_unique<Quadtree<T>>(level + 1, SW);
     se = std::make_unique<Quadtree<T>>(level + 1, SE);
@@ -93,7 +92,7 @@ public:
 
   static size_t max_depth;
   static size_t max_capacity;
-
+  Quadtree() = default;
   constexpr Quadtree(s32 level, const Rect &bounds) noexcept : bounds(bounds), level(level) {
     indices.reserve(max_capacity);
   }
@@ -164,6 +163,6 @@ public:
   }
 };
 
-template <class T> T *Quadtree<T>::data;
+template <class T> T* Quadtree<T>::data;
 template <class T> size_t Quadtree<T>::max_depth;
 template <class T> size_t Quadtree<T>::max_capacity;

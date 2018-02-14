@@ -9,8 +9,8 @@ in Vertex {
 
 uniform sampler2D tex;
 
-void main() {  
+void main() {
   vec4 image = texture(tex, frag.texcoord);
   if (image.r < 0.0) discard;
-  frag_color = image * frag.color;
+  frag_color = frag.color;
 }
