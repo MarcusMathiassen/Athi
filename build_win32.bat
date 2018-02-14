@@ -3,7 +3,7 @@
 set std=/std:c++latest
 set output=.\bin\athi.exe
 
-set olvl=
+set olvl=-Ox
 set wlvl=/W3 /wd4530 /wd4005 /wd4996 /wd4244 /wd4101 /MP
 set options=%std% %wlvl% %olvl% %std%
 
