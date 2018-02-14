@@ -22,10 +22,10 @@
 
 #include "../athi_utility.h"  // read_file
 #include "opengl_utility.h"  //   check_gl_error();
-#include "../athi_settings.h" 
+#include "../athi_settings.h"
 
-Shader::~Shader() { 
-  glDeleteProgram(program); 
+Shader::~Shader() {
+  glDeleteProgram(program);
   check_gl_error();
 }
 
@@ -94,7 +94,7 @@ u32 Shader::create_shader(const string& file, shader_type type) const noexcept {
   }
 
   if (!sources.empty()) {
-    glShaderSource(shader, sources.size(), &charVec[0], NULL);
+    glShaderSource(shader, static_cast<GLsizei>(sources.size()), &charVec[0], NULL);
     check_gl_error();
   }
 
@@ -139,14 +139,14 @@ void Shader::link() noexcept {
 
   for (u32 i = 0; i < uniforms.size(); ++i) {
     uniforms_map[uniforms[i]] = glGetUniformLocation(program, uniforms[i].c_str());
-  } 
+  }
 
   check_gl_error();
 }
 
-void Shader::bind() noexcept { 
+void Shader::bind() noexcept {
   if constexpr (DEBUG_MODE) reload();
-  glUseProgram(program); 
+  glUseProgram(program);
   check_gl_error();
 }
 

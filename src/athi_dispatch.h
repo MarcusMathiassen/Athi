@@ -24,7 +24,7 @@
 #include "./Utility/athi_constant_globals.h" // os
 #include "./athi_utility.h" // os
 
-#include <thread> // thread 
+#include <thread> // thread
 #include <cassert> // assert
 #include <condition_variable> // condition_variable
 #include <mutex> // mutex
@@ -99,38 +99,28 @@ class Dispatch {
 
     // Precalculate all beginnings and ends
     vector<std::tuple<s32,s32>> begin_ends(num_workers);
-    for (u32 i = 0; i < num_workers; ++i) 
+    for (u32 i = 0; i < num_workers; ++i)
       begin_ends[i] = get_begin_and_end( i, container_size, num_workers);
 
-    switch (os)
-    {
-      case OS::Apple: {
 
+    if constexpr (os == OS::Apple)
+    {
+#ifdef __APPLE__
         dispatch_apply(num_workers, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(size_t i) {
             const auto [begin, end] = begin_ends[i];
             f(begin, end);
         });
+#endif
+    } else {
+        vector<std::future<void>> results(num_workers);
+        for (size_t i = 0; i < num_workers; ++i)
+        {
+            const auto [begin, end] = begin_ends[i];
+            results[i] = enqueue(std::forward<F>(f), begin, end);
+        }
 
-      } break;
-
-
-      case OS::Windows: [[fallthrough]];
-      case OS::Linux:   [[fallthrough]];
-
-
-      default: {
-
-          vector<std::future<void>> results(num_workers);
-          for (size_t i = 0; i < num_workers; ++i)
-          {
-              const auto [begin, end] = begin_ends[i];
-              results[i] = enqueue(std::forward<F>(f), begin, end);
-          }
-
-          for (auto &&res : results)
-            res.get();
-
-      } break;
+        for (auto &&res : results)
+          res.get();
     }
   }
 };

@@ -22,7 +22,7 @@
 #include "athi_circle.h"
 
 #include "athi_renderer.h" // Renderer
-#include "athi_transform.h" // Transform
+#include "../athi_transform.h" // Transform
 #include "athi_camera.h" // camera
 #include "../Utility/athi_constant_globals.h" // kPI
 
@@ -48,12 +48,12 @@ void init_circle_renderer() {
   vertex_buffer.data = &positions[0];
   vertex_buffer.data_size = circle_vertices * sizeof(positions[0]);
   vertex_buffer.data_members = 2;
-  vertex_buffer.type = buffer_type::array;
+  vertex_buffer.type = buffer_type::array_buffer;
   vertex_buffer.usage = buffer_usage::static_draw;
 
   circle_renderer.finish();
 }
-    
+
 void draw_circle(const vec2 &pos, float radius, const vec4 &color, primitive prim_type = primitive::triangle_fan)
 {
     CommandBuffer cmd;

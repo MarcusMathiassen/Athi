@@ -35,13 +35,13 @@ void init_line_renderer() noexcept
 {
   auto &shader = renderer.make_shader();
   shader.sources =  {
-    "default_line_shader.vert", 
-    "default_line_shader.geom", 
+    "default_line_shader.vert",
+    "default_line_shader.geom",
     "default_line_shader.frag",
   };
 
-  shader.attribs = { 
-    "positions", 
+  shader.attribs = {
+    "positions",
     "color",
   };
 
@@ -72,7 +72,7 @@ void render_lines() noexcept
 
   {
     line_buffer.lock();
-    profile p("render_lines::update_buffers with new data"); 
+    profile p("render_lines::update_buffers with new data");
     for (u32 i = 0; i < line_buffer.size(); ++i)
     {
       auto &p1 = line_buffer[i].p1;
@@ -84,7 +84,7 @@ void render_lines() noexcept
   }
 
   {
-    profile p("render_lines::update_buffers"); 
+    profile p("render_lines::update_buffers");
     // Update the gpu buffers incase of more particles..
     renderer.update_buffer("positions", &positions[0], sizeof(vec4) * line_buffer.size());
     renderer.update_buffer("color", &colors[0], sizeof(vec4) * line_buffer.size());

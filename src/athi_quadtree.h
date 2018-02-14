@@ -23,6 +23,7 @@
 
 #include "athi_typedefs.h"
 #include "./Renderer/athi_rect.h" // draw_rect
+#include <memory>
 
 template <class T> class Quadtree {
 private:

@@ -48,14 +48,13 @@ void gui_init(GLFWwindow *window, float px_scale);
 void gui_shutdown();
 void gui_render();
 
-
 // Custom GUI by Marcus
 static int button_count = 0;
 static float button_original_start_pos_x = 50.0f;
 static float button_start_pos_x = 50.0f;
 
 static bool button(
-  const string& text, 
+  const string& text,
   const vec4& color = pastel_gray,
   const vec4& selected_color = pastel_red,
   const vec4& pressed_color = pastel_green
@@ -89,7 +88,7 @@ static bool button(
   string button_text = text;
   vec4 button_color = color;
 
-  // If mouse is inside 
+  // If mouse is inside
   if (box.contains(mouse_pos, 0.01f))
   {
     button_color = selected_color;
@@ -106,8 +105,7 @@ static bool button(
 
   // Draw text inside this rect
   draw_rounded_rect({button_pos.x, button_pos.y},  button_width, button_height, button_color, false);
-  font_renderer::draw_text(my_font, button_text, button_pos.x, 2.5f+button_pos.y, 1.0f * button_height * 0.1/4.0, white);
-
+  if constexpr (os == OS::Apple) font_renderer::draw_text(my_font, button_text, button_pos.x, 2.5f+button_pos.y, 1.0f * button_height * 0.1/4.0, white);
 
   return button_pressed;
 }
@@ -156,9 +154,9 @@ static void draw_custom_gui() noexcept
 
 static void custom_gui_init() noexcept
 {
-  font_renderer::init();
-  my_font = font_renderer::load_font("../Resources/Fonts/DroidSans.ttf", 24*2);
-  ortho_loc = glGetUniformLocation(font_renderer::shader_program, "ortho_projection");
+    font_renderer::init();
+    my_font = font_renderer::load_font("../Resources/Fonts/DroidSans.ttf", 24*2);
+    ortho_loc = glGetUniformLocation(font_renderer::shader_program, "ortho_projection");
 }
 
 
@@ -195,7 +193,7 @@ static void ToggleButton(const char* str_id, bool* v)
 
   draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height), col_bg, height * 0.5f);
   draw_list->AddCircleFilled(ImVec2(*v ? (p.x + width - radius) : (p.x + radius), p.y + radius), radius - 1.5f, IM_COL32(255, 255, 255, 255));
-  ImGui::SameLine();  
+  ImGui::SameLine();
   ImGui::Text("%s",str_id);
 }
 
@@ -339,7 +337,7 @@ static void menu_profiler() {
 
 static void renderer_submenu()
 {
-    ImGui::Checkbox("VSync", &vsync); 
+    ImGui::Checkbox("VSync", &vsync);
     ImGui::SameLine();
     ImGui::InputInt("framerate limit", &framerate_limit, 0, 1000);
     ImGui::Checkbox("draw nodes ", &draw_nodes);
@@ -521,20 +519,20 @@ void gui_render() {
     ImGui::RadioButton("None", &tree_radio_option, 2);
 
     switch ((TreeType)tree_radio_option) {
-      case TreeType::Quadtree: { 
+      case TreeType::Quadtree: {
         quadtree_active = true;
         use_uniformgrid = false;
-        tree_type = TreeType::Quadtree; 
+        tree_type = TreeType::Quadtree;
       } break;
-      case TreeType::UniformGrid: { 
+      case TreeType::UniformGrid: {
         use_uniformgrid = true;
         quadtree_active = false;
-        tree_type = TreeType::UniformGrid; 
+        tree_type = TreeType::UniformGrid;
       } break;
-      case TreeType::None: { 
+      case TreeType::None: {
         quadtree_active = false;
         use_uniformgrid = false;
-        tree_type = TreeType::None; 
+        tree_type = TreeType::None;
       } break;
     }
 

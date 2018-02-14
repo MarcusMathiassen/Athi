@@ -289,19 +289,19 @@ string get_cpu_brand()
 #endif
 }
 
-u64 GetFileTimestamp(const char* filename) noexcept {
+u64 GetFileTimestamp(const string& filename) noexcept {
   u64 timestamp = 0;
 
 #ifdef _WIN32
   struct __stat64 stFileInfo;
-  if (_stat64(filename, &stFileInfo) == 0) {
+  if (_stat64(filename.c_str(), &stFileInfo) == 0) {
     timestamp = stFileInfo.st_mtime;
   }
 #else
   struct stat fileStat;
 
-  if (stat(filename, &fileStat) == -1) {
-    perror(filename);
+  if (stat(filename.c_str(), &fileStat) == -1) {
+    perror(filename.c_str());
     return 0;
   }
 
@@ -323,10 +323,10 @@ bool string_has(const string& str, char delim)
 
 
 string remove_quotes(const string& str) noexcept
-{   
+{
     int quote_count = 0;
     string new_str;
-    for (auto c: str) 
+    for (auto c: str)
         if (c != '"') {
             new_str += c;
         }
@@ -335,7 +335,7 @@ string remove_quotes(const string& str) noexcept
 }
 
 string add_quotes(const string& str) noexcept
-{   
+{
     return '"' + str + '"';
 }
 

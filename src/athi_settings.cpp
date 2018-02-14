@@ -58,7 +58,7 @@ f32 px_scale{1.0f};
 bool show_settings{true};
 bool use_gravitational_force{false};
 f32 gravity{9.81f};
-f32 gravitational_constant{6.674e-11};
+f32 gravitational_constant{6.674e-11f};
 f32 air_resistance{0.9f};
 
 f32 collision_energy_loss{0.99f};

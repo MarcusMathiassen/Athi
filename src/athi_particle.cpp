@@ -103,7 +103,7 @@ void ParticleSystem::init() noexcept {
     vertex_buffer.data = &positions[0];
     vertex_buffer.data_size = num_vertices_per_particle * sizeof(positions[0]);
     vertex_buffer.data_members = 2;
-    vertex_buffer.type = buffer_type::array;
+    vertex_buffer.type = buffer_type::array_buffer;
     vertex_buffer.usage = buffer_usage::static_draw;
 
     auto &colors = renderer.make_buffer("colors");

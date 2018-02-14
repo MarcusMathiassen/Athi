@@ -64,7 +64,7 @@ void render_rects() noexcept
   }
 
   {
-    profile p("render_rects::update_buffers"); 
+    profile p("render_rects::update_buffers");
     // Update the gpu buffers incase of more particles..
     renderer.update_buffer("transforms", &models[0], sizeof(mat4) * rect_buffer.size());
     renderer.update_buffer("colors", &colors[0], sizeof(vec4) * rect_buffer.size());
@@ -83,7 +83,7 @@ void render_rects() noexcept
 }
 
 void init_rect_renderer() noexcept
-{ 
+{
   // Static renderer
   auto &shader = renderer.make_shader();
   shader.sources = {"default_rect_shader.vert", "default_rect_shader.frag"};
@@ -132,7 +132,7 @@ void draw_rounded_rect(const vec2 &min, f32 width, f32 height, const vec4 &color
   auto draw_circle_fp = is_hollow ? &draw_hollow_circle : &draw_filled_circle;
 
   draw_circle_fp(vec2(min.x, max.y),  circle_radius, color); // Left top
-  draw_circle_fp(min,                 circle_radius, color); // Left bottom 
+  draw_circle_fp(min,                 circle_radius, color); // Left bottom
   draw_circle_fp(vec2(max.x, min.y),  circle_radius, color); // Right bottom
   draw_circle_fp(max,                 circle_radius, color); // Right top
 
@@ -151,13 +151,13 @@ void draw_rounded_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool
 
   // Circles
   const float height = max.y - min.y;
-  
+
   const float circle_radius = height * 0.25f;
 
   auto draw_circle_fp = is_hollow ? &draw_hollow_circle : &draw_filled_circle;
 
   draw_circle_fp(vec2(min.x, max.y),  circle_radius, color); // Left top
-  draw_circle_fp(min,                 circle_radius, color); // Left bottom 
+  draw_circle_fp(min,                 circle_radius, color); // Left bottom
   draw_circle_fp(vec2(max.x, min.y),  circle_radius, color); // Right bottom
   draw_circle_fp(max,                 circle_radius, color); // Right top
 
@@ -175,7 +175,7 @@ void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_holl
 {
   // If we're drawing a hollow rectangle..
   if (is_hollow) {
-    
+
     // Draw using lines
     draw_line(min, vec2(min.x, max.y), 1.0f, color);
     draw_line(vec2(min.x, max.y), max, 1.0f, color);

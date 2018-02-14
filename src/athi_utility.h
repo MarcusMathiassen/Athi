@@ -103,7 +103,7 @@ vec4 color_over_time(f64 time) noexcept;
 
 
 // File functions
-u64 GetFileTimestamp(const char* filename) noexcept;
+u64 GetFileTimestamp(const string& filename) noexcept;
 void read_file(const char *file, char **buffer) noexcept;
 string get_content_of_file(const string& file) noexcept;
 
@@ -125,20 +125,20 @@ string get_cpu_brand();
 extern std::unordered_map<string, f64> time_taken_by;
 extern std::vector<std::tuple<string, f64>> profiler_physics;
 
-class physics_profile 
+class physics_profile
 {
 private:
   f64     m_start_time{0.0};
   string  m_id;
 public:
   physics_profile(const char* id) noexcept : m_id(id)
-  {    
-    if constexpr (DEBUG_MODE) 
+  {
+    if constexpr (DEBUG_MODE)
       m_start_time = glfwGetTime();
   }
   ~physics_profile() noexcept
   {
-    if constexpr (DEBUG_MODE) 
+    if constexpr (DEBUG_MODE)
       profiler_physics.emplace_back(std::tuple<string,f64>(m_id, ((glfwGetTime() - m_start_time) * 1000.0)));
   }
 };

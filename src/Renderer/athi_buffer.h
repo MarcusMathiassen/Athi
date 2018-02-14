@@ -41,7 +41,7 @@ enum buffer_usage {
 };
 
 enum buffer_type {
-  array = GL_ARRAY_BUFFER,
+  array_buffer = GL_ARRAY_BUFFER,
   atomic_counter = GL_ATOMIC_COUNTER_BUFFER,
   copy_read = GL_COPY_READ_BUFFER,
   copy_write = GL_COPY_WRITE_BUFFER,
@@ -62,7 +62,7 @@ struct Vbo {
   void* data{nullptr};
   size_t data_size{0};
   buffer_usage usage{buffer_usage::static_draw};
-  buffer_type type{buffer_type::array};
+  buffer_type type{buffer_type::array_buffer};
   u32 data_members{1};
   size_t stride{0};
   size_t pointer{0};

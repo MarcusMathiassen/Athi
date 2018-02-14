@@ -139,7 +139,7 @@ void Athi_Core::init()
   init_window();
 
   stbi_set_flip_vertically_on_load(true);
-  
+
   px_scale = static_cast<f32>(framebuffer_width) / static_cast<f32>(screen_width);
 
   gui_init(get_window_context(0), px_scale);
@@ -195,7 +195,7 @@ void Athi_Core::start()
     const f64 time_start_frame = glfwGetTime();
 
     //@Hack @Apple: GLFW 3.3.0 has a bug that ignores vsync when not visible
-    if (glfwGetWindowAttrib(window_context, GLFW_VISIBLE)) 
+    if (glfwGetWindowAttrib(window_context, GLFW_VISIBLE))
     {
       glfwPollEvents();
     } else {
