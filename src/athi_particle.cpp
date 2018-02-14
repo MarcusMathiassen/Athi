@@ -225,11 +225,19 @@ void ParticleSystem::update_gpu_buffers() noexcept {
             models[p.id] = proj * transforms[p.id].get_model();
 
 
-            console->error("\n");
-            for (int i = 0; i < 4; ++i)
-              for (int j = 0; j < 4; ++j)
-                console->warn("{} {} {} {}", models[i][j].x, models[i][j].y, models[i][j].z, models[i][j].w);
+            auto temp_proj = proj;
+            auto temp_transform = transforms[p.id];
+            auto temp_model = models[p.id];
 
+            console->error("\nPROJ");
+            for (int i = 0; i < 4; ++i) {
+              console->warn("{} {} {} {}", temp_proj[i][0], temp_proj[i][1], temp_proj[i][2], temp_proj[i][3]);
+            }
+
+            console->error("\nMODEL");
+            for (int i = 0; i < 4; ++i) {
+              console->warn("{} {} {} {}", temp_model[i][0], temp_model[i][1], temp_model[i][2], temp_model[i][3]);
+            }
             if constexpr (use_textured_particles)
               radii[p.id] = p.radius;
           }
