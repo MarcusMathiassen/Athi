@@ -30,8 +30,16 @@
 #include <type_traits> // is_integral, is_float
 #include <cctype> // toupper
 #include <unordered_map> // unordered_map
-#include <variant> // std::variant, std::get
 
+#ifdef __APPLE__
+#include <boost/variant.hpp>
+using boost::variant;
+using boost::get;
+#else
+using std::variant;
+using std::get;
+#include <variant> // variant, get
+#endif
 
 // Function forward decl
 static void refresh_variables() noexcept;
@@ -67,7 +75,7 @@ static void refresh_variables() noexcept;
 
 
 static const string path = "../bin/config.ini";
-static std::unordered_map<string, std::variant<string, float, vec2, vec3, vec4>> variable_map;
+static std::unordered_map<string, variant<string, float, vec2, vec3, vec4>> variable_map;
 static u64 last_write_time;
 
 static const string default_config =
@@ -364,13 +372,13 @@ static string get_value_as_string(const string& var, const string& val) noexcept
      // If has a ',' its a list of things
     if (string_has(val, ','))
     {
-        if      (is_vec2(val))   return stringify_vec2(std::get<vec2>(variable_map.at(var)));
-        else if (is_vec3(val))   return stringify_vec3(std::get<vec3>(variable_map.at(var)));
-        else if (is_vec4(val))   return stringify_vec4(std::get<vec4>(variable_map.at(var)));
+        if      (is_vec2(val))   return stringify_vec2(get<vec2>(variable_map.at(var)));
+        else if (is_vec3(val))   return stringify_vec3(get<vec3>(variable_map.at(var)));
+        else if (is_vec4(val))   return stringify_vec4(get<vec4>(variable_map.at(var)));
     } else {
-        if      (is_string(val)) return add_quotes(std::get<string>(variable_map.at(var)));
-        else if (is_float(val))  return std::to_string(std::get<float>(variable_map.at(var)));
-        else if (is_bool(val))   return (std::get<float>(variable_map.at(var))) == 0 ? "NO" : "YES";
+        if      (is_string(val)) return add_quotes(get<string>(variable_map.at(var)));
+        else if (is_float(val))  return std::to_string(get<float>(variable_map.at(var)));
+        else if (is_bool(val))   return (get<float>(variable_map.at(var))) == 0 ? "NO" : "YES";
     }
 
     return string();
@@ -391,11 +399,11 @@ static void set_variable(T* var, const string& str)
     if constexpr (std::is_integral<T>::value)
     {
         if (variable_map.count(str)) {
-            *var = std::get<float>(variable_map.at(str));
+            *var = get<float>(variable_map.at(str));
         }
     } else {
         if (variable_map.count(str)) {
-            *var = std::get<T>(variable_map.at(str));
+            *var = get<T>(variable_map.at(str));
         }
     }
 }
