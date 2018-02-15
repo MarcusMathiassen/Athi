@@ -243,7 +243,7 @@ static auto get_vec2(const string& str) noexcept
     }
 
     auto split = split_string(has_val, ',');
-    vec2 temp;
+	vec2 temp{0.0f, 0.0f};
     for (u32 i = 0; i < split.size(); ++i)
     {
         temp[i] = stof(split[i]);
@@ -269,7 +269,7 @@ static auto get_vec3(const string& str) noexcept
     }
 
     auto split = split_string(has_val, ',');
-    vec3 temp;
+	vec3 temp{0.0f, 0.0f, 0.0f};
     for (u32 i = 0; i < split.size(); ++i)
     {
         temp[i] = stof(split[i]);
@@ -296,7 +296,7 @@ static auto get_vec4(const string& str) noexcept
     }
 
     auto split = split_string(has_val, ',');
-    vec4 temp;
+    vec4 temp{ 0.0f, 0.0f, 0.0f, 0.0f };
     for (u32 i = 0; i < split.size(); ++i)
     {
         temp[i] = stof(split[i]);

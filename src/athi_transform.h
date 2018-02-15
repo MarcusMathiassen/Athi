@@ -21,19 +21,25 @@
 
 #pragma once
 
+#include "athi_typedefs.h"
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/transform.hpp> // glm::translate, glm::rotate, glm::scale
 #include <glm/gtx/quaternion.hpp> // glm::quat, glm::toMat4
 
-struct Transform {
-  glm::vec3 pos{0, 0, 0};
-  glm::vec3 rot{0, 0, 0};
-  glm::vec3 scale{1, 1, 1};
+struct Transform
+{
+  vec3 pos{0, 0, 0};
+  vec3 rot{0, 0, 0};
+  vec3 scale{1, 1, 1};
 
-  const glm::mat4 get_model() const noexcept {
-    const glm::mat4 posMatrix{glm::translate(pos)};
-    const glm::mat4 scaleMatrix{glm::scale(scale)};
-    const glm::mat4 rotMatrix = glm::toMat4(glm::quat(rot));
+  // @Hot: this is called for every object drawn to the screen.
+  // That means maybe a million calls just from particles alone.
+  const mat4 get_model() const noexcept
+  {
+    const mat4 posMatrix = glm::translate(pos);
+    const mat4 scaleMatrix = glm::scale(scale);
+    const mat4 rotMatrix = glm::toMat4(glm::quat(rot));
     return posMatrix * rotMatrix * scaleMatrix;
   }
-  Transform() = default;
 };

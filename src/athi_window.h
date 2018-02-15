@@ -33,6 +33,4 @@ void window_pos_callback(GLFWwindow* window, int xpos, int ypos);
 
 static string title{"Athi"};
 void init_window();
-void update_windows();
-void open_profiler_window() noexcept;
-GLFWwindow *get_window_context(int i);
+GLFWwindow *get_window_context();

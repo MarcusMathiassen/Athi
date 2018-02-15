@@ -36,25 +36,23 @@ public:
     std::mutex buffer_mutex;
 
     typedef A allocator_type;
-    typedef typename A::value_type value_type; 
+    typedef typename A::value_type value_type;
     typedef typename A::reference reference;
     typedef typename A::const_reference const_reference;
     typedef typename A::difference_type difference_type;
     typedef typename A::size_type size_type;
 
-    class iterator { 
+    class iterator {
     public:
         typedef typename A::difference_type difference_type;
         typedef typename A::value_type value_type;
         typedef typename A::reference reference;
         typedef typename A::pointer pointer;
-        typedef std::random_access_iterator_tag iterator_category; //or another tag
     };
     class const_iterator {
     public:
         typedef typename A::difference_type difference_type;
         typedef typename A::value_type value_type;
-        typedef std::random_access_iterator_tag iterator_category; //or another tag
     };
 
     iterator begin() noexcept

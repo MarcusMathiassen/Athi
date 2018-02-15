@@ -20,10 +20,9 @@
 
 #include "athi_particle.h"
 
-#include "./Utility/athi_constant_globals.h" // kPi, kGravitationalConstant
+#include "./Utility/athi_constant_globals.h" // kPI, kGravitationalConstant
 #include "./Utility/athi_save_state.h" // write_data, read_data
 
-#include "./Renderer/athi_circle.h" // draw_circle
 #include "./Renderer/athi_line.h" // draw_line
 #include "./Renderer/athi_camera.h" // Camera
 #include "athi_settings.h" // console
@@ -31,12 +30,10 @@
 #include "athi_utility.h" // read_file, get_begin_and_end
 
 #include <algorithm>  // std::min_element, std::max_element
-#include <future>  // future
-#include <cmath> // std::next_after
 
-#ifdef __APPLE__
-#include <dispatch/dispatch.h> // dispatch_apply
-#endif
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/fast_square_root.hpp> // glm::fastDistance, glm::fastSqrt
+#include <glm/gtx/fast_trigonometry.hpp> // glm::fastSin, glm::fastCos
 
 ParticleSystem particle_system;
 
@@ -46,7 +43,7 @@ void Particle::update(f32 dt) noexcept {
   vel.y += acc.y * dt * time_scale * air_resistance;
   pos.x += vel.x * dt * time_scale;
   pos.y += vel.y * dt * time_scale;
-  acc *= 0;
+  acc = {0.0f, 0.0f};
   torque *= 0.999f;
 
   if (border_collision) {
@@ -86,8 +83,8 @@ void ParticleSystem::init() noexcept {
   // Setup the particle vertices
   vector<vec2> positions(num_vertices_per_particle);
   for (s32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions[i] = {cosf(i * kPI * 2.0f / num_vertices_per_particle),
-                    sinf(i * kPI * 2.0f / num_vertices_per_particle)};
+    positions[i] = {glm::fastCos(i * kPI * 2.0f / num_vertices_per_particle),
+                    glm::fastSin(i * kPI * 2.0f / num_vertices_per_particle)};
   }
 
   if constexpr (!use_textured_particles) {
@@ -155,6 +152,9 @@ void ParticleSystem::init() noexcept {
   }
 }
 
+// Passes the commandbuffer to the renderer
+// @Hot:  Called every frame.
+// @GPU:  Uses the renderer.
 void ParticleSystem::draw() noexcept {
   if (particles.empty()) return;
   profile p("PS::draw");
@@ -186,13 +186,15 @@ void ParticleSystem::draw() noexcept {
 
 static vector<float> radii;
 
-void ParticleSystem::update_gpu_buffers() noexcept {
-
+// @CPU
+void ParticleSystem::update_data() noexcept
+{
   // @Hack
-  std::unique_lock<std::mutex> lck(particles_mutex);
+  // std::unique_lock<std::mutex> lck(particles_mutex);
 
   if (particles.empty()) return;
-  profile p("PS::update_gpu_buffers");
+
+  profile p("PS::Update the buffers with the new data");
 
   // Check if buffers need resizing
   if (particle_count > models.size()) {
@@ -202,7 +204,6 @@ void ParticleSystem::update_gpu_buffers() noexcept {
   }
 
   {
-    profile p("PS::update_gpu_buffers(update buffers with new data)");
 
     // Update the buffers with the new data.
     if (const auto proj = camera.get_ortho_projection(); multithreaded_particle_update && use_multithreading) {
@@ -245,23 +246,27 @@ void ParticleSystem::update_gpu_buffers() noexcept {
 
         models[p.id] = proj * transforms[p.id].get_model();
 
-        if constexpr (use_textured_particles)
+        if constexpr (use_textured_particles) {
           radii[p.id] = p.radius;
+        }
       }
     }
   }
-
-  {
-    profile p("PS::update_gpu_buffers(GPU buffer update)");
-
-    // Update the gpu buffers incase of more particles..
-    renderer.update_buffer("transforms", &models[0], sizeof(mat4) * particle_count);
-    renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
-    if constexpr (use_textured_particles)
-      renderer.update_buffer("radius", &radii[0], sizeof(float) * particle_count);
-  }
 }
 
+// @GPU
+void ParticleSystem::gpu_buffer_update() noexcept
+{
+    profile p("PS::gpu_buffer_update");
+
+    // Update the gpu buffers incase of more particles..
+    if (!models.empty()) renderer.update_buffer("transforms", &models[0], sizeof(mat4) * particle_count);
+	if (!colors.empty()) renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
+    if constexpr (use_textured_particles)
+		if (!radii.empty()) renderer.update_buffer("radius", &radii[0], sizeof(float) * particle_count);
+}
+
+// @CPU
 void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
   num_vertices_per_particle = num_vertices;
 
@@ -270,8 +275,8 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
   for (s32 i = 0; i < num_vertices_per_particle; ++i) {
     positions[i] =
     {
-      cosf(i * kPI * 2.0f / num_vertices_per_particle),
-      sinf(i * kPI * 2.0f / num_vertices_per_particle)
+      glm::fastCos(i * kPI * 2.0f / num_vertices_per_particle),
+      glm::fastSin(i * kPI * 2.0f / num_vertices_per_particle)
     };
   }
 
@@ -369,6 +374,9 @@ void ParticleSystem::draw_debug_nodes() noexcept {
 
 void ParticleSystem::update(float dt) noexcept
 {
+    // @Hack
+  //std::unique_lock<std::mutex> lck(particles_mutex);
+
   if (particles.empty()) return;
 
   if (circle_collision)
@@ -480,6 +488,7 @@ void ParticleSystem::update(float dt) noexcept
   }
 }
 
+// @CPU
 void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &color) noexcept
 {
 
@@ -506,27 +515,30 @@ void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &co
   }
 }
 
-
+// @Hot
 bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const noexcept
 {
   // Local variables
-  const auto ax = a.pos.x;
-  const auto ay = a.pos.y;
-  const auto bx = b.pos.x;
-  const auto by = b.pos.y;
-  const auto ar = a.radius;
-  const auto br = b.radius;
+  const float ax = a.pos.x;
+  const float ay = a.pos.y;
+  const float bx = b.pos.x;
+  const float by = b.pos.y;
+  const float ar = a.radius;
+  const float br = b.radius;
 
   // square collision check
-  if (ax - ar < bx + br && ax + ar > bx - br && ay - ar < by + br && ay + ar > by - br)
+  if (ax - ar < bx + br &&
+      ax + ar > bx - br &&
+      ay - ar < by + br &&
+      ay + ar > by - br)
   {
-    const auto dx = bx - ax;
-    const auto dy = by - ay;
+    const float dx = bx - ax;
+    const float dy = by - ay;
 
-    const auto sum_radius = ar + br;
-    const auto sqr_radius = sum_radius * sum_radius;
+    const float sum_radius = ar + br;
+    const float sqr_radius = sum_radius * sum_radius;
 
-    const auto distance_sqrd = (dx * dx) + (dy * dy);
+    const float distance_sqrd = (dx * dx) + (dy * dy);
 
     // circle collision check
     return distance_sqrd < sqr_radius;
@@ -573,8 +585,8 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
     dy = b.pos.y - a.pos.y;
 
     const f32 collision_angle = atan2(dy, dx);
-    const f32 cos_angle = cosf(collision_angle);
-    const f32 sin_angle = sinf(collision_angle);
+    const f32 cos_angle = glm::fastCos(collision_angle);
+    const f32 sin_angle = glm::fastSin(collision_angle);
 
     const vec2 r1 = { collision_depth * 0.5f * cos_angle,  collision_depth * 0.5f *  sin_angle};
     const vec2 r2 = {-collision_depth * 0.5f * cos_angle, -collision_depth * 0.5f *  sin_angle};
@@ -596,7 +608,7 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
   }
 
   // And we don't resolve collisions between circles moving away from eachother
-  if (d < std::numeric_limits<float>::epsilon())
+  if (d < 1e-11f)
   {
     const auto norm = glm::normalize(glm::vec2(dx, dy));
     const auto tang = glm::vec2{norm.y * -1.0, norm.x};
@@ -621,8 +633,8 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
 // Separates two intersecting circles.
 void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   // Local variables
-  const auto a_pos = a.pos;
-  const auto b_pos = b.pos;
+  const vec2 a_pos = a.pos;
+  const vec2 b_pos = b.pos;
   const f32 ar = a.radius;
   const f32 br = b.radius;
   const f32 m1 = a.mass;
@@ -630,15 +642,15 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
 
   const f32 collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
 
-  if (collision_depth < std::numeric_limits<float>::epsilon()) return;
+  if (collision_depth < 1e-11f) return;
 
   const f32 dx = b_pos.x - a_pos.x;
   const f32 dy = b_pos.y - a_pos.y;
 
   // contact angle
   const f32 collision_angle = atan2(dy, dx);
-  const f32 cos_angle = cosf(collision_angle);
-  const f32 sin_angle = sinf(collision_angle);
+  const f32 cos_angle = glm::fastCos(collision_angle);
+  const f32 sin_angle = glm::fastSin(collision_angle);
 
   // @Same as above, just janky not working
   // const auto midpoint_x = (a_pos.x + b_pos.x) / 2.0f;
@@ -657,10 +669,12 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   // const f32 b_move.y = midpoint_y + br * (b_pos.y - a_pos.y) / collision_depth;
 
   // stores the position offsets
-  vec2 a_pos_move;
-  vec2 b_pos_move;
+  vec2 a_pos_move{0.0f};
+  vec2 b_pos_move{0.0f};
 
   // Make sure they dont moved beyond the border
+  // This will become not needed when borders are
+  //  segments instead of hardcoded.
   if (a_pos.x + a_move.x >= 0.0f + ar &&
       a_pos.x + a_move.x <= framebuffer_width - ar)
     a_pos_move.x += a_move.x;
@@ -679,7 +693,8 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   b.pos += b_pos_move;
 }
 
-static void gravitational_force(Particle &a, const Particle &b) {
+static void gravitational_force(Particle &a, const Particle &b)
+{
   const f32 x1 = a.pos.x;
   const f32 y1 = a.pos.y;
   const f32 x2 = b.pos.x;
@@ -689,7 +704,7 @@ static void gravitational_force(Particle &a, const Particle &b) {
 
   const f32 dx = x2 - x1;
   const f32 dy = y2 - y1;
-  const f32 d = sqrt(dx * dx + dy * dy);
+  const f32 d = glm::fastSqrt(dx * dx + dy * dy);
 
   const f32 angle = atan2(dy, dx);
   const f64 G = kGravitationalConstant;
@@ -708,43 +723,27 @@ void ParticleSystem::apply_n_body() noexcept {
 }
 
 // (N-1)*N/2
-void ParticleSystem::collision_logNxN(size_t total, size_t begin,
-                                      size_t end) noexcept {
-  auto comp_counter = 0ul;
-  auto res_counter = 0ul;
+void ParticleSystem::collision_logNxN(size_t total, size_t begin, size_t end) noexcept {
   for (size_t i = begin; i < end; ++i) {
     for (size_t j = 1 + i; j < total; ++j) {
-      ++comp_counter;
       if (collision_check(particles[i], particles[j])) {
         collision_resolve(particles[i], particles[j]);
-        ++res_counter;
       }
     }
   }
-  comparisons += comp_counter;
-  resolutions += res_counter;
 }
 
-void ParticleSystem::collision_quadtree(
-    const vector<vector<s32>> &tree_container, size_t begin,
-    size_t end) noexcept {
-  auto comp_counter = 0ul;
-  auto res_counter = 0ul;
+void ParticleSystem::collision_quadtree(const vector<vector<s32>> &tree_container, size_t begin, size_t end) noexcept
+{
   for (size_t k = begin; k < end; ++k) {
     for (size_t i = 0; i < tree_container[k].size(); ++i) {
       for (size_t j = i + 1; j < tree_container[k].size(); ++j) {
-        ++comp_counter;
-        if (collision_check(particles[tree_container[k][i]],
-                            particles[tree_container[k][j]])) {
-          collision_resolve(particles[tree_container[k][i]],
-                            particles[tree_container[k][j]]);
-          ++res_counter;
+        if (collision_check(particles[tree_container[k][i]], particles[tree_container[k][j]])){
+          collision_resolve(particles[tree_container[k][i]], particles[tree_container[k][j]]);
         }
       }
     }
   }
-  comparisons += comp_counter;
-  resolutions += res_counter;
 }
 
 
@@ -1020,6 +1019,9 @@ void ParticleSystem::remove_all_with_id(const vector<s32> &ids) noexcept {
 }
 
 void ParticleSystem::erase_all() noexcept {
+    // @Hack
+  std::unique_lock<std::mutex> lck(particles_mutex);
+
   particle_count = 0;
   particles.clear();
   colors.clear();
@@ -1032,11 +1034,14 @@ void ParticleSystem::save_state() noexcept
   if (particles.empty()) return;
   {
     profile p("PS::save_state");
-    write_data(
+
+    write_data
+    (
       "../bin/data.dat",
         particles,
         colors,
-        transforms);
+        transforms
+    );
 
   }
   console->warn("Particle state saved!");

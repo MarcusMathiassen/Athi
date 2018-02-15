@@ -27,6 +27,7 @@
 #include "athi_transform.h"            // Transform
 
 #include <algorithm>  // std::swap
+#include <mutex>  // std::mutex
 
 
 #ifdef _WIN32
@@ -38,6 +39,8 @@
 #include <unistd.h>
 #endif
 
+std::mutex physics_profiler_mutex;
+std::mutex render_profiler_mutex;
 std::unordered_map<string, f64> time_taken_by;
 std::vector<std::tuple<string, f64>> profiler_physics;
 

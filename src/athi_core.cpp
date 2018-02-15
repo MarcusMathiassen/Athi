@@ -49,17 +49,16 @@
 #include "../dep/Universal/imgui_impl_glfw_gl3.h"
 #include "../dep/Universal/spdlog/spdlog.h"
 
-static Smooth_Average<f64, 30> smooth_frametime_avg(&smoothed_frametime);
-static Smooth_Average<f64, 30> smooth_physics_rametime_avg(&smoothed_physics_frametime);
-static Smooth_Average<f64, 30> smooth_render_rametime_avg(&smoothed_render_frametime);
+static Smooth_Average<f64, 10> smooth_frametime_avg(&smoothed_frametime);
+static Smooth_Average<f64, 10> smooth_physics_rametime_avg(&smoothed_physics_frametime);
+static Smooth_Average<f64, 10> smooth_render_rametime_avg(&smoothed_render_frametime);
 
 static Renderer renderer;
 
-static std::atomic<bool> updating{false};
-static std::atomic<bool> drawing{false};
+static bool ready_to_draw{false};
 
 static std::mutex draw_mutex;
-static std::condition_variable pipeline_mutex;
+static std::condition_variable can_draw_cond;
 
 static void setup_fullscreen_quad()
 {
@@ -133,6 +132,7 @@ void Athi_Core::init()
   spdlog::set_pattern("[%H:%M:%S] %v");
   console = spdlog::stdout_color_mt("Athi");
   if constexpr (DEBUG_MODE) console->critical("DEBUG MODE: ON");
+  if constexpr (multithreaded_engine) console->critical("MULTITHREADED ENGINE: ON");
 
   init_variables();
 
@@ -142,7 +142,7 @@ void Athi_Core::init()
 
   px_scale = static_cast<f32>(framebuffer_width) / static_cast<f32>(screen_width);
 
-  gui_init(get_window_context(0), px_scale);
+  gui_init(get_window_context(), px_scale);
   variable_thread_count = std::thread::hardware_concurrency();
 
   // Debug information
@@ -174,7 +174,7 @@ void Athi_Core::init()
 
 void Athi_Core::start()
 {
-  auto window_context = get_window_context(0);
+  auto window_context = get_window_context();
   glfwMakeContextCurrent(window_context);
 
   setup_fullscreen_quad();
@@ -183,11 +183,9 @@ void Athi_Core::start()
   framebuffers[0].resize(framebuffer_width, framebuffer_height);
   framebuffers[1].resize(framebuffer_width, framebuffer_height);
 
-  std::future<void> update_fut, draw_fut;
+  std::future<void> update_fut;
   if constexpr (multithreaded_engine) {
-    glfwMakeContextCurrent(NULL);
     update_fut = dispatch.enqueue(&Athi_Core::physics_loop, this);
-    draw_fut = dispatch.enqueue(&Athi_Core::draw_loop, this);
   }
 
   while (!glfwWindowShouldClose(window_context))
@@ -202,23 +200,42 @@ void Athi_Core::start()
       glfwWaitEvents();
     }
 
-    update_inputs();
-
     // Single threaded engine
     if constexpr (!multithreaded_engine)
     {
       if constexpr (DEBUG_MODE) { reload_variables(); }
 
+      // Input
+      update_inputs();
+
+      // CPU Update
       update(1.0f/60.0f);
+
+      // GPU draw
       draw(window_context);
 
       if constexpr (DEBUG_MODE) {
-        if (auto profiler_context = get_window_context(1);
+        if (auto profiler_context = get_window_context();
             profiler_context)
         {
           if (glfwGetWindowAttrib(profiler_context, GLFW_VISIBLE)) draw(profiler_context);
         }
       }
+    } else {
+
+      // GPU draw
+      {
+        std::unique_lock<std::mutex> lock(draw_mutex);
+        can_draw_cond.wait(lock, []() { return ready_to_draw; });
+
+        // Input
+        update_inputs();
+
+        // GPU draw
+        draw(window_context);
+        ready_to_draw = false;
+      }
+      can_draw_cond.notify_one();
     }
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
@@ -230,7 +247,6 @@ void Athi_Core::start()
   app_is_running = false;
 
   if constexpr (multithreaded_engine) {
-    draw_fut.get();
     update_fut.get();
   }
 
@@ -241,14 +257,15 @@ void Athi_Core::draw(GLFWwindow *window)
 {
   profile p("Athi_Core::draw");
 
-  glfwMakeContextCurrent(window);
-
   const f64 time_start_frame = glfwGetTime();
   glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
   check_gl_error();
 
   glClear(GL_COLOR_BUFFER_BIT);
   check_gl_error();
+
+  // Upload gpu buffers
+  particle_system.gpu_buffer_update();
 
   if (post_processing)
   {
@@ -278,7 +295,7 @@ void Athi_Core::draw(GLFWwindow *window)
   if (draw_rects)       render_rects();
   if (draw_lines)       render_lines();
 
-  render(); render_clear();
+  render();
 
   //@Bug: rects and lines are being drawn over the Gui.
   draw_custom_gui();
@@ -298,15 +315,16 @@ void Athi_Core::draw(GLFWwindow *window)
   }
 }
 
-void Athi_Core::update(float dt) {
-
+void Athi_Core::update(float dt)
+{
   physics_profile p("update");
 
   const f64 time_start_frame = glfwGetTime();
 
   particle_system.update(dt);
 
-  if (use_gravitational_force) {
+  if (use_gravitational_force)
+  {
     profile p("ParticleSystem::apply_n_body()");
     particle_system.apply_n_body();
   }
@@ -314,8 +332,8 @@ void Athi_Core::update(float dt) {
   if (cycle_particle_color)
     circle_color = color_over_time(sinf(glfwGetTime()* 0.5));
 
-  // Update GPU buffers
-  particle_system.update_gpu_buffers();
+  // Update buffers
+  particle_system.update_data();
 
   // Update timers
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
@@ -326,16 +344,18 @@ void Athi_Core::update(float dt) {
 
 void Athi_Core::draw_loop()
 {
-  auto window_context = get_window_context(0);
+  auto window_context = get_window_context();
   glfwMakeContextCurrent(window_context);
   while (app_is_running)
   {
-    drawing = true;
-    std::unique_lock<std::mutex> lock(draw_mutex);
-    pipeline_mutex.wait(lock, []() { return !updating; });
-    draw(window_context);
-    drawing = false;
-    pipeline_mutex.notify_one();
+    {
+      std::unique_lock<std::mutex> lock(draw_mutex);
+      can_draw_cond.wait(lock, []() { return ready_to_draw; });
+
+      draw(window_context);
+      ready_to_draw = false;
+    }
+    can_draw_cond.notify_one();
   }
 }
 
@@ -343,12 +363,16 @@ void Athi_Core::physics_loop()
 {
   while (app_is_running)
   {
-    updating = true;
+    {
+      std::unique_lock<std::mutex> lock(draw_mutex);
+      update(1.0f/60.0f);
+      ready_to_draw = true;
+    }
+
+    can_draw_cond.notify_one();
+
     std::unique_lock<std::mutex> lock(draw_mutex);
-    pipeline_mutex.wait(lock, []() { return !drawing; });
-    update(1.0f/60.0f);
-    updating = false;
-    pipeline_mutex.notify_one();
+    can_draw_cond.wait(lock, []() { return !ready_to_draw; });
   }
 }
 

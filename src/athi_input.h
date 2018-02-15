@@ -26,6 +26,7 @@
 #include "athi_particle.h"  // particle_system
 #include "athi_settings.h"  // console
 #include "./Utility/athi_config_parser.h"  // save_variables
+#include "./Renderer/athi_renderer.h"  // render_call
 
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
@@ -110,9 +111,11 @@ static void mouse_button_callback(GLFWwindow *window, s32 button, s32 action,
 
   glm::vec2 mouse_pos = athi_input_manager.mouse.pos;
 
+  render_call([mouse_pos, button, action](){
   if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
     particle_system.add(mouse_pos, mouse_size, circle_color);
   }
+  });
 }
 
 
@@ -158,15 +161,6 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
       key_pressed(GLFW_KEY_X))
   {
     particle_system.load_state();
-  }
-
-
-  // open profiler
-  if (
-      last_key == GLFW_KEY_LEFT_SUPER || last_key == GLFW_KEY_LEFT_CONTROL && last_action == GLFW_PRESS &&
-      key_pressed(GLFW_KEY_Z))
-  {
-    if constexpr (DEBUG_MODE) open_profiler_window();
   }
 
   // TOGGLE PAUSE

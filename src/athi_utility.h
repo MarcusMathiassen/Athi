@@ -121,7 +121,8 @@ vec2 to_view_space(vec2 v) noexcept;
 void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept;
 string get_cpu_brand();
 
-
+extern std::mutex physics_profiler_mutex;
+extern std::mutex render_profiler_mutex;
 extern std::unordered_map<string, f64> time_taken_by;
 extern std::vector<std::tuple<string, f64>> profiler_physics;
 
@@ -138,8 +139,10 @@ public:
   }
   ~physics_profile() noexcept
   {
-    if constexpr (DEBUG_MODE)
+    if constexpr (DEBUG_MODE) {
+      // std::unique_lock<std::mutex> lck(physics_profiler_mutex);
       profiler_physics.emplace_back(std::tuple<string,f64>(m_id, ((glfwGetTime() - m_start_time) * 1000.0)));
+    }
   }
 };
 
@@ -157,6 +160,7 @@ class profile {
   }
   ~profile() noexcept {
     if constexpr (DEBUG_MODE) {
+      // std::unique_lock<std::mutex> lck(render_profiler_mutex);
       time_taken_by[id] = (glfwGetTime() - start) * 1000.0;
     }
   }

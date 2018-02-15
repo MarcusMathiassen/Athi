@@ -26,57 +26,13 @@
 #include "athi_settings.h" // console
 #include "athi_utility.h" // FRED
 #include "./Renderer/opengl_utility.h" // MessageCallback
+#include "./Renderer/athi_renderer.h" // render_call
 
-static vector<GLFWwindow*> windows;
+static GLFWwindow* window;
 
 void glfw_error_callback(int error, const char* description)
 {
     console->error("{}", description);
-}
-
-void profiler_window_close_callback(GLFWwindow* window)
-{
-  glfwSetWindowShouldClose(window, GLFW_TRUE);
-  glfwHideWindow(window);
-}
-
-void primary_window_close_callback(GLFWwindow* window)
-{
-  glfwSetWindowShouldClose(window, GLFW_TRUE);
-  glfwSetWindowShouldClose(windows[1], GLFW_TRUE);
-}
-
-void open_profiler_window() noexcept
-{
-  int left, right;
-
-  // if already created
-  if (windows[1] != nullptr)
-  {
-    if (glfwGetWindowAttrib(windows[1], GLFW_VISIBLE))
-      glfwHideWindow(windows[1]);
-    else {
-      glfwShowWindow(windows[1]);
-      glfwFocusWindow(windows[0]);
-
-      // Set the profilers position next to the primary window
-      glfwSetWindowSize(windows[1], screen_width, screen_height);
-      glfwSetWindowPos(windows[1], window_pos.x + screen_width, window_pos.y);
-    }
-    return;
-  }
-}
-
-void update_windows()
-{
-  for (auto & window: windows) {
-    if (window) {
-      if (glfwWindowShouldClose(window)) {
-        glfwDestroyWindow(window);
-        window = nullptr;
-      }
-    }
-  }
 }
 
 void init_window() {
@@ -118,27 +74,14 @@ void init_window() {
 
   console->info("{} {} {}hz", FRED("Monitor:"), monitor_name, monitor_refreshrate);
 
-  windows.resize(2);
+  window = glfwCreateWindow(screen_width, screen_height, title.c_str(), NULL, NULL);
+  glfwMakeContextCurrent(window);
+  glfwSetWindowPos(window, window_pos.x, window_pos.y);
 
-  windows[0] = glfwCreateWindow(screen_width, screen_height, title.c_str(), NULL, NULL);
-  glfwMakeContextCurrent(windows[0]);
-  glfwSetWindowPos(windows[0], window_pos.x, window_pos.y);
-
-  glfwWindowHint(GLFW_FOCUSED, false);
-  glfwWindowHint(GLFW_VISIBLE, false);
-  windows[1] = glfwCreateWindow(screen_width, screen_height, "Profiler", NULL, windows[0]);
-  glfwSetWindowCloseCallback(windows[1], profiler_window_close_callback);
-
-  // Set the profilers position next to the primary window
-  glfwSetWindowSize(windows[1], screen_width, screen_height);
-  glfwSetWindowPos(windows[1], window_pos.x + screen_width + screen_width, window_pos.y);
-
-
-  // glfwSetWindowAspectRatio(windows[0], 1, 1);
-  glfwSetWindowSizeCallback(windows[0], window_size_callback);
-  glfwSetFramebufferSizeCallback(windows[0], framebuffer_size_callback);
-  glfwSetWindowPosCallback(windows[0], window_pos_callback);
-  glfwSetWindowCloseCallback(windows[0], primary_window_close_callback);
+  // glfwSetWindowAspectRatio(window, 1, 1);
+  glfwSetWindowSizeCallback(window, window_size_callback);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  glfwSetWindowPosCallback(window, window_pos_callback);
 
   // GLEW setup / experimental because of glew bugs
   glewExperimental = true;
@@ -162,7 +105,7 @@ void init_window() {
 
 
   s32 width, height;
-  glfwGetFramebufferSize(windows[0], &width, &height);
+  glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
   framebuffer_width = width;
   framebuffer_height = height;
@@ -178,8 +121,7 @@ void init_window() {
   glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
   check_gl_error();
 }
-
-GLFWwindow *get_window_context(int i) { return windows[i]; }
+GLFWwindow *get_window_context() { return window; }
 
 void window_pos_callback(GLFWwindow* window, int xpos, int ypos)
 {
@@ -199,14 +141,16 @@ void framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height) {
   framebuffer_height = height;
   camera.update_projection(static_cast<float>(width), static_cast<float>(height));
   camera.update();
-  glViewport(0.0f, 0.0f, width, height);
 
+  render_call([width, height](){
+    glViewport(0.0f, 0.0f, width, height);
 
   // @Hack: this doesnt look right
   for (auto& framebuffer: framebuffers) {
     framebuffer.resize(width, height);
+    check_gl_error();
   }
-
+  });
   // @Hack
   if (uniformgrid_parts != 4)
     uniformgrid_parts = 4;
@@ -219,6 +163,4 @@ void framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height) {
   px_scale = static_cast<float>(width) / static_cast<float>(w);
 
   //console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
-
-  check_gl_error();
 }

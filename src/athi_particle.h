@@ -31,7 +31,6 @@
 #include "./Renderer/athi_renderer.h"    // Renderer
 #include "athi_transform.h"  // Transform
 #include "./Renderer/athi_texture.h"  // texture
-#include "./Utility/threadsafe_container.h"  // ThreadSafe::vector
 #include <mutex> // mutex
 
 #ifdef __APPLE__
@@ -52,7 +51,8 @@ struct Particle {
   void update(f32 dt) noexcept;
 };
 
-struct ParticleSystem {
+struct ParticleSystem
+{
   u32 particle_count{0};
   f32 particle_density{1.0f};
 
@@ -60,8 +60,8 @@ struct ParticleSystem {
   size_t particles_vertices_size{0};
 
   std::mutex particles_mutex;
-
   vector<Particle> particles;
+
   vector<Transform> transforms;
   vector<vec4> colors;
   vector<mat4> models;
@@ -102,7 +102,8 @@ struct ParticleSystem {
   void draw() noexcept;
   void opencl_init() noexcept;
   void draw_debug_nodes() noexcept;
-  void update_gpu_buffers() noexcept;
+  void update_data() noexcept;
+  void gpu_buffer_update() noexcept;
   void update_collisions() noexcept;
   void opencl_naive() noexcept;
   void apply_n_body() noexcept;
