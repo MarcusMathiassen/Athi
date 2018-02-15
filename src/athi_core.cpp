@@ -281,10 +281,10 @@ void Athi_Core::draw(GLFWwindow *window)
   render(); render_clear();
 
   //@Bug: rects and lines are being drawn over the Gui.
+  draw_custom_gui();
+  update_settings();
   if (show_settings)
   {
-    update_settings();
-    draw_custom_gui();
     gui_render();
   }
 

@@ -131,24 +131,6 @@ static void draw_custom_gui() noexcept
 
   if (button("Particles: " + std::to_string(particle_system.particle_count)))
   {
-
-  }
-
-  button_count++;
-
-  if (button(string("Multithreaded: ") + (use_multithreading ? "ON" : "OFF")))
-  {
-    use_multithreading ^= 1;
-  }
-
-  if (button(string("Intercollision: ") + (circle_collision ? "ON" : "OFF")))
-  {
-    circle_collision ^= 1;
-  }
-
-  if (button(string("Color by velocity: ") + (is_particles_colored_by_acc ? "ON" : "OFF")))
-  {
-    is_particles_colored_by_acc ^= 1;
   }
 }
 

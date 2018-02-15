@@ -590,6 +590,9 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
 
     a.torque = (cross(glm::normalize(r2), v1) / ar) * friction + b.torque * 0.1f;
     b.torque = (cross(glm::normalize(r1), v2) / br) * friction + a.torque * 0.1f;
+
+    // draw_line(a.pos, a.pos+r1, 1.0f, white);
+    // draw_line(b.pos, b.pos+r2, 1.0f, white);
   }
 
   // And we don't resolve collisions between circles moving away from eachother
