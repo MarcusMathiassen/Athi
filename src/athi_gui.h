@@ -68,12 +68,6 @@ static bool button(
   float button_height = 25.0f;
   float stack_margin = button_height * 2.0f;
 
-  // Draw button
-  const auto ortho_proj = camera.get_ortho_projection();
-  glUseProgram(font_renderer::shader_program);
-  glUniformMatrix4fv(ortho_loc, 1, GL_FALSE, &ortho_proj[0][0]);
-
-
   bool mouse_inside = false;
   bool button_hold = false;
   bool button_pressed = false;
@@ -104,14 +98,20 @@ static bool button(
   }
 
   // Draw text inside this rect
-  draw_rounded_rect({button_pos.x, button_pos.y},  button_width, button_height, button_color, false);
-  if constexpr (os == OS::Apple) font_renderer::draw_text(my_font, button_text, button_pos.x, 2.5f+button_pos.y, 1.0f * button_height * 0.1/4.0, white);
+  //draw_rounded_rect({button_pos.x, button_pos.y},  button_width, button_height, button_color, false);
+
+  font_renderer::draw_text(my_font, button_text, button_pos.x, 2.5f+button_pos.y, 1.0f * button_height * 0.1/4.0, white);
 
   return button_pressed;
 }
 
 static void draw_custom_gui() noexcept
 {
+  // Draw button
+  const auto ortho_proj = camera.get_ortho_projection();
+  glUseProgram(font_renderer::shader_program);
+  glUniformMatrix4fv(ortho_loc, 1, GL_FALSE, &ortho_proj[0][0]);
+
   button_count = 0;
 
   if (button("GPU: " + std::to_string(smoothed_render_frametime) + "ms"))
@@ -158,15 +158,6 @@ static void custom_gui_init() noexcept
     my_font = font_renderer::load_font("../Resources/Fonts/DroidSans.ttf", 24*2);
     ortho_loc = glGetUniformLocation(font_renderer::shader_program, "ortho_projection");
 }
-
-
-
-
-
-
-
-
-
 
 
 static void new_style();
@@ -581,11 +572,6 @@ void gui_render() {
     ImGui::Checkbox("grab", &mouse_grab);
     ImGui::SameLine();
 
-    ImGui::Text("comparisons: %llu", static_cast<uint64_t>(comparisons) / physics_samples);
-    ImGui::SameLine();
-    ImGui::Text("resolved: %llu (%.4f%%)", static_cast<uint64_t>(resolutions),
-                100.0f * static_cast<float>(resolutions) / static_cast<float>(comparisons));
-
     ImGui::EndMainMenuBar();
   }
 
@@ -605,12 +591,19 @@ void gui_init(GLFWwindow *window, float px_scale) {
   ImGuiIO &io = ImGui::GetIO();
 
   io.FontGlobalScale = 1.0f / px_scale;
+
+  #ifdef _WIN32
+  px_scale = 2;
+  #endif
   io.Fonts->AddFontFromFileTTF("../Resources/Fonts/DroidSans.ttf", 14 * px_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
   // SetupImGuiStyle(true, 1.0f);
   new_style();
 }
 
-void gui_shutdown() { ImGui_ImplGlfwGL3_Shutdown(); }
+void gui_shutdown() {
+  font_renderer::shutdown();
+ ImGui_ImplGlfwGL3_Shutdown();
+}
 
 static void new_style() {
   ImGuiStyle *style = &ImGui::GetStyle();

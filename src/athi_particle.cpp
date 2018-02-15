@@ -145,11 +145,11 @@ void ParticleSystem::init() noexcept {
     transforms.divisor = 1;
     transforms.is_matrix = true;
 
-    constexpr u16 indices[6] = {0, 1, 2, 0, 2, 3};
-    auto &indices_buffer = renderer.make_buffer("indices");
-    indices_buffer.data = (void*)indices;
-    indices_buffer.data_size = sizeof(indices);
-    indices_buffer.type = buffer_type::element_array;
+    // constexpr GLushort indices[6]{0, 1, 2, 0, 2, 3};
+    // auto &indices_buffer = renderer.make_buffer("indices");
+    // indices_buffer.data = (void*)indices;
+    // indices_buffer.data_size = sizeof(indices);
+    // indices_buffer.type = buffer_type::element_array;
 
     renderer.finish();
   }
@@ -173,7 +173,7 @@ void ParticleSystem::draw() noexcept {
     CommandBuffer cmd_buffer;
     cmd_buffer.type = primitive::triangles;
     cmd_buffer.count = 6;
-    cmd_buffer.has_indices = true;
+    //cmd_buffer.has_indices = true;
     cmd_buffer.primitive_count = particle_count;
 
     renderer.bind();
@@ -224,20 +224,6 @@ void ParticleSystem::update_gpu_buffers() noexcept {
 
             models[p.id] = proj * transforms[p.id].get_model();
 
-
-            auto temp_proj = proj;
-            auto temp_transform = transforms[p.id];
-            auto temp_model = models[p.id];
-
-            console->error("\nPROJ");
-            for (int i = 0; i < 4; ++i) {
-              console->warn("{} {} {} {}", temp_proj[i][0], temp_proj[i][1], temp_proj[i][2], temp_proj[i][3]);
-            }
-
-            console->error("\nMODEL");
-            for (int i = 0; i < 4; ++i) {
-              console->warn("{} {} {} {}", temp_model[i][0], temp_model[i][1], temp_model[i][2], temp_model[i][3]);
-            }
             if constexpr (use_textured_particles)
               radii[p.id] = p.radius;
           }
@@ -548,6 +534,7 @@ bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const
   return false;
 }
 
+
 // Collisions response between two circles with varying radius and mass.
 void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
 {
@@ -569,45 +556,41 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
   const auto d = dx * vdx + dy * vdy;
 
 
-    // Rotation response
-  // float temp = a.torque;
-  // b.torque = temp;
-  // a.torque = b.torque;
+  // Rotation response
+  //
+  // w is the torque, r is the vector to the collision point from the center, v is the velocity vector
+  // ω = (cross(cp, v1) / r1 * friction + w2 * 0.1; r.x*v.y−r.y*v.x) / (r2x+r2y)
+  //
 
-  /*
-  w is the torque, r is the vector to the collision point from the center, v is the velocity vector
-  ω = (r.x*v.y−r.y*v.x) / (r2x+r2y)
-  */
-
-  const f32 ar = a.radius;
-  const f32 br = b.radius;
-  const f32 collision_depth = glm::distance(b.pos, a.pos);
-
-  // contact angle
-  dx = b.pos.x - a.pos.x;
-  dy = b.pos.y - a.pos.y;
-  const f32 collision_angle = atan2(dy, dx);
-  const f32 cos_angle = cosf(collision_angle);
-  const f32 sin_angle = sinf(collision_angle);
-
-  vec2 r1 = {collision_depth * 0.5f *  cos_angle, collision_depth * 0.5f *  sin_angle};
-  vec2 r2 = {-collision_depth * 0.5f *  cos_angle, - collision_depth * 0.5f *  sin_angle};
-  vec2 v1 = a.vel;
-  vec2 v2 = b.vel;
-
-
-  auto cross = [](const vec2 & v1, const vec2 & v2)
   {
-    return (v1.x*v2.y) - (v1.y*v2.x);
-  };
+    const f32 ar = a.radius;
+    const f32 br = b.radius;
+    const f32 collision_depth = glm::distance(b.pos, a.pos);
 
-  float friction = 0.1f;
+    // contact angle
 
-  a.torque = (cross(glm::normalize(r2), v1) / ar) * friction + b.torque * 0.1f;
-  b.torque = (cross(glm::normalize(r1), v2) / br) * friction + a.torque * 0.1f;
+    dx = b.pos.x - a.pos.x;
+    dy = b.pos.y - a.pos.y;
 
-  // a.torque = ((r1.x*v1.y - r1.y*v1.x) / (r2.x+r2.y)) * 0.001f;
-  // b.torque = ((r2.x*v2.y + r2.y*v2.x) / (r1.x+r1.y)) * 0.001f;
+    const f32 collision_angle = atan2(dy, dx);
+    const f32 cos_angle = cosf(collision_angle);
+    const f32 sin_angle = sinf(collision_angle);
+
+    const vec2 r1 = { collision_depth * 0.5f * cos_angle,  collision_depth * 0.5f *  sin_angle};
+    const vec2 r2 = {-collision_depth * 0.5f * cos_angle, -collision_depth * 0.5f *  sin_angle};
+    const vec2 v1 = a.vel;
+    const vec2 v2 = b.vel;
+
+    const auto cross = [](const vec2 & v1, const vec2 & v2)
+    {
+      return (v1.x*v2.y) - (v1.y*v2.x);
+    };
+
+    float friction = 0.1f;
+
+    a.torque = (cross(glm::normalize(r2), v1) / ar) * friction + b.torque * 0.1f;
+    b.torque = (cross(glm::normalize(r1), v2) / br) * friction + a.torque * 0.1f;
+  }
 
   // And we don't resolve collisions between circles moving away from eachother
   if (d < std::numeric_limits<float>::epsilon())

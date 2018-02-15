@@ -105,7 +105,7 @@ namespace font_renderer {
     glEnableVertexAttribArray(pos_attrib_loc);
     glVertexAttribPointer(pos_attrib_loc, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
 
-    const std::uint16_t indices[6]{0, 1, 2, 0, 2, 3};
+    constexpr GLushort indices[6]{0, 1, 2, 0, 2, 3};
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[INDICES]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                  GL_STATIC_DRAW);

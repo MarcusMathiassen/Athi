@@ -73,7 +73,7 @@ void render_rects() noexcept
   CommandBuffer cmd;
   cmd.type = primitive::triangles;
   cmd.count = 6;
-  cmd.has_indices = true;
+  //cmd.has_indices = true;
   cmd.primitive_count = static_cast<s32>(rect_buffer.size());
 
   renderer.bind();
@@ -100,11 +100,11 @@ void init_rect_renderer() noexcept
   transforms.divisor = 1;
   transforms.is_matrix = true;
 
-  constexpr u16 indices[]{0, 1, 2, 0, 2, 3};
-  auto &indices_buffer = renderer.make_buffer("indices");
-  indices_buffer.data = (void*)indices;
-  indices_buffer.data_size = sizeof(indices);
-  indices_buffer.type = buffer_type::element_array;
+  //constexpr u16 indices[]{0, 1, 2, 0, 2, 3};
+  //auto &indices_buffer = renderer.make_buffer("indices");
+  //indices_buffer.data = (void*)indices;
+  //indices_buffer.data_size = sizeof(indices);
+  //indices_buffer.type = buffer_type::element_array;
 
   renderer.finish();
 
@@ -114,10 +114,10 @@ void init_rect_renderer() noexcept
   immidiate_shader.uniforms = {"color", "transform"};
   immidiate_shader.preambles = {"common.glsl"};
 
-  auto &uindices_buffer = immidiate_renderer.make_buffer("indices");
-  uindices_buffer.data = (void*)indices;
-  uindices_buffer.data_size = sizeof(indices);
-  uindices_buffer.type = buffer_type::element_array;
+  //auto &uindices_buffer = immidiate_renderer.make_buffer("indices");
+  //uindices_buffer.data = (void*)indices;
+  //uindices_buffer.data_size = sizeof(indices);
+  //uindices_buffer.type = buffer_type::element_array;
 
   immidiate_renderer.finish();
 }
@@ -204,7 +204,7 @@ void immididate_draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, b
     CommandBuffer cmd;
     cmd.type = primitive::triangles;
     cmd.count = 6;
-    cmd.has_indices = true;
+    //cmd.has_indices = true;
     immidiate_renderer.bind();
 
     const auto proj = camera.get_ortho_projection();

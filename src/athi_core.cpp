@@ -278,7 +278,6 @@ void Athi_Core::draw(GLFWwindow *window)
   if (draw_rects)       render_rects();
   if (draw_lines)       render_lines();
 
-
   render(); render_clear();
 
   //@Bug: rects and lines are being drawn over the Gui.
