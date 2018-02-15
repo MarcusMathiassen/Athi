@@ -22,6 +22,7 @@
 #pragma once
 
 #include <glm/gtx/transform.hpp> // glm::translate, glm::rotate, glm::scale
+#include <glm/gtx/quaternion.hpp> // glm::quat, glm::toMat4
 
 struct Transform {
   glm::vec3 pos{0, 0, 0};
@@ -30,11 +31,8 @@ struct Transform {
 
   const glm::mat4 get_model() const noexcept {
     const glm::mat4 posMatrix{glm::translate(pos)};
-    const glm::mat4 rotXMatrix{glm::rotate(rot.x, glm::vec3{1, 0, 0})};
-    const glm::mat4 rotYMatrix{glm::rotate(rot.y, glm::vec3{0, 1, 0})};
-    const glm::mat4 rotZMatrix{glm::rotate(rot.z, glm::vec3{0, 0, 1})};
     const glm::mat4 scaleMatrix{glm::scale(scale)};
-    const glm::mat4 rotMatrix{rotZMatrix * rotYMatrix * rotXMatrix};
+    const glm::mat4 rotMatrix = glm::toMat4(glm::quat(rot));
     return posMatrix * rotMatrix * scaleMatrix;
   }
   Transform() = default;
