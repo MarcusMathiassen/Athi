@@ -1,7 +1,10 @@
-out vec4 fragColor;
-uniform vec4 color;
+out vec4 frag_color;
+
+in Vertex {
+  vec4 color;
+} frag;
 
 void main()
 {
-  fragColor = color;
+  frag_color = frag.color;
 }

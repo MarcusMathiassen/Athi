@@ -28,8 +28,9 @@
 
 #include "../athi_utility.h"   // profile
 #include "../athi_transform.h" // Transform
+#include "../Utility/threadsafe_container.h" // ThreadSafe::vector
 
-static std::vector<Athi_Rect> rect_buffer;
+static ThreadSafe::vector<Athi_Rect> rect_buffer;
 
 static Renderer renderer;
 static Renderer immidiate_renderer;
@@ -41,6 +42,7 @@ void render_rects() noexcept
 {
   if (rect_buffer.empty()) return;
 
+
   profile p("render_rects");
 
   if (models.size() < rect_buffer.size()) {
@@ -50,6 +52,7 @@ void render_rects() noexcept
 
   const auto proj = camera.get_ortho_projection();
 
+  rect_buffer.lock();
   for (u32 i = 0; i < rect_buffer.size(); ++i)
   {
     auto &rect = rect_buffer[i];
@@ -62,6 +65,7 @@ void render_rects() noexcept
 
     models[i] = proj * temp.get_model();
   }
+  rect_buffer.unlock();
 
   {
     profile p("render_rects::update_buffers");
@@ -125,20 +129,7 @@ void init_rect_renderer() noexcept
 
 void draw_rounded_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, bool is_hollow) noexcept
 {
-  const float circle_radius = height * 0.25f;
-
-  const vec2 max{min.x+width, min.y+height};
-
-  auto draw_circle_fp = is_hollow ? &draw_hollow_circle : &draw_filled_circle;
-
-  draw_circle_fp(vec2(min.x, max.y),  circle_radius, color); // Left top
-  draw_circle_fp(min,                 circle_radius, color); // Left bottom
-  draw_circle_fp(vec2(max.x, min.y),  circle_radius, color); // Right bottom
-  draw_circle_fp(max,                 circle_radius, color); // Right top
-
-  // Rects
-  draw_rect(vec2(min.x-circle_radius, min.y), vec2(max.x+circle_radius, max.y),  color, is_hollow);
-  draw_rect(vec2(min.x, min.y-circle_radius), vec2(max.x, max.y+circle_radius),  color, is_hollow);
+  draw_rounded_rect(min, vec2{min.x+width, min.y+height}, color, is_hollow);
 }
 
 void draw_rounded_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow) noexcept
@@ -154,12 +145,10 @@ void draw_rounded_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool
 
   const float circle_radius = height * 0.25f;
 
-  auto draw_circle_fp = is_hollow ? &draw_hollow_circle : &draw_filled_circle;
-
-  draw_circle_fp(vec2(min.x, max.y),  circle_radius, color); // Left top
-  draw_circle_fp(min,                 circle_radius, color); // Left bottom
-  draw_circle_fp(vec2(max.x, min.y),  circle_radius, color); // Right bottom
-  draw_circle_fp(max,                 circle_radius, color); // Right top
+  draw_circle(vec2(min.x, max.y),  circle_radius, color, is_hollow); // Left top
+  draw_circle(min,                 circle_radius, color, is_hollow); // Left bottom
+  draw_circle(vec2(max.x, min.y),  circle_radius, color, is_hollow); // Right bottom
+  draw_circle(max,                 circle_radius, color, is_hollow); // Right top
 
   // Rects
   draw_rect(vec2(min.x-circle_radius, min.y), vec2(max.x+circle_radius, max.y),  color, is_hollow);
@@ -171,6 +160,7 @@ void draw_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, bool i
 {
   draw_rect(min, vec2(min.x+width, min.y+height), color, is_hollow);
 }
+
 void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow) noexcept
 {
   // If we're drawing a hollow rectangle..
@@ -181,8 +171,6 @@ void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_holl
     draw_line(vec2(min.x, max.y), max, 1.0f, color);
     draw_line(max, vec2(max.x, min.y), 1.0f, color);
     draw_line(vec2(max.x, min.y), min, 1.0f, color);
-
-    // immididate_draw_hollow_rect(min, max, color);
 
     return;
   }
@@ -195,48 +183,4 @@ void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_holl
   rect.height = max.y - min.y;
 
   rect_buffer.emplace_back(rect);
-}
-
-
-void immididate_draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow) noexcept
-{
-  render_call([min, max, color] {
-    CommandBuffer cmd;
-    cmd.type = primitive::triangles;
-    cmd.count = 6;
-    //cmd.has_indices = true;
-    immidiate_renderer.bind();
-
-    const auto proj = camera.get_ortho_projection();
-
-    Transform temp;
-    temp.pos = vec3(min, 0);
-    temp.scale = vec3(max.x - min.x, max.y - min.y, 0);
-    mat4 trans = proj * temp.get_model();
-
-    immidiate_renderer.shader.set_uniform("color", color);
-    immidiate_renderer.shader.set_uniform("transform", trans);
-    immidiate_renderer.draw(cmd);
-  });
-}
-
-void immididate_draw_hollow_rect(const vec2 &min, const vec2 &max, const vec4 &color) noexcept
-{
-  render_call([min, max, color] {
-    CommandBuffer cmd;
-    cmd.type = primitive::line_loop;
-    cmd.count = 4;
-    immidiate_renderer.bind();
-
-    const auto proj = camera.get_ortho_projection();
-
-    Transform temp;
-    temp.pos = vec3(min, 0);
-    temp.scale = vec3(max.x - min.x, max.y - min.y, 0);
-    mat4 trans = proj * temp.get_model();
-
-    immidiate_renderer.shader.set_uniform("color", color);
-    immidiate_renderer.shader.set_uniform("transform", trans);
-    immidiate_renderer.draw(cmd);
-  });
 }

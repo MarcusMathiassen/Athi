@@ -22,7 +22,7 @@
 
 #include "../athi_typedefs.h"
 
-static constexpr bool multithreaded_engine{true};    // Rendering and Update are run on separate threads.
+static constexpr bool multithreaded_engine{false};    // Rendering and Update are run on separate threads.
 static constexpr bool use_textured_particles{true};   // Particles are rendered using textured billboards
 
 // Constants

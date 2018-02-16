@@ -24,7 +24,12 @@
 #include "athi_renderer.h"      // Shader
 #include "../Utility/threadsafe_container.h" // ThreadSafe::vector
 
-static ThreadSafe::vector<Athi_Line> line_buffer;
+struct line {
+  vec2 p1{0.0f}, p2{0.0f};
+  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+};
+
+static ThreadSafe::vector<line> line_buffer;
 
 static Renderer renderer;
 
@@ -104,14 +109,12 @@ void render_lines() noexcept
   line_buffer.clear();
 }
 
-
-
 void draw_line(const vec2 &p1, const vec2 &p2, f32 width, const vec4 &color) noexcept
 {
-  Athi_Line line;
-  line.p1 = to_view_space(p1);
-  line.p2 = to_view_space(p2);
-  line.color = color;
+  line l;
+  l.p1 = to_view_space(p1);
+  l.p2 = to_view_space(p2);
+  l.color = color;
 
-  line_buffer.emplace_back(line);
+  line_buffer.emplace_back(l);
 }

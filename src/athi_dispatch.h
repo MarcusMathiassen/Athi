@@ -22,7 +22,7 @@
 
 #include "athi_typedefs.h"
 #include "./Utility/athi_constant_globals.h" // os
-#include "./athi_utility.h" // os
+#include "./athi_utility.h" // get_begin_and_end
 
 #include <thread> // thread
 #include <cassert> // assert
@@ -95,23 +95,27 @@ class Dispatch {
   template <class Container, class F>
   void parallel_for_each(Container& container, F&& f)
   {
-    const s32 container_size = static_cast<s32>(container.size());
+    // Precalculate beginnings and ends
+    vector<std::tuple<size_t,size_t>> begin_ends(num_workers);
 
-    // Precalculate all beginnings and ends
-    vector<std::tuple<s32,s32>> begin_ends(num_workers);
-    for (s32 i = 0; i < num_workers; ++i)
-      begin_ends[i] = get_begin_and_end( i, container_size, num_workers);
+    for (size_t i = 0; i < num_workers; ++i)
+      begin_ends[i] = get_begin_and_end(i, container.size(), num_workers);
 
     if constexpr (os == OS::Apple)
     {
+        // Using Apple's GCD
 #ifdef __APPLE__
         dispatch_apply(num_workers, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(size_t i) {
             const auto [begin, end] = begin_ends[i];
             f(begin, end);
         });
 #endif
+
     } else {
+
+        // Use the naive thread pool
         vector<std::future<void>> results(num_workers);
+
         for (s32 i = 0; i < num_workers; ++i)
         {
             const auto [begin, end] = begin_ends[i];

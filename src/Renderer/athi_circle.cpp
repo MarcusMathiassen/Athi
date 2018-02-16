@@ -21,20 +21,31 @@
 
 #include "athi_circle.h"
 
-#include "athi_renderer.h" // Renderer
+#include "athi_renderer.h" // circle_Renderer
 #include "../athi_transform.h" // Transform
 #include "athi_camera.h" // camera
 #include "../Utility/athi_constant_globals.h" // kPI
+#include "../Utility/threadsafe_container.h" // ThreadSafe::vector
+
+struct circle {
+  vec2 pos{0.0f, 0.0f};
+  float radius{5.0f};
+  vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+};
+
+static ThreadSafe::vector<circle> circle_buffer;
+static vector<mat4> models;
+static vector<vec4> colors;
 
 static Renderer circle_renderer;
 
-static constexpr s32 circle_vertices = 360;
+static constexpr s32 circle_vertices = 36;
 
-void init_circle_renderer() {
-
+void init_circle_renderer()
+{
   auto &shader = circle_renderer.make_shader();
   shader.sources = {"default_circle_shader.vert", "default_circle_shader.frag"};
-  shader.uniforms = {"color", "transform"};
+  shader.attribs = {"position", "transform", "color"};
 
   // Setup the particle vertices
   vector<vec2> positions(circle_vertices);
@@ -44,63 +55,83 @@ void init_circle_renderer() {
                     sinf(i * kPI * 2.0f / circle_vertices)};
   }
 
-  auto &vertex_buffer = circle_renderer.make_buffer("position");
+  auto &vertex_buffer = circle_renderer.make_buffer("positions");
   vertex_buffer.data = &positions[0];
   vertex_buffer.data_size = circle_vertices * sizeof(positions[0]);
   vertex_buffer.data_members = 2;
   vertex_buffer.type = buffer_type::array_buffer;
   vertex_buffer.usage = buffer_usage::static_draw;
 
+  auto &colors = circle_renderer.make_buffer("colors");
+  colors.data_members = 4;
+  colors.divisor = 1;
+
+  auto &transforms = circle_renderer.make_buffer("transforms");
+  transforms.data_members = 4;
+  transforms.stride = sizeof(mat4);
+  transforms.pointer = sizeof(vec4);
+  transforms.divisor = 1;
+  transforms.is_matrix = true;
+
+
   circle_renderer.finish();
 }
 
-void draw_circle(const vec2 &pos, float radius, const vec4 &color, primitive prim_type = primitive::triangle_fan)
+void render_circles() noexcept
 {
-    CommandBuffer cmd;
-    cmd.type = prim_type;
-    cmd.count = circle_vertices;
-}
+  if (circle_buffer.empty()) return;
 
-void draw_filled_circle(const vec2 &pos, float radius, const vec4 &color) noexcept {
-  render_call([pos, radius, color]{
+  profile p("render_circles");
 
-    CommandBuffer cmd;
-    cmd.type = primitive::triangle_fan;
-    cmd.count = circle_vertices;
-    circle_renderer.bind();
+  if (models.size() < circle_buffer.size()) {
+    models.resize(circle_buffer.size());
+    colors.resize(circle_buffer.size());
+  }
 
-    const auto proj = camera.get_ortho_projection();
-
-    Transform temp;
-    temp.pos = {pos.x, pos.y, 0.0f};
-    temp.scale = {radius, radius, 0.0f};
-    mat4 model = proj * temp.get_model();
-
-    circle_renderer.shader.set_uniform("color", color);
-    circle_renderer.shader.set_uniform("transform", model);
-    circle_renderer.draw(cmd);
-
-  });
-}
-
-void draw_hollow_circle(const vec2 &pos, float radius, const vec4 &color) noexcept
-{
-    render_call([pos, radius, color]
+  const auto proj = camera.get_ortho_projection();
+  {
+    circle_buffer.lock();
+    profile p("render_circles::update_buffers with new data");
+    for (u32 i = 0; i < circle_buffer.size(); ++i)
     {
-        CommandBuffer cmd;
-        cmd.type = primitive::line_loop;
-        cmd.count = circle_vertices;
-        circle_renderer.bind();
+      auto &circle = circle_buffer[i];
 
-        const auto proj = camera.get_ortho_projection();
+      colors[i] = circle.color;
+      Transform temp;
+      temp.pos = vec3(circle.pos, 0.0f);
+      temp.scale = vec3(circle.radius, circle.radius, 0.0f);
+      models[i] = proj * temp.get_model();
+    }
+    circle_buffer.unlock();
+  }
 
-        Transform temp;
-        temp.pos = {pos.x, pos.y, 0.0f};
-        temp.scale = {radius, radius, 0.0f};
-        mat4 model = proj * temp.get_model();
+  {
+    profile p("render_circles::update_buffers");
+    circle_renderer.update_buffer("transforms", &models[0], sizeof(mat4) * circle_buffer.size());
+    circle_renderer.update_buffer("colors", &colors[0], sizeof(vec4) * circle_buffer.size());
+  }
 
-        circle_renderer.shader.set_uniform("color", color);
-        circle_renderer.shader.set_uniform("transform", model);
-        circle_renderer.draw(cmd);
-    });
+  CommandBuffer cmd;
+  cmd.type = primitive::triangle_fan;
+  cmd.count = circle_vertices;
+  cmd.primitive_count = static_cast<s32>(circle_buffer.size());
+
+  circle_renderer.bind();
+  {
+    profile p("render_circles::circle_renderer.draw(cmd)");
+    circle_renderer.draw(cmd);
+  }
+
+  circle_buffer.clear();
+}
+
+void draw_circle(const vec2 &pos, float radius, const vec4 &color, bool is_hollow) noexcept
+{
+  circle c;
+  c.pos = pos;
+  c.radius = radius;
+  c.color = color;
+
+  // @Incomplete: is_hollow ignored for now. Not implemented.
+  circle_buffer.emplace_back(c);
 }

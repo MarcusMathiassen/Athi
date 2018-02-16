@@ -120,8 +120,6 @@ void ParticleSystem::init() noexcept {
 
     tex = {particle_texture, GL_LINEAR};
 
-    console->warn("particle texture used: {}", particle_texture);
-
     auto &shader = renderer.make_shader();
     shader.sources = {"billboard_particle_shader.vert",
                       "billboard_particle_shader.frag"};

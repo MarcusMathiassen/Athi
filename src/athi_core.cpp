@@ -22,20 +22,20 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
-#include "./Utility/athi_save_state.h"   // write_data, read_data
-#include "./Utility/athi_config_parser.h"   // init_variables
-#include "./Renderer/athi_renderer.h"   // render
-#include "./Renderer/athi_text.h"       // draw_text
-#include "./Renderer/opengl_utility.h"  // check_gl_error();
-#include "./Utility/athi_constant_globals.h"     // os
-#include "athi_gui.h"                   // gui_init, gui_render, gui_shutdown
-#include "athi_input.h"                 // update_inputs
-#include "./Renderer/athi_primitives.h"       // draw_circle, draw_rects, draw_lines
-#include "athi_settings.h"              // console, ThreadPoolSolution
+#include "./Utility/athi_save_state.h" // write_data, read_data
+#include "./Utility/athi_config_parser.h" // init_variables
+#include "./Renderer/athi_renderer.h" // render
+#include "./Renderer/athi_text.h"// draw_text
+#include "./Renderer/opengl_utility.h" // check_gl_error();
+#include "./Utility/athi_constant_globals.h" // os
+#include "athi_gui.h" // gui_init, gui_render, gui_shutdown
+#include "athi_input.h" // update_inputs
+#include "./Renderer/athi_primitives.h" // draw_circle, draw_rects, draw_lines
+#include "athi_settings.h" // console, ThreadPoolSolution
 #include "athi_typedefs.h"
-#include "athi_utility.h"               // profile, Smooth_Average
-#include "athi_window.h"      // window
-#include "athi_dispatch.h"      // dispatch
+#include "athi_utility.h" // profile, Smooth_Average
+#include "athi_window.h" // window
+#include "athi_dispatch.h" // dispatch
 
 #include <atomic> // atomic
 #include <mutex> // mutex
@@ -203,7 +203,7 @@ void Athi_Core::start()
     // Single threaded engine
     if constexpr (!multithreaded_engine)
     {
-      if constexpr (DEBUG_MODE) { reload_variables(); }
+      if constexpr (DEBUG_MODE) { /* reload_variables(); */ }
 
       // Input
       update_inputs();
@@ -292,6 +292,7 @@ void Athi_Core::draw(GLFWwindow *window)
   if (draw_particles)   particle_system.draw();
   if (draw_rects)       render_rects();
   if (draw_lines)       render_lines();
+  if (draw_circles)     render_circles();
 
   render();
 

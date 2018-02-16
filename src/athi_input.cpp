@@ -276,10 +276,8 @@ void update_inputs() {
   mouse_rect.min = mouse_pos - mouse_size;
   mouse_rect.max = mouse_pos + mouse_size;
 
-  draw_hollow_circle(mouse_pos, mouse_size, circle_color);
+  draw_circle(mouse_pos, mouse_size, circle_color, true);
   if (draw_debug && show_mouse_collision_box) {
-    render_call([mouse_rect, mouse_pos](){
       draw_rect(mouse_rect.min, mouse_rect.max, pastel_green, true);
-    });
   }
 }

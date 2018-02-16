@@ -308,8 +308,15 @@ static std::tuple<string, string> get_variable(const string& line) noexcept
 {
     const auto result = split_string(line, ':');
 
+    if (result.size() == 1)
+    {
+        return {"",""};
+    }
+
     const auto lhs = result[0];
-    const auto rhs = result[1];
+    auto rhs = result[1];
+
+    if (rhs.empty() || rhs == "\n") rhs = "";
 
     const auto variable = lhs;
     const auto value    = rhs.substr(0, rhs.find({' ', '\n'}));
@@ -386,7 +393,6 @@ static string get_value_as_string(const string& var, const string& val) noexcept
     return string();
 }
 
-
 static bool is_vec2(const string& str) noexcept { return starts_with(str, "vec2"); }
 static bool is_vec3(const string& str) noexcept { return starts_with(str, "vec3"); }
 static bool is_vec4(const string& str) noexcept { return starts_with(str, "vec4"); }
@@ -428,37 +434,47 @@ static void save_variables() noexcept
     last_write_time = GetFileTimestamp(path);
 
     const auto file_data = get_content_of_file(path);
+
+    // Split the file into lines separated by newlines
     const auto lines = split_string(file_data, '\n');
 
     string new_file_data;
+
+    // Read line by line..
     for (const auto& line: lines)
     {
-        if (line.empty()) continue;
-
+        // Get the line without spaces or tabs.
         const auto no_spaces_line = eat_chars(line, {' ', '\t'});
 
-        if (no_spaces_line[0] == '\0') break; // eof
-        if (no_spaces_line[0] == '\n' ||
-            no_spaces_line[0] == '#')
+        // If the line is a newline or a comment
+        //  just output the line and go to the next line.
+        if (no_spaces_line[0] == '\n' || no_spaces_line[0] == '#')
         {
+            new_file_data += line + '\n';
             continue;
         }
 
+        // The variable and value do not have a newline at the end.
         const auto [var, val] = get_variable(no_spaces_line);
 
-        if (val.empty() || var.empty()) continue;
-        if (val[0] == '\n') continue;
-        if (val[0] == '#') continue;
+        // If the variable or value is empty. Break.
+        if (var.empty() || val.empty())
+        {
+            new_file_data += '\n';
+            continue;
+        }
 
+        // stringify the value..
         const auto new_val = get_value_as_string(var, val);
 
         const auto pos = line.find(':');
         const auto new_line = line.substr(0, pos);
 
+        // and output to our file
         new_file_data += new_line + ": " + new_val + "\n";
     }
 
-    std::fstream file(path);
+    std::ofstream file(path, std::ios::trunc);
     file << new_file_data;
     console->warn("Config saved");
 }

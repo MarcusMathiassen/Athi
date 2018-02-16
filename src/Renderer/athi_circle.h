@@ -23,5 +23,5 @@
 
 #include "../athi_typedefs.h"
 void init_circle_renderer();
-void draw_hollow_circle(const vec2 &pos, float radius, const vec4 &color) noexcept;
-void draw_filled_circle(const vec2 &pos, float radius, const vec4 &color) noexcept;
+void draw_circle(const vec2 &pos, float radius, const vec4 &color, bool is_hollow) noexcept;
+void render_circles() noexcept;
