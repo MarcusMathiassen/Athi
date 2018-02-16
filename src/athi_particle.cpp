@@ -189,10 +189,6 @@ static vector<float> radii;
 // @CPU
 void ParticleSystem::update_data() noexcept
 {
-  // @Hack
-  if constexpr (multithreaded_engine)
-    std::unique_lock<std::mutex> lck(particles_mutex);
-
   if (particles.empty()) return;
 
   profile p("PS::Update the buffers with the new data");
@@ -375,16 +371,12 @@ void ParticleSystem::draw_debug_nodes() noexcept {
 
 void ParticleSystem::update(float dt) noexcept
 {
-  // @Hack
-  if constexpr (multithreaded_engine)
-    std::unique_lock<std::mutex> lck(particles_mutex);
-
   if (particles.empty()) return;
 
   if (circle_collision)
   {
 
-    // Build tree
+    // Get the optimal bounds for our tree
     vec2 min, max;
     if (tree_optimized_size) {
       const auto[mi, ma] = get_min_and_max_pos(particles);
