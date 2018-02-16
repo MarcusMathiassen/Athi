@@ -48,8 +48,8 @@ struct CommandBuffer {
   s32 primitive_count{-1};
   bool has_indices = false;
 
-  void commit() const noexcept {
-    // Are we instanced drawing?
+  void commit() const noexcept
+  {
     if (primitive_count != -1) {
       if (has_indices) {
         glDrawElementsInstanced(type, count, GL_UNSIGNED_SHORT, NULL,

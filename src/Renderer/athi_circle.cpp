@@ -41,6 +41,18 @@ static vector<vec4> colors;
 
 static constexpr s32 circle_vertices = 36;
 
+// class PrimitiveCircleRenderer
+// {
+// private:
+//   Renderer renderer;
+//   ThreadSafe::vector<circle> circle_buffer;
+//   vector<mat4> models;
+//   vector<vec4> colors;
+//   static constexpr s32 circle_vertices = 36;
+
+// public:
+// };
+
 void init_circle_renderer() noexcept
 {
   auto &shader = renderer.make_shader();

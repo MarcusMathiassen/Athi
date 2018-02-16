@@ -50,7 +50,10 @@ vec3 rand_vec3(f32 min, f32 max) noexcept { return vec3(rand_f32(min, max), rand
 vec4 rand_vec4(f32 min, f32 max) noexcept { return vec4(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }
 
 
-
+f64 get_time() noexcept
+{
+  return glfwGetTime();
+}
 
 vec4 rgb_to_hsv(vec4 in) noexcept
 {

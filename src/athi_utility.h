@@ -80,6 +80,9 @@ vec2 rand_vec2(f32 min, f32 max) noexcept;
 vec3 rand_vec3(f32 min, f32 max) noexcept;
 vec4 rand_vec4(f32 min, f32 max) noexcept;
 
+// Returns the time in ns
+f64 get_time() noexcept;
+
 
 template <class T>
 static std::tuple<T,T> get_begin_and_end(s32 i, T container_size, s32 threads) noexcept {
