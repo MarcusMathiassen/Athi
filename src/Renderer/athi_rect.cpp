@@ -33,7 +33,6 @@
 static ThreadSafe::vector<Athi_Rect> rect_buffer;
 
 static Renderer renderer;
-static Renderer immidiate_renderer;
 
 static vector<mat4> models;
 static vector<vec4> colors;
@@ -41,8 +40,6 @@ static vector<vec4> colors;
 void render_rects() noexcept
 {
   if (rect_buffer.empty()) return;
-
-
   profile p("render_rects");
 
   if (models.size() < rect_buffer.size()) {
@@ -51,44 +48,47 @@ void render_rects() noexcept
   }
 
   const auto proj = camera.get_ortho_projection();
-
-  rect_buffer.lock();
-  for (u32 i = 0; i < rect_buffer.size(); ++i)
   {
-    auto &rect = rect_buffer[i];
+    rect_buffer.lock();
+    profile p("render_circles::update_buffers with new data");
 
-    colors[i] = rect.color;
+    for (u32 i = 0; i < rect_buffer.size(); ++i)
+    {
+      auto &rect = rect_buffer[i];
 
-    Transform temp;
-    temp.pos = vec3(rect.min, 0.0f);
-    temp.scale = vec3(rect.width, rect.height, 1);
+      colors[i] = rect.color;
 
-    models[i] = proj * temp.get_model();
+      Transform temp;
+      temp.pos = vec3(rect.min, 0.0f);
+      temp.scale = vec3(rect.width, rect.height, 1);
+
+      models[i] = proj * temp.get_model();
+    }
+    rect_buffer.unlock();
   }
-  rect_buffer.unlock();
 
   {
-    profile p("render_rects::update_buffers");
-    // Update the gpu buffers incase of more particles..
+    profile p("render_rects::update_gpu_buffers");
     renderer.update_buffer("transforms", &models[0], sizeof(mat4) * rect_buffer.size());
     renderer.update_buffer("colors", &colors[0], sizeof(vec4) * rect_buffer.size());
   }
 
-  CommandBuffer cmd;
-  cmd.type = primitive::triangles;
-  cmd.count = 6;
-  //cmd.has_indices = true;
-  cmd.primitive_count = static_cast<s32>(rect_buffer.size());
+  {
+    CommandBuffer cmd;
+    cmd.type = primitive::triangles;
+    cmd.count = 6;
+    cmd.primitive_count = static_cast<s32>(rect_buffer.size());
 
-  renderer.bind();
-  renderer.draw(cmd);
+    profile p("render_rects::renderer.draw(cmd)");
+    renderer.bind();
+    renderer.draw(cmd);
+  }
 
   rect_buffer.clear();
 }
 
 void init_rect_renderer() noexcept
 {
-  // Static renderer
   auto &shader = renderer.make_shader();
   shader.sources = {"default_rect_shader.vert", "default_rect_shader.frag"};
   shader.attribs = {"color", "transform"};
@@ -104,26 +104,7 @@ void init_rect_renderer() noexcept
   transforms.divisor = 1;
   transforms.is_matrix = true;
 
-  //constexpr u16 indices[]{0, 1, 2, 0, 2, 3};
-  //auto &indices_buffer = renderer.make_buffer("indices");
-  //indices_buffer.data = (void*)indices;
-  //indices_buffer.data_size = sizeof(indices);
-  //indices_buffer.type = buffer_type::element_array;
-
   renderer.finish();
-
-  // Immidiate renderer
-  auto &immidiate_shader = immidiate_renderer.make_shader();
-  immidiate_shader.sources = {"default_rect_shader.vert", "default_rect_shader.frag"};
-  immidiate_shader.uniforms = {"color", "transform"};
-  immidiate_shader.preambles = {"common.glsl"};
-
-  //auto &uindices_buffer = immidiate_renderer.make_buffer("indices");
-  //uindices_buffer.data = (void*)indices;
-  //uindices_buffer.data_size = sizeof(indices);
-  //uindices_buffer.type = buffer_type::element_array;
-
-  immidiate_renderer.finish();
 }
 
 

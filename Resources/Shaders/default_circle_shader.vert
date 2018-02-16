@@ -1,12 +1,13 @@
 in vec2 position;
-in mat4 transform;
 in vec4 color;
+in mat4 transform;
 
 out Vertex {
   vec4 color;
 } vertex;
 
-void main() {
+void main()
+{
   gl_Position  = transform * vec4(position, 0.0, 1.0);
   vertex.color = color;
 }

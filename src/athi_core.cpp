@@ -266,6 +266,7 @@ void Athi_Core::draw(GLFWwindow *window)
 
   // Upload gpu buffers
   particle_system.gpu_buffer_update();
+  circle_cpu_buffer_update();
 
   if (post_processing)
   {
@@ -334,6 +335,7 @@ void Athi_Core::update(float dt)
 
   // Update objects gpu data
   particle_system.update_data();
+  circle_gpu_buffer_upload();
 
   // Update timers
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;

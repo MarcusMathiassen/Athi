@@ -89,20 +89,19 @@ void render_lines() noexcept
   }
 
   {
-    profile p("render_lines::update_buffers");
-    // Update the gpu buffers incase of more particles..
+    profile p("render_lines::update_gpu_buffers");
     renderer.update_buffer("positions", &positions[0], sizeof(vec4) * line_buffer.size());
     renderer.update_buffer("color", &colors[0], sizeof(vec4) * line_buffer.size());
   }
 
-  CommandBuffer cmd;
-  cmd.type = primitive::points;
-  cmd.count = 1;
-  cmd.primitive_count = static_cast<s32>(line_buffer.size());
-
-  renderer.bind();
   {
+    CommandBuffer cmd;
+    cmd.type = primitive::points;
+    cmd.count = 1;
+    cmd.primitive_count = static_cast<s32>(line_buffer.size());
+
     profile p("render_lines::renderer.draw(cmd)");
+    renderer.bind();
     renderer.draw(cmd);
   }
 
