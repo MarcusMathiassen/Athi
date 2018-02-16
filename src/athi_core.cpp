@@ -272,19 +272,17 @@ void Athi_Core::draw(GLFWwindow *window)
     profile p("post processing");
 
     framebuffers[0].clear();
-
-    // First draw the particles to the framebuffer.
     framebuffers[0].bind();
-
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
     check_gl_error();
-    particle_system.draw();
 
-    draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
+    // Draw all objects that needs blur
+    particle_system.draw();
 
     // .. Then blur the current framebuffer
     guassian_blur(post_processing_samples, blur_strength);
 
+    // ... then draw to the main framebuffer
     framebuffers[0].unbind();
     draw_fullscreen_quad(framebuffers[0].texture, vec2(0, 0));
   }
@@ -321,6 +319,7 @@ void Athi_Core::update(float dt)
 
   const f64 time_start_frame = glfwGetTime();
 
+  // Update objects
   particle_system.update(dt);
 
   if (use_gravitational_force)
@@ -332,7 +331,7 @@ void Athi_Core::update(float dt)
   if (cycle_particle_color)
     circle_color = color_over_time(sinf(glfwGetTime()* 0.5));
 
-  // Update buffers
+  // Update objects gpu data
   particle_system.update_data();
 
   // Update timers

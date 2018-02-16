@@ -190,7 +190,8 @@ static vector<float> radii;
 void ParticleSystem::update_data() noexcept
 {
   // @Hack
-  // std::unique_lock<std::mutex> lck(particles_mutex);
+  if constexpr (multithreaded_engine)
+    std::unique_lock<std::mutex> lck(particles_mutex);
 
   if (particles.empty()) return;
 
@@ -374,8 +375,9 @@ void ParticleSystem::draw_debug_nodes() noexcept {
 
 void ParticleSystem::update(float dt) noexcept
 {
-    // @Hack
-  //std::unique_lock<std::mutex> lck(particles_mutex);
+  // @Hack
+  if constexpr (multithreaded_engine)
+    std::unique_lock<std::mutex> lck(particles_mutex);
 
   if (particles.empty()) return;
 
@@ -506,7 +508,9 @@ void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &co
   t.scale = {radius, radius, 0};
 
   {
-    std::unique_lock<std::mutex> lock(particles_mutex);
+    // @Hack
+    if constexpr (multithreaded_engine)
+      std::unique_lock<std::mutex> lck(particles_mutex);
     p.id = particle_count;
     particles.emplace_back(p);
     ++particle_count;
@@ -1019,8 +1023,9 @@ void ParticleSystem::remove_all_with_id(const vector<s32> &ids) noexcept {
 }
 
 void ParticleSystem::erase_all() noexcept {
-    // @Hack
-  std::unique_lock<std::mutex> lck(particles_mutex);
+  // @Hack
+  if constexpr (multithreaded_engine)
+    std::unique_lock<std::mutex> lck(particles_mutex);
 
   particle_count = 0;
   particles.clear();

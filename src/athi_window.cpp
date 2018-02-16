@@ -52,7 +52,7 @@ void init_window() {
   glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
   glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
 
-  glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+  glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
   glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 
 
@@ -145,11 +145,11 @@ void framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height) {
   render_call([width, height](){
     glViewport(0.0f, 0.0f, width, height);
 
-  // @Hack: this doesnt look right
-  for (auto& framebuffer: framebuffers) {
-    framebuffer.resize(width, height);
-    check_gl_error();
-  }
+    // @Hack: this doesnt look right
+    for (auto& framebuffer: framebuffers) {
+      framebuffer.resize(width, height);
+      check_gl_error();
+    }
   });
   // @Hack
   if (uniformgrid_parts != 4)

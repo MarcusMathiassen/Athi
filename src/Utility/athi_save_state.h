@@ -71,8 +71,9 @@ static void write_data(
     const vector<B>& colors,
     const vector<C>& transforms)
 {
-
     const auto start_time = glfwGetTime();
+
+    if (particles.empty() && colors.empty() && transforms.empty()) return;
 
     // Open up the file in binary mode and overwrite any previous data
     std::ofstream FILE(path, std::ios::out | std::ofstream::binary | std::ios::trunc);
@@ -99,6 +100,7 @@ static void write_data(
         write_member(FILE, v.acc.y);
         write_member(FILE, v.mass);
         write_member(FILE, v.radius);
+        write_member(FILE, v.torque);
     }
 
     // Now write each vector one by one
@@ -171,6 +173,7 @@ static void read_data(
         read_member(FILE, v.acc.y);
         read_member(FILE, v.mass);
         read_member(FILE, v.radius);
+        read_member(FILE, v.torque);
     }
 
     // Now read each vector one by one
