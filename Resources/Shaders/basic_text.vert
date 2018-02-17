@@ -1,6 +1,6 @@
-in vec4 position;
+in vec2 position;
 in vec2 texcoord;
-in vec2 color;
+in vec4 color;
 
 uniform mat4 ortho_projection;
 
@@ -11,7 +11,7 @@ out Vertex {
 
 void main()
 {
-    gl_Position = ortho_projection * vec4(vertex, 0.0, 1.0);
+    gl_Position = ortho_projection * vec4(position, 0.0, 1.0);
     vertex.texcoord = texcoord;
     vertex.color = color;
-};
+}

@@ -91,6 +91,7 @@ public:
   void set_uniform(const string& name, const mat3& m) const noexcept;
   void set_uniform(const string& name, f32 val) const noexcept;
   void set_uniform(const string& name, s32 val) const noexcept;
+  void set_uniform(const string& name, u32 val) const noexcept;
   void set_uniform(const string& name, bool val) const noexcept;
 };
 

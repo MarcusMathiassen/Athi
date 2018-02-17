@@ -240,6 +240,12 @@ void Shader::set_uniform(const string& name, s32 val) const noexcept {
   glUniform1i(uniforms_map.at(name), val);
   check_gl_error();
 }
+
+void Shader::set_uniform(const string& name, u32 val) const noexcept {
+  glUniform1i(uniforms_map.at(name), val);
+  check_gl_error();
+}
+
 void Shader::set_uniform(const string& name, bool val) const noexcept {
   glUniform1i(uniforms_map.at(name), val);
   check_gl_error();

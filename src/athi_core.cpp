@@ -25,7 +25,7 @@
 #include "./Utility/athi_save_state.h" // write_data, read_data
 #include "./Utility/athi_config_parser.h" // init_variables
 #include "./Renderer/athi_renderer.h" // render
-#include "./Renderer/athi_text.h"// draw_text
+#include "./Renderer/athi_text.h"// init_text_renderer
 #include "./Renderer/opengl_utility.h" // check_gl_error();
 #include "./Utility/athi_constant_globals.h" // os
 #include "./Utility/profiler.h" // cpu_profile, gpu_profiler
@@ -159,6 +159,7 @@ void Athi_Core::init()
 
   particle_system.init();
 
+  init_text_renderer();
   init_circle_renderer();
   init_line_renderer();
   init_rect_renderer();
@@ -260,6 +261,8 @@ void Athi_Core::draw(GLFWwindow *window)
   // Upload gpu buffers
   particle_system.gpu_buffer_update();
   circle_gpu_buffer_upload();
+  text_gpu_update_buffer();
+
 
   if (post_processing)
   {
@@ -287,6 +290,7 @@ void Athi_Core::draw(GLFWwindow *window)
   if (draw_rects)       render_rects();
   if (draw_lines)       render_lines();
   if (draw_circles)     render_circles();
+  render_text();
 
   render();
 
@@ -330,6 +334,7 @@ void Athi_Core::update(float dt)
   // Update objects gpu data
   particle_system.update_data();
   circle_cpu_buffer_update();
+  text_cpu_update_buffer();
 
   // Update timers
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
