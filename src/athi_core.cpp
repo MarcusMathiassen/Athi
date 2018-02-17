@@ -28,6 +28,7 @@
 #include "./Renderer/athi_text.h"// draw_text
 #include "./Renderer/opengl_utility.h" // check_gl_error();
 #include "./Utility/athi_constant_globals.h" // os
+#include "./Utility/profiler.h" // cpu_profile, gpu_profiler
 #include "athi_gui.h" // gui_init, gui_render, gui_shutdown
 #include "athi_input.h" // update_inputs
 #include "./Renderer/athi_primitives.h" // draw_circle, draw_rects, draw_lines
@@ -200,7 +201,7 @@ void Athi_Core::start()
       glfwWaitEvents();
     }
 
-    if constexpr (DEBUG_MODE) { /* reload_variables(); */ }
+    if constexpr (DEBUG_MODE && !multithreaded_engine) { reload_variables(); }
 
     // Single threaded engine
     if constexpr (multithreaded_engine)
@@ -247,7 +248,7 @@ void Athi_Core::start()
 
 void Athi_Core::draw(GLFWwindow *window)
 {
-  profile p("Athi_Core::draw");
+  gpu_profile p("Athi_Core::draw");
 
   const f64 time_start_frame = glfwGetTime();
   glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
@@ -262,7 +263,7 @@ void Athi_Core::draw(GLFWwindow *window)
 
   if (post_processing)
   {
-    profile p("post processing");
+    gpu_profile p("post processing");
 
     framebuffers[0].clear();
     framebuffers[0].bind();
@@ -303,14 +304,14 @@ void Athi_Core::draw(GLFWwindow *window)
   smooth_render_rametime_avg.add_new_frametime(render_frametime);
 
   {
-    profile p("glfwSwapBuffers");
+    gpu_profile p("glfwSwapBuffers");
     glfwSwapBuffers(window);
   }
 }
 
 void Athi_Core::update(float dt)
 {
-  physics_profile p("update");
+  cpu_profile p("update");
 
   const f64 time_start_frame = glfwGetTime();
 
@@ -319,7 +320,7 @@ void Athi_Core::update(float dt)
 
   if (use_gravitational_force)
   {
-    profile p("ParticleSystem::apply_n_body()");
+    cpu_profile p("ParticleSystem::apply_n_body()");
     particle_system.apply_n_body();
   }
 

@@ -23,26 +23,48 @@
 
 #include "../athi_typedefs.h"
 #include "../athi_utility.h"    // get_time
-#include <thread>
+#include "athi_constant_globals.h" // DEBUG_MODE
 
-class Profiler
+extern std::mutex cpu_profiler_mutex;
+extern std::mutex gpu_profiler_mutex;
+extern vector<std::tuple<string, f64>> cpu_profiles;
+extern vector<std::tuple<string, f64>> gpu_profiles;
+
+class gpu_profile
 {
 private:
-
-    // Initialized at creation
-    std::thread::id thread_id;
-    string name;
-    f64 start_time;
-
-    // Initialized at destruction
-    f64 end_time;
-
-    f64 duration;
-
+  f64     m_start_time{0.0};
+  string  m_id;
 public:
-
-    Profiler* child;
-
-    Profiler(const char* name);
-    ~Profiler();
+  gpu_profile(const char* id) noexcept : m_id(id)
+  {
+    if constexpr (DEBUG_MODE)
+      m_start_time = get_time();
+  }
+  ~gpu_profile() noexcept
+  {
+    if constexpr (DEBUG_MODE) {
+      std::unique_lock<std::mutex> lck(cpu_profiler_mutex);
+      gpu_profiles.emplace_back(std::tuple<string,f64>(m_id, ((get_time() - m_start_time) * 1000.0)));
+    }
+  }
+};
+class cpu_profile
+{
+private:
+  f64     m_start_time{0.0};
+  string  m_id;
+public:
+  cpu_profile(const char* id) noexcept : m_id(id)
+  {
+    if constexpr (DEBUG_MODE)
+      m_start_time = get_time();
+  }
+  ~cpu_profile() noexcept
+  {
+    if constexpr (DEBUG_MODE) {
+      std::unique_lock<std::mutex> lck(cpu_profiler_mutex);
+      cpu_profiles.emplace_back(std::tuple<string,f64>(m_id, ((get_time() - m_start_time) * 1000.0)));
+    }
+  }
 };

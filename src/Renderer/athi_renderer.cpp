@@ -20,7 +20,9 @@
 
 #include "athi_renderer.h"
 
-#include "../athi_utility.h" // profile
+#include "../athi_utility.h"
+#include "../Utility/profiler.h" // cpu_profile, gpu_profile
+
 #include "../athi_settings.h" // console
 #include <mutex>
 
@@ -29,7 +31,7 @@ static vector<std::function<void()>> command_buffer;
 
 void render_call(std::function<void()>&& f) noexcept
 {
-  std::lock_guard<std::mutex> lock(render_mutex);
+  std::unique_lock<std::mutex> lock(render_mutex);
   command_buffer.emplace_back(std::move(f));
 }
 
@@ -41,7 +43,7 @@ void render_clear() {
 void render() {
   if (command_buffer.empty())
     return;
-  profile p("render");
+  gpu_profile p("render");
   std::unique_lock<std::mutex> lock(render_mutex);
 
   // Execute all stores callseq

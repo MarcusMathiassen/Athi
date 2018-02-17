@@ -39,11 +39,6 @@
 #include <unistd.h>
 #endif
 
-std::mutex physics_profiler_mutex;
-std::mutex render_profiler_mutex;
-std::unordered_map<string, f64> time_taken_by;
-std::vector<std::tuple<string, f64>> profiler_physics;
-
 f32  rand_f32 (f32 min, f32 max) noexcept { return ((f32(rand()) / f32(RAND_MAX)) * (max - min)) + min; }
 vec2 rand_vec2(f32 min, f32 max) noexcept { return vec2(rand_f32(min, max), rand_f32(min, max)); }
 vec3 rand_vec3(f32 min, f32 max) noexcept { return vec3(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }

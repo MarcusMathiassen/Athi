@@ -29,13 +29,15 @@
 #include "./Renderer/athi_camera.h" // camera
 #include "./Renderer/athi_text.h" // draw_text
 #include "athi_input.h" // mouse_pos
+#include "./Utility/profiler.h" // cpu_profile, gpu_profile
+
 
 #include "../dep/Universal/imgui.h"
 #include "../dep/Universal/imgui_internal.h"
 #include "../dep/Universal/imgui_impl_glfw_gl3.h"
 
 static bool open_settings = false;
-static bool open_profiler = false;
+static bool open_gpu_profiler = false;
 static bool open_cpu_profiler = false;
 static bool open_debug_menu = false;
 
@@ -116,7 +118,7 @@ static void draw_custom_gui() noexcept
 
   if (button("GPU: " + std::to_string(smoothed_render_frametime) + "ms"))
   {
-    //open_profiler ^= 1;
+    //open_gpu_profiler ^= 1;
   }
 
   if (button("CPU: " + std::to_string(smoothed_physics_frametime) + "ms"))
@@ -144,7 +146,7 @@ static void custom_gui_init() noexcept
 
 static void new_style();
 static void SetupImGuiStyle(bool bStyleDark_, float alpha_);
-static void menu_profiler();
+static void menu_gpu_profiler();
 static void menu_settings();
 
 static void ToggleButton(const char* str_id, bool* v)
@@ -206,10 +208,10 @@ static void menu_debug() {
   ImGui::End();
 }
 
-static void menu_physics_profiler() {
-  profile p("menu_profiler");
+static void menu_cpu_profiler() {
+  cpu_profile p("menu_cpu_profiler");
 
-  ImGui::Begin("Profiler");
+  ImGui::Begin("CPU profiler");
 
   ImGui::Text("Frametime: %.3f", smoothed_physics_frametime);
 
@@ -229,7 +231,7 @@ static void menu_physics_profiler() {
   // if you want it sorted by time taken
   // auto new_map = flip_map(time_taken_by);
 
-  for (const auto &[id, time] : profiler_physics) {
+  for (const auto &[id, time] : cpu_profiles) {
     ImGui::PushStyleColor(ImGuiCol_Text, col);
     ImGui::Text("%s", id.c_str());
     ImGui::NextColumn();
@@ -249,7 +251,7 @@ static void menu_physics_profiler() {
     }
     ImGui::NextColumn();
   }
-  profiler_physics.clear();
+  cpu_profiles.clear();
 
   ImGui::Columns(1);
   ImGui::Separator();
@@ -257,10 +259,10 @@ static void menu_physics_profiler() {
   ImGui::End();
 }
 
-static void menu_profiler() {
-  profile p("menu_profiler");
+static void menu_gpu_profiler() {
+  cpu_profile p("menu_gpu_profiler");
 
-  ImGui::Begin("Profiler");
+  ImGui::Begin("GPU profiler");
 
   ImGui::Text("Frametime: %.3f", smoothed_render_frametime);
 
@@ -280,7 +282,7 @@ static void menu_profiler() {
   // if you want it sorted by time taken
   // auto new_map = flip_map(time_taken_by);
 
-  for (const auto &[id, time] : time_taken_by) {
+  for (const auto &[id, time] : gpu_profiles) {
     ImGui::PushStyleColor(ImGuiCol_Text, col);
     ImGui::Text("%s", id.c_str());
     ImGui::NextColumn();
@@ -300,7 +302,7 @@ static void menu_profiler() {
     }
     ImGui::NextColumn();
   }
-  time_taken_by.clear();
+  gpu_profiles.clear();
 
   ImGui::Columns(1);
   ImGui::Separator();
@@ -334,7 +336,7 @@ static void simulation_submenu()
 
 static int vertices_to_be_applied = 36;
 static void menu_settings() {
-  profile p("menu_settings");
+  cpu_profile p("menu_settings");
 
   ImGui::Begin("Settings", NULL, ImGuiWindowFlags_AlwaysAutoResize);
   ImGui::PushItemWidth(100.0f);
@@ -469,7 +471,7 @@ static void menu_settings() {
 }
 
 void gui_render() {
-  profile p("gui_render");
+  cpu_profile p("gui_render");
 
   ImGui_ImplGlfwGL3_NewFrame();
 
@@ -478,8 +480,8 @@ void gui_render() {
       ImGui::MenuItem("settings", NULL, &open_settings);
       if constexpr (DEBUG_MODE) {
 
-        ImGui::MenuItem("profiler", NULL, &open_profiler);
-        ImGui::MenuItem("Profiler: physics", NULL, &open_cpu_profiler);
+        ImGui::MenuItem("GPU profiler", NULL, &open_gpu_profiler);
+        ImGui::MenuItem("CPU profiler", NULL, &open_cpu_profiler);
       }
       if constexpr (DEBUG_MODE) ImGui::MenuItem("debug", NULL, &open_debug_menu);
       ImGui::EndMenu();
@@ -560,8 +562,8 @@ void gui_render() {
   if (open_settings)
     menu_settings();
   if constexpr (DEBUG_MODE) {
-    if (open_cpu_profiler) menu_physics_profiler();
-    if (open_profiler) menu_profiler();
+    if (open_cpu_profiler) menu_cpu_profiler();
+    if (open_gpu_profiler) menu_gpu_profiler();
     if (open_debug_menu) menu_debug();
   }
 

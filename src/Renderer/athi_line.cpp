@@ -23,6 +23,7 @@
 
 #include "athi_renderer.h"      // Shader
 #include "../Utility/threadsafe_container.h" // ThreadSafe::vector
+#include "../Utility/profiler.h" // cpu_profile, gpu_profile
 
 struct line {
   vec2 p1{0.0f}, p2{0.0f};
@@ -68,7 +69,7 @@ void render_lines() noexcept
 {
   if (line_buffer.empty()) return;
 
-  profile p("render_lines");
+  gpu_profile p("render_lines");
 
   if (positions.size() < line_buffer.size()) {
     positions.resize(line_buffer.size());
@@ -77,7 +78,7 @@ void render_lines() noexcept
 
   {
     line_buffer.lock();
-    profile p("render_lines::update_buffers with new data");
+    cpu_profile p("render_lines::update_buffers with new data");
     for (u32 i = 0; i < line_buffer.size(); ++i)
     {
       auto &p1 = line_buffer[i].p1;
@@ -89,7 +90,7 @@ void render_lines() noexcept
   }
 
   {
-    profile p("render_lines::update_gpu_buffers");
+    gpu_profile p("render_lines::update_gpu_buffers");
     renderer.update_buffer("positions", &positions[0], sizeof(vec4) * line_buffer.size());
     renderer.update_buffer("color", &colors[0], sizeof(vec4) * line_buffer.size());
   }
@@ -100,7 +101,7 @@ void render_lines() noexcept
     cmd.count = 1;
     cmd.primitive_count = static_cast<s32>(line_buffer.size());
 
-    profile p("render_lines::renderer.draw(cmd)");
+    gpu_profile p("render_lines::renderer.draw(cmd)");
     renderer.bind();
     renderer.draw(cmd);
   }
