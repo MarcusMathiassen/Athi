@@ -42,7 +42,7 @@ void render() {
   if (command_buffer.empty())
     return;
   profile p("render");
-  std::lock_guard<std::mutex> lock(render_mutex);
+  std::unique_lock<std::mutex> lock(render_mutex);
 
   // Execute all stores callseq
   for (auto &c : command_buffer)

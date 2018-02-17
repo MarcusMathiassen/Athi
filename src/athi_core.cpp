@@ -190,7 +190,7 @@ void Athi_Core::start()
 
   while (!glfwWindowShouldClose(window_context))
   {
-    const f64 time_start_frame = glfwGetTime();
+    const f64 time_start_frame = get_time();
 
     //@Hack @Apple: GLFW 3.3.0 has a bug that ignores vsync when not visible
     if (glfwGetWindowAttrib(window_context, GLFW_VISIBLE))
@@ -200,29 +200,11 @@ void Athi_Core::start()
       glfwWaitEvents();
     }
 
+    if constexpr (DEBUG_MODE) { /* reload_variables(); */ }
+
     // Single threaded engine
-    if constexpr (!multithreaded_engine)
+    if constexpr (multithreaded_engine)
     {
-      if constexpr (DEBUG_MODE) { /* reload_variables(); */ }
-
-      // Input
-      update_inputs();
-
-      // CPU Update
-      update(1.0f/60.0f);
-
-      // GPU draw
-      draw(window_context);
-
-      if constexpr (DEBUG_MODE) {
-        if (auto profiler_context = get_window_context();
-            profiler_context)
-        {
-          if (glfwGetWindowAttrib(profiler_context, GLFW_VISIBLE)) draw(profiler_context);
-        }
-      }
-    } else {
-
       // GPU draw
       {
         std::unique_lock<std::mutex> lock(draw_mutex);
@@ -234,8 +216,18 @@ void Athi_Core::start()
         // GPU draw
         draw(window_context);
         ready_to_draw = false;
+        can_draw_cond.notify_one();
       }
-      can_draw_cond.notify_one();
+    } else {
+
+      // Input
+      update_inputs();
+
+      // CPU Update
+      update(1.0f/60.0f);
+
+      // GPU draw
+      draw(window_context);
     }
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
@@ -266,7 +258,7 @@ void Athi_Core::draw(GLFWwindow *window)
 
   // Upload gpu buffers
   particle_system.gpu_buffer_update();
-  circle_cpu_buffer_update();
+  circle_gpu_buffer_upload();
 
   if (post_processing)
   {
@@ -300,6 +292,7 @@ void Athi_Core::draw(GLFWwindow *window)
   //@Bug: rects and lines are being drawn over the Gui.
   draw_custom_gui();
   update_settings();
+
   if (show_settings)
   {
     gui_render();
@@ -335,7 +328,7 @@ void Athi_Core::update(float dt)
 
   // Update objects gpu data
   particle_system.update_data();
-  circle_gpu_buffer_upload();
+  circle_cpu_buffer_update();
 
   // Update timers
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
@@ -367,14 +360,11 @@ void Athi_Core::physics_loop()
   {
     {
       std::unique_lock<std::mutex> lock(draw_mutex);
+      can_draw_cond.wait(lock, []() { return !ready_to_draw; });
       update(1.0f/60.0f);
       ready_to_draw = true;
+      can_draw_cond.notify_one();
     }
-
-    can_draw_cond.notify_one();
-
-    std::unique_lock<std::mutex> lock(draw_mutex);
-    can_draw_cond.wait(lock, []() { return !ready_to_draw; });
   }
 }
 

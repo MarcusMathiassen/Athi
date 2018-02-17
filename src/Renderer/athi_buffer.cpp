@@ -21,7 +21,8 @@
 #include "athi_buffer.h"
 #include "opengl_utility.h"
 
-Buffer::~Buffer() {
+Buffer::~Buffer()
+{
   glDeleteVertexArrays(1, &vao);
   check_gl_error();
 

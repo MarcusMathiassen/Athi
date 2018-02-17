@@ -179,7 +179,7 @@ void drag_color_or_destroy_with_mouse() {
 
         // Debug lines from particle to mouse
         if (show_mouse_grab_lines) {
-          draw_line(mouse_pos, particle_system.particles[particle_id].pos, 1.0f, vec4(pastel_pink.x, pastel_pink.y, pastel_pink.z, 0.3));
+          draw_line(mouse_pos, particle_system.particles[particle_id].pos, 1.0f, vec4(pastel_pink.x, pastel_pink.y, pastel_pink.z, 0.1));
         }
       }
     } break;

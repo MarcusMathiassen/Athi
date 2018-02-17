@@ -256,9 +256,9 @@ void ParticleSystem::gpu_buffer_update() noexcept
 
     // Update the gpu buffers incase of more particles..
     if (!models.empty()) renderer.update_buffer("transforms", &models[0], sizeof(mat4) * particle_count);
-	if (!colors.empty()) renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
+    if (!colors.empty()) renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
     if constexpr (use_textured_particles)
-		if (!radii.empty()) renderer.update_buffer("radius", &radii[0], sizeof(float) * particle_count);
+		  if (!radii.empty()) renderer.update_buffer("radius", &radii[0], sizeof(float) * particle_count);
 }
 
 // @CPU
@@ -369,7 +369,11 @@ void ParticleSystem::draw_debug_nodes() noexcept {
 
 void ParticleSystem::update(float dt) noexcept
 {
+  // @Hack
+  if constexpr (multithreaded_engine)
+    std::unique_lock<std::mutex> lck(particles_mutex);
   if (particles.empty()) return;
+
 
   if (circle_collision)
   {
