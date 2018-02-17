@@ -225,6 +225,8 @@ void Athi_Core::start()
       // Input
       update_inputs();
 
+      draw_text("DroidSans.ttf", "Hallo", 25.0f, 25.0f, 1.0f, white);
+
       // CPU Update
       update(1.0f/60.0f);
 

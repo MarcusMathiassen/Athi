@@ -27,7 +27,8 @@
 
 #include <algorithm> // std::find
 #include <unordered_map> // std::unordered_map
-#include <functional> // std::hash
+#include <functional> // std::hash_
+
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -52,7 +53,6 @@ struct Font
 };
 
 
-
 struct Text
 {
     string txt; // the actual string to render
@@ -61,7 +61,7 @@ struct Text
     vec4 color; // text color
     f32 scale;  // desired scale
 
-    size_t hashed_font;   // Desired font
+    string font;   // Desired font
 };
 
 
@@ -72,16 +72,15 @@ static const string default_path = "../Resources/Fonts/";
 
 static Renderer renderer;
 
-static std::vector<Text> texts;
-static std::unordered_map<size_t, Font> font_library;
+static vector<Text> texts;
+static std::unordered_map<string, Font> font_library;
 
-static std::vector<glm::vec2> positions;
-static std::vector<glm::vec2> texcoords;
-static std::vector<glm::vec2> colors;
+static vector<vec2> positions;
+static vector<vec2> texcoords;
+static vector<vec4> colors;
 
 void shutdown() noexcept
 {
-    font_library.clear();
     FT_Done_FreeType(ft);
 }
 void init_text_renderer() noexcept
@@ -128,10 +127,12 @@ void init_text_renderer() noexcept
         console->error("Freetype: Could not init FreeType Library");
 }
 
-size_t load_font(const string& font_name, s32 size) noexcept
+string load_font(const string& font_name, s32 size) noexcept
 {
     // our new Font
     Font font;
+    font.name = font_name;
+    font.size = size;
 
     // Load font as face
     FT_Face face;
@@ -191,17 +192,9 @@ size_t load_font(const string& font_name, s32 size) noexcept
     // Generate texture
     glGenTextures(1, &font.texture_atlas);
     glBindTexture(GL_TEXTURE_2D, font.texture_atlas);
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RED,
-        tex_width,
-        tex_height,
-        0,
-        GL_RED,
-        GL_UNSIGNED_BYTE,
-        pixels
-    );
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, tex_width, tex_height, 0, GL_RED, GL_UNSIGNED_BYTE, pixels);
+
+    free(pixels);
 
     // Set texture options
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -212,19 +205,17 @@ size_t load_font(const string& font_name, s32 size) noexcept
     // Destroy FreeType once we're finished
     FT_Done_Face(face);
 
-    const auto hash = std::hash<string>{}(font_name);
-
     // Add to the pile
     font_library.insert
     (
-        std::pair<size_t, Font>
+        std::pair<string, Font>
         (
-            hash, font
+            font_name, font
         )
     );
 
     // Give the id back to the user
-    return hash;
+    return font_name;
 }
 
 
@@ -245,8 +236,11 @@ void text_cpu_update_buffer() noexcept
     {
         f32 nx = text.pos.x;
 
+        console->warn("@text_cpu_update_buffer font:{}, txt:{}", text.font, text.txt);
+
+
         // Get the font
-        auto &font = font_library[text.hashed_font];
+        auto &font = font_library.at(text.font);
 
         // Set the text color
         colors.emplace_back(text.color);
@@ -301,8 +295,10 @@ void render_text() noexcept
 
     for (auto text: texts)
     {
+        console->warn("@render_text font:{}, txt:{}", text.font, text.txt);
+
         // Get the font
-        auto &font = font_library[text.hashed_font];
+        auto &font = font_library.at(text.font);
 
         renderer.shader.set_uniform("ortho_projection", proj);
         renderer.shader.set_uniform("tex", font.texture_atlas);
@@ -322,20 +318,21 @@ void render_text() noexcept
 }
 
 // Draws text using texture atlas
-void draw_text(
-    const string& font,
-    const string& text, f32 x, f32 y, f32 scale, const vec4 &color) noexcept
+void draw_text(const string& font, const string& text, f32 x, f32 y, f32 scale, const vec4 &color) noexcept
 {
     Text t;
 
-    const size_t hashed_font = std::hash<string>{}(font);
-
     // If the font does not already exist, load it
-    if (auto it = font_library.find(hashed_font); it != font_library.end())
+    if (auto it = font_library.find(font); it != font_library.end())
     {
-        t.hashed_font = hashed_font;
+        t.font = font;
     } else {
-        t.hashed_font = load_font(font, scale);
+        t.font = load_font(font, scale);
+
+        for (auto & [key, val]: font_library)
+        {
+            console->warn("@draw_text key:{}, val:{}", key, val.name);
+        }
     }
 
     t.txt = text;
@@ -346,20 +343,17 @@ void draw_text(
     texts.emplace_back(t);
 }
 
-void draw_text(
-    const string& font,
-    const string& text, const vec2& pos, f32 scale, const vec4 &color) noexcept
+void draw_text(const string& font, const string& text, const vec2& pos, f32 scale, const vec4 &color) noexcept
 {
     Text t;
 
-    const size_t hashed_font = std::hash<string>{}(font);
-
     // If the font does not already exist, load it
-    if (auto it = font_library.find(hashed_font); it != font_library.end())
+    if (auto it = font_library.find(font); it != font_library.end())
     {
-        t.hashed_font = hashed_font;
+        t.font = font;
     } else {
-        t.hashed_font = load_font(font, scale);
+
+        t.font = load_font(font, scale);
     }
 
     t.txt = text;

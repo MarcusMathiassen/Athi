@@ -5,7 +5,7 @@
 void shutdown() noexcept;
 void init_text_renderer() noexcept;
 
-size_t load_font(const string &font_name, int size) noexcept;
+string load_font(const string &font_name, int size) noexcept;
 
 void text_cpu_update_buffer() noexcept;
 void text_gpu_update_buffer() noexcept;
