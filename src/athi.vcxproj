@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{51FF0ACD-FA71-4752-8640-F9B7D46D5D77}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <TargetMachine>MachineX86</TargetMachine>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="athi_core.cpp" />
+    <ClCompile Include="athi_dispatch.cpp" />
+    <ClCompile Include="athi_input.cpp" />
+    <ClCompile Include="athi_particle.cpp" />
+    <ClCompile Include="athi_resource.cpp" />
+    <ClCompile Include="athi_settings.cpp" />
+    <ClCompile Include="athi_utility.cpp" />
+    <ClCompile Include="athi_window.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="renderer\athi_buffer.cpp" />
+    <ClCompile Include="renderer\athi_camera.cpp" />
+    <ClCompile Include="renderer\athi_circle.cpp" />
+    <ClCompile Include="renderer\athi_line.cpp" />
+    <ClCompile Include="renderer\athi_rect.cpp" />
+    <ClCompile Include="renderer\athi_renderer.cpp" />
+    <ClCompile Include="renderer\athi_shader.cpp" />
+    <ClCompile Include="renderer\athi_text.cpp" />
+    <ClCompile Include="utility\profiler.cpp" />
+    <ClCompile Include="utility\threadsafe_container.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="athi_core.h" />
+    <ClInclude Include="athi_dispatch.h" />
+    <ClInclude Include="athi_gui.h" />
+    <ClInclude Include="athi_input.h" />
+    <ClInclude Include="athi_particle.h" />
+    <ClInclude Include="athi_quadtree.h" />
+    <ClInclude Include="athi_resource.h" />
+    <ClInclude Include="athi_settings.h" />
+    <ClInclude Include="athi_transform.h" />
+    <ClInclude Include="athi_typedefs.h" />
+    <ClInclude Include="athi_uniformgrid.h" />
+    <ClInclude Include="athi_utility.h" />
+    <ClInclude Include="athi_window.h" />
+    <ClInclude Include="entity.h" />
+    <ClInclude Include="physics\athi_spring.h" />
+    <ClInclude Include="renderer\athi_buffer.h" />
+    <ClInclude Include="renderer\athi_camera.h" />
+    <ClInclude Include="renderer\athi_circle.h" />
+    <ClInclude Include="renderer\athi_commandbuffer.h" />
+    <ClInclude Include="renderer\athi_framebuffer.h" />
+    <ClInclude Include="renderer\athi_line.h" />
+    <ClInclude Include="renderer\athi_primitives.h" />
+    <ClInclude Include="renderer\athi_rect.h" />
+    <ClInclude Include="renderer\athi_renderer.h" />
+    <ClInclude Include="renderer\athi_shader.h" />
+    <ClInclude Include="renderer\athi_text.h" />
+    <ClInclude Include="renderer\athi_texture.h" />
+    <ClInclude Include="renderer\mesh.h" />
+    <ClInclude Include="renderer\opengl_utility.h" />
+    <ClInclude Include="utility\athi_config_parser.h" />
+    <ClInclude Include="utility\athi_constant_globals.h" />
+    <ClInclude Include="utility\athi_globals.h" />
+    <ClInclude Include="utility\athi_save_state.h" />
+    <ClInclude Include="utility\mm_math.h" />
+    <ClInclude Include="utility\profiler.h" />
+    <ClInclude Include="utility\threadsafe_container.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

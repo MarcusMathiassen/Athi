@@ -50,9 +50,9 @@ struct render_desc
 for (auto &rnd_desc: render_descriptors)
 {
   glBindVertexArray(rnd_desc.vao);
-  if (redn_desc.has_indicies) 
+  if (redn_desc.has_indicies)
     glDrawElements(GL_TRIANGLES, 0, num_indices, NULL);
-  else 
+  else
     glDrawArrays(GL_TRIANGLES, 0, count);
 }
 
@@ -70,7 +70,16 @@ struct Renderer
   void bind() noexcept;
   void draw(const CommandBuffer& cmd) noexcept;
   Shader& make_shader();
-  void update_buffer(const string& name, void* data, size_t data_size) noexcept;
+
+  // @Todo: change the data to be sent as a const vector<T>&
+  //  so the user doesnt have to specify size.
+  template <class T>
+  void update_buffer(const string& name, vector<T>& data) noexcept
+  {
+    buffer.bind();
+    buffer.update(name, data);
+  }
+
   Vbo& make_buffer(const string& name) noexcept;
   void finish() noexcept;
 };

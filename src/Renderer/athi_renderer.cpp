@@ -68,14 +68,6 @@ Shader& Renderer::make_shader() {
   return shader;
 }
 
-// @Todo: change the data to be sent as a const vector<T>&
-//  so the user doesnt have to specify size.
-void Renderer::update_buffer(const string& name, void* data, size_t data_size) noexcept
-{
-  buffer.bind();
-  buffer.update(name, data, data_size);
-}
-
 Vbo& Renderer::make_buffer(const string& name) noexcept {
   buffer.vbos[name].attrib_num = buffer.attrib_counter++;
   return buffer.vbos[name];

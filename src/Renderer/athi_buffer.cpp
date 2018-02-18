@@ -19,8 +19,6 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include "athi_buffer.h"
-#include "../athi_settings.h" // console
-#include "opengl_utility.h"
 
 Buffer::~Buffer()
 {
@@ -34,31 +32,6 @@ Buffer::~Buffer()
   check_gl_error();
 }
 
-void Buffer::update(const string& name, void* data, size_t data_size) noexcept {
-  glBindVertexArray(vao);
-  check_gl_error();
-
-  // error checking
-  if constexpr (DEBUG_MODE)
-  {
-      if (vbos.find(name) == vbos.end())
-      {
-        console->error("buffer: {} does not exist. Typo?", name);
-        return;
-      }
-  }
-  auto& vbo = vbos.at(name);
-  glBindBuffer(vbo.type, vbo.handle);
-  check_gl_error();
-  if (data_size > vbo.data_size) {
-    glBufferData(vbo.type, data_size, data, vbo.usage);
-    check_gl_error();
-    vbo.data_size = data_size;
-  } else {
-    glBufferSubData(vbo.type, 0, vbo.data_size, data);
-    check_gl_error();
-  }
-}
 
 void Buffer::bind() const noexcept {
   glBindVertexArray(vao);

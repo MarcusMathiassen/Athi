@@ -52,6 +52,31 @@ struct Font
     std::unordered_map<char, Character> characters; // a map of loaded chars. ['a'] gives you 'a'
 };
 
+/*
+
+{
+    const auto proj = camera.get_ortho_projection();
+    renderer.bind();
+    glActiveTexture(GL_TEXTURE0 + 0);
+    renderer.shader.set_uniform("ortho_projection", proj);
+
+    for (const auto& [font, texts]: texts_to_draw_map)
+    {
+        glBindTexture(GL_TEXTURE_2D, font.texture_atlas);
+
+        renderer.shader.set_uniform("tex", font.texture_atlas);
+
+        CommandBuffer cmd;
+        cmd.type = primitive::triangles;
+        cmd.count = 6;
+        cmd.has_indices = true;
+        cmd.primitive_count = font.positions.size();
+
+        gpu_profile p("text::draw" + font.name);
+        renderer.draw(cmd);
+    }
+}
+*/
 
 struct Text
 {
@@ -99,17 +124,12 @@ void init_text_renderer() noexcept
 
     shader.attribs = {
       "position",
-      "texcoord",
       "color",
     };
 
     auto &positions_buffer = renderer.make_buffer("positions");
-    positions_buffer.data_members = 2;
+    positions_buffer.data_members = 4;
     positions_buffer.divisor = 1;
-
-    auto &texcoord_buffer = renderer.make_buffer("texcoords");
-    texcoord_buffer.data_members = 2;
-    texcoord_buffer.divisor = 1;
 
     auto &colors_buffer = renderer.make_buffer("colors");
     colors_buffer.data_members = 4;
@@ -206,13 +226,7 @@ string load_font(const string& font_name, s32 size) noexcept
     FT_Done_Face(face);
 
     // Add to the pile
-    font_library.insert
-    (
-        std::pair<string, Font>
-        (
-            font_name, font
-        )
-    );
+    font_library.insert(std::pair<string, Font>(font_name, font));
 
     // Give the id back to the user
     return font_name;
@@ -246,10 +260,6 @@ void text_cpu_update_buffer() noexcept
         // Set the text color
         colors.emplace_back(text.color);
 
-        // Resize our buffers to the needed size
-        // positions.reserve(positions.size() + text.txt.size());
-        // texcoords.reserve(texcoords.size() + text.txt.size());
-
         // For each character in the text..
         for (auto c: text.txt)
         {
@@ -276,14 +286,14 @@ void text_cpu_update_buffer() noexcept
         }
     }
 }
+
 void text_gpu_update_buffer() noexcept
 {
     if (texts.empty()) return;
     // Upload the buffers to the GPU
     gpu_profile p("text_gpu_update_buffer");
-    renderer.update_buffer("positions", &positions[0], sizeof(vec2) * positions.size());
-    renderer.update_buffer("texcoords", &texcoords[0], sizeof(vec2) * texcoords.size());
-    renderer.update_buffer("colors",    &colors[0],    sizeof(vec4) * colors.size());
+    renderer.update_buffer("positions", positions);
+    renderer.update_buffer("colors",    colors);
 }
 
 void render_text() noexcept
@@ -296,9 +306,11 @@ void render_text() noexcept
 
     for (auto text: texts)
     {
-
         // Get the font
         auto &font = font_library.at(text.font);
+
+        glActiveTexture(GL_TEXTURE0 + 0);
+        glBindTexture(GL_TEXTURE_2D, font.texture_atlas);
 
         renderer.shader.set_uniform("ortho_projection", proj);
         renderer.shader.set_uniform("tex", font.texture_atlas);
@@ -323,7 +335,7 @@ void draw_text(const string& font, const string& text, f32 x, f32 y, f32 scale, 
     Text t;
 
     // If the font does not already exist, load it
-    if (auto it = font_library.find(font); it != font_library.end())
+    if (font_library.find(font) != font_library.end())
     {
         t.font = font;
     } else {
@@ -343,11 +355,10 @@ void draw_text(const string& font, const string& text, const vec2& pos, f32 scal
     Text t;
 
     // If the font does not already exist, load it
-    if (auto it = font_library.find(font); it != font_library.end())
+    if (font_library.find(font) != font_library.end())
     {
         t.font = font;
     } else {
-
         t.font = load_font(font, scale);
     }
 

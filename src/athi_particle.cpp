@@ -256,10 +256,10 @@ void ParticleSystem::gpu_buffer_update() noexcept
     cpu_profile p("PS::gpu_buffer_update");
 
     // Update the gpu buffers incase of more particles..
-    if (!models.empty()) renderer.update_buffer("transforms", &models[0], sizeof(mat4) * particle_count);
-    if (!colors.empty()) renderer.update_buffer("colors", &colors[0], sizeof(vec4) * particle_count);
+    if (!models.empty()) renderer.update_buffer("transforms", models);
+    if (!colors.empty()) renderer.update_buffer("colors", colors);
     if constexpr (use_textured_particles)
-		  if (!radii.empty()) renderer.update_buffer("radius", &radii[0], sizeof(float) * particle_count);
+		  if (!radii.empty()) renderer.update_buffer("radius", radii);
 }
 
 // @CPU
@@ -277,7 +277,7 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
   }
 
   if constexpr (!use_textured_particles)
-    renderer.update_buffer("positions", &positions[0], num_vertices_per_particle * sizeof(positions[0]));
+    renderer.update_buffer("positions", positions);
 }
 
 auto get_min_and_max_pos(const vector<Particle>& particles) {

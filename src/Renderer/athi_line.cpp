@@ -91,8 +91,8 @@ void render_lines() noexcept
 
   {
     gpu_profile p("render_lines::update_gpu_buffers");
-    renderer.update_buffer("positions", &positions[0], sizeof(vec4) * line_buffer.size());
-    renderer.update_buffer("color", &colors[0], sizeof(vec4) * line_buffer.size());
+    renderer.update_buffer("positions", positions);
+    renderer.update_buffer("color", colors);
   }
 
   {

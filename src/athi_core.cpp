@@ -160,6 +160,9 @@ void Athi_Core::init()
   particle_system.init();
 
   init_text_renderer();
+
+  load_font("DroidSans.ttf", 2.0f);
+
   init_circle_renderer();
   init_line_renderer();
   init_rect_renderer();

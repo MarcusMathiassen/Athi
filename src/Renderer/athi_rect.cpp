@@ -70,8 +70,8 @@ void render_rects() noexcept
 
   {
     cpu_profile p("render_rects::update_gpu_buffers");
-    renderer.update_buffer("transforms", &models[0], sizeof(mat4) * rect_buffer.size());
-    renderer.update_buffer("colors", &colors[0], sizeof(vec4) * rect_buffer.size());
+    renderer.update_buffer("transforms", models);
+    renderer.update_buffer("colors", colors);
   }
 
   {

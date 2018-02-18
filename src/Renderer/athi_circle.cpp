@@ -120,8 +120,8 @@ void circle_gpu_buffer_upload() noexcept
   gpu_profile p("circle_gpu_buffer_upload");
 
   circle_buffer.lock();
-  renderer.update_buffer("transforms", &models[0], sizeof(mat4) * circle_buffer.size());
-  renderer.update_buffer("colors", &colors[0], sizeof(vec4) * circle_buffer.size());
+  renderer.update_buffer("transforms", models);
+  renderer.update_buffer("colors", colors);
   circle_buffer.unlock();
 }
 
@@ -132,7 +132,7 @@ void render_circles() noexcept
     CommandBuffer cmd;
     cmd.type = primitive::line_loop;
     cmd.count = circle_vertices;
-    cmd.primitive_count = static_cast<s32>(circle_buffer.size());
+    cmd.primitive_count = circle_buffer.size();
 
     gpu_profile p("render_circles");
     renderer.bind();
