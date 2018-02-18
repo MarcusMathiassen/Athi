@@ -71,8 +71,6 @@ struct Renderer
   void draw(const CommandBuffer& cmd) noexcept;
   Shader& make_shader();
 
-  // @Todo: change the data to be sent as a const vector<T>&
-  //  so the user doesnt have to specify size.
   template <class T>
   void update_buffer(const string& name, vector<T>& data) noexcept
   {

@@ -149,7 +149,7 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
   if ( last_key == GLFW_KEY_LEFT_SUPER || last_key == GLFW_KEY_LEFT_CONTROL && last_action == GLFW_PRESS && key_pressed(GLFW_KEY_S))
   {
     // Not yet threadsafe
-    // save_variables();
+    save_variables();
     particle_system.save_state();
     console->warn("config saved!");
   }

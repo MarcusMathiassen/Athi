@@ -37,46 +37,21 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-struct Character {
-    s32 x0, y0, x1, y1;       // Texture coordinates
-    glm::ivec2 size;          // Size of glyph
-    glm::ivec2 bearing;       // Offset from baseline to left/top of glyph
-    u32 advance;              // Horizontal offset to advance to next glyph
-};
 
 struct Font
 {
+    struct Character {
+        s32 x0, y0, x1, y1;       // Texture coordinates
+        glm::ivec2 size;          // Size of glyph
+        glm::ivec2 bearing;       // Offset from baseline to left/top of glyph
+        u32 advance;              // Horizontal offset to advance to next glyph
+    };
+
     u32 texture_atlas;      // Handle to the texture atlas
     string name;            // Fonts name
     s32 size;               // Loaded size
     std::unordered_map<char, Character> characters; // a map of loaded chars. ['a'] gives you 'a'
 };
-
-/*
-
-{
-    const auto proj = camera.get_ortho_projection();
-    renderer.bind();
-    glActiveTexture(GL_TEXTURE0 + 0);
-    renderer.shader.set_uniform("ortho_projection", proj);
-
-    for (const auto& [font, texts]: texts_to_draw_map)
-    {
-        glBindTexture(GL_TEXTURE_2D, font.texture_atlas);
-
-        renderer.shader.set_uniform("tex", font.texture_atlas);
-
-        CommandBuffer cmd;
-        cmd.type = primitive::triangles;
-        cmd.count = 6;
-        cmd.has_indices = true;
-        cmd.primitive_count = font.positions.size();
-
-        gpu_profile p("text::draw" + font.name);
-        renderer.draw(cmd);
-    }
-}
-*/
 
 struct Text
 {
@@ -100,8 +75,7 @@ static Renderer renderer;
 static vector<Text> texts;
 static std::unordered_map<string, Font> font_library;
 
-static vector<vec2> positions;
-static vector<vec2> texcoords;
+static vector<vec4> vertices;
 static vector<vec4> colors;
 
 void shutdown() noexcept
@@ -123,13 +97,13 @@ void init_text_renderer() noexcept
     };
 
     shader.attribs = {
-      "position",
+      "vertices",
       "color",
     };
 
-    auto &positions_buffer = renderer.make_buffer("positions");
-    positions_buffer.data_members = 4;
-    positions_buffer.divisor = 1;
+    auto &vertices_buffer = renderer.make_buffer("vertices");
+    vertices_buffer.data_members = 4;
+    vertices_buffer.divisor = 4;
 
     auto &colors_buffer = renderer.make_buffer("colors");
     colors_buffer.data_members = 4;
@@ -239,9 +213,6 @@ void text_cpu_update_buffer() noexcept
 
     cpu_profile p("text_cpu_update_buffer");
 
-    s32 i = 0;
-    s32 j = 0;
-    s32 k = 0;
 
     colors.resize(texts.size());
 
@@ -263,7 +234,7 @@ void text_cpu_update_buffer() noexcept
         // For each character in the text..
         for (auto c: text.txt)
         {
-            const Character ch = font.characters[c];
+            const auto ch = font.characters[c];
 
             const f32 xpos = nx + ch.bearing.x * text.scale;
             const f32 ypos = text.pos.y - (ch.size.y - ch.bearing.y) * text.scale;
@@ -271,15 +242,11 @@ void text_cpu_update_buffer() noexcept
             const f32 w = ch.size.x * text.scale;
             const f32 h = ch.size.y * text.scale;
 
-            positions.emplace_back(xpos,      ypos + h);
-            positions.emplace_back(xpos,      ypos   );
-            positions.emplace_back(xpos + w,  ypos   );
-            positions.emplace_back(xpos + w,  ypos + h);
-
-            texcoords.emplace_back(ch.x0, ch.y1);
-            texcoords.emplace_back(ch.x0, ch.y0);
-            texcoords.emplace_back(ch.x1, ch.y0);
-            texcoords.emplace_back(ch.x1, ch.y1);
+            // vec2 positions, vec2 texcoords
+            vertices.emplace_back(xpos,      ypos + h, ch.x0, ch.y1);
+            vertices.emplace_back(xpos,      ypos    , ch.x0, ch.y0);
+            vertices.emplace_back(xpos + w,  ypos    , ch.x1, ch.y0);
+            vertices.emplace_back(xpos + w,  ypos + h, ch.x1, ch.y1);
 
             // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
             nx += (ch.advance >> 6) * text.scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
@@ -292,7 +259,7 @@ void text_gpu_update_buffer() noexcept
     if (texts.empty()) return;
     // Upload the buffers to the GPU
     gpu_profile p("text_gpu_update_buffer");
-    renderer.update_buffer("positions", positions);
+    renderer.update_buffer("vertices", vertices);
     renderer.update_buffer("colors",    colors);
 }
 

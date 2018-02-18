@@ -440,9 +440,11 @@ static void save_variables() noexcept
 
     string new_file_data;
 
-    // Read line by line..
-    for (const auto& line: lines)
+    // Read line by line.. but skip the last newline
+    for (s32 i = 0; i < lines.size()-1; ++i)
     {
+        auto& line = lines[i];
+
         // Get the line without spaces or tabs.
         const auto no_spaces_line = eat_chars(line, {' ', '\t'});
 
