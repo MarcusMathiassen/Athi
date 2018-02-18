@@ -24,6 +24,32 @@
 std::vector<FrameBuffer> framebuffers;
 f64 frame_budget{1.0 / 60.0};
 
+// --------------
+// Renderer
+// --------------
+
+bool draw_debug                 = false;
+bool color_particles            = false;
+bool draw_nodes                 = true;
+
+bool draw_rects                 = true;
+bool draw_circles               = true;
+bool draw_lines                 = true;
+
+s32 post_processing_samples{2};
+s32 blur_strength{2};
+
+vec4 acceleration_color_min{vec4(1,1,1,1)};
+vec4 acceleration_color_max{vec4(0.315f, 1.000f, 0.000f, 0.100f)};
+
+vec4 background_color = vec4(0.480f, 0.487f, 1.000f, 1.000f);
+
+// --------------
+// Particle System
+// --------------
+
+string particle_texture{"particle_texture"};
+
 s32 num_vertices_per_particle = 36;
 bool is_particles_colored_by_acc = false;
 bool has_random_velocity = true;
@@ -44,15 +70,6 @@ bool show_mouse_grab_lines{true};
 bool show_mouse_collision_box{true};
 bool mouse_grab{true};
 
-
-s32 screen_width{512};
-s32 screen_height{512};
-
-s32 framebuffer_width{512};
-s32 framebuffer_height{512};
-
-vec2 window_pos{512.0f/2.0f, 512.0f/2.0f};
-
 f32 px_scale{1.0f};
 
 bool show_settings{true};
@@ -68,19 +85,8 @@ bool border_collision{true};
 bool multithreaded_particle_update{true};
 s32 physics_samples{8};
 
-s32 post_processing_samples{2};
-s32 blur_strength{2};
-
 f32 circle_size{5.0f};
 vec4 circle_color{1.0f, 1.0f, 1.0f, 1.0f};
-
-bool draw_debug{false};
-bool color_particles{false};
-bool draw_nodes{true};
-
-bool draw_rects{true};
-bool draw_circles{true};
-bool draw_lines{true};
 
 bool tree_optimized_size{true};
 bool quadtree_show_only_occupied{false};
@@ -99,31 +105,18 @@ bool use_libdispatch{false};
 
 bool openCL_active{false};
 
-vec4 acceleration_color_min{vec4(1,1,1,1)};
-vec4 acceleration_color_max{vec4(0.315f, 1.000f, 0.000f, 0.100f)};
-
-vec4 background_color = vec4(0.480f, 0.487f, 1.000f, 1.000f);
-
-vec4 sw_color{pastel_red};
-vec4 se_color{pastel_gray};
-vec4 nw_color{pastel_orange};
-vec4 ne_color{pastel_pink};
-
-string particle_texture{"particle_texture"};
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // Do not touch beyond here
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-std::shared_ptr<spdlog::logger> console;
-bool app_is_running{true};
-bool settings_changed{false};
+s32 screen_width{512};
+s32 screen_height{512};
 
-s32 cpu_cores;
-s32 cpu_threads;
-string cpu_brand;
-s32 variable_thread_count;
-std::atomic<s32> universal_color_picker{0};
+s32 framebuffer_width{512};
+s32 framebuffer_height{512};
+
+vec2 window_pos{512.0f/2.0f, 512.0f/2.0f};
 
 f64 frametime;
 f64 smoothed_frametime;
@@ -142,6 +135,16 @@ s32 physics_framerate;
 s32 physics_FPS_limit{0};
 
 u16 monitor_refreshrate{60};
+
+std::shared_ptr<spdlog::logger> console;
+bool app_is_running{true};
+bool settings_changed{false};
+
+s32 cpu_cores;
+s32 cpu_threads;
+string cpu_brand;
+s32 variable_thread_count;
+std::atomic<s32> universal_color_picker{0};
 
 std::atomic<u64> comparisons{0};
 std::atomic<u64> resolutions{0};

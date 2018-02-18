@@ -102,7 +102,7 @@ static bool button(
   // Draw text inside this rect
   //draw_rounded_rect({button_pos.x, button_pos.y},  button_width, button_height, button_color, false);
 
-  draw_text("DroidSans.ttf", button_text, button_pos, 1.0f * button_height * 0.1/4.0, white);
+  // draw_text("DroidSans.ttf", button_text, button_pos, 1.0f * button_height * 0.1/4.0, white);
 
   return button_pressed;
 }
@@ -443,23 +443,6 @@ static void menu_settings() {
   if (ImGui::CollapsingHeader("color options")) {
     ImGui::Text("background color");
     ImGui::ColorPicker4("##Background", (float *)&background_color);
-
-    ImGui::Text("quadtree colors");
-    ImGui::Text("sw");
-    ImGui::SameLine(200);
-    ImGui::Text("se");
-    ImGui::SameLine(400);
-    ImGui::Text("nw");
-    ImGui::SameLine(600);
-    ImGui::Text("ne");
-
-    ImGui::ColorPicker4("##sw", (float *)&sw_color);
-    ImGui::SameLine();
-    ImGui::ColorPicker4("##se", (float *)&se_color);
-    ImGui::SameLine();
-    ImGui::ColorPicker4("##nw", (float *)&nw_color);
-    ImGui::SameLine();
-    ImGui::ColorPicker4("##ne", (float *)&ne_color);
   }
   ImGui::PopItemWidth();
   ImGui::End();

@@ -152,8 +152,3 @@ extern vec4 acceleration_color_min;
 extern vec4 acceleration_color_max;
 
 extern vec4 background_color;
-
-extern vec4 sw_color;
-extern vec4 se_color;
-extern vec4 nw_color;
-extern vec4 ne_color;

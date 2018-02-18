@@ -236,11 +236,12 @@ void text_cpu_update_buffer() noexcept
     {
         f32 nx = text.pos.x;
 
-        console->warn("@text_cpu_update_buffer font:{}, txt:{}", text.font, text.txt);
-
-
         // Get the font
-        auto &font = font_library.at(text.font);
+        Font font;
+        if (font_library.find(text.font) != font_library.end())
+        {
+            font = font_library.at(text.font);
+        }
 
         // Set the text color
         colors.emplace_back(text.color);
@@ -282,7 +283,7 @@ void text_gpu_update_buffer() noexcept
     gpu_profile p("text_gpu_update_buffer");
     renderer.update_buffer("positions", &positions[0], sizeof(vec2) * positions.size());
     renderer.update_buffer("texcoords", &texcoords[0], sizeof(vec2) * texcoords.size());
-    renderer.update_buffer("color",     &colors[0],    sizeof(vec4) * colors.size());
+    renderer.update_buffer("colors",    &colors[0],    sizeof(vec4) * colors.size());
 }
 
 void render_text() noexcept
@@ -295,7 +296,6 @@ void render_text() noexcept
 
     for (auto text: texts)
     {
-        console->warn("@render_text font:{}, txt:{}", text.font, text.txt);
 
         // Get the font
         auto &font = font_library.at(text.font);
@@ -308,7 +308,7 @@ void render_text() noexcept
             cmd.type = primitive::triangles;
             cmd.count = 6;
             cmd.has_indices = true;
-            cmd.primitive_count = positions.size();
+            cmd.primitive_count = text.txt.size();
 
             gpu_profile p("text::draw");
             renderer.draw(cmd);
@@ -328,11 +328,6 @@ void draw_text(const string& font, const string& text, f32 x, f32 y, f32 scale, 
         t.font = font;
     } else {
         t.font = load_font(font, scale);
-
-        for (auto & [key, val]: font_library)
-        {
-            console->warn("@draw_text key:{}, val:{}", key, val.name);
-        }
     }
 
     t.txt = text;

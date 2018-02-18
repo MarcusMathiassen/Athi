@@ -265,7 +265,6 @@ void Athi_Core::draw(GLFWwindow *window)
   circle_gpu_buffer_upload();
   text_gpu_update_buffer();
 
-
   if (post_processing)
   {
     gpu_profile p("post processing");
