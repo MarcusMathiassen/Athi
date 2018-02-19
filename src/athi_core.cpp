@@ -161,7 +161,7 @@ void Athi_Core::init()
 
   init_text_renderer();
 
-  load_font("DroidSans.ttf", 2.0f);
+  load_font("DroidSans.ttf");
 
   init_circle_renderer();
   init_line_renderer();

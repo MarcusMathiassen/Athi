@@ -294,6 +294,8 @@ void render_text() noexcept
         }
     }
     texts.clear();
+    vertices.clear();
+    colors.clear();
 }
 
 // Draws text using texture atlas
