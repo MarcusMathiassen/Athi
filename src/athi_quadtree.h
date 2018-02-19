@@ -35,7 +35,7 @@ private:
   std::unique_ptr<Quadtree<T>> ne;
 
   Rect bounds;
-  size_t level{0};
+  s32 level{0};
 
   constexpr void split() noexcept {
     const vec2 min = bounds.min;
@@ -90,8 +90,8 @@ private:
 
 public:
 
-  static size_t max_depth;
-  static size_t max_capacity;
+  static s32 max_depth;
+  static s32 max_capacity;
   Quadtree() = default;
   constexpr Quadtree(s32 level, const Rect &bounds) noexcept : bounds(bounds), level(level) {
     indices.reserve(max_capacity);
@@ -164,5 +164,5 @@ public:
 };
 
 template <class T> T* Quadtree<T>::data;
-template <class T> size_t Quadtree<T>::max_depth;
-template <class T> size_t Quadtree<T>::max_capacity;
+template <class T> s32 Quadtree<T>::max_depth;
+template <class T> s32 Quadtree<T>::max_capacity;

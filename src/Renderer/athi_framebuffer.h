@@ -23,7 +23,6 @@
 #include "../athi_typedefs.h"
 //#include "opengl_utility.h" //   //check_gl_error();
 
-#define GLEW_STATIC
 #include <GL/glew.h>
 
 // @Todo: These are not all the available enums, add more.

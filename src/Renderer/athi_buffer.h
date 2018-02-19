@@ -26,7 +26,6 @@
 
 #include <unordered_map>  // unordered_map
 
-#define GLEW_STATIC
 #include <GL/glew.h>
 
 enum buffer_usage {

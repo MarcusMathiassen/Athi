@@ -33,7 +33,9 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources DESTINATION  ${CMAKE_CURRENT_BIN
 if(WIN32)
 
   set(CMAKE_GENERATOR "Visual Studio 15 2017 Win64")
-  set(CMAKE_CXX_FLAGS "/std:c++latest /DNDEBUG -Ox -W3 /wd4530 /wd4005 /wd4996 /wd4244 /MP")
+
+  set(CMAKE_CXX_FLAGS_DEBUG "-Ox /MD -DNDEBUG -W1 /wd4530 /wd4005 /wd4996 /wd4244 /MP")
+  set(CMAKE_CXX_FLAGS_RELEASE "-Ox /MD -W3 /wd4530 /wd4005 /wd4996 /wd4244 /MP")
 
   message("-- flags ${CMAKE_CXX_FLAGS}")
   message("-- Generator set to ${CMAKE_GENERATOR}")
@@ -43,6 +45,7 @@ if(WIN32)
   set_target_properties( ${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR} )
   set_target_properties( ${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR} )
 
+  configure_file("./dep/Windows/glew32.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
   configure_file("./dep/Windows/glfw3.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
   configure_file("./dep/Windows/freetype271.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
@@ -55,13 +58,14 @@ if(WIN32)
   set_target_properties(opencl PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/libOpenCL.a)
 
   add_library(glew STATIC IMPORTED)
-  set_target_properties(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/glew32s.lib)
+  set_target_properties(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/glew32.lib)
 
   add_library(freetype STATIC IMPORTED)
   set_target_properties(freetype PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/freetype271.lib)
 
   add_library(glfw STATIC IMPORTED)
   set_target_properties(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/glfw3dll.lib)
+
   target_link_libraries(${PROJECT_NAME} freetype opencl glew glfw opengl32.lib user32.lib gdi32.lib kernel32.lib)
 
 elseif(APPLE)

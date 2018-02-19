@@ -29,8 +29,6 @@
 #include <unordered_map> // std::unordered_map
 #include <functional> // std::hash_
 
-
-#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 

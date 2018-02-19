@@ -25,7 +25,6 @@
 #include <memory>         // unique_ptr
 #include <unordered_map>  // unordered_map
 
-#define GLEW_STATIC
 #include <GL/glew.h>
 
 #ifdef _WIN32

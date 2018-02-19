@@ -23,7 +23,6 @@
 #include <iostream>
 #include <string>
 
-#define GLEW_STATIC
 #include <GL/glew.h>
 
 #define check_gl_error() _check_gl_error(__FILE__, __LINE__)

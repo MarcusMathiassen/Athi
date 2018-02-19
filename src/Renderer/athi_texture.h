@@ -26,7 +26,6 @@
 
 #include "stb_image.h" // stbi_load, stbi_image_free
 
-#define GLEW_STATIC
 #include <GL/glew.h>
 
 
