@@ -26,7 +26,7 @@ set libs        = %glew% %glfw% %opencl% %freetype% opengl32.lib user32.lib gdi3
 
 del %output%
 
-call cl /DNDEBUG -Fe%output% %options% %src% %includes% %libs%
+call cl %options% %src% %includes% %libs% -Fe%output%
 xcopy /y .\dep\Windows\glfw3.dll .\bin
 xcopy /y .\dep\Windows\freetype271.dll .\bin
 

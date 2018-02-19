@@ -820,6 +820,7 @@ vector<s32> ParticleSystem::get_particles_in_circle(const Particle &p) noexcept 
   {
     vector<s32> potential_collisions;
     potential_collisions = get_neighbours(p);
+	if (!potential_collisions.empty())
     for (const auto &i : potential_collisions) {
       if (collision_check(particles[i], p)) {
         ids.emplace_back(i);

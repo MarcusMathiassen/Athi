@@ -5,11 +5,13 @@ uniform vec2 res;
 
 uniform sampler2D tex;
 
-in Vertex {
+in Vertex
+{
   vec2 texcoord;
-}
-frag;
+} frag;
 
-void main() {
+
+void main()
+{
   frag_color = blur13(tex, frag.texcoord, vec2(res.x, res.y), dir);
 }

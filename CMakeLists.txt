@@ -23,18 +23,33 @@ file(GLOB SOURCES
 message("-- CXX ${CMAKE_CXX_COMPILER}")
 message("-- Generated with build type: ${CMAKE_BUILD_TYPE}")
 
+set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+#Copy the resources to our binary directory
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources DESTINATION  ${CMAKE_CURRENT_BINARY_DIR})
+
+
 if(WIN32)
 
-  set(CMAKE_CXX_FLAGS "/std:c++latest /DNDEBUG -Ox -W3 /wd4530 /wd4005 /wd4996 /wd4244 /MP")
   set(CMAKE_GENERATOR "Visual Studio 15 2017 Win64")
+  set(CMAKE_CXX_FLAGS "/std:c++latest /DNDEBUG -Ox -W3 /wd4530 /wd4005 /wd4996 /wd4244 /MP")
 
   message("-- flags ${CMAKE_CXX_FLAGS}")
   message("-- Generator set to ${CMAKE_GENERATOR}")
   add_executable(${PROJECT_NAME} ${SOURCES})
 
+  set_target_properties( ${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )
+  set_target_properties( ${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR} )
+  set_target_properties( ${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR} )
+
+  configure_file("./dep/Windows/glfw3.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+  configure_file("./dep/Windows/freetype271.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+
+  set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+
   # INCLUDE DEPENDENCIES
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows)
-  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/Universal)
 
   add_library(opencl STATIC IMPORTED)
   set_target_properties(opencl PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/libOpenCL.a)
@@ -51,7 +66,7 @@ if(WIN32)
 
 elseif(APPLE)
 
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
   set(CMAKE_CXX_FLAGS_DEBUG "-DNDEBUG -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
@@ -98,7 +113,7 @@ elseif(APPLE)
   target_link_libraries(${PROJECT_NAME} glew glfw "-lpthread -lfreetype -framework OpenGL -framework OpenCL -framework Cocoa -framework IOKIT -framework CoreVideo")
 
 else()
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
   set(CMAKE_CXX_FLAGS_DEBUG "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
