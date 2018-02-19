@@ -32,7 +32,7 @@
 struct Texture {
   u32 id{0};
   f32 filtering{GL_LINEAR};
-  static constexpr const char* default_path{"../Resources/Textures/"};
+  static constexpr const char* default_path{"./Resources/Textures/"};
   Texture(const std::string &file, f32 _filtering) : filtering(_filtering) {
     std::string file_name = default_path + file;
     s32 width{0}, height{0}, num_comp{0};

@@ -58,7 +58,7 @@ private:
   std::unordered_map<string, u32> attribs_map;
   std::vector<std::tuple<string, string>> preambles_storage;
 
-  static constexpr const char* shader_folder_path{"../Resources/Shaders/"};
+  static constexpr const char* shader_folder_path{"./Resources/Shaders/"};
 public:
 
   u32 program;

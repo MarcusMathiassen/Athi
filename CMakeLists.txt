@@ -48,6 +48,7 @@ if(WIN32)
   configure_file("./dep/Windows/glew32.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
   configure_file("./dep/Windows/glfw3.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
   configure_file("./dep/Windows/freetype271.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+  configure_file("./dep/Windows/OpenCL.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
   set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
@@ -55,7 +56,7 @@ if(WIN32)
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows)
 
   add_library(opencl STATIC IMPORTED)
-  set_target_properties(opencl PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/libOpenCL.a)
+  set_target_properties(opencl PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/OpenCL.lib)
 
   add_library(glew STATIC IMPORTED)
   set_target_properties(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/glew32.lib)
@@ -70,8 +71,6 @@ if(WIN32)
 
 elseif(APPLE)
 
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-
   set(CMAKE_CXX_FLAGS_DEBUG "-DNDEBUG -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
@@ -81,16 +80,16 @@ elseif(APPLE)
 
   # RESOURCE FILE LOCATION
   file(GLOB RESOURCE_FILES
-  "./Resources/Fonts/*.ttf"
-  "./Resources/Fonts/*.ttc"
-  "./Resources/Kernels/*.cl"
-  "./Resources/Textures/*.jpg"
-  "./Resources/Textures/*.png"
-  "./Resources/Shaders/*.vert"
-  "./Resources/Shaders/*.frag"
-  "./Resources/Shaders/*.geom"
-  "./Resources/Shaders/*.comp"
-  "./Resources/Shaders/*.glsl"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Fonts/*.ttf"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Fonts/*.ttc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Kernels/*.cl"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Textures/*.jpg"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Textures/*.png"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Shaders/*.vert"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Shaders/*.frag"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Shaders/*.geom"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Shaders/*.comp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Shaders/*.glsl"
   )
 
   add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCE_FILES})

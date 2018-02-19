@@ -840,7 +840,7 @@ vector<s32> ParticleSystem::get_particles_in_circle(const Particle &p) noexcept 
 
 void ParticleSystem::opencl_init() noexcept {
   // Read in the kernel source
-  read_file("../Resources/Kernels/particle_collision.cl", &kernel_source);
+  read_file("./Resources/Kernels/particle_collision.cl", &kernel_source);
   if (!kernel_source) console->error("OpenCL missing kernel source");
 
   // Connect to a compute device

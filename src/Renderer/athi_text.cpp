@@ -66,7 +66,7 @@ struct Text
 static FT_Library ft;
 #define NUM_GLYPHS 128
 
-static const string default_path = "../Resources/Fonts/";
+static const string default_path = "./Resources/Fonts/";
 
 static Renderer renderer;
 

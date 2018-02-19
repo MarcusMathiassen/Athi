@@ -134,7 +134,7 @@ static void draw_custom_gui() noexcept
 static void custom_gui_init() noexcept
 {
     // init_text_renderer();
-    // my_font = load_font("../Resources/Fonts/DroidSans.ttf", 24*2);
+    // my_font = load_font("./Resources/Fonts/DroidSans.ttf", 24*2);
     // ortho_loc = glGetUniformLocation(shader_program, "ortho_projection");
 }
 
@@ -557,7 +557,7 @@ void gui_init(GLFWwindow *window, float px_scale) {
   #ifdef _WIN32
   px_scale = 2;
   #endif
-  io.Fonts->AddFontFromFileTTF("../Resources/Fonts/DroidSans.ttf", 14 * px_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
+  io.Fonts->AddFontFromFileTTF("./Resources/Fonts/DroidSans.ttf", 14 * px_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
   // SetupImGuiStyle(true, 1.0f);
   new_style();
 }
