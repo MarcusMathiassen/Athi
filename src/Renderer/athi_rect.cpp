@@ -38,6 +38,26 @@ static Renderer renderer;
 static vector<mat4> models;
 static vector<vec4> colors;
 
+void init_rect_renderer() noexcept
+{
+  auto &shader = renderer.make_shader();
+  shader.sources = {"default_rect_shader.vert", "default_rect_shader.frag"};
+  shader.attribs = {"color", "transform"};
+
+  auto &colors = renderer.make_buffer("colors");
+  colors.data_members = 4;
+  colors.divisor = 1;
+
+  auto &transforms = renderer.make_buffer("transforms");
+  transforms.data_members = 4;
+  transforms.stride = sizeof(mat4);
+  transforms.pointer = sizeof(vec4);
+  transforms.divisor = 1;
+  transforms.is_matrix = true;
+
+  renderer.finish();
+}
+
 void render_rects() noexcept
 {
   if (rect_buffer.empty()) return;
@@ -76,7 +96,7 @@ void render_rects() noexcept
 
   {
     CommandBuffer cmd;
-    cmd.type = primitive::triangles;
+    cmd.type = primitive::line_loop;
     cmd.count = 6;
     cmd.primitive_count = static_cast<s32>(rect_buffer.size());
 
@@ -86,26 +106,6 @@ void render_rects() noexcept
   }
 
   rect_buffer.clear();
-}
-
-void init_rect_renderer() noexcept
-{
-  auto &shader = renderer.make_shader();
-  shader.sources = {"default_rect_shader.vert", "default_rect_shader.frag"};
-  shader.attribs = {"color", "transform"};
-
-  auto &colors = renderer.make_buffer("colors");
-  colors.data_members = 4;
-  colors.divisor = 1;
-
-  auto &transforms = renderer.make_buffer("transforms");
-  transforms.data_members = 4;
-  transforms.stride = sizeof(mat4);
-  transforms.pointer = sizeof(vec4);
-  transforms.divisor = 1;
-  transforms.is_matrix = true;
-
-  renderer.finish();
 }
 
 

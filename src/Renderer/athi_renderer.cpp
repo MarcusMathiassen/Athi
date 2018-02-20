@@ -29,6 +29,7 @@
 static std::mutex render_mutex;
 static vector<std::function<void()>> command_buffer;
 
+
 void render_call(std::function<void()>&& f) noexcept
 {
   std::unique_lock<std::mutex> lock(render_mutex);

@@ -333,7 +333,7 @@ static void menu_settings() {
   cpu_profile p("menu_settings");
 
   ImGui::Begin("Settings", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-  ImGui::PushItemWidth(100.0f);
+  ImGui::PushItemWidth(150.0f);
 
   if (ImGui::CollapsingHeader("Renderer")) {
     renderer_submenu();

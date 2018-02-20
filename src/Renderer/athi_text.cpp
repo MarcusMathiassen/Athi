@@ -72,7 +72,6 @@ void init_text_renderer() noexcept
 
     shader.uniforms = {
       "color",
-      "tex",
       "ortho_projection",
     };
 
@@ -118,6 +117,7 @@ u32 load_font(const string &font_name, s32 size) noexcept
           console->error("Freetype: Failed to load Glyph from file: {}", font_name);
           continue;
       }
+
       // Generate texture
       u32 texture;
       glGenTextures(1, &texture);
@@ -163,7 +163,7 @@ u32 load_font(const string &font_name, s32 size) noexcept
 
 void immidiate_draw_text(u32 font_id, const string& text,  f32 x, f32 y, f32 scale, const vec4 &color) noexcept
 {
-     // dont render 100% transparent text
+    // dont render 100% transparent text
     if (color.a < 0.005f) return;
 
     renderer.bind();

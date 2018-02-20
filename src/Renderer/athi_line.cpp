@@ -71,7 +71,8 @@ void render_lines() noexcept
 
   gpu_profile p("render_lines");
 
-  if (positions.size() < line_buffer.size()) {
+  if (positions.size() < line_buffer.size())
+  {
     positions.resize(line_buffer.size());
     colors.resize(line_buffer.size());
   }
@@ -107,6 +108,8 @@ void render_lines() noexcept
   }
 
   line_buffer.clear();
+  positions.clear();
+  colors.clear();
 }
 
 void draw_line(const vec2 &p1, const vec2 &p2, f32 width, const vec4 &color) noexcept
