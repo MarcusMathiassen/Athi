@@ -1,6 +1,5 @@
 in vec4 vertices;
-in vec4 color;
-
+uniform vec4 color;
 uniform mat4 ortho_projection;
 
 out Vertex {

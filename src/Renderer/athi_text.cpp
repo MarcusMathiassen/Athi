@@ -36,48 +36,29 @@
 #include FT_FREETYPE_H
 
 
-struct Font
-{
-    struct Character {
-        s32 x0, y0, x1, y1;       // Texture coordinates
-        glm::ivec2 size;          // Size of glyph
-        glm::ivec2 bearing;       // Offset from baseline to left/top of glyph
-        u32 advance;              // Horizontal offset to advance to next glyph
-    };
-
-    u32 texture_atlas;      // Handle to the texture atlas
-    string name;            // Fonts name
-    s32 size;               // Loaded size
-    std::unordered_map<char, Character> characters; // a map of loaded chars. ['a'] gives you 'a'
+struct Character {
+  u32 texture_id;   // ID handle of the glyph texture
+  glm::ivec2 size;    // Size of glyph
+  glm::ivec2 bearing;  // Offset from baseline to left/top of glyph
+  u32 advance;    // Horizontal offset to advance to next glyph
 };
 
-struct Text
-{
-    string txt; // the actual string to render
-
-    vec2 pos;   // position
-    vec4 color; // text color
-    f32 scale;  // desired scale
-
-    string font;   // Desired font
+struct Font {
+    std::string name;
+    s32 size;
+    std::map<char, Character> characters;
 };
 
+static vector<Font> fonts;
+
+static const string default_path = "../Resources/Fonts/";
 
 static FT_Library ft;
-#define NUM_GLYPHS 128
-
-static const string default_path = "./Resources/Fonts/";
-
 static Renderer renderer;
-
-static vector<Text> texts;
-static std::unordered_map<string, Font> font_library;
-
-static vector<vec4> vertices;
-static vector<vec4> colors;
 
 void shutdown() noexcept
 {
+    fonts.clear();
     FT_Done_FreeType(ft);
 }
 void init_text_renderer() noexcept
@@ -90,22 +71,15 @@ void init_text_renderer() noexcept
     };
 
     shader.uniforms = {
+      "color",
       "tex",
       "ortho_projection",
     };
 
-    shader.attribs = {
-      "vertices",
-      "color",
-    };
 
     auto &vertices_buffer = renderer.make_buffer("vertices");
     vertices_buffer.data_members = 4;
-    vertices_buffer.divisor = 4;
-
-    auto &colors_buffer = renderer.make_buffer("colors");
-    colors_buffer.data_members = 4;
-    colors_buffer.divisor = 1;
+    vertices_buffer.stride = sizeof(f32) * 4;
 
     constexpr u16 indices[6] = {0, 1, 2, 0, 2, 3};
     auto &indices_buffer = renderer.make_buffer("indices");
@@ -119,12 +93,10 @@ void init_text_renderer() noexcept
         console->error("Freetype: Could not init FreeType Library");
 }
 
-string load_font(const string& font_name, s32 size) noexcept
+u32 load_font(const string &font_name, s32 size) noexcept
 {
     // our new Font
     Font font;
-    font.name = font_name;
-    font.size = size;
 
     // Load font as face
     FT_Face face;
@@ -137,202 +109,104 @@ string load_font(const string& font_name, s32 size) noexcept
     // Disable byte-alignment restriction
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    // Load texture atlas for this font
-    // quick and dirty max texture size estimate
-    s32 max_dim = (1 + (face->size->metrics.height >> 6)) * ceilf(sqrtf(NUM_GLYPHS));
-    s32 tex_width = 1;
-    while(tex_width < max_dim) tex_width <<= 1;
-    s32 tex_height = tex_width;
-
-    // render glyphs to atlas
-    char* pixels = (char*)calloc(tex_width * tex_height, 1);
-    s32 pen_x = 0, pen_y = 0;
-
-    for(s32 i = 0; i < NUM_GLYPHS; ++i)
+    // Load first 128 characters of ASCII set
+    for (GLubyte c = 0; c < 127; c++)
     {
-        FT_Load_Char(face, i, FT_LOAD_RENDER | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_TARGET_LIGHT);
-        FT_Bitmap* bmp = &face->glyph->bitmap;
-
-        if(pen_x + bmp->width >= tex_width)
-        {
-            pen_x = 0;
-            pen_y += ((face->size->metrics.height >> 6) + 1);
-        }
-
-        for(s32 row = 0; row < bmp->rows; ++row)
-        {
-            for(s32 col = 0; col < bmp->width; ++col)
-            {
-                s32 x = pen_x + col;
-                s32 y = pen_y + row;
-                pixels[y * tex_width + x] = bmp->buffer[row * bmp->pitch + col];
-            }
-        }
-
-        font.characters[i].x0 = pen_x;
-        font.characters[i].y0 = pen_y;
-        font.characters[i].x1 = pen_x + bmp->width;
-        font.characters[i].y1 = pen_y + bmp->rows;
-
-        font.characters[i].bearing.x = face->glyph->bitmap_left;
-        font.characters[i].bearing.y = face->glyph->bitmap_top;
-        font.characters[i].advance = face->glyph->advance.x >> 6;
-
-        pen_x += bmp->width + 1;
+      // Load character glyph
+      if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+      {
+          console->error("Freetype: Failed to load Glyph from file: {}", font_name);
+          continue;
+      }
+      // Generate texture
+      u32 texture;
+      glGenTextures(1, &texture);
+      glBindTexture(GL_TEXTURE_2D, texture);
+      glTexImage2D(
+          GL_TEXTURE_2D,
+          0,
+          GL_RED,
+          face->glyph->bitmap.width,
+          face->glyph->bitmap.rows,
+          0,
+          GL_RED,
+          GL_UNSIGNED_BYTE,
+          face->glyph->bitmap.buffer
+      );
+      // Set texture options
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      // Now store character for later use
+      Character ch = {
+          texture,
+          glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+          glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+          static_cast<u32>(face->glyph->advance.x)
+      };
+      font.characters.insert(std::pair<char, Character>(c, ch));
     }
-
-    // Generate texture
-    glGenTextures(1, &font.texture_atlas);
-    glBindTexture(GL_TEXTURE_2D, font.texture_atlas);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, tex_width, tex_height, 0, GL_RED, GL_UNSIGNED_BYTE, pixels);
-
-    free(pixels);
-
-    // Set texture options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     // Destroy FreeType once we're finished
     FT_Done_Face(face);
 
+    const auto id = static_cast<u32>(fonts.size());
+
     // Add to the pile
-    font_library.insert(std::pair<string, Font>(font_name, font));
+    fonts.emplace_back(font);
 
     // Give the id back to the user
-    return font_name;
+    return id;
 }
 
-
-void text_cpu_update_buffer() noexcept
+void immidiate_draw_text(u32 font_id, const string& text,  f32 x, f32 y, f32 scale, const vec4 &color) noexcept
 {
-    if (texts.empty()) return;
-
-    cpu_profile p("text_cpu_update_buffer");
-
-
-    colors.resize(texts.size());
-
-    // For each text..
-    for (auto text: texts)
-    {
-        f32 nx = text.pos.x;
-
-        // Get the font
-        Font font;
-        if (font_library.find(text.font) != font_library.end())
-        {
-            font = font_library.at(text.font);
-        }
-
-        // Set the text color
-        colors.emplace_back(text.color);
-
-        // For each character in the text..
-        for (auto c: text.txt)
-        {
-            const auto ch = font.characters[c];
-
-            const f32 xpos = nx + ch.bearing.x * text.scale;
-            const f32 ypos = text.pos.y - (ch.size.y - ch.bearing.y) * text.scale;
-
-            const f32 w = ch.size.x * text.scale;
-            const f32 h = ch.size.y * text.scale;
-
-            // vec2 positions, vec2 texcoords
-            vertices.emplace_back(xpos,      ypos + h, ch.x0, ch.y1);
-            vertices.emplace_back(xpos,      ypos    , ch.x0, ch.y0);
-            vertices.emplace_back(xpos + w,  ypos    , ch.x1, ch.y0);
-            vertices.emplace_back(xpos + w,  ypos + h, ch.x1, ch.y1);
-
-            // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-            nx += (ch.advance >> 6) * text.scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
-        }
-    }
-}
-
-void text_gpu_update_buffer() noexcept
-{
-    if (texts.empty()) return;
-    // Upload the buffers to the GPU
-    gpu_profile p("text_gpu_update_buffer");
-    renderer.update_buffer("vertices", vertices);
-    renderer.update_buffer("colors",    colors);
-}
-
-void render_text() noexcept
-{
-    if (texts.empty()) return;
+     // dont render 100% transparent text
+    if (color.a < 0.005f) return;
 
     renderer.bind();
 
-    const auto proj = camera.get_ortho_projection();
+    const auto orth_proj =  camera.get_ortho_projection();
+    renderer.shader.set_uniform("color", color);
+    renderer.shader.set_uniform("ortho_projection", orth_proj);
 
-    for (auto text: texts)
+    glActiveTexture(GL_TEXTURE0);
+
+    auto font = fonts[font_id];
+
+    auto nx = x;
+
+    CommandBuffer cmd;
+    cmd.count = 6;
+    cmd.type = primitive::triangles;
+    cmd.has_indices = true;
+
+    for (auto c: text)
     {
-        // Get the font
-        auto &font = font_library.at(text.font);
+         auto ch = font.characters[c];
 
-        glActiveTexture(GL_TEXTURE0 + 0);
-        glBindTexture(GL_TEXTURE_2D, font.texture_atlas);
+        const f32 xpos = nx + ch.bearing.x * scale;
+        const f32 ypos = y - (ch.size.y - ch.bearing.y) * scale;
 
-        renderer.shader.set_uniform("ortho_projection", proj);
-        renderer.shader.set_uniform("tex", font.texture_atlas);
+        const f32 w = ch.size.x * scale;
+        const f32 h = ch.size.y * scale;
 
-        {
-            CommandBuffer cmd;
-            cmd.type = primitive::triangles;
-            cmd.count = 6;
-            cmd.has_indices = true;
-            cmd.primitive_count = text.txt.size();
+        f32 vertices[16] = {
+          xpos,     ypos + h,   0.0f, 0.0f,
+          xpos,     ypos,       0.0f, 1.0f,
+          xpos + w, ypos,       1.0f, 1.0f,
+          xpos + w, ypos + h,   1.0f, 0.0f
+        };
 
-            gpu_profile p("text::draw");
-            renderer.draw(cmd);
-        }
+        glBindTexture(GL_TEXTURE_2D, ch.texture_id);
+
+        renderer.update_buffer("vertices", &vertices[0], sizeof(f32) * 16);
+
+        renderer.draw(cmd);
+
+        // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+        nx += (ch.advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
     }
-    texts.clear();
-    vertices.clear();
-    colors.clear();
-}
-
-// Draws text using texture atlas
-void draw_text(const string& font, const string& text, f32 x, f32 y, f32 scale, const vec4 &color) noexcept
-{
-    Text t;
-
-    // If the font does not already exist, load it
-    if (font_library.find(font) != font_library.end())
-    {
-        t.font = font;
-    } else {
-        t.font = load_font(font, scale);
-    }
-
-    t.txt = text;
-    t.pos = {x,y};
-    t.scale = scale;
-    t.color = color;
-
-    texts.emplace_back(t);
-}
-
-void draw_text(const string& font, const string& text, const vec2& pos, f32 scale, const vec4 &color) noexcept
-{
-    Text t;
-
-    // If the font does not already exist, load it
-    if (font_library.find(font) != font_library.end())
-    {
-        t.font = font;
-    } else {
-        t.font = load_font(font, scale);
-    }
-
-    t.txt = text;
-    t.pos = pos;
-    t.scale = scale;
-    t.color = color;
-
-    texts.emplace_back(t);
 }

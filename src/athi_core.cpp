@@ -227,8 +227,6 @@ void Athi_Core::start()
       // Input
       update_inputs();
 
-      draw_text("DroidSans.ttf", "Hallo", 25.0f, 25.0f, 1.0f, white);
-
       // CPU Update
       update(1.0f/60.0f);
 
@@ -265,7 +263,6 @@ void Athi_Core::draw(GLFWwindow *window)
   // Upload gpu buffers
   particle_system.gpu_buffer_update();
   circle_gpu_buffer_upload();
-  text_gpu_update_buffer();
 
   if (post_processing)
   {
@@ -293,7 +290,6 @@ void Athi_Core::draw(GLFWwindow *window)
   if (draw_rects)       render_rects();
   if (draw_lines)       render_lines();
   if (draw_circles)     render_circles();
-  render_text();
 
   render();
 
@@ -337,7 +333,6 @@ void Athi_Core::update(float dt)
   // Update objects gpu data
   particle_system.update_data();
   circle_cpu_buffer_update();
-  text_cpu_update_buffer();
 
   // Update timers
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;

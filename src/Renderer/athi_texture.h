@@ -28,15 +28,21 @@
 
 #include <GL/glew.h>
 
-
-struct Texture {
+class Texture
+{
+private:
   u32 id{0};
-  f32 filtering{GL_LINEAR};
+  u8* image_data;
   static constexpr const char* default_path{"./Resources/Textures/"};
-  Texture(const std::string &file, f32 _filtering) : filtering(_filtering) {
+
+public:
+  f32 filtering{GL_LINEAR};
+
+  Texture(const std::string &file, f32 _filtering) : filtering(_filtering)
+  {
     std::string file_name = default_path + file;
     s32 width{0}, height{0}, num_comp{0};
-    u8 *image_data = stbi_load(file_name.c_str(), &width, &height, &num_comp, 4);
+    image_data = stbi_load(file_name.c_str(), &width, &height, &num_comp, 4);
     if (NULL == image_data)
       console->info("Texture loading failed: {}", file);
     glGenTextures(1, &id);
@@ -56,7 +62,8 @@ struct Texture {
 
   Texture() = default;
 
-  void bind(u32 unit) const {
+  void bind(u32 unit) const
+  {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, id);
   }

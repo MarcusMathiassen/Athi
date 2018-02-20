@@ -78,6 +78,12 @@ struct Renderer
     buffer.update(name, data);
   }
 
+  void update_buffer(const string& name, void* data, size_t data_size) noexcept
+  {
+    buffer.bind();
+    buffer.update(name, data, data_size);
+  }
+
   Vbo& make_buffer(const string& name) noexcept;
   void finish() noexcept;
 };

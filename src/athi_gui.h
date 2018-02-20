@@ -102,7 +102,7 @@ static bool button(
   // Draw text inside this rect
   //draw_rounded_rect({button_pos.x, button_pos.y},  button_width, button_height, button_color, false);
 
-  // draw_text("DroidSans.ttf", button_text, button_pos, 1.0f * button_height * 0.1/4.0, white);
+  immidiate_draw_text(my_font, button_text, button_pos.x, button_pos.y, 1.0f * button_height * 0.1/4.0, white);
 
   return button_pressed;
 }
@@ -111,31 +111,30 @@ static void draw_custom_gui() noexcept
 {
   button_count = 0;
 
-  // if (button("GPU: " + std::to_string(smoothed_render_frametime) + "ms"))
-  // {
-  //   //open_gpu_profiler ^= 1;
-  // }
+  if (button("GPU: " + std::to_string(smoothed_render_frametime) + "ms"))
+  {
+    //open_gpu_profiler ^= 1;
+  }
 
-  // if (button("CPU: " + std::to_string(smoothed_physics_frametime) + "ms"))
-  // {
-  //   //open_cpu_profiler ^= 1;
-  // }
+  if (button("CPU: " + std::to_string(smoothed_physics_frametime) + "ms"))
+  {
+    //open_cpu_profiler ^= 1;
+  }
 
   if (button("FPS: " + std::to_string(framerate), (framerate < 60) ? pastel_red : pastel_green))
   {
     //vsync ^= 1;
   }
 
-  // if (button("Particles: " + std::to_string(particle_system.particle_count)))
-  // {
-  // }
+  if (button("Particles: " + std::to_string(particle_system.particle_count)))
+  {
+  }
 }
 
 static void custom_gui_init() noexcept
 {
-    // init_text_renderer();
-    // my_font = load_font("./Resources/Fonts/DroidSans.ttf", 24*2);
-    // ortho_loc = glGetUniformLocation(shader_program, "ortho_projection");
+    //init_text_renderer();
+    my_font = load_font("DroidSans.ttf", 24*2);
 }
 
 
