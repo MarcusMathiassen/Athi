@@ -25,5 +25,3 @@
 void init_circle_renderer() noexcept;
 void draw_circle(const vec2 &pos, float radius, const vec4 &color, bool is_hollow) noexcept;
 void render_circles() noexcept;
-void circle_gpu_buffer_upload() noexcept;
-void circle_cpu_buffer_update() noexcept;

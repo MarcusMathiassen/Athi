@@ -76,14 +76,16 @@ void init_circle_renderer() noexcept
   renderer.finish();
 }
 
-void circle_cpu_buffer_update() noexcept
+void render_circles() noexcept
 {
   if (circle_buffer.empty()) return;
-  cpu_profile p("circle_cpu_buffer_update");
+
+  cpu_profile p("render_circles::update buffers");
 
   circle_buffer.lock();
 
-  if (models.size() < circle_buffer.size()) {
+  if (models.size() < circle_buffer.size())
+  {
     models.resize(circle_buffer.size());
     colors.resize(circle_buffer.size());
   }
@@ -102,27 +104,20 @@ void circle_cpu_buffer_update() noexcept
     models[i] = proj * temp.get_model();
   }
   circle_buffer.unlock();
-}
 
-void circle_gpu_buffer_upload() noexcept
-{
-  if (circle_buffer.empty()) return;
+  {
+    gpu_profile p("render_circles::upload buffers");
+    renderer.update_buffer("transform", models);
+    renderer.update_buffer("color", colors);
+  }
 
-  gpu_profile p("circle_gpu_buffer_upload");
-  renderer.update_buffer("transform", models);
-  renderer.update_buffer("color", colors);
-}
-
-void render_circles() noexcept
-{
-  if (circle_buffer.empty()) return;
   {
     CommandBuffer cmd;
     cmd.type = primitive::line_loop;
     cmd.count = circle_vertices;
     cmd.primitive_count = static_cast<s32>(circle_buffer.size());
 
-    gpu_profile p("render_circles");
+    gpu_profile p("render_circles::draw");
     renderer.bind();
     renderer.draw(cmd);
   }

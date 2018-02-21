@@ -52,7 +52,6 @@ void init_window() {
   glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
   glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
 
-  glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
   glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 
 

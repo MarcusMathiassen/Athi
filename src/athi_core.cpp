@@ -263,7 +263,6 @@ void Athi_Core::draw(GLFWwindow *window)
 
   // Upload gpu buffers
   particle_system.gpu_buffer_update();
-  circle_gpu_buffer_upload();
 
   if (post_processing)
   {
@@ -333,13 +332,12 @@ void Athi_Core::update(float dt)
 
   // Update objects gpu data
   particle_system.update_data();
-  circle_cpu_buffer_update();
 
   // Update timers
   physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
   physics_framerate = static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
-  timestep = 1.0 / 60.0;
+  timestep = dt;
 }
 
 void Athi_Core::draw_loop()
