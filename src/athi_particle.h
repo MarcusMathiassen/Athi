@@ -120,6 +120,7 @@ struct ParticleSystem
   void remove_all_with_id(const vector<s32> &ids) noexcept;
   void erase_all() noexcept;
 
+  void pull_towards_point(const vec2& point) noexcept;
 
   std::mutex buffered_call_mutex;
   vector<std::function<void()>> buffered_call_buffer;

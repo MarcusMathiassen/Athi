@@ -1106,3 +1106,37 @@ void ParticleSystem::set_particles_color(vector<s32> ids, const vec4& color) noe
     }
   });
 }
+
+static void gravity_well(Particle &a, const vec2 &point) {
+  const f32 x1 = a.pos.x;
+  const f32 y1 = a.pos.y;
+  const f32 x2 = point.x;
+  const f32 y2 = point.y;
+  const f32 m1 = a.mass;
+  const f32 m2 = 1e11f;
+
+  const f32 dx = x2 - x1;
+  const f32 dy = y2 - y1;
+  const f32 d = sqrt(dx * dx + dy * dy);
+
+  const f32 angle = atan2(dy, dx);
+  const f64 G = kGravitationalConstant;
+  const f32 F = G * m1 * m2 / d * d;
+
+  a.acc.x += F * cos(angle);
+  a.acc.y += F * sin(angle);
+}
+
+void ParticleSystem::pull_towards_point(const vec2& point) noexcept
+{
+    buffered_call([this, point]()
+    {
+      dispatch.parallel_for_each(particles, [this, point](size_t begin, size_t end)
+      {
+         for (size_t i = begin; i < end; ++i)
+          {
+            gravity_well(particles[i], point);
+          }
+      });
+    });
+}

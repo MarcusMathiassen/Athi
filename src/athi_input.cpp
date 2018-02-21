@@ -150,18 +150,13 @@ void drag_color_or_destroy_with_mouse() {
 
   switch (mouse_option) {
     case MouseOption::Color: {
-      //for (const auto particle_id : particle_ids_in_circle) {
         particle_system.set_particles_color(particle_ids_in_circle, circle_color);
-        //particle_system.colors[particle_id] = circle_color;
-      //}
     } break;
 
     case MouseOption::GravityWell: {
       // Pull the particles towards the mouse
-      for (auto &particle : particle_system.particles) {
-        gravity_well(particle, mouse_pos);
-        last_state = ATTACHED;
-      }
+      particle_system.pull_towards_point(mouse_pos);
+      last_state = ATTACHED;
     } break;
 
     case MouseOption::Drag: {
