@@ -150,9 +150,10 @@ void drag_color_or_destroy_with_mouse() {
 
   switch (mouse_option) {
     case MouseOption::Color: {
-      for (const auto particle_id : particle_ids_in_circle) {
-        particle_system.colors[particle_id] = circle_color;
-      }
+      //for (const auto particle_id : particle_ids_in_circle) {
+        particle_system.set_particles_color(particle_ids_in_circle, circle_color);
+        //particle_system.colors[particle_id] = circle_color;
+      //}
     } break;
 
     case MouseOption::GravityWell: {
@@ -277,7 +278,7 @@ void update_inputs() {
   mouse_rect.min = mouse_pos - mouse_size;
   mouse_rect.max = mouse_pos + mouse_size;
 
-  draw_circle(mouse_pos, mouse_size, circle_color, true);
+  // draw_circle(mouse_pos, mouse_size, circle_color, true);
   if (draw_debug && show_mouse_collision_box) {
       draw_rect(mouse_rect.min, mouse_rect.max, pastel_green, true);
   }

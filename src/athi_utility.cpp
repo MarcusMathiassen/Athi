@@ -28,7 +28,7 @@
 
 #include <algorithm>  // std::swap
 #include <mutex>  // std::mutex
-
+#include <execution>
 
 #ifdef _WIN32
 #include <sys/stat.h>
@@ -43,7 +43,6 @@ f32  rand_f32 (f32 min, f32 max) noexcept { return ((f32(rand()) / f32(RAND_MAX)
 vec2 rand_vec2(f32 min, f32 max) noexcept { return vec2(rand_f32(min, max), rand_f32(min, max)); }
 vec3 rand_vec3(f32 min, f32 max) noexcept { return vec3(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }
 vec4 rand_vec4(f32 min, f32 max) noexcept { return vec4(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }
-
 
 f64 get_time() noexcept
 {
@@ -240,7 +239,7 @@ void limit_FPS(u32 desired_framerate, f64 time_start_frame) noexcept
 
 vec4 color_over_time(f64 time) noexcept
 {
-  time = abs(time) * 330;
+  time = abs(sinf(time)) * 350;
   return hsv_to_rgb(time, 1.0, 1.0, 1.0);
 }
 

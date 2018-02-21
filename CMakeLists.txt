@@ -26,15 +26,11 @@ message("-- Generated with build type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-#Copy the resources to our binary directory
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Resources DESTINATION  ${CMAKE_CURRENT_BINARY_DIR})
-
-
 if(WIN32)
 
   set(CMAKE_GENERATOR "Visual Studio 15 2017 Win64")
 
-  set(CMAKE_CXX_FLAGS_DEBUG "-Ox /MD -DNDEBUG -W1 /wd4530 /wd4005 /wd4996 /wd4244 /MP")
+  set(CMAKE_CXX_FLAGS_DEBUG " -DNDEBUG -Ox /MD -W2 /wd4530 /wd4005 /wd4996 /wd4244 /MP")
   set(CMAKE_CXX_FLAGS_RELEASE "-Ox /MD -W3 /wd4530 /wd4005 /wd4996 /wd4244 /MP")
 
   message("-- flags ${CMAKE_CXX_FLAGS}")

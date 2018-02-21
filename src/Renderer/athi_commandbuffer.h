@@ -40,7 +40,8 @@ enum primitive {
   patches = GL_PATCHES,
 };
 
-struct CommandBuffer {
+struct CommandBuffer
+{
   primitive type{primitive::triangles};
   s32 count{0};
   s32 first{0};

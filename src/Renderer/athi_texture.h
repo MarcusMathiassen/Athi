@@ -33,7 +33,7 @@ class Texture
 private:
   u32 id{0};
   u8* image_data;
-  static constexpr const char* default_path{"./Resources/Textures/"};
+  static constexpr const char* default_path{"../Resources/Textures/"};
 
 public:
   f32 filtering{GL_LINEAR};

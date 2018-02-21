@@ -160,6 +160,7 @@ void Athi_Core::init()
 
   init_text_renderer();
 
+
   load_font("DroidSans.ttf");
 
   init_circle_renderer();
@@ -328,7 +329,7 @@ void Athi_Core::update(float dt)
   }
 
   if (cycle_particle_color)
-    circle_color = color_over_time(sinf(glfwGetTime()* 0.5));
+    circle_color = color_over_time(glfwGetTime());
 
   // Update objects gpu data
   particle_system.update_data();

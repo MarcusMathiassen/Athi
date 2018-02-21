@@ -42,18 +42,6 @@ static vector<vec4> colors;
 
 static constexpr s32 circle_vertices = 36;
 
-// class PrimitiveCircleRenderer
-// {
-// private:
-//   Renderer renderer;
-//   ThreadSafe::vector<circle> circle_buffer;
-//   vector<mat4> models;
-//   vector<vec4> colors;
-//   static constexpr s32 circle_vertices = 36;
-
-// public:
-// };
-
 void init_circle_renderer() noexcept
 {
   auto &shader = renderer.make_shader();
@@ -67,16 +55,18 @@ void init_circle_renderer() noexcept
                     sinf(i * kPI * 2.0f / circle_vertices)};
   }
 
-  auto &vertex_buffer = renderer.make_buffer("positions");
+  auto &vertex_buffer = renderer.make_buffer("position");
   vertex_buffer.data = &positions[0];
   vertex_buffer.data_size = circle_vertices * sizeof(positions[0]);
   vertex_buffer.data_members = 2;
+  vertex_buffer.type = buffer_type::array_buffer;
+  vertex_buffer.usage = buffer_usage::static_draw;
 
-  auto &colors_buffer = renderer.make_buffer("colors");
+  auto &colors_buffer = renderer.make_buffer("color");
   colors_buffer.data_members = 4;
   colors_buffer.divisor = 1;
 
-  auto &transforms = renderer.make_buffer("transforms");
+  auto &transforms = renderer.make_buffer("transform");
   transforms.data_members = 4;
   transforms.stride = sizeof(mat4);
   transforms.pointer = sizeof(vec4);
@@ -103,7 +93,7 @@ void circle_cpu_buffer_update() noexcept
   {
     auto &circle = circle_buffer[i];
 
-      colors[i] = circle.color;
+    colors[i] = circle.color;
 
     Transform temp;
     temp.pos = vec3(circle.pos, 0.0f);
@@ -117,12 +107,10 @@ void circle_cpu_buffer_update() noexcept
 void circle_gpu_buffer_upload() noexcept
 {
   if (circle_buffer.empty()) return;
-  gpu_profile p("circle_gpu_buffer_upload");
 
-  circle_buffer.lock();
-  renderer.update_buffer("transforms", models);
-  renderer.update_buffer("colors", colors);
-  circle_buffer.unlock();
+  gpu_profile p("circle_gpu_buffer_upload");
+  renderer.update_buffer("transform", models);
+  renderer.update_buffer("color", colors);
 }
 
 void render_circles() noexcept
@@ -132,7 +120,7 @@ void render_circles() noexcept
     CommandBuffer cmd;
     cmd.type = primitive::line_loop;
     cmd.count = circle_vertices;
-    cmd.primitive_count = circle_buffer.size();
+    cmd.primitive_count = static_cast<s32>(circle_buffer.size());
 
     gpu_profile p("render_circles");
     renderer.bind();

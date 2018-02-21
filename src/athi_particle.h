@@ -31,6 +31,7 @@
 #include "athi_transform.h"  // Transform
 #include "./Renderer/athi_texture.h"  // texture
 #include <mutex> // mutex
+#include <functional>
 
 #ifdef __APPLE__
 #include <OpenCL/OpenCL.h>
@@ -118,6 +119,14 @@ struct ParticleSystem
 
   void remove_all_with_id(const vector<s32> &ids) noexcept;
   void erase_all() noexcept;
+
+
+  std::mutex buffered_call_mutex;
+  vector<std::function<void()>> buffered_call_buffer;
+  void buffered_call(std::function<void()>&& f) noexcept;
+  void execute_buffered_calls() noexcept;
+
+  void set_particles_color(vector<s32> ids, const vec4& color) noexcept;
 
   vector<s32> get_neighbours(const Particle& p) const noexcept;
 

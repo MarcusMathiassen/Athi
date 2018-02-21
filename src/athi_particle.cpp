@@ -38,6 +38,28 @@
 
 ParticleSystem particle_system;
 
+void ParticleSystem::buffered_call(std::function<void()>&& f) noexcept
+{
+  std::unique_lock<std::mutex> lock(buffered_call_mutex);
+  buffered_call_buffer.emplace_back(std::move(f));
+}
+
+void ParticleSystem::execute_buffered_calls() noexcept
+{
+  if (buffered_call_buffer.empty()) return;
+  cpu_profile p("execute_buffered_calls");
+  std::unique_lock<std::mutex> lock(buffered_call_mutex);
+
+  // Execute all stores callseq
+  for (auto &c : buffered_call_buffer)
+  {
+    c();
+  }
+
+  // Clear the buffer for next frame
+  buffered_call_buffer.clear();
+}
+
 void Particle::update(f32 dt) noexcept {
   // Update pos/vel/acc
   vel.x += acc.x * dt * time_scale * air_resistance;
@@ -141,7 +163,7 @@ void ParticleSystem::init() noexcept {
     transforms.divisor = 1;
     transforms.is_matrix = true;
 
-    // constexpr GLushort indices[6]{0, 1, 2, 0, 2, 3};
+    // GLushort indices[6]{0, 1, 2, 0, 2, 3};
     // auto &indices_buffer = renderer.make_buffer("indices");
     // indices_buffer.data = (void*)indices;
     // indices_buffer.data_size = sizeof(indices);
@@ -172,7 +194,7 @@ void ParticleSystem::draw() noexcept {
     CommandBuffer cmd_buffer;
     cmd_buffer.type = primitive::triangles;
     cmd_buffer.count = 6;
-    //cmd_buffer.has_indices = true;
+    // cmd_buffer.has_indices = true;
     cmd_buffer.primitive_count = particle_count;
 
     renderer.bind();
@@ -188,8 +210,10 @@ static vector<float> radii;
 // @CPU
 void ParticleSystem::update_data() noexcept
 {
-  if (particles.empty()) return;
+  // If there are any buffered calls, execute them
+  execute_buffered_calls();
 
+  if (particles.empty()) return;
   cpu_profile p("PS::update_data");
 
   // Check if buffers need resizing
@@ -216,7 +240,7 @@ void ParticleSystem::update_data() noexcept
             }
 
             // Update the transform
-            transforms[p.id].pos = {p.pos.x, p.pos.y, 1.0f};
+            transforms[p.id].pos = {p.pos, 0.0f};
             transforms[p.id].rot.z += p.torque;
 
             models[p.id] = proj * transforms[p.id].get_model();
@@ -237,7 +261,7 @@ void ParticleSystem::update_data() noexcept
         }
 
         // Update the transform
-        transforms[p.id].pos = {p.pos.x, p.pos.y, 1.0f};
+        transforms[p.id].pos = {p.pos, 0.0f};
         transforms[p.id].rot.z += p.torque;
 
         models[p.id] = proj * transforms[p.id].get_model();
@@ -355,11 +379,11 @@ void ParticleSystem::draw_debug_nodes() noexcept {
 
     switch (tree_type) {
       case TreeType::Quadtree: {
-        if (draw_nodes) quadtree.draw_bounds(quadtree_show_only_occupied, debug_color);
+        if (circle_collision && draw_nodes) quadtree.draw_bounds(quadtree_show_only_occupied, debug_color);
       } break;
 
       case TreeType::UniformGrid: {
-        if (draw_nodes) uniformgrid.draw_bounds(debug_color);
+        if (circle_collision && draw_nodes) uniformgrid.draw_bounds(debug_color);
       } break;
 
       case TreeType::None: {
@@ -488,30 +512,32 @@ void ParticleSystem::update(float dt) noexcept
 // @CPU
 void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &color) noexcept
 {
-
-  Particle p;
-  p.pos = pos;
-
-  if (has_random_velocity)
-    p.vel = rand_vec2(-random_velocity_force, random_velocity_force);
-
-  p.radius = radius;
-  p.mass = particle_density * kPI * radius * radius;
-
-  Transform t;
-  t.pos = {pos.x, pos.y, 0};
-  t.scale = {radius, radius, 0};
-
+  buffered_call([this, pos, radius, color]()
   {
-    // @Hack
-    if constexpr (multithreaded_engine)
-      std::unique_lock<std::mutex> lck(particles_mutex);
-    p.id = particle_count;
-    particles.emplace_back(p);
-    ++particle_count;
-    transforms.emplace_back(t);
-    colors.emplace_back(color);
-  }
+    Particle p;
+    p.pos = pos;
+
+    if (has_random_velocity)
+      p.vel = rand_vec2(-random_velocity_force, random_velocity_force);
+
+    p.radius = radius;
+    p.mass = particle_density * kPI * radius * radius;
+
+    Transform t;
+    t.pos = {pos.x, pos.y, 0};
+    t.scale = {radius, radius, 0};
+
+    {
+      // @Hack
+      if constexpr (multithreaded_engine)
+        std::unique_lock<std::mutex> lck(particles_mutex);
+      p.id = particle_count;
+      particles.emplace_back(p);
+      ++particle_count;
+      transforms.emplace_back(t);
+      colors.emplace_back(color);
+    }
+  });
 }
 
 // @Hot
@@ -840,7 +866,7 @@ vector<s32> ParticleSystem::get_particles_in_circle(const Particle &p) noexcept 
 
 void ParticleSystem::opencl_init() noexcept {
   // Read in the kernel source
-  read_file("./Resources/Kernels/particle_collision.cl", &kernel_source);
+  read_file("../Resources/Kernels/particle_collision.cl", &kernel_source);
   if (!kernel_source) console->error("OpenCL missing kernel source");
 
   // Connect to a compute device
@@ -1019,50 +1045,64 @@ void ParticleSystem::remove_all_with_id(const vector<s32> &ids) noexcept {
 }
 
 void ParticleSystem::erase_all() noexcept {
-  // @Hack
-  if constexpr (multithreaded_engine)
-    std::unique_lock<std::mutex> lck(particles_mutex);
+  buffered_call([this]()
+  {
+    if constexpr (multithreaded_engine)
+      std::unique_lock<std::mutex> lck(particles_mutex);
 
-  particle_count = 0;
-  particles.clear();
-  colors.clear();
-  transforms.clear();
-  models.clear();
+   particle_count = 0;
+    particles.clear();
+    colors.clear();
+    transforms.clear();
+    models.clear();
+  });
 }
 
 void ParticleSystem::save_state() noexcept
 {
-  if (particles.empty()) return;
+  buffered_call([this]()
   {
-    cpu_profile p("PS::save_state");
+      if (particles.empty()) return;
+      cpu_profile p("PS::save_state");
 
-    write_data
-    (
-      "../bin/data.dat",
-        particles,
-        colors,
-        transforms
-    );
+      write_data
+      (
+        "../bin/data.dat",
+          particles,
+          colors,
+          transforms
+      );
 
-  }
-  console->warn("Particle state saved!");
+    console->warn("Particle state saved!");
+  });
 }
 
 void ParticleSystem::load_state() noexcept
 {
+  erase_all();
+  buffered_call([this]()
   {
-    cpu_profile p("PS::load_state");
+      cpu_profile p("PS::load_state");
 
-    erase_all();
+      read_data(
+        "../bin/data.dat",
+          particles,
+          colors,
+          transforms);
 
-    read_data(
-      "../bin/data.dat",
-        particles,
-        colors,
-        transforms);
+      particle_count = static_cast<u32>(particles.size());
 
-    particle_count = static_cast<u32>(particles.size());
-  }
+      console->warn("Particle state loaded!");
+  });
+}
 
-  console->warn("Particle state loaded!");
+void ParticleSystem::set_particles_color(vector<s32> ids, const vec4& color) noexcept
+{
+  buffered_call([this, ids, color]()
+  {
+    for (auto i: ids)
+    {
+      colors[i] = color;
+    }
+  });
 }

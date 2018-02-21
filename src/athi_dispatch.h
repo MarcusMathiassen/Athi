@@ -48,7 +48,7 @@ class Dispatch {
   vector<std::thread> workers;
   s32 size() { return num_workers; }
   bool stopped() { return stop; }
-  Dispatch(s32 num_workers = std::thread::hardware_concurrency()) {
+  Dispatch(s32 num_workers = std::thread::hardware_concurrency() * 2) {
     assert(num_workers != 0 && "0 workers doesn't make sense.");
     workers.resize(num_workers);
     this->num_workers = num_workers;
@@ -98,7 +98,7 @@ class Dispatch {
     // Precalculate beginnings and ends
     vector<std::tuple<size_t,size_t>> begin_ends(num_workers);
 
-    for (size_t i = 0; i < num_workers; ++i)
+    for (s32 i = 0; i < num_workers; ++i)
       begin_ends[i] = get_begin_and_end(i, container.size(), num_workers);
 
     if constexpr (os == OS::Apple)

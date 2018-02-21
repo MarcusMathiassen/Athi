@@ -175,6 +175,7 @@ static void menu_debug() {
   ImGui::SliderFloat("gButtonHeight", &gButtonHeight,  0, 500);
 
 
+  ToggleButton("cycle_particle_color", &cycle_particle_color);
   ToggleButton("draw_rects", &draw_rects);
   ToggleButton("draw_circles", &draw_circles);
   ToggleButton("draw_lines", &draw_lines);
@@ -556,7 +557,7 @@ void gui_init(GLFWwindow *window, float px_scale) {
   #ifdef _WIN32
   px_scale = 2;
   #endif
-  io.Fonts->AddFontFromFileTTF("./Resources/Fonts/DroidSans.ttf", 14 * px_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
+  io.Fonts->AddFontFromFileTTF("../Resources/Fonts/DroidSans.ttf", 14 * px_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
   // SetupImGuiStyle(true, 1.0f);
   new_style();
 }
