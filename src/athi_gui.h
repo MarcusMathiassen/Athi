@@ -134,7 +134,7 @@ static void draw_custom_gui() noexcept
 static void custom_gui_init() noexcept
 {
     //init_text_renderer();
-    my_font = load_font("DroidSans.ttf", 24*2);
+    my_font = load_font("Inconsolata-Regular.ttf", 24*px_scale);
 }
 
 
@@ -454,8 +454,8 @@ void gui_render() {
   ImGui_ImplGlfwGL3_NewFrame();
 
   if (ImGui::BeginMainMenuBar()) {
-    if (ImGui::BeginMenu("menu")) {
-      ImGui::MenuItem("settings", NULL, &open_settings);
+    if (ImGui::BeginMenu("Menu")) {
+      ImGui::MenuItem("Settings", NULL, &open_settings);
       if constexpr (DEBUG_MODE) {
 
         ImGui::MenuItem("GPU profiler", NULL, &open_gpu_profiler);
@@ -465,47 +465,31 @@ void gui_render() {
       ImGui::EndMenu();
     }
 
-    ImGui::RadioButton("Quadtree", &tree_radio_option, 0);
-    ImGui::SameLine();
-    ImGui::RadioButton("Uniform Grid", &tree_radio_option, 1);
-    ImGui::SameLine();
-    ImGui::RadioButton("None", &tree_radio_option, 2);
+      ImGui::SameLine();
+      bool open_popup = ImGui::Button("Mouse Options");
+      if (open_popup)
+      {
+          ImGui::OpenPopup("mypicker");
+      }
 
-    switch ((TreeType)tree_radio_option) {
-      case TreeType::Quadtree: {
-        quadtree_active = true;
-        use_uniformgrid = false;
-        tree_type = TreeType::Quadtree;
-      } break;
-      case TreeType::UniformGrid: {
-        use_uniformgrid = true;
-        quadtree_active = false;
-        tree_type = TreeType::UniformGrid;
-      } break;
-      case TreeType::None: {
-        quadtree_active = false;
-        use_uniformgrid = false;
-        tree_type = TreeType::None;
-      } break;
+     if (ImGui::BeginPopup("mypicker"))
+      {
+        ImGui::RadioButton("Color", &mouse_radio_options, 0);
+        ImGui::RadioButton("Gravity Well", &mouse_radio_options, 1);
+        ImGui::RadioButton("Drag", &mouse_radio_options, 2);
+        ImGui::RadioButton("Delete", &mouse_radio_options, 3);
+        ImGui::RadioButton("None", &mouse_radio_options, 4);
+
+        switch ((MouseOption)mouse_radio_options) {
+          case MouseOption::Color: { mouse_option = MouseOption::Color; } break;
+          case MouseOption::GravityWell: { mouse_option = MouseOption::GravityWell; } break;
+          case MouseOption::Drag: { mouse_option = MouseOption::Drag; } break;
+          case MouseOption::Delete: { mouse_option = MouseOption::Delete; } break;
+          case MouseOption::None: { /* DO NOTHING */ } break;
+        }
+    ImGui::EndPopup();
     }
 
-    ImGui::RadioButton("Color", &mouse_radio_options, 0);
-    ImGui::SameLine();
-    ImGui::RadioButton("Gravity Well", &mouse_radio_options, 1);
-    ImGui::SameLine();
-    ImGui::RadioButton("Drag", &mouse_radio_options, 2);
-    ImGui::SameLine();
-    ImGui::RadioButton("Delete", &mouse_radio_options, 3);
-    ImGui::SameLine();
-    ImGui::RadioButton("None", &mouse_radio_options, 4);
-
-    switch ((MouseOption)mouse_radio_options) {
-      case MouseOption::Color: { mouse_option = MouseOption::Color; } break;
-      case MouseOption::GravityWell: { mouse_option = MouseOption::GravityWell; } break;
-      case MouseOption::Drag: { mouse_option = MouseOption::Drag; } break;
-      case MouseOption::Delete: { mouse_option = MouseOption::Delete; } break;
-      case MouseOption::None: { /* DO NOTHING */ } break;
-    }
 
     const auto red = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
     const auto green = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
@@ -531,9 +515,6 @@ void gui_render() {
     ImGui::SliderFloat("mouse size", &mouse_size, 1.0f, 500.0f);
     ImGui::SameLine();
     ImGui::PopItemWidth();
-    ImGui::Checkbox("grab", &mouse_grab);
-    ImGui::SameLine();
-
     ImGui::EndMainMenuBar();
   }
 
@@ -552,12 +533,7 @@ void gui_init(GLFWwindow *window, float px_scale) {
   ImGui_ImplGlfwGL3_Init(window, false);
   ImGuiIO &io = ImGui::GetIO();
 
-  io.FontGlobalScale = 1.0f / px_scale;
-
-  #ifdef _WIN32
-  px_scale = 2;
-  #endif
-  io.Fonts->AddFontFromFileTTF("../Resources/Fonts/DroidSans.ttf", 14 * px_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
+  io.Fonts->AddFontFromFileTTF("../Resources/Fonts/Inconsolata-Regular.ttf", 14 * px_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
   // SetupImGuiStyle(true, 1.0f);
   new_style();
 }
@@ -595,7 +571,7 @@ static void new_style() {
   style->Colors[ImGuiCol_TitleBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
   style->Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.10f, 0.09f, 0.12f, 1.0f);
   style->Colors[ImGuiCol_TitleBgActive] = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
-  style->Colors[ImGuiCol_MenuBarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+  style->Colors[ImGuiCol_MenuBarBg] = ImVec4(0.053f, 0.062f, 0.078f, 1.000f);
   style->Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
   style->Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
   style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);

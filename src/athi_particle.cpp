@@ -240,7 +240,7 @@ void ParticleSystem::update_data() noexcept
             }
 
             // Update the transform
-            transforms[p.id].pos = {p.pos, 0.0f};
+            transforms[p.id].pos = {p.pos, 1.0f};
             transforms[p.id].rot.z += p.torque;
 
             models[p.id] = proj * transforms[p.id].get_model();
@@ -261,7 +261,7 @@ void ParticleSystem::update_data() noexcept
         }
 
         // Update the transform
-        transforms[p.id].pos = {p.pos, 0.0f};
+        transforms[p.id].pos = {p.pos, 1.0f};
         transforms[p.id].rot.z += p.torque;
 
         models[p.id] = proj * transforms[p.id].get_model();

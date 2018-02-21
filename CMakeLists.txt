@@ -42,7 +42,7 @@ if(WIN32)
   set_target_properties( ${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_BINARY_DIR} )
 
   configure_file("./dep/Windows/glew32.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-  configure_file("./dep/Windows/glfw3.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+  #configure_file("./dep/Windows/glfw3.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
   configure_file("./dep/Windows/freetype271.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
   configure_file("./dep/Windows/OpenCL.dll" ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
@@ -61,7 +61,7 @@ if(WIN32)
   set_target_properties(freetype PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/freetype271.lib)
 
   add_library(glfw STATIC IMPORTED)
-  set_target_properties(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/glfw3dll.lib)
+  set_target_properties(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/Windows/glfw3.lib)
 
   target_link_libraries(${PROJECT_NAME} freetype opencl glew glfw opengl32.lib user32.lib gdi32.lib kernel32.lib)
 

@@ -97,9 +97,9 @@ void attraction_force(Particle &a, const vec2 &point) {
   const f32 d = sqrt(dx * dx + dy * dy);
 
   const f32 angle = atan2(dy, dx);
-  a.acc.x += d * cos(angle);
-  a.acc.y += d * sin(angle);
-  a.acc *= 0.7f;
+  a.vel.x += d * cos(angle);
+  a.vel.y += d * sin(angle);
+  a.vel *= 0.7f;
 }
 
 s32 mouse_attached_to_single{-1};

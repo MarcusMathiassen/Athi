@@ -111,6 +111,13 @@ void init_window() {
   camera.update_projection(width, height);
   camera.update();
 
+  {
+    float xx;
+    glfwGetWindowContentScale(window, &xx, NULL);
+    px_scale = xx;
+  }
+
+
   // During init, enable debug output
   //glEnable              ( GL_DEBUG_OUTPUT );
   //glDebugMessageCallback( (GLDEBUGPROC) MessageCallback, 0 ); OpenGL 4.3 needed
@@ -159,7 +166,11 @@ void framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height) {
   s32 w, h;
   glfwGetWindowSize(window, &w, &h);
 
-  px_scale = static_cast<float>(width) / static_cast<float>(w);
+  {
+    float xx;
+    glfwGetWindowContentScale(window, &xx, NULL);
+    px_scale = xx;
+  }
 
-  //console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
+  // console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
 }

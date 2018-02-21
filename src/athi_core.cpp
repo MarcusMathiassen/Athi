@@ -140,8 +140,6 @@ void Athi_Core::init()
 
   stbi_set_flip_vertically_on_load(true);
 
-  px_scale = static_cast<f32>(framebuffer_width) / static_cast<f32>(screen_width);
-
   gui_init(get_window_context(), px_scale);
   variable_thread_count = std::thread::hardware_concurrency();
 
@@ -159,9 +157,6 @@ void Athi_Core::init()
   particle_system.init();
 
   init_text_renderer();
-
-
-  load_font("DroidSans.ttf");
 
   init_circle_renderer();
   init_line_renderer();

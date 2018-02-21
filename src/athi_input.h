@@ -39,6 +39,10 @@
 static f32 hue = 0;
 static bool left_shift_pressed = false;
 
+static s32 last_key;
+static s32 last_action;
+
+
 void init_input_manager();
 glm::vec2 get_mouse_viewspace_pos();
 int32_t get_mouse_button_state(int32_t button);
@@ -80,13 +84,16 @@ static void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset) {
   g_MouseWheel +=
       (f32)yoffset;  // Use fractional mouse wheel, 1.0 unit 5 lines.
 
-  // camera.process_mouse_scroll(yoffset);
-  // camera.update();
+  // if (last_key == GLFW_KEY_LEFT_CONTROL && last_action == GLFW_PRESS)
+  // {
+      camera.process_mouse_scroll(yoffset);
+      camera.update();
+  // }
 }
 
 static void cursor_position_callback(GLFWwindow *window, f64 xpos, f64 ypos) {
-  athi_input_manager.mouse.pos.x = xpos * px_scale;
-  athi_input_manager.mouse.pos.y = framebuffer_height - (ypos * px_scale);
+  athi_input_manager.mouse.pos.x = xpos;
+  athi_input_manager.mouse.pos.y = framebuffer_height - (ypos);
 }
 
 static void char_callback(GLFWwindow *, u32 c) {
@@ -114,10 +121,6 @@ static void mouse_button_callback(GLFWwindow *window, s32 button, s32 action,
     particle_system.add(mouse_pos, mouse_size, circle_color);
   }
 }
-
-
-static s32 last_key;
-static s32 last_action;
 
 static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
                          s32 mods)
