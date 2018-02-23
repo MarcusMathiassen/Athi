@@ -76,6 +76,8 @@ static void setup_fullscreen_quad()
   renderer.finish();
 }
 
+
+
 static void draw_fullscreen_quad(u32 texture, const vec2 &dir)
 {
   CommandBuffer cmd;
@@ -210,6 +212,9 @@ void Athi_Core::start()
         std::unique_lock<std::mutex> lock(draw_mutex);
         can_draw_cond.wait(lock, []() { return ready_to_draw; });
 
+        cpu_profile::clear_profiles();
+        gpu_profile::clear_profiles();
+
         // Input
         update_inputs();
 
@@ -219,6 +224,9 @@ void Athi_Core::start()
         can_draw_cond.notify_one();
       }
     } else {
+
+      cpu_profile::clear_profiles();
+      gpu_profile::clear_profiles();
 
       // Input
       update_inputs();
@@ -247,8 +255,6 @@ void Athi_Core::start()
 
 void Athi_Core::draw(GLFWwindow *window)
 {
-  gpu_profile p("Athi_Core::draw");
-
   const f64 time_start_frame = glfwGetTime();
   glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
   check_gl_error();
@@ -309,8 +315,6 @@ void Athi_Core::draw(GLFWwindow *window)
 
 void Athi_Core::update(float dt)
 {
-  cpu_profile p("update");
-
   const f64 time_start_frame = glfwGetTime();
 
   // Update objects

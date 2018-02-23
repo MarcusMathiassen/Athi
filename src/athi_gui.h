@@ -246,7 +246,6 @@ static void menu_cpu_profiler() {
     }
     ImGui::NextColumn();
   }
-  cpu_profiles.clear();
 
   ImGui::Columns(1);
   ImGui::Separator();
@@ -297,7 +296,6 @@ static void menu_gpu_profiler() {
     }
     ImGui::NextColumn();
   }
-  gpu_profiles.clear();
 
   ImGui::Columns(1);
   ImGui::Separator();
@@ -477,7 +475,7 @@ void gui_render() {
         ImGui::RadioButton("Color", &mouse_radio_options, 0);
         ImGui::RadioButton("Gravity Well", &mouse_radio_options, 1);
         ImGui::RadioButton("Drag", &mouse_radio_options, 2);
-        ImGui::RadioButton("Delete", &mouse_radio_options, 3);
+        //ImGui::RadioButton("Delete", &mouse_radio_options, 3);
         ImGui::RadioButton("None", &mouse_radio_options, 4);
 
         switch ((MouseOption)mouse_radio_options) {
@@ -485,11 +483,21 @@ void gui_render() {
           case MouseOption::GravityWell: { mouse_option = MouseOption::GravityWell; } break;
           case MouseOption::Drag: { mouse_option = MouseOption::Drag; } break;
           case MouseOption::Delete: { mouse_option = MouseOption::Delete; } break;
-          case MouseOption::None: { /* DO NOTHING */ } break;
+          case MouseOption::None: { mouse_option = MouseOption::None; } break;
         }
     ImGui::EndPopup();
     }
 
+    const auto yellow = ImVec4(0.1f, 8.0f, 0.8f, 1.0f);
+    ImGui::PushStyleColor(ImGuiCol_Text, yellow);
+    ImGui::Text("Particles: %lu", particle_system.particles.size());
+    ImGui::PopStyleColor();
+    ImGui::SameLine();
+
+    ImGui::PushItemWidth(100.0f);
+    ImGui::SliderFloat("Mouse size", &mouse_size, 1.0f, 500.0f);
+    ImGui::SameLine();
+    ImGui::PopItemWidth();
 
     const auto red = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
     const auto green = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
@@ -498,23 +506,15 @@ void gui_render() {
     ImGui::PopStyleColor();
     ImGui::SameLine();
 
-    ImGui::PushStyleColor(ImGuiCol_Text, (physics_framerate >= monitor_refreshrate) ? green : red);
-    ImGui::Text("Physics FPS %d", physics_framerate);
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    ImGui::Text("CPU: %f", smoothed_physics_frametime);
     ImGui::PopStyleColor();
     ImGui::SameLine();
 
-    const auto yellow = ImVec4(0.1f, 8.0f, 0.8f, 1.0f);
-    ImGui::PushStyleColor(ImGuiCol_Text, yellow);
-    ImGui::Text("particles: %lu", particle_system.particles.size());
+    ImGui::PushStyleColor(ImGuiCol_Text,  ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+    ImGui::Text("GPU: %f", smoothed_render_frametime);
     ImGui::PopStyleColor();
-    ImGui::SameLine();
 
-    ImGui::PushItemWidth(100.0f);
-    ImGui::SliderFloat("particle size", &circle_size, 1.0f, 100.0f);
-    ImGui::SameLine();
-    ImGui::SliderFloat("mouse size", &mouse_size, 1.0f, 500.0f);
-    ImGui::SameLine();
-    ImGui::PopItemWidth();
     ImGui::EndMainMenuBar();
   }
 

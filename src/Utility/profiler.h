@@ -35,17 +35,29 @@ class gpu_profile
 private:
   f64     m_start_time{0.0};
   string  m_id;
+  std::tuple<string, f64> *ptr_to_val;
 public:
   gpu_profile(const char* id) noexcept : m_id(id)
   {
-    if constexpr (DEBUG_MODE)
+    if constexpr (DEBUG_MODE) {
       m_start_time = get_time();
+      std::unique_lock<std::mutex> lck(gpu_profiler_mutex);
+      ptr_to_val = &gpu_profiles.emplace_back(std::tuple<string,f64>(m_id, 0.0));
+    }
   }
   ~gpu_profile() noexcept
   {
     if constexpr (DEBUG_MODE) {
-      std::unique_lock<std::mutex> lck(cpu_profiler_mutex);
-      gpu_profiles.emplace_back(std::tuple<string,f64>(m_id, ((get_time() - m_start_time) * 1000.0)));
+      std::unique_lock<std::mutex> lck(gpu_profiler_mutex);
+      *ptr_to_val = std::tuple<string,f64>(m_id, ((get_time() - m_start_time) * 1000.0));
+    }
+  }
+
+  static void clear_profiles() noexcept
+  {
+    if constexpr (DEBUG_MODE) {
+      std::unique_lock<std::mutex> lck(gpu_profiler_mutex);
+      gpu_profiles.clear();
     }
   }
 };
@@ -54,17 +66,29 @@ class cpu_profile
 private:
   f64     m_start_time{0.0};
   string  m_id;
+  std::tuple<string, f64> *ptr_to_val;
 public:
   cpu_profile(const char* id) noexcept : m_id(id)
   {
-    if constexpr (DEBUG_MODE)
+    if constexpr (DEBUG_MODE) {
       m_start_time = get_time();
+      std::unique_lock<std::mutex> lck(cpu_profiler_mutex);
+      ptr_to_val = &cpu_profiles.emplace_back(std::tuple<string,f64>(m_id, 0.0));
+    }
   }
   ~cpu_profile() noexcept
   {
     if constexpr (DEBUG_MODE) {
       std::unique_lock<std::mutex> lck(cpu_profiler_mutex);
-      cpu_profiles.emplace_back(std::tuple<string,f64>(m_id, ((get_time() - m_start_time) * 1000.0)));
+      *ptr_to_val = std::tuple<string,f64>(m_id, ((get_time() - m_start_time) * 1000.0));
+    }
+  }
+
+  static void clear_profiles() noexcept
+  {
+    if constexpr (DEBUG_MODE) {
+      std::unique_lock<std::mutex> lck(cpu_profiler_mutex);
+      cpu_profiles.clear();
     }
   }
 };
