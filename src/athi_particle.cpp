@@ -214,7 +214,8 @@ void ParticleSystem::update_data() noexcept
   execute_buffered_calls();
 
   if (particles.empty()) return;
-  cpu_profile p("PS::update_data");
+
+  cpu_profile p("PS::cpu_buffer_update");
 
   // Check if buffers need resizing
   if (particle_count > models.size()) {

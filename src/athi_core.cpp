@@ -41,6 +41,7 @@
 #include <atomic> // atomic
 #include <mutex> // mutex
 #include <condition_variable> // condition_variable
+#include <algorithm>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -204,7 +205,6 @@ void Athi_Core::start()
 
     if constexpr (DEBUG_MODE && !multithreaded_engine) { reload_variables(); }
 
-    // Single threaded engine
     if constexpr (multithreaded_engine)
     {
       // GPU draw
@@ -223,6 +223,7 @@ void Athi_Core::start()
         ready_to_draw = false;
         can_draw_cond.notify_one();
       }
+    // Single threaded engine
     } else {
 
       cpu_profile::clear_profiles();
@@ -233,6 +234,7 @@ void Athi_Core::start()
 
       // CPU Update
       update(1.0f/60.0f);
+
 
       // GPU draw
       draw(window_context);
@@ -303,14 +305,15 @@ void Athi_Core::draw(GLFWwindow *window)
     gui_render();
   }
 
-  render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
-  render_framerate = static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
-  smooth_render_rametime_avg.add_new_frametime(render_frametime);
-
   {
     gpu_profile p("glfwSwapBuffers");
     glfwSwapBuffers(window);
   }
+
+  render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
+  render_framerate = static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
+  smooth_render_rametime_avg.add_new_frametime(render_frametime);
+
 }
 
 void Athi_Core::update(float dt)

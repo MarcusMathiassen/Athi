@@ -112,7 +112,9 @@ bool found{false};
 bool attach{false};
 static bool is_dragging{false};
 static vector<s32> mouse_attached_to;
-void drag_color_or_destroy_with_mouse() {
+
+void drag_color_or_destroy_with_mouse()
+{
   // Get the mouse state
   const auto state = get_mouse_button_state(GLFW_MOUSE_BUTTON_LEFT);
 

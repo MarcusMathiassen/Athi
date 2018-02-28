@@ -129,6 +129,10 @@ static void draw_custom_gui() noexcept
   if (button("Particles: " + std::to_string(particle_system.particle_count)))
   {
   }
+
+  if (button("Resolution: " + std::to_string(framebuffer_width) + "x" + std::to_string(framebuffer_height)))
+  {
+  }
 }
 
 static void custom_gui_init() noexcept
