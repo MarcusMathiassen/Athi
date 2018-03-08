@@ -111,28 +111,11 @@ static void draw_custom_gui() noexcept
 {
   button_count = 0;
 
-  if (button("GPU: " + std::to_string(smoothed_render_frametime) + "ms"))
-  {
-    //open_gpu_profiler ^= 1;
-  }
-
-  if (button("CPU: " + std::to_string(smoothed_physics_frametime) + "ms"))
-  {
-    //open_cpu_profiler ^= 1;
-  }
-
-  if (button("FPS: " + std::to_string(framerate), (framerate < 60) ? pastel_red : pastel_green))
-  {
-    //vsync ^= 1;
-  }
-
-  if (button("Particles: " + std::to_string(particle_system.particle_count)))
-  {
-  }
-
-  if (button("Resolution: " + std::to_string(framebuffer_width) + "x" + std::to_string(framebuffer_height)))
-  {
-  }
+  button("GPU: " + std::to_string(smoothed_render_frametime) + "ms");
+  button("CPU: " + std::to_string(smoothed_physics_frametime) + "ms");
+  button("FPS: " + std::to_string(framerate) + "(" + std::to_string(frametime) + "ms)", (framerate < 60) ? pastel_red : pastel_green);
+  button("Particles: " + std::to_string(particle_system.particle_count));
+  button("Resolution: " + std::to_string(framebuffer_width) + "x" + std::to_string(framebuffer_height));
 }
 
 static void custom_gui_init() noexcept

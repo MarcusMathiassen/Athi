@@ -599,7 +599,6 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
   // w is the torque, r is the vector to the collision point from the center, v is the velocity vector
   // ω = (cross(cp, v1) / r1 * friction + w2 * 0.1; r.x*v.y−r.y*v.x) / (r2x+r2y)
   //
-
   {
     const f32 ar = a.radius;
     const f32 br = b.radius;
@@ -629,8 +628,8 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
     a.torque = (cross(glm::normalize(r2), v1) / ar) * friction + b.torque * 0.1f;
     b.torque = (cross(glm::normalize(r1), v2) / br) * friction + a.torque * 0.1f;
 
-    // draw_line(a.pos, a.pos+r1, 1.0f, white);
-    // draw_line(b.pos, b.pos+r2, 1.0f, white);
+    draw_line(a.pos, a.pos+r1, 1.0f, white);
+    draw_line(b.pos, b.pos+r2, 1.0f, white);
   }
 
   // And we don't resolve collisions between circles moving away from eachother

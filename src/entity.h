@@ -21,113 +21,62 @@
 #pragma once
 
 #include "athi_typedefs.h"
-#include "./Renderer/athi_shader.h" // Shader
-#include "./Renderer/athi_buffer.h" // Buffer
-#include "athi_transform.h"         // Transform
+#include "athi_transform.h" // Transform
 
-class Entity
+#include <vector> // std::vector
+#include <bitset> // std::bitset
+#include <iostream> // std::bitset
+
+struct Entity
 {
-protected:
-    s32       id;
-    Buffer    buffer;
-    Shader    shader;
-    Transform transform;
-    vec4      color;
-public:
-    virtual void update(f32 dt) = delete;
-    virtual void draw()   = delete;
+    size_t  id  {0};
+    vec3    position    {0, 0, 0};
+    vec3    rotation    {0, 0, 0};
+    vec3    scale       {1, 1, 1};
+
+    virtual ~Entity() = default;
+    virtual void update(f32 dt) = 0;
+    virtual void draw() = 0;
 };
 
 struct EntityManager
 {
-    vector<Entity> entities;
-    vector<s32>    is_alives;
+    std::vector<Entity*>      entities;
+    std::bitset<1'000'000>   alive_entities;
 
+
+    void init() noexcept
+    {
+        alive_entities.set();
+    }
+
+    // @Hot
     void update(f32 dt) noexcept
     {
-        for (const auto is_alive: is_alives)
-        {
-            if (is_alive) 
-            {
-                entities[is_alive].update(dt)
+        for (size_t i = 0; i < entities.size(); ++i) {
+            if (alive_entities[i]) {
+                entities[i]->update(dt);
             }
         }
     }
 
-    void draw() const noexcept
+    // @Hot
+    void draw() noexcept
     {
-        for (const auto is_alive: is_alives)
-        {
-            if (is_alive)
-            {
-                entities[is_alive].draw();
+        for (size_t i = 0; i < entities.size(); ++i) {
+            if (alive_entities[i]) {
+               entities[i]->draw();
             }
         }
     }
 
     template <class T>
-    static void add_entity(T& entity) noexcept
+    void add_entity(T* entity) noexcept
     {
-        entity.id = entities.size();
-        entity_is_live.resize(entities.size());
+        // Give the entity a unique ID.
+        entity->id = entities.size();
+
+        // Add it to entities
         entities.emplace_back(entity);
-    }
-};
-
-struct Particle
-{
-    s32 id{0};
-    vec2 pos{0.0f, 0.0f};
-    vec2 vel{0.0f, 0.0f};
-    vec2 acc{0.0f, 0.0f};
-    f32 mass{0.0f};
-    f32 radius{0.0f};
-    f32 torque{0.0f};
-
-    void update(f32 dt) noexcept;
-};
-
-struct ParticleSystem : public Entity
-{
-    vector<Particle> particles;
-    vector<Transform> transforms;
-    vector<vec4> colors;
-    vector<mat4> models;
-
-    void update(f32 dt) noexcept
-    {
-        for (const auto is_alive: is_alives)
-        {
-            if (is_alive) 
-            {
-                entities[is_alive].update(dt);
-            }
-        }
-    }
-
-    void draw() const noexcept
-    {
-        for (const auto is_alive: is_alives)
-        {
-            if (is_alive) 
-            {
-                entities[is_alive].draw();
-            }
-        }
-    }
-}
-
-// Example entity
-struct Triangle: public Entity
-{
-    vec2 pos, vel, acc;
-
-    void update(f32 dt) noexcept
-    {
-        this->transform.pos.x = sinf(glfwGetTime());
-    }
-
-    void draw() const noexcept
-    {
     }
 };

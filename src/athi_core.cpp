@@ -50,9 +50,9 @@
 #include "../dep/Universal/imgui_impl_glfw_gl3.h"
 #include "../dep/Universal/spdlog/spdlog.h"
 
-static Smooth_Average<f64, 10> smooth_frametime_avg(&smoothed_frametime);
-static Smooth_Average<f64, 10> smooth_physics_rametime_avg(&smoothed_physics_frametime);
-static Smooth_Average<f64, 10> smooth_render_rametime_avg(&smoothed_render_frametime);
+static Smooth_Average<f64, 30> smooth_frametime_avg(&smoothed_frametime);
+static Smooth_Average<f64, 30> smooth_physics_rametime_avg(&smoothed_physics_frametime);
+static Smooth_Average<f64, 30> smooth_render_rametime_avg(&smoothed_render_frametime);
 
 static Renderer renderer;
 
@@ -76,8 +76,6 @@ static void setup_fullscreen_quad()
 
   renderer.finish();
 }
-
-
 
 static void draw_fullscreen_quad(u32 texture, const vec2 &dir)
 {
@@ -165,6 +163,7 @@ void Athi_Core::init()
   init_line_renderer();
   init_rect_renderer();
   init_input_manager();
+  entity_manager.init();
 
   custom_gui_init();
 
@@ -267,6 +266,9 @@ void Athi_Core::draw(GLFWwindow *window)
   // Upload gpu buffers
   particle_system.gpu_buffer_update();
 
+  // Draw entities
+  entity_manager.draw();
+
   if (post_processing)
   {
     gpu_profile p("post processing");
@@ -319,6 +321,9 @@ void Athi_Core::draw(GLFWwindow *window)
 void Athi_Core::update(float dt)
 {
   const f64 time_start_frame = glfwGetTime();
+
+  // Update entities
+  entity_manager.update(dt);
 
   // Update objects
   particle_system.update(dt);

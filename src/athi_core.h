@@ -22,8 +22,14 @@
 #pragma once
 
 #include "athi_window.h"
+#include "entity.h"
+#include "./Renderer/athi_circle.h"
+
+#include "athi_utility.h"
 
 struct Athi_Core {
+
+  EntityManager entity_manager;
 
   void update(float dt);
   void draw(GLFWwindow *window);

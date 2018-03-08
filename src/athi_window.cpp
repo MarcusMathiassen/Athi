@@ -73,7 +73,7 @@ void init_window() {
 
   console->info("{} {} {}hz", FRED("Monitor:"), monitor_name, monitor_refreshrate);
 
-  window = glfwCreateWindow(screen_width, screen_height, title.c_str(), NULL, NULL);
+  window = glfwCreateWindow(screen_width, screen_height, title.c_str(), glfwGetPrimaryMonitor(), NULL);
   glfwMakeContextCurrent(window);
   glfwSetWindowPos(window, window_pos.x, window_pos.y);
 

@@ -28,6 +28,7 @@
 #include <algorithm> // std::find
 #include <unordered_map> // std::unordered_map
 #include <functional> // std::hash_
+#include <cctype> // std::isspace
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -185,7 +186,13 @@ void immidiate_draw_text(u32 font_id, const string& text,  f32 x, f32 y, f32 sca
 
     for (auto c: text)
     {
-         auto ch = font.characters[c];
+        auto ch = font.characters[c];
+
+        // Skip any whitespace
+        if (std::isspace(c)) {
+         nx += (ch.advance >> 6) * scale;
+         continue;
+        }
 
         const f32 xpos = nx + ch.bearing.x * scale;
         const f32 ypos = y - (ch.size.y - ch.bearing.y) * scale;

@@ -43,3 +43,8 @@ struct Transform
     return posMatrix * rotMatrix * scaleMatrix;
   }
 };
+
+static mat4 get_model_matrix(const vec3& position, const vec3& rotation, const vec3& scale) noexcept
+{
+  return glm::translate(position) * glm::toMat4(glm::quat(rotation)) * glm::scale(scale);
+}

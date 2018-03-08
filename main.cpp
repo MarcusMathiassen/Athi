@@ -19,11 +19,39 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include "athi_core.h"
+#include "athi.h"
+#include "./Renderer/athi_circle.h"
+
+struct Circle: public Entity
+{
+    void update(float dt) override
+    {
+    }
+
+    void draw() override
+    {
+        draw_circle(position, 300.0f, vec4(0,1,1,1), true);
+    }
+};
+
+Circle circle;
 
 int main()
 {
     Athi_Core athi;
     athi.init();
+
+    athi.entity_manager.add_entity(&circle);
+
     athi.start();
+}
+
+void Athi::update()
+{
+    circle.position.x = sinf(get_time()) * 100.0f;
+}
+
+void Athi::draw()
+{
+
 }
