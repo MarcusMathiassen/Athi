@@ -35,6 +35,12 @@ void glfw_error_callback(int error, const char* description)
     console->error("{}", description);
 }
 
+
+void set_window_resolution(int width, int height)
+{
+
+}
+
 void init_window() {
 
   if (!glfwInit()) {
@@ -57,23 +63,30 @@ void init_window() {
 
   // Gather monitor info
   s32 count;
-  auto modes = glfwGetVideoModes(glfwGetPrimaryMonitor(), &count);
-  console->info("RGBA bits: {}{}{}{}", modes->redBits, modes->greenBits, modes->blueBits, 8);
-  glfwWindowHint(GLFW_RED_BITS, modes->redBits);
-  glfwWindowHint(GLFW_GREEN_BITS, modes->greenBits);
-  glfwWindowHint(GLFW_BLUE_BITS, modes->blueBits);
-  glfwWindowHint(GLFW_ALPHA_BITS, 8);
-  glfwWindowHint(GLFW_REFRESH_RATE, modes->refreshRate);
+  auto primary_monitor = glfwGetPrimaryMonitor();
+  auto video_mode = glfwGetVideoModes(primary_monitor, &count);
+
+  console->info("Video modes: {}", count);
+  for (int i = 0; i < count; ++i) {
+    auto &vm = video_mode[i];
+    console->info("{}x{}({}hz {}{}{})", vm.width, vm.height, vm.refreshRate, vm.redBits, vm.greenBits, vm.blueBits);
+  }
+
+  auto &vm = video_mode[count-1];
+  glfwWindowHint(GLFW_RED_BITS, vm.redBits);
+  glfwWindowHint(GLFW_GREEN_BITS, vm.greenBits);
+  glfwWindowHint(GLFW_BLUE_BITS, vm.blueBits);
+  glfwWindowHint(GLFW_REFRESH_RATE, vm.refreshRate);
 
   glfwSetErrorCallback(glfw_error_callback);
 
-  monitor_refreshrate = modes->refreshRate;
+  monitor_refreshrate = vm.refreshRate;
 
-  auto monitor_name = glfwGetMonitorName(glfwGetPrimaryMonitor());
+  auto monitor_name = glfwGetMonitorName(primary_monitor);
 
-  console->info("{} {} {}hz", FRED("Monitor:"), monitor_name, monitor_refreshrate);
+  console->info("{} {}x{}({}hz)", monitor_name, vm.width, vm.height, monitor_refreshrate);
 
-  window = glfwCreateWindow(screen_width, screen_height, title.c_str(), glfwGetPrimaryMonitor(), NULL);
+  window = glfwCreateWindow(vm.width, vm.height, title.c_str(), primary_monitor, NULL);
   glfwMakeContextCurrent(window);
   glfwSetWindowPos(window, window_pos.x, window_pos.y);
 
