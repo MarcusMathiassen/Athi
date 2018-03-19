@@ -41,7 +41,7 @@ vec2 get_mouse_viewspace_pos() {
   mouse_pos_x = -1.0f + 2 * mouse_pos_x / width;
   mouse_pos_y = 1.0f - 2 * mouse_pos_y / height;
 
-  return vec2(mouse_pos_x, mouse_pos_y);
+  return px_scale * vec2(mouse_pos_x, mouse_pos_y);
 }
 
 s32 get_mouse_button_state(s32 button) {

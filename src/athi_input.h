@@ -92,8 +92,8 @@ static void scroll_callback(GLFWwindow *window, f64 xoffset, f64 yoffset) {
 }
 
 static void cursor_position_callback(GLFWwindow *window, f64 xpos, f64 ypos) {
-  athi_input_manager.mouse.pos.x = xpos;
-  athi_input_manager.mouse.pos.y = framebuffer_height - (ypos);
+  athi_input_manager.mouse.pos.x = px_scale *  xpos;
+  athi_input_manager.mouse.pos.y = framebuffer_height - (px_scale *  ypos);
 }
 
 static void char_callback(GLFWwindow *, u32 c) {
@@ -125,7 +125,6 @@ static void mouse_button_callback(GLFWwindow *window, s32 button, s32 action,
 static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
                          s32 mods)
 {
-
   auto mouse_pos = athi_input_manager.mouse.pos;
 
   // IMGUI
@@ -148,7 +147,7 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
   };
 
   // Save all state
-  if ( last_key == GLFW_KEY_LEFT_SUPER || last_key == GLFW_KEY_LEFT_CONTROL && last_action == GLFW_PRESS && key_pressed(GLFW_KEY_S))
+  if ( (last_key == GLFW_KEY_LEFT_SUPER || last_key == GLFW_KEY_LEFT_CONTROL) && last_action == GLFW_PRESS && key_pressed(GLFW_KEY_S))
   {
     // Not yet threadsafe
     save_variables();
@@ -158,7 +157,7 @@ static void key_callback(GLFWwindow *window, s32 key, s32 scancode, s32 action,
 
   // load state
   if (
-      last_key == GLFW_KEY_LEFT_SUPER || last_key == GLFW_KEY_LEFT_CONTROL && last_action == GLFW_PRESS &&
+      (last_key == GLFW_KEY_LEFT_SUPER || last_key == GLFW_KEY_LEFT_CONTROL) && last_action == GLFW_PRESS &&
       key_pressed(GLFW_KEY_X))
   {
     particle_system.load_state();

@@ -482,7 +482,7 @@ static void save_variables() noexcept
     string new_file_data;
 
     // Read line by line.. but skip the last newline
-    for (s32 i = 0; i < lines.size()-1; ++i)
+    for (size_t i = 0; i < lines.size()-1; ++i)
     {
         auto& line = lines[i];
 

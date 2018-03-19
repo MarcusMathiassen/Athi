@@ -86,7 +86,7 @@ void init_window() {
 
   console->info("{} {}x{}({}hz)", monitor_name, vm.width, vm.height, monitor_refreshrate);
 
-  window = glfwCreateWindow(vm.width, vm.height, title.c_str(), primary_monitor, NULL);
+  window = glfwCreateWindow(screen_width, screen_height, title.c_str(), NULL, NULL);
   glfwMakeContextCurrent(window);
   glfwSetWindowPos(window, window_pos.x, window_pos.y);
 
@@ -185,5 +185,5 @@ void framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height) {
     px_scale = xx;
   }
 
-  // console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
+  console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
 }

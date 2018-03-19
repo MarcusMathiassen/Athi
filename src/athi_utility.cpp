@@ -28,7 +28,6 @@
 
 #include <algorithm>  // std::swap
 #include <mutex>  // std::mutex
-#include <execution>
 
 #ifdef _WIN32
 #include <sys/stat.h>

@@ -22,25 +22,78 @@
 #include "athi.h"
 #include "./Renderer/athi_circle.h"
 
-struct Circle: public Entity
+#include <array>
+
+struct ParticleSystem : public Entity
 {
+    struct Particle
+    {
+        vec2 position;
+        vec2 velocity;
+        vec2 acceleration;
+
+        void update(float dt)
+        {
+
+        }
+
+        void draw()
+        {
+
+        }
+    };
+
+    std::vector<Particle> particles;
+
     void update(float dt) override
     {
+
     }
 
     void draw() override
     {
-        draw_circle(position, 300.0f, vec4(0,1,1,1), true);
+
     }
 };
 
-Circle circle;
+struct Circle: public Entity
+{
+    static const int vertices_amount = 36;
+
+    template <class T>
+    constexpr void embros(T) const noexcept {}
+    constexpr void embros(double) const noexcept = delete;
+
+
+    std::array<vec2, vertices_amount> vertices; 
+
+    Circle()
+    {
+        for (int i = 0; i < vertices_amount; ++i) {
+            vertices[i] = { 
+                cos(i * kPI * 2.0f / vertices_amount),
+                sin(i * kPI * 2.0f / vertices_amount)  
+            };
+        }
+    }
+
+    void update(float dt) override
+    {
+        position.x = sinf(get_time()) * 100.0f;
+    }
+
+    void draw() override
+    {
+        draw_circle(position, 300.0f, vec4(0,sinf(get_time()),1,1), true);
+    }
+};
 
 int main()
 {
     Athi_Core athi;
     athi.init();
 
+    Circle circle;
     athi.entity_manager.add_entity(&circle);
 
     athi.start();
@@ -48,7 +101,7 @@ int main()
 
 void Athi::update()
 {
-    circle.position.x = sinf(get_time()) * 100.0f;
+
 }
 
 void Athi::draw()

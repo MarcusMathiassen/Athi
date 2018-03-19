@@ -120,8 +120,7 @@ static void draw_custom_gui() noexcept
 
 static void custom_gui_init() noexcept
 {
-    //init_text_renderer();
-    my_font = load_font("Inconsolata-Regular.ttf", 24*px_scale);
+    my_font = load_font("Inconsolata-Regular.ttf", 20 * px_scale);
 }
 
 
@@ -516,11 +515,14 @@ void gui_render() {
   ImGui::Render();
 }
 
-void gui_init(GLFWwindow *window, float px_scale) {
+void gui_init(GLFWwindow *window, float px_scale)
+{
   ImGui_ImplGlfwGL3_Init(window, false);
   ImGuiIO &io = ImGui::GetIO();
 
-  io.Fonts->AddFontFromFileTTF("../Resources/Fonts/Inconsolata-Regular.ttf", 14 * px_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
+  const int font_size = 12;
+  io.Fonts->AddFontFromFileTTF("../Resources/Fonts/Inconsolata-Regular.ttf", font_size * px_scale, NULL, io.Fonts->GetGlyphRangesJapanese());
+  io.FontGlobalScale = 1/px_scale;
   // SetupImGuiStyle(true, 1.0f);
   new_style();
 }
