@@ -35,7 +35,7 @@ struct Entity
     vec3    scale       {1, 1, 1};
 
     virtual ~Entity() = default;
-    virtual void update(f32 dt) = 0;
+    virtual void update(float) = 0;
     virtual void draw() = 0;
 };
 

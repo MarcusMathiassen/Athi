@@ -146,11 +146,11 @@ void window_pos_callback(GLFWwindow* window, int xpos, int ypos)
 {
   window_pos.x = xpos;
   window_pos.y = ypos;
-  //console->info("window pos: {}x{}", xpos, ypos);
+  console->info("window pos: {}x{}", xpos, ypos);
 }
 
 void window_size_callback(GLFWwindow *window, s32 xpos, s32 ypos) {
-  //console->info("window size: {}x{}", xpos, ypos);
+  console->info("window size: {}x{}", xpos, ypos);
   screen_width = xpos;
   screen_height = ypos;
 }

@@ -58,13 +58,13 @@ struct ParticleSystem : public Entity
 
 struct Circle: public Entity
 {
-    static const int vertices_amount = 36;
+    static const int vertices_amount = 360;
 
     template <class T>
     constexpr void embros(T) const noexcept {}
     constexpr void embros(double) const noexcept = delete;
 
-
+    vec4 color{1,1,1,1};
     std::array<vec2, vertices_amount> vertices; 
 
     Circle()
@@ -77,16 +77,19 @@ struct Circle: public Entity
         }
     }
 
-    void update(float dt) override
+    void update(float deltaTime) override
     {
-        position.x = sinf(get_time()) * 100.0f;
+        position = {get_mouse_pos(), 0};
+        color = color_over_time(get_time());
+        // position.x += sinf(get_time()) * 100.0f;
     }
 
     void draw() override
     {
-        draw_circle(position, 300.0f, vec4(0,sinf(get_time()),1,1), true);
+        draw_circle(position, 300.0f, color, false);
     }
 };
+
 
 int main()
 {

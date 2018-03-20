@@ -43,6 +43,28 @@ vec2 rand_vec2(f32 min, f32 max) noexcept { return vec2(rand_f32(min, max), rand
 vec3 rand_vec3(f32 min, f32 max) noexcept { return vec3(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }
 vec4 rand_vec4(f32 min, f32 max) noexcept { return vec4(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }
 
+vec2 get_mouse_pos() noexcept
+{
+  double mouse_pos_x, mouse_pos_y;
+  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_pos_x, &mouse_pos_y);
+
+  return px_scale * vec2(mouse_pos_x, screen_height - mouse_pos_y);
+}
+
+vec2 get_mouse_pos_viewspace() noexcept
+{
+  auto context = glfwGetCurrentContext();
+  f64 mouse_pos_x, mouse_pos_y;
+  glfwGetCursorPos(context, &mouse_pos_x, &mouse_pos_y);
+
+  s32 width, height;
+  glfwGetWindowSize(context, &width, &height);
+  mouse_pos_x = -1.0f + 2 * mouse_pos_x / width;
+  mouse_pos_y = 1.0f - 2 * mouse_pos_y / height;
+
+  return px_scale * vec2(mouse_pos_x, mouse_pos_y);
+}
+
 f64 get_time() noexcept
 {
   return glfwGetTime();

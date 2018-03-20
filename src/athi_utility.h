@@ -79,6 +79,13 @@ vec2 rand_vec2(f32 min, f32 max) noexcept;
 vec3 rand_vec3(f32 min, f32 max) noexcept;
 vec4 rand_vec4(f32 min, f32 max) noexcept;
 
+
+// Returns the mouse position inside the window.
+vec2 get_mouse_pos() noexcept;
+// Returns the mouse position in viewspace.
+vec2 get_mouse_pos_viewspace() noexcept;
+
+
 // Returns the time in ns
 f64 get_time() noexcept;
 
