@@ -24,6 +24,84 @@
 #include "./Renderer/athi_renderer.h"
 #include "./Renderer/athi_camera.h"
 
+struct Rectangle: public Entity
+{
+    float radius{200.0f};
+    vec4    color   {1,1,1,1};
+
+    mat4    model;
+
+    static Renderer *renderer;
+
+    Rectangle()
+    {
+        if (!renderer) {
+            renderer = &make_renderer("Rectangle");
+
+            auto &shader = renderer->make_shader();
+            shader.sources = {"argb_no_tex.vert", "argb_no_tex.frag"};
+            shader.attribs = {"position"};
+            shader.uniforms = {"transform", "color"};
+
+            array<vec2, 4> vertices = {
+                vec2(0.0f, 1.0f),
+                vec2(1.0f, 1.0f),
+                vec2(1.0f, 0.0f),
+                vec2(0.0f, 0.0f),
+            };
+
+            auto &vbo = renderer->make_buffer("position");
+            vbo.data = &vertices[0];
+            vbo.data_size = vertices.size() * sizeof(vertices[0]);
+            vbo.data_members = 2;
+            vbo.type  = buffer_type::array_buffer;
+            vbo.usage = buffer_usage::static_draw;
+
+            constexpr u16 indices[6] = {0, 1, 2, 0, 2, 3};
+            auto &indices_buffer = renderer->make_buffer("indices");
+            indices_buffer.data = (void*)indices;
+            indices_buffer.data_size = sizeof(indices);
+            indices_buffer.type = buffer_type::element_array;
+
+            renderer->finish();
+        }
+    }
+
+    void update(float deltaTime) override
+    {
+        const auto current_time = get_time();
+
+        position = {get_mouse_pos(), 0};
+        position.x += sinf(current_time) * 100.0f;
+        color = color_over_time(get_time()*2.0f);
+
+        const auto proj = camera.get_ortho_projection();
+
+        Transform temp;
+        temp.pos = position;
+        temp.scale = {radius*sinf(current_time*0.1f), radius*sinf(current_time*0.1f), 1.0f};
+
+        model = proj * temp.get_model();
+    }
+
+    void draw() override
+    {
+        renderer->bind();
+
+        renderer->shader.set_uniform("transform", model);
+        renderer->shader.set_uniform("color", color);
+
+        CommandBuffer cmd;
+        cmd.type = primitive::triangles;
+        cmd.count = 6;
+        cmd.has_indices = true;
+
+        renderer->draw(cmd);
+    }
+};
+Renderer* Rectangle::renderer;
+
+
 struct Circle: public Entity
 {
 
@@ -41,7 +119,7 @@ struct Circle: public Entity
             renderer = &make_renderer("Circle");
 
             auto &shader = renderer->make_shader();
-            shader.sources = {"immidiate_circle.vert", "immidiate_circle.frag"};
+            shader.sources = {"argb_no_tex.vert", "argb_no_tex.frag"};
             shader.attribs = {"position"};
             shader.uniforms = {"transform", "color"};
 
@@ -55,7 +133,7 @@ struct Circle: public Entity
 
             auto &vbo = renderer->make_buffer("position");
             vbo.data = &vertices[0];
-            vbo.data_size = vertices_amount * sizeof(vertices[0]);
+            vbo.data_size = vertices.size() * sizeof(vertices[0]);
             vbo.data_members = 2;
             vbo.type  = buffer_type::array_buffer;
             vbo.usage = buffer_usage::static_draw;
@@ -89,7 +167,7 @@ struct Circle: public Entity
         renderer->shader.set_uniform("color", color);
 
         CommandBuffer cmd;
-        cmd.type = primitive::line_loop;
+        cmd.type = primitive::triangle_fan;
         cmd.count = vertices_amount;
 
         renderer->draw(cmd);
@@ -103,8 +181,11 @@ int main()
     Athi_Core athi;
     athi.init();
 
-    Circle circle;
-    athi.entity_manager.add_entity(&circle);
+    //Circle circle;
+    //athi.entity_manager.add_entity(&circle);
+
+    Rectangle rectangle;
+    athi.entity_manager.add_entity(&rectangle);
 
     athi.start();
 }

@@ -23,14 +23,17 @@
 #include "../athi_utility.h"  // read_file
 #include "opengl_utility.h"  //   check_gl_error();
 #include "../athi_settings.h"
+#include "../athi_resource.h"
 
-Shader::~Shader() {
+Shader::~Shader()
+{
   glDeleteProgram(program);
   check_gl_error();
 }
 
 void Shader::validate_shader(const string& file, const char* type,
-                             u32 shader) const noexcept {
+                             u32 shader) const noexcept
+{
   char infoLog[512] = {0};
   s32 success;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
@@ -42,7 +45,8 @@ void Shader::validate_shader(const string& file, const char* type,
   }
 }
 
-void Shader::validate_shader_program() const noexcept {
+void Shader::validate_shader_program() const noexcept
+{
   char infoLog[512] = {0};
   s32 success;
   glGetProgramiv(program, GL_LINK_STATUS, &success);
@@ -53,8 +57,8 @@ void Shader::validate_shader_program() const noexcept {
   }
 }
 
-u32 Shader::create_shader(const string& file, shader_type type) const noexcept {
-
+u32 Shader::create_shader(const string& file, shader_type type) const noexcept
+{
   vector<string> sources;
   sources.reserve(1 + preambles_storage.size());
 
@@ -119,7 +123,8 @@ u32 Shader::create_shader(const string& file, shader_type type) const noexcept {
   return shader;
 }
 
-void Shader::link() noexcept {
+void Shader::link() noexcept
+{
   glLinkProgram(program);
   check_gl_error();
   glValidateProgram(program);
@@ -144,13 +149,15 @@ void Shader::link() noexcept {
   check_gl_error();
 }
 
-void Shader::bind() noexcept {
+void Shader::bind() noexcept
+{
   if constexpr (DEBUG_MODE) reload();
   glUseProgram(program);
   check_gl_error();
 }
 
-void Shader::finish() noexcept {
+void Shader::finish() noexcept
+{
   program = glCreateProgram();
   check_gl_error();
 
@@ -160,11 +167,17 @@ void Shader::finish() noexcept {
   {
     string source = get_content_of_file(shader_folder_path + file);
     preambles_storage.emplace_back(std::tuple<string, string>(shader_folder_path + file, source + "\n"));
-    //console->info("Preamble loaded: {}", file);
+    // if constexpr (DEBUG_MODE) console->info("Preamble loaded: {}", file);
   }
 
   for (u32 i = 0; i < sources.size(); ++i) {
+
     const auto source = shader_folder_path + sources[i];
+
+    // Check if it already exists
+    if (resource_manager.is_loaded(source)) {
+      continue;
+    }
 
     FileHandle file;
     file.source = source;
@@ -188,8 +201,11 @@ void Shader::finish() noexcept {
     }
     glAttachShader(program, shader);
 
-    //console->info("Shader loaded: {}", sources[i]);
+    // if constexpr (DEBUG_MODE) console->info("Shader loaded: {}", sources[i]);
     shaders.emplace_back(file, shader);
+
+    // Add to resources
+    resource_manager.add_resource(source, shader);
   }
   check_gl_error();
 
@@ -275,6 +291,9 @@ void Shader::reload() noexcept {
       shader = create_shader(file.source, file.shader_type);
       glAttachShader(program, shader);
       check_gl_error();
+
+      // Add to resources
+      resource_manager.add_resource(file.source, shader);
     }
 
     // We have to rebind the attrib locations in case they are out of sync.

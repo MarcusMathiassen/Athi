@@ -100,7 +100,7 @@ static bool button(
   }
 
   // Draw text inside this rect
-  draw_rounded_rect({button_pos.x, button_pos.y},  button_width, button_height, button_color, false);
+  // draw_rounded_rect({button_pos.x, button_pos.y},  button_width, button_height, button_color, false);
 
   immidiate_draw_text(my_font, button_text, button_pos.x, button_pos.y, 1.0f * button_height * 0.1/4.0, white);
 

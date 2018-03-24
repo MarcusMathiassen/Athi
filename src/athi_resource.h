@@ -36,6 +36,11 @@ public:
     console->info("resource loaded: {}", file);
   }
 
+  void update_resource(const string &file, u32 resource) noexcept {
+    resources[file] = resource;
+    console->info("resource updated: {}", file);
+  }
+
   u32 get_resource(const string &file) const noexcept {
     if (auto res = resources.find(file); res != resources.end()) {
       console->warn("resource already loaded: {}", file);
@@ -47,9 +52,9 @@ public:
     if (resources.empty()) return false;
     if (auto res = resources.find(file); res != resources.end()) {
       console->warn("resource already loaded: {}", file);
-      return false;
+      return true;
     }
-    return true;
+    return false;
   }
 };
 extern ResourceManager resource_manager;
