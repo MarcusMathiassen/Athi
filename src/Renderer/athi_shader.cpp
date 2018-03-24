@@ -20,7 +20,7 @@
 
 #include "athi_shader.h"
 
-#include "../athi_utility.h"  // read_file
+#include "../athi_utility.h"  // read_file, get_file_time_stamp
 #include "opengl_utility.h"  //   check_gl_error();
 #include "../athi_settings.h"
 #include "../athi_resource.h"
@@ -161,7 +161,6 @@ void Shader::finish() noexcept
   program = glCreateProgram();
   check_gl_error();
 
-
   // Read in all preambles
   for (const auto & file: preambles)
   {
@@ -174,14 +173,9 @@ void Shader::finish() noexcept
 
     const auto source = shader_folder_path + sources[i];
 
-    // Check if it already exists
-    if (resource_manager.is_loaded(source)) {
-      continue;
-    }
-
     FileHandle file;
     file.source = source;
-    file.last_write_time = GetShaderFileTimestamp(source.c_str());
+    file.last_write_time = get_file_time_stamp(source.c_str());
 
     const auto ext = source.substr(source.rfind('.'));
 
@@ -203,10 +197,8 @@ void Shader::finish() noexcept
 
     // if constexpr (DEBUG_MODE) console->info("Shader loaded: {}", sources[i]);
     shaders.emplace_back(file, shader);
-
-    // Add to resources
-    resource_manager.add_resource(source, shader);
   }
+
   check_gl_error();
 
   for (u32 i = 0; i < attribs.size(); ++i) {
@@ -267,12 +259,13 @@ void Shader::set_uniform(const string& name, bool val) const noexcept {
   check_gl_error();
 }
 
-void Shader::reload() noexcept {
+void Shader::reload() noexcept
+{
   bool need_to_reload = false;
 
   // Check if any shaders need reloading
   for (auto & [ file, shader ] : shaders) {
-    const auto timestamp = GetShaderFileTimestamp(file.source.c_str());
+    const auto timestamp = get_file_time_stamp(file.source.c_str());
     if (timestamp > file.last_write_time) {
       need_to_reload = true;
       file.last_write_time = timestamp;

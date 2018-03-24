@@ -33,7 +33,8 @@ Buffer::~Buffer()
 }
 
 
-void Buffer::bind() const noexcept {
+void Buffer::bind() const noexcept
+{
   glBindVertexArray(vao);
   check_gl_error();
 }

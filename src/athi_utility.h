@@ -121,7 +121,7 @@ vec4 color_over_time(f64 time) noexcept;
 
 
 // File functions
-u64 GetFileTimestamp(const string& filename) noexcept;
+u64 get_file_time_stamp(const string& filename) noexcept;
 void read_file(const char *file, char **buffer) noexcept;
 string get_content_of_file(const string& file) noexcept;
 

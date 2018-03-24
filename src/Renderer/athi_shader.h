@@ -27,15 +27,6 @@
 
 #include <GL/glew.h>
 
-#ifdef _WIN32
-#include <sys/stat.h>
-#else
-// Not Windows? Assume unix-like.
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#endif
-
 class Shader {
 private:
   enum class shader_type {
@@ -93,29 +84,3 @@ public:
   void set_uniform(const string& name, u32 val) const noexcept;
   void set_uniform(const string& name, bool val) const noexcept;
 };
-
-static u64 GetShaderFileTimestamp(const char* filename) noexcept {
-  u64 timestamp = 0;
-
-#ifdef _WIN32
-  struct __stat64 stFileInfo;
-  if (_stat64(filename, &stFileInfo) == 0) {
-    timestamp = stFileInfo.st_mtime;
-  }
-#else
-  struct stat fileStat;
-
-  if (stat(filename, &fileStat) == -1) {
-    perror(filename);
-    return 0;
-  }
-
-#ifdef __APPLE__
-  timestamp = fileStat.st_mtimespec.tv_sec;
-#else
-  timestamp = fileStat.st_mtime;
-#endif
-#endif
-
-  return timestamp;
-}

@@ -76,6 +76,4 @@ struct Renderer
   void finish() noexcept;
 };
 
-
-extern vector<Renderer> renderers;
 Renderer& make_renderer(const string& name);

@@ -79,9 +79,8 @@ void Renderer::finish() noexcept {
   buffer.finish();
 }
 
-
-// Renderer stuff
-vector<Renderer> renderers;
-Renderer& make_renderer(const string& name) {
+static vector<Renderer> renderers;
+Renderer& make_renderer(const string& name)
+{
   return renderers.emplace_back(name);
 }

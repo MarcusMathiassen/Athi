@@ -285,9 +285,6 @@ static void menu_gpu_profiler() {
 
   const auto col = ImVec4(0.5f, 1.0f, 0.8f, 1.0f);
 
-  // if you want it sorted by time taken
-  // auto new_map = flip_map(time_taken_by);
-
   for (const auto &[id, time] : gpu_profiles) {
     ImGui::PushStyleColor(ImGuiCol_Text, col);
     ImGui::Text("%s", id.c_str());

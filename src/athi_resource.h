@@ -27,8 +27,8 @@
 #include <algorithm>            // find
 #include <unordered_map>        // unordered_map
 
-struct ResourceManager {
-
+struct ResourceManager
+{
   std::unordered_map<string, u32> resources;
 
   void add_resource(const string &file, u32 resource) noexcept {

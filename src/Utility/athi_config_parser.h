@@ -459,7 +459,7 @@ static void set_variable(T* var, const string& str)
 
 static void reload_variables() noexcept
 {
-    const auto timestamp = GetFileTimestamp(path);
+    const auto timestamp = get_file_time_stamp(path);
     if (timestamp > last_write_time)
     {
         last_write_time = timestamp;
@@ -472,7 +472,7 @@ static void save_variables() noexcept
 {
     refresh_variables();
 
-    last_write_time = GetFileTimestamp(path);
+    last_write_time = get_file_time_stamp(path);
 
     const auto file_data = get_content_of_file(path);
 
@@ -539,7 +539,7 @@ static void init_variables() noexcept
         file << default_config;
     }
 
-    last_write_time = GetFileTimestamp(path);
+    last_write_time = get_file_time_stamp(path);
 
     const auto file_data = get_content_of_file(path);
     const auto no_spaces_data = eat_chars(file_data, {' ', '\t'});

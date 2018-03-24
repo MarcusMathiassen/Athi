@@ -36,7 +36,7 @@ struct Rectangle: public Entity
     Rectangle()
     {
         if (!renderer) {
-            renderer = &make_renderer("Rectangle");
+            renderer = new Renderer("Rectangle"); //&make_renderer("Rectangle");
 
             auto &shader = renderer->make_shader();
             shader.sources = {"argb_no_tex.vert", "argb_no_tex.frag"};
@@ -73,13 +73,13 @@ struct Rectangle: public Entity
 
         position = {get_mouse_pos(), 0};
         position.x += sinf(current_time) * 100.0f;
-        color = color_over_time(get_time()*2.0f);
+        color = color_over_time(get_time());
 
         const auto proj = camera.get_ortho_projection();
 
         Transform temp;
         temp.pos = position;
-        temp.scale = {radius*sinf(current_time*0.1f), radius*sinf(current_time*0.1f), 1.0f};
+        temp.scale = {radius*cos(current_time*0.1f), radius*sinf(current_time*0.1f), 1.0f};
 
         model = proj * temp.get_model();
     }
@@ -92,7 +92,7 @@ struct Rectangle: public Entity
         renderer->shader.set_uniform("color", color);
 
         CommandBuffer cmd;
-        cmd.type = primitive::triangles;
+        cmd.type = primitive::lines;
         cmd.count = 6;
         cmd.has_indices = true;
 
@@ -116,7 +116,7 @@ struct Circle: public Entity
     Circle()
     {
         if (!renderer) {
-            renderer = &make_renderer("Circle");
+            renderer = new Renderer("Circle"); // &make_renderer("Circle");
 
             auto &shader = renderer->make_shader();
             shader.sources = {"argb_no_tex.vert", "argb_no_tex.frag"};
@@ -148,7 +148,7 @@ struct Circle: public Entity
 
         position = {get_mouse_pos(), 0};
         position.x += sinf(current_time) * 100.0f;
-        color = color_over_time(get_time()*2.0f);
+        color = color_over_time(get_time());
 
         const auto proj = camera.get_ortho_projection();
 
@@ -181,11 +181,12 @@ int main()
     Athi_Core athi;
     athi.init();
 
-    //Circle circle;
-    //athi.entity_manager.add_entity(&circle);
 
     Rectangle rectangle;
+    Circle circle;
+
     athi.entity_manager.add_entity(&rectangle);
+    athi.entity_manager.add_entity(&circle);
 
     athi.start();
 }

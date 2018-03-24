@@ -25,6 +25,7 @@
 #include "./Renderer/athi_renderer.h"  // Renderer
 #include "./Renderer/athi_shader.h"    // Shader
 #include "athi_transform.h"            // Transform
+#include "athi_input.h"            // athi_input_manager
 
 #include <algorithm>  // std::swap
 #include <mutex>  // std::mutex
@@ -45,22 +46,17 @@ vec4 rand_vec4(f32 min, f32 max) noexcept { return vec4(rand_f32(min, max), rand
 
 vec2 get_mouse_pos() noexcept
 {
-  double mouse_pos_x, mouse_pos_y;
-  glfwGetCursorPos(glfwGetCurrentContext(), &mouse_pos_x, &mouse_pos_y);
-
-  return px_scale * vec2(mouse_pos_x, screen_height - mouse_pos_y);
+  const auto mouse_pos_x = athi_input_manager.mouse.pos.x;
+  const auto mouse_pos_y = athi_input_manager.mouse.pos.y;
+  return vec2(mouse_pos_x, mouse_pos_y);
 }
 
 vec2 get_mouse_pos_viewspace() noexcept
 {
-  auto context = glfwGetCurrentContext();
-  f64 mouse_pos_x, mouse_pos_y;
-  glfwGetCursorPos(context, &mouse_pos_x, &mouse_pos_y);
-
-  s32 width, height;
-  glfwGetWindowSize(context, &width, &height);
-  mouse_pos_x = -1.0f + 2 * mouse_pos_x / width;
-  mouse_pos_y = 1.0f - 2 * mouse_pos_y / height;
+  auto mouse_pos_x = athi_input_manager.mouse.pos.x;
+  auto mouse_pos_y = athi_input_manager.mouse.pos.y;
+  mouse_pos_x = -1.0f + 2 * mouse_pos_x / screen_width;
+  mouse_pos_y = 1.0f - 2 * mouse_pos_y / screen_height;
 
   return px_scale * vec2(mouse_pos_x, mouse_pos_y);
 }
@@ -302,7 +298,7 @@ string get_cpu_brand()
 #endif
 }
 
-u64 GetFileTimestamp(const string& filename) noexcept {
+u64 get_file_time_stamp(const string& filename) noexcept {
   u64 timestamp = 0;
 
 #ifdef _WIN32
