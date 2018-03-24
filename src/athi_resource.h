@@ -27,10 +27,10 @@
 #include <algorithm>            // find
 #include <unordered_map>        // unordered_map
 
-class ResourceManager {
-private:
+struct ResourceManager {
+
   std::unordered_map<string, u32> resources;
-public:
+
   void add_resource(const string &file, u32 resource) noexcept {
     resources[file] = resource;
     console->info("resource loaded: {}", file);

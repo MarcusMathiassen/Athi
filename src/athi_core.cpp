@@ -266,6 +266,8 @@ void Athi_Core::draw(GLFWwindow *window)
   // Upload gpu buffers
   particle_system.gpu_buffer_update();
 
+  // @Hot: We seem to be fillrate limited.
+  //  Igpus have a hard time at higher resolutions.
   if (post_processing)
   {
     gpu_profile p("post processing");

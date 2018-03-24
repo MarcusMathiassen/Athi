@@ -30,6 +30,7 @@
 #include "./Renderer/athi_text.h" // draw_text
 #include "athi_input.h" // mouse_pos
 #include "./Utility/profiler.h" // cpu_profile, gpu_profile
+#include "athi_resource.h" // resource_manager
 
 
 #include "../dep/Universal/imgui.h"
@@ -40,6 +41,7 @@ static bool open_settings = false;
 static bool open_gpu_profiler = false;
 static bool open_cpu_profiler = false;
 static bool open_debug_menu = false;
+static bool open_resource_viewer = false;
 
 static u32 my_font;
 static u32 ortho_loc;
@@ -189,6 +191,33 @@ static void menu_debug() {
   ImGui::End();
 }
 
+static void menu_resource_viewer()
+{
+  ImGui::Begin("Resource viewer");
+
+  ImGui::Columns(2, "mycolumns");
+  ImGui::Separator();
+  ImGui::Text("Resource");
+  ImGui::NextColumn();
+  ImGui::Text("Id");
+  ImGui::NextColumn();
+
+  ImGui::Separator();
+
+  for (const auto &[file, resource] : resource_manager.resources) {
+    ImGui::Text("%s", file.c_str());
+    ImGui::NextColumn();
+
+    ImGui::Text("%d", resource);
+    ImGui::NextColumn();
+  }
+
+  ImGui::Columns(1);
+  ImGui::Separator();
+
+  ImGui::End();
+}
+
 static void menu_cpu_profiler() {
   cpu_profile p("menu_cpu_profiler");
 
@@ -208,9 +237,6 @@ static void menu_cpu_profiler() {
   ImGui::Separator();
 
   const auto col = ImVec4(0.5f, 1.0f, 0.8f, 1.0f);
-
-  // if you want it sorted by time taken
-  // auto new_map = flip_map(time_taken_by);
 
   for (const auto &[id, time] : cpu_profiles) {
     ImGui::PushStyleColor(ImGuiCol_Text, col);
@@ -440,12 +466,14 @@ void gui_render() {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("Menu")) {
       ImGui::MenuItem("Settings", NULL, &open_settings);
-      if constexpr (DEBUG_MODE) {
 
+      if constexpr (DEBUG_MODE) {
         ImGui::MenuItem("GPU profiler", NULL, &open_gpu_profiler);
         ImGui::MenuItem("CPU profiler", NULL, &open_cpu_profiler);
+        ImGui::MenuItem("Resource viewer", NULL, &open_resource_viewer);
+        ImGui::MenuItem("debug", NULL, &open_debug_menu);
       }
-      if constexpr (DEBUG_MODE) ImGui::MenuItem("debug", NULL, &open_debug_menu);
+
       ImGui::EndMenu();
     }
 
@@ -509,6 +537,7 @@ void gui_render() {
   if constexpr (DEBUG_MODE) {
     if (open_cpu_profiler) menu_cpu_profiler();
     if (open_gpu_profiler) menu_gpu_profiler();
+    if (open_resource_viewer) menu_resource_viewer();
     if (open_debug_menu) menu_debug();
   }
 
