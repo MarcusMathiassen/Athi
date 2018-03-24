@@ -21,74 +21,81 @@
 
 #include "athi.h"
 #include "./Renderer/athi_circle.h"
-
-#include <array>
-
-struct ParticleSystem : public Entity
-{
-    struct Particle
-    {
-        vec2 position;
-        vec2 velocity;
-        vec2 acceleration;
-
-        void update(float dt)
-        {
-
-        }
-
-        void draw()
-        {
-
-        }
-    };
-
-    std::vector<Particle> particles;
-
-    void update(float dt) override
-    {
-
-    }
-
-    void draw() override
-    {
-
-    }
-};
+#include "./Renderer/athi_renderer.h"
+#include "./Renderer/athi_camera.h"
 
 struct Circle: public Entity
 {
+
+    float   radius  {100.0f};
+    vec4    color   {1,1,1,1};
+
+    mat4    model;
+
     static const int vertices_amount = 360;
-
-    template <class T>
-    constexpr void embros(T) const noexcept {}
-    constexpr void embros(double) const noexcept = delete;
-
-    vec4 color{1,1,1,1};
-    std::array<vec2, vertices_amount> vertices; 
+    static Renderer *renderer;
 
     Circle()
     {
-        for (int i = 0; i < vertices_amount; ++i) {
-            vertices[i] = { 
-                cos(i * kPI * 2.0f / vertices_amount),
-                sin(i * kPI * 2.0f / vertices_amount)  
-            };
+        if (!renderer) {
+            renderer = &make_renderer("Circle");
+
+            auto &shader = renderer->make_shader();
+            shader.sources = {"immidiate_circle.vert", "immidiate_circle.frag"};
+            shader.attribs = {"position"};
+            shader.uniforms = {"transform", "color"};
+
+            array<vec2, vertices_amount> vertices;
+            for (int i = 0; i < vertices_amount; ++i) {
+              vertices[i] = {
+                                cos(i * kPI * 2.0f / vertices_amount),
+                                sin(i * kPI * 2.0f / vertices_amount)
+                            };
+            }
+
+            auto &vbo = renderer->make_buffer("position");
+            vbo.data = &vertices[0];
+            vbo.data_size = vertices_amount * sizeof(vertices[0]);
+            vbo.data_members = 2;
+            vbo.type  = buffer_type::array_buffer;
+            vbo.usage = buffer_usage::static_draw;
+
+            renderer->finish();
         }
     }
 
     void update(float deltaTime) override
     {
+        const auto current_time = get_time();
+
         position = {get_mouse_pos(), 0};
-        color = color_over_time(get_time());
-        // position.x += sinf(get_time()) * 100.0f;
+        position.x += sinf(current_time) * 100.0f;
+        color = color_over_time(get_time()*2.0f);
+
+        const auto proj = camera.get_ortho_projection();
+
+        Transform temp;
+        temp.pos = position;
+        temp.scale = {radius*sinf(current_time*0.1f), radius*sinf(current_time*0.1f), 1.0f};
+
+        model = proj * temp.get_model();
     }
 
     void draw() override
     {
-        draw_circle(position, 300.0f, color, false);
+        renderer->bind();
+
+        renderer->shader.set_uniform("transform", model);
+        renderer->shader.set_uniform("color", color);
+
+        CommandBuffer cmd;
+        cmd.type = primitive::line_loop;
+        cmd.count = vertices_amount;
+
+        renderer->draw(cmd);
     }
 };
+Renderer* Circle::renderer;
 
 
 int main()

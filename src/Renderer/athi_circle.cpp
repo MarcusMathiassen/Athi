@@ -103,6 +103,7 @@ void render_circles() noexcept
 
     models[i] = proj * temp.get_model();
   }
+
   circle_buffer.unlock();
 
   {

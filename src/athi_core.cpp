@@ -266,9 +266,6 @@ void Athi_Core::draw(GLFWwindow *window)
   // Upload gpu buffers
   particle_system.gpu_buffer_update();
 
-  // Draw entities
-  entity_manager.draw();
-
   if (post_processing)
   {
     gpu_profile p("post processing");
@@ -290,6 +287,9 @@ void Athi_Core::draw(GLFWwindow *window)
   }
 
   particle_system.draw_debug_nodes();
+
+  // Draw entities
+  entity_manager.draw();
 
   if (draw_particles)   particle_system.draw();
   if (draw_rects)       render_rects();

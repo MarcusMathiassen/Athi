@@ -78,3 +78,10 @@ void Renderer::finish() noexcept {
   shader.finish();
   buffer.finish();
 }
+
+
+// Renderer stuff
+vector<Renderer> renderers;
+Renderer& make_renderer(const string& name) {
+  return renderers.emplace_back(name);
+}

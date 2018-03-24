@@ -22,9 +22,9 @@
 #pragma once
 
 #include <cstdint>
-#include <string> 
-#include <vector> 
-#include <array> 
+#include <string>
+#include <vector>
+#include <array>
 
 #include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>

@@ -45,19 +45,6 @@ struct render_desc
   bool has_indices{false};
 };
 
-/*
-
-for (auto &rnd_desc: render_descriptors)
-{
-  glBindVertexArray(rnd_desc.vao);
-  if (redn_desc.has_indicies)
-    glDrawElements(GL_TRIANGLES, 0, num_indices, NULL);
-  else
-    glDrawArrays(GL_TRIANGLES, 0, count);
-}
-
-*/
-
 struct Renderer
 {
   string name;
@@ -85,11 +72,10 @@ struct Renderer
   }
 
   Vbo& make_buffer(const string& name) noexcept;
+
   void finish() noexcept;
 };
 
-static vector<Renderer> renderers;
 
-static Renderer& make_renderer(const string& name) {
-  return renderers.emplace_back(name);
-}
+extern vector<Renderer> renderers;
+Renderer& make_renderer(const string& name);

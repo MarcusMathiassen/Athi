@@ -42,8 +42,7 @@ struct Entity
 struct EntityManager
 {
     std::vector<Entity*>      entities;
-    std::bitset<1'000'000>   alive_entities;
-
+    std::bitset<1'000'000>    alive_entities;
 
     void init() noexcept
     {
