@@ -23,6 +23,7 @@
 #include "./Renderer/athi_circle.h"
 #include "./Renderer/athi_renderer.h"
 #include "./Renderer/athi_camera.h"
+#include "./src/athi_input.h"
 
 struct Rectangle: public Entity
 {
@@ -92,7 +93,7 @@ struct Rectangle: public Entity
         renderer->shader.set_uniform("color", color);
 
         CommandBuffer cmd;
-        cmd.type = primitive::lines;
+        cmd.type = primitive::triangles;
         cmd.count = 6;
         cmd.has_indices = true;
 
@@ -182,11 +183,11 @@ int main()
     athi.init();
 
 
-    Rectangle rectangle;
-    Circle circle;
+    // Rectangle rectangle;
+    // Circle circle;
 
-    athi.entity_manager.add_entity(&rectangle);
-    athi.entity_manager.add_entity(&circle);
+    // athi.entity_manager.add_entity(&rectangle);
+    // athi.entity_manager.add_entity(&circle);
 
     athi.start();
 }

@@ -281,8 +281,10 @@ void ParticleSystem::gpu_buffer_update() noexcept
     cpu_profile p("PS::gpu_buffer_update");
 
     // Update the gpu buffers incase of more particles..
+
     if (!models.empty()) renderer.update_buffer("transforms", models);
     if (!colors.empty()) renderer.update_buffer("colors", colors);
+
     if constexpr (use_textured_particles)
 		  if (!radii.empty()) renderer.update_buffer("radius", radii);
 }
@@ -316,7 +318,7 @@ auto get_min_and_max_pos(const vector<Particle>& particles) {
     min_x = (p.pos.x < min_x) ? p.pos.x : min_x;
     min_y = (p.pos.y < min_y) ? p.pos.y : min_y;
   }
-  return std::tuple<vec2, vec2>(vec2(min_x, min_y),vec2(max_x, max_y));
+  return std::tuple<vec2, vec2>({min_x, min_y}, {max_x, max_y});
 }
 
 void ParticleSystem::update_collisions() noexcept

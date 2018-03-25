@@ -21,25 +21,33 @@
 
 #pragma once
 
-#include "athi_typedefs.h"
 #include "./Renderer/athi_rect.h" // draw_rect
 
-template <class T> class Quadtree {
+#include <glm/vec2.hpp> // glm::vec2
+#include <glm/vec4.hpp> // glm::vec4
+
+#include <vector> // std::vector
+#include <memory> // std::unique_ptr
+
+template <class T>
+class Quadtree
+{
 private:
-  vector<s32> indices;
-  static T *data;
+  std::vector<int>   indices;
+  static T*     data;
 
-  std::unique_ptr<Quadtree<T>> sw;
-  std::unique_ptr<Quadtree<T>> se;
-  std::unique_ptr<Quadtree<T>> nw;
-  std::unique_ptr<Quadtree<T>> ne;
+  std::unique_ptr<Quadtree<T>>  sw;
+  std::unique_ptr<Quadtree<T>>  se;
+  std::unique_ptr<Quadtree<T>>  nw;
+  std::unique_ptr<Quadtree<T>>  ne;
 
-  Rect bounds;
-  s32 level{0};
+  Rect  bounds;
+  int   level {0};
 
-  constexpr void split() noexcept {
-    const vec2 min = bounds.min;
-    const vec2 max = bounds.max;
+  constexpr void split() noexcept
+  {
+    const glm::vec2 min = bounds.min;
+    const glm::vec2 max = bounds.max;
 
     const float x = min.x;
     const float y = min.y;
@@ -60,7 +68,8 @@ private:
     ne = std::make_unique<Quadtree<T>>(level + 1, NE);
   }
 
-  constexpr void insert(s32 id) noexcept {
+  constexpr void insert(int id) noexcept
+  {
     if (sw) {
       if (sw->contains(id)) sw->insert(id);
       if (se->contains(id)) se->insert(id);
@@ -71,7 +80,7 @@ private:
 
     indices.emplace_back(id);
 
-    if (indices.size() > max_capacity && level < max_depth) {
+    if (static_cast<int>(indices.size()) > max_capacity && level < max_depth) {
       split();
 
       for (const auto index : indices) {
@@ -84,32 +93,42 @@ private:
     }
   }
 
-  constexpr bool contains(s32 id) const noexcept {
+  constexpr bool contains(int id) const noexcept
+  {
     return bounds.contains(data[id].pos, data[id].radius);
   }
 
 public:
 
-  static s32 max_depth;
-  static s32 max_capacity;
+  static int max_depth;
+  static int max_capacity;
+
   Quadtree() = default;
-  constexpr Quadtree(s32 level, const Rect &bounds) noexcept : bounds(bounds), level(level) {
+
+  constexpr Quadtree(int level, const Rect &bounds) noexcept : bounds(bounds), level(level)
+  {
     indices.reserve(max_capacity);
   }
-  constexpr Quadtree(const vec2 &min, const vec2 &max) noexcept {
+
+  constexpr Quadtree(const glm::vec2 &min, const glm::vec2 &max) noexcept
+  {
     indices.reserve(max_capacity);
-    bounds.color = vec4(1,1,1,1);
+    bounds.color = glm::vec4(1,1,1,1);
     bounds.min = min;
     bounds.max = max;
   }
-  constexpr void input(vector<T> &data_) noexcept {
+
+  constexpr void input(std::vector<T> &data_) noexcept
+  {
     data = &data_[0];
     indices.reserve(max_capacity);
-    for (const auto &obj : data_)
+    for (const auto &obj : data_) {
       insert(obj.id);
+    }
   }
 
-  constexpr void color_neighbours(const T& p, const vec4& color) {
+  constexpr void color_neighbours(const T& p, const glm::vec4& color)
+  {
     if (sw) {
       if (sw->bounds.contains(p.pos, p.radius)) sw->color_neighbours(p, color);
       if (se->bounds.contains(p.pos, p.radius)) se->color_neighbours(p, color);
@@ -121,7 +140,8 @@ public:
     bounds.color = color;
   }
 
-  constexpr void get_neighbours(vector<vector<s32>> &cont, const T& p) const noexcept {
+  constexpr void get_neighbours(std::vector<std::vector<int>> &cont, const T& p) const noexcept
+  {
     if (sw) {
       if (sw->bounds.contains(p.pos, p.radius)) sw->get_neighbours(cont, p);
       if (se->bounds.contains(p.pos, p.radius)) se->get_neighbours(cont, p);
@@ -130,11 +150,13 @@ public:
       return;
     }
 
-     if (!indices.empty())
+     if (!indices.empty()) {
       cont.emplace_back(indices);
+     }
   }
 
-  constexpr void get(vector<vector<s32>> &cont) const noexcept {
+  constexpr void get(std::vector<std::vector<int>> &cont) const noexcept
+  {
     if (sw) {
       sw->get(cont);
       se->get(cont);
@@ -143,11 +165,13 @@ public:
       return;
     }
 
-    if (!indices.empty())
+    if (!indices.empty()) {
       cont.emplace_back(indices);
+    }
   }
 
-  void draw_bounds(bool show_occupied_only, vec4 color) noexcept {
+  void draw_bounds(bool show_occupied_only, glm::vec4 color) noexcept
+  {
     if (sw) {
       sw->draw_bounds(show_occupied_only, color);
       se->draw_bounds(show_occupied_only, color);
@@ -156,13 +180,15 @@ public:
       return;
     }
 
-    if (!indices.empty() && show_occupied_only)
+    if (!indices.empty() && show_occupied_only) {
       draw_rect(bounds.min, bounds.max, color, true);
-    else if (!show_occupied_only)
+    }
+    else if (!show_occupied_only) {
       draw_rect(bounds.min, bounds.max, color, true);
+    }
   }
 };
 
 template <class T> T* Quadtree<T>::data;
-template <class T> s32 Quadtree<T>::max_depth;
-template <class T> s32 Quadtree<T>::max_capacity;
+template <class T> int Quadtree<T>::max_depth;
+template <class T> int Quadtree<T>::max_capacity;

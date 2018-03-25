@@ -505,11 +505,6 @@ void gui_render() {
     ImGui::PopStyleColor();
     ImGui::SameLine();
 
-    ImGui::PushItemWidth(100.0f);
-    ImGui::SliderFloat("Mouse size", &mouse_size, 1.0f, 500.0f);
-    ImGui::SameLine();
-    ImGui::PopItemWidth();
-
     const auto red = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
     const auto green = ImVec4(0.1f, 1.0f, 0.1f, 1.0f);
     ImGui::PushStyleColor(ImGuiCol_Text, (framerate >= monitor_refreshrate) ? green : red);

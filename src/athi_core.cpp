@@ -219,6 +219,7 @@ void Athi_Core::start()
 
         // GPU draw
         draw(window_context);
+
         ready_to_draw = false;
         can_draw_cond.notify_one();
       }
@@ -233,7 +234,6 @@ void Athi_Core::start()
 
       // CPU Update
       update(1.0f/60.0f);
-
 
       // GPU draw
       draw(window_context);
