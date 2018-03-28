@@ -21,12 +21,12 @@
 #include "athi_framebuffer.h"
 
 #include "../Utility/console.h" // console
-#include "opengl_utility.h" //   check_gl_error();
+#include "opengl_utility.h"     // check_gl_error(), check_framebuffer_gl_error()
 
 FrameBuffer::FrameBuffer(u32 num_textures, s32 width, s32 height) : width(width), height(height)
 {
 }
-FrameBuffer::~FrameBuffer()
+ FrameBuffer::~FrameBuffer()
 {
     glDeleteFramebuffers(1, &fbo); check_gl_error();
     glDeleteTextures(1, &texture); check_gl_error();
