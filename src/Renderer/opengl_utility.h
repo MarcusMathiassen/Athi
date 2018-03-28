@@ -20,12 +20,13 @@
 
 #pragma once
 
-#include <iostream>
-#include <string>
+#include <iostream> // std::cerr
+#include <string> // std::string
 
 #include <GL/glew.h>
 
 #define check_gl_error() _check_gl_error(__FILE__, __LINE__)
+#define check_framebuffer_gl_error() _check_framebuffer_gl_error(__FILE__, __LINE__)
 
 static void _check_gl_error(const char *file, int line) {
 #ifdef NDEBUG
@@ -56,3 +57,44 @@ static void _check_gl_error(const char *file, int line) {
   }
 #endif
 }
+
+static void _check_framebuffer_gl_error(const char *file, int line) {
+#ifdef NDEBUG
+  GLenum err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+  while (err != GL_FRAMEBUFFER_COMPLETE) {
+    std::string error;
+
+    switch (err) {
+      case GL_FRAMEBUFFER_UNDEFINED:
+        error = "FRAMEBUFFER_UNDEFINED";
+        break;
+      case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+        error = "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+        break;
+      case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+        error = "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+        break;
+      case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+        error = "FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+        break;
+      case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+        error = "FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+        break;
+      case GL_FRAMEBUFFER_UNSUPPORTED:
+        error = "FRAMEBUFFER_UNSUPPORTED";
+        break;
+      case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+        error = "FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+        break;
+      case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+        error = "FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+        break;
+    }
+    std::cerr << "GL_" << error << " - " << file << ":" << line << std::endl;
+    err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  }
+#endif
+}
+
+

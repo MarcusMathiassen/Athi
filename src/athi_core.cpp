@@ -176,9 +176,8 @@ void Athi_Core::start()
 
   setup_fullscreen_quad();
 
-  framebuffers.resize(2);
+  framebuffers.resize(1);
   framebuffers[0].resize(framebuffer_width, framebuffer_height);
-  framebuffers[1].resize(framebuffer_width, framebuffer_height);
 
   std::future<void> update_fut;
   if constexpr (multithreaded_engine) {

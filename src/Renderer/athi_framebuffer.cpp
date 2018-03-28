@@ -25,31 +25,6 @@
 
 FrameBuffer::FrameBuffer(u32 num_textures, s32 width, s32 height) : width(width), height(height)
 {
-    glGenFramebuffers(1, &fbo); check_gl_error();
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo); check_gl_error();
-
-    glGenTextures(1, &texture); check_gl_error();
-    glBindTexture(GL_TEXTURE_2D, texture); check_gl_error();
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL); check_gl_error();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); check_gl_error();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); check_gl_error();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); check_gl_error();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); check_gl_error();
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0); check_gl_error();
-
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-      console->warn("Framebuffer not completed. {}", __LINE__);
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); check_gl_error();
-
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-      console->warn("Framebuffer not completed. {}", __LINE__);
-    }
 }
 FrameBuffer::~FrameBuffer()
 {
@@ -58,48 +33,26 @@ FrameBuffer::~FrameBuffer()
 }
 void FrameBuffer::resize(s32 width, s32 height) noexcept
 {
-    glDeleteTextures(1, &texture); check_gl_error();
-
     this->width = width;
     this->height = height;
 
     glGenTextures(1, &texture); check_gl_error();
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo); check_gl_error();
     glBindTexture(GL_TEXTURE_2D, texture); check_gl_error();
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL); check_gl_error();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL); check_gl_error();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); check_gl_error();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); check_gl_error();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); check_gl_error();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); check_gl_error();
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0); check_gl_error();
-
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-      console->warn("Framebuffer not completed. {}", __LINE__);
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); check_gl_error();
-
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-      console->warn("Framebuffer not completed. {}", __LINE__);
-    }
-}
-void FrameBuffer::set_texture(u32 tex) noexcept
-{
+    glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo); check_gl_error();
-    glBindTexture(GL_TEXTURE_2D, tex); check_gl_error();
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGB8, GL_UNSIGNED_BYTE, NULL); check_gl_error();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); check_gl_error();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); check_gl_error();
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0); check_gl_error(); check_framebuffer_gl_error();
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0); check_gl_error();
     glBindFramebuffer(GL_FRAMEBUFFER, 0); check_gl_error();
-    texture = tex;
 }
+
 void FrameBuffer::bind() const noexcept { glBindFramebuffer(GL_FRAMEBUFFER, fbo); check_gl_error(); }
 void FrameBuffer::unbind() const noexcept { glBindFramebuffer(GL_FRAMEBUFFER, 0); check_gl_error(); }
 void FrameBuffer::clear() const noexcept {

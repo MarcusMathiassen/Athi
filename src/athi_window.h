@@ -21,15 +21,11 @@
 
 #pragma once
 
-#include "athi_typedefs.h"
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h> // GLFWwindow
 
-void window_size_callback(GLFWwindow *window, s32 xpos, s32 ypos);
-void framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height);
+void window_size_callback(GLFWwindow *window, int xpos, int ypos);
+void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void window_pos_callback(GLFWwindow* window, int xpos, int ypos);
-
-static string title{"Athi"};
 void init_window();
 GLFWwindow *get_window_context();

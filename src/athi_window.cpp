@@ -23,11 +23,18 @@
 
 #include "../dep/Universal/imgui.h" // ImGUI
 #include "./Renderer/athi_camera.h" // camera
-#include "athi_settings.h" // console
+#include "athi_settings.h"
+
+#include "Utility/console.h" // console
+
 #include "athi_utility.h" // FRED
+
 #include "./Renderer/opengl_utility.h" // MessageCallback
 #include "./Renderer/athi_renderer.h" // render_call
 
+#include "Utility/fixed_size_types.h" // u32, s32, etc.
+
+static std::string title{"Athi"};
 static GLFWwindow* window;
 
 void glfw_error_callback(int error, const char* description)

@@ -43,8 +43,8 @@ struct FrameBuffer
 
   FrameBuffer(u32 num_textures = 1, s32 width = 0, s32 height = 0);
   ~FrameBuffer();
+
   void resize(s32 width, s32 height) noexcept;
-  void set_texture(u32 tex) noexcept;
   void bind() const noexcept;
   void unbind() const noexcept;
   void clear() const noexcept;
