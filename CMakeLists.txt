@@ -69,7 +69,7 @@ if(WIN32)
 
 elseif(APPLE)
 
-  set(CMAKE_CXX_FLAGS_DEBUG "-O3 -DNDEBUG -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
+  set(CMAKE_CXX_FLAGS_DEBUG "-DNDEBUG -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
   message("-- Debug   flags: ${CMAKE_CXX_FLAGS_DEBUG}")

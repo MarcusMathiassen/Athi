@@ -18,14 +18,21 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
 #pragma once
 
+#include <vector> // std::vector
+
 #include <GL/glew.h>
-#include <GLFW/glfw3.h> // GLFWwindow
+#include <GLFW/glfw3.h> // GLFWwindow, GLFWvidmode, GLFWmonitor
 
 void window_size_callback(GLFWwindow *window, int xpos, int ypos);
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void window_pos_callback(GLFWwindow* window, int xpos, int ypos);
 void init_window();
-GLFWwindow *get_window_context();
+
+void print_video_modes() noexcept;
+
+GLFWwindow* get_glfw_window();
+GLFWwindow* get_window_context();
+
+std::vector<GLFWvidmode> get_video_modes(GLFWmonitor* monitor = nullptr) noexcept;

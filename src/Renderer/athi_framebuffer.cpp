@@ -23,27 +23,23 @@
 #include "../Utility/console.h" // console
 #include "opengl_utility.h"     // check_gl_error(), check_framebuffer_gl_error()
 
-FrameBuffer::FrameBuffer(u32 num_textures, s32 width, s32 height) : width(width), height(height)
-{
-}
- FrameBuffer::~FrameBuffer()
+FrameBuffer::~FrameBuffer()
 {
     glDeleteFramebuffers(1, &fbo); check_gl_error();
     glDeleteTextures(1, &texture); check_gl_error();
 }
-void FrameBuffer::resize(s32 width, s32 height) noexcept
+void FrameBuffer::resize(GLint width, GLint height) noexcept
 {
     this->width = width;
     this->height = height;
 
     glGenTextures(1, &texture); check_gl_error();
     glBindTexture(GL_TEXTURE_2D, texture); check_gl_error();
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL); check_gl_error();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); check_gl_error();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); check_gl_error();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); check_gl_error();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); check_gl_error();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL); check_gl_error();
 
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo); check_gl_error();
@@ -53,9 +49,16 @@ void FrameBuffer::resize(s32 width, s32 height) noexcept
     glBindFramebuffer(GL_FRAMEBUFFER, 0); check_gl_error();
 }
 
-void FrameBuffer::bind() const noexcept { glBindFramebuffer(GL_FRAMEBUFFER, fbo); check_gl_error(); }
-void FrameBuffer::unbind() const noexcept { glBindFramebuffer(GL_FRAMEBUFFER, 0); check_gl_error(); }
-void FrameBuffer::clear() const noexcept {
+void FrameBuffer::bind() const noexcept
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo); check_gl_error();
+}
+void FrameBuffer::unbind() const noexcept
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); check_gl_error();
+}
+void FrameBuffer::clear() const noexcept
+{
     glBindFramebuffer(GL_FRAMEBUFFER, fbo); check_gl_error();
     glClear(GL_COLOR_BUFFER_BIT); check_gl_error();
     glBindFramebuffer(GL_FRAMEBUFFER, 0); check_gl_error();

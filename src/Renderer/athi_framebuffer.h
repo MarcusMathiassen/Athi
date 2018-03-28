@@ -20,34 +20,25 @@
 
 #pragma once
 
+#include <vector>  // std::vector
+
 #include <GL/glew.h>
-
-#include "../athi_typedefs.h"
-
-// @Todo: These are not all the available enums, add more.
-enum texture_filter {
-  nearest = GL_NEAREST,
-  linear = GL_LINEAR,
-};
-
-struct Fbo {
-  u32 resolution[2];
-  texture_filter fiter;
-};
 
 struct FrameBuffer
 {
-  s32  width, height;
-  u32 fbo;
-  u32 texture;
+  GLint   width;
+  GLint   height;
 
-  FrameBuffer(u32 num_textures = 1, s32 width = 0, s32 height = 0);
+  GLuint  fbo;
+  GLuint  texture;
+
+  FrameBuffer() = default;
   ~FrameBuffer();
 
-  void resize(s32 width, s32 height) noexcept;
+  void resize(GLint width, GLint height) noexcept;
   void bind() const noexcept;
   void unbind() const noexcept;
   void clear() const noexcept;
 };
 
-extern vector<FrameBuffer> framebuffers;
+extern std::vector<FrameBuffer> framebuffers;

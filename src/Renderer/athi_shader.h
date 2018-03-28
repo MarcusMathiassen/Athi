@@ -20,51 +20,58 @@
 
 #pragma once
 
-#include "../athi_typedefs.h"
+#include <vector>  // std::vector
+#include <memory>  // std::unique_ptr
+#include <string>  // std::string
+#include <unordered_map>  // std::unordered_map
 
-#include <memory>         // unique_ptr
-#include <unordered_map>  // unordered_map
+#include <glm/vec2.hpp> // glm::vec2
+#include <glm/vec2.hpp> // glm::vec3
+#include <glm/vec2.hpp> // glm::vec4
+#include <glm/mat3x3.hpp> // glm::mat3
+#include <glm/mat4x4.hpp> // glm::mat4
 
 #include <GL/glew.h>
 
-class Shader {
+class Shader
+{
 private:
-  enum class shader_type {
+  enum class shader_type
+  {
     vertex = GL_VERTEX_SHADER,
     fragment = GL_FRAGMENT_SHADER,
     geometry = GL_GEOMETRY_SHADER,
     compute = GL_COMPUTE_SHADER,
   };
 
-  struct FileHandle {
-    string source;
+  struct FileHandle
+  {
+    std::string source;
     shader_type shader_type;
-    f64 last_write_time;
+    double last_write_time;
   };
 
-  string name;
+  std::string name;
   bool is_linked{false};
-  vector<std::tuple<FileHandle, u32>> shaders;
-  std::unordered_map<string, u32> uniforms_map;
-  std::unordered_map<string, u32> attribs_map;
-  std::vector<std::tuple<string, string>> preambles_storage;
+  std::vector<std::tuple<FileHandle, GLuint>> shaders;
+  std::unordered_map<std::string, GLuint> uniforms_map;
+  std::unordered_map<std::string, GLuint> attribs_map;
+  std::vector<std::tuple<std::string, std::string>> preambles_storage;
 
   static constexpr const char* shader_folder_path{"../Resources/Shaders/"};
 public:
 
-  u32 program;
-  vector<string> sources;
-  vector<string> preambles;
-  vector<string> attribs;
-  vector<string> uniforms;
-
+  GLuint program;
+  std::vector<std::string> sources;
+  std::vector<std::string> preambles;
+  std::vector<std::string> attribs;
+  std::vector<std::string> uniforms;
 
   ~Shader();
 
-  void validate_shader(const string& file, const char* type, u32 shader) const
-      noexcept;
+  void validate_shader(const std::string& file, const char* type, GLuint shader) const noexcept;
   void validate_shader_program() const noexcept;
-  u32 create_shader(const string& file, const shader_type type) const noexcept;
+  GLuint create_shader(const std::string& file, const shader_type type) const noexcept;
 
   void reload() noexcept;
   void link() noexcept;
@@ -72,15 +79,15 @@ public:
 
   void finish() noexcept;
 
-  void set_uniform(const string& name, f32 x, f32 y) const noexcept;
-  void set_uniform(const string& name, f32 x, f32 y, f32 z) const noexcept;
-  void set_uniform(const string& name, const vec2& v) const noexcept;
-  void set_uniform(const string& name, const vec3& v) const noexcept;
-  void set_uniform(const string& name, const vec4& v) const noexcept;
-  void set_uniform(const string& name, const mat4& m) const noexcept;
-  void set_uniform(const string& name, const mat3& m) const noexcept;
-  void set_uniform(const string& name, f32 val) const noexcept;
-  void set_uniform(const string& name, s32 val) const noexcept;
-  void set_uniform(const string& name, u32 val) const noexcept;
-  void set_uniform(const string& name, bool val) const noexcept;
+  void set_uniform(const std::string& name, GLfloat x, GLfloat y) const noexcept;
+  void set_uniform(const std::string& name, GLfloat x, GLfloat y, GLfloat z) const noexcept;
+  void set_uniform(const std::string& name, const glm::vec2& v) const noexcept;
+  void set_uniform(const std::string& name, const glm::vec3& v) const noexcept;
+  void set_uniform(const std::string& name, const glm::vec4& v) const noexcept;
+  void set_uniform(const std::string& name, const glm::mat4& m) const noexcept;
+  void set_uniform(const std::string& name, const glm::mat3& m) const noexcept;
+  void set_uniform(const std::string& name, GLfloat val) const noexcept;
+  void set_uniform(const std::string& name, GLint val) const noexcept;
+  void set_uniform(const std::string& name, GLuint val) const noexcept;
+  void set_uniform(const std::string& name, GLboolean val) const noexcept;
 };

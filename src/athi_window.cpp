@@ -48,9 +48,60 @@ void set_window_resolution(int width, int height)
 
 }
 
-void init_window() {
+GLFWwindow* get_glfw_window()
+{
+  return window;
+}
 
-  if (!glfwInit()) {
+std::vector<GLFWvidmode> get_video_modes(GLFWmonitor* monitor) noexcept
+{
+  if (!monitor)
+  {
+    monitor = glfwGetPrimaryMonitor();
+  }
+
+  int count = 0;
+  auto temp_video_modes = glfwGetVideoModes(monitor, &count);
+
+  std::vector<GLFWvidmode> video_modes;
+  for (int i = 0; i < count; ++i)
+  {
+    video_modes.emplace_back(temp_video_modes[i]);
+  }
+
+  return video_modes;
+}
+
+static bool is_same_GLFWvidmode(GLFWvidmode a, GLFWvidmode b) noexcept
+{
+  return (
+    (a.width == b.width) &&
+    (a.height == b.height) &&
+    (a.refreshRate == b.refreshRate) &&
+    (a.redBits == b.redBits) &&
+    (a.greenBits == b.greenBits) &&
+    (a.greenBits == b.greenBits) &&
+    (a.blueBits == b.blueBits)
+  );
+}
+
+void print_video_modes() noexcept
+{
+  const auto video_modes = get_video_modes();
+  const auto current_video_mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+  console->info("Video modes:");
+  for (const auto &vm: video_modes)
+  {
+    if (is_same_GLFWvidmode(vm, *current_video_mode)) console->info("  {}x{}({}hz {}{}{})", vm.width, vm.height, vm.refreshRate, vm.redBits, vm.greenBits, vm.blueBits);
+    else console->info("  {}x{}({}hz {}{}{})", vm.width, vm.height, vm.refreshRate, vm.redBits, vm.greenBits, vm.blueBits);
+  }
+}
+
+void init_window()
+{
+
+  if (!glfwInit())
+  {
     console->error("Error initializing GLFW!");
   }
 
@@ -64,22 +115,13 @@ void init_window() {
 #endif
   glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
   glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-
   glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 
-
   // Gather monitor info
-  s32 count;
-  auto primary_monitor = glfwGetPrimaryMonitor();
-  auto video_mode = glfwGetVideoModes(primary_monitor, &count);
+  print_video_modes();
+  auto video_modes = get_video_modes();
 
-  console->info("Video modes: {}", count);
-  for (int i = 0; i < count; ++i) {
-    auto &vm = video_mode[i];
-    console->info("{}x{}({}hz {}{}{})", vm.width, vm.height, vm.refreshRate, vm.redBits, vm.greenBits, vm.blueBits);
-  }
-
-  auto &vm = video_mode[count-1];
+  const auto &vm = video_modes[video_modes.size()-1];
   glfwWindowHint(GLFW_RED_BITS, vm.redBits);
   glfwWindowHint(GLFW_GREEN_BITS, vm.greenBits);
   glfwWindowHint(GLFW_BLUE_BITS, vm.blueBits);
@@ -89,6 +131,7 @@ void init_window() {
 
   monitor_refreshrate = vm.refreshRate;
 
+  auto primary_monitor = glfwGetPrimaryMonitor();
   auto monitor_name = glfwGetMonitorName(primary_monitor);
 
   console->info("{} {}x{}({}hz)", monitor_name, vm.width, vm.height, monitor_refreshrate);
