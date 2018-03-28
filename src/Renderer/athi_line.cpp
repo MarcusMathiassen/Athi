@@ -59,9 +59,6 @@ void init_line_renderer() noexcept
   colors_buffer.data_members = 4;
   colors_buffer.divisor = 1;
 
-
-  auto &vertex_buffer = renderer.make_buffer("empty");
-
   renderer.finish();
 }
 

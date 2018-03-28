@@ -52,6 +52,8 @@ extern bool has_random_velocity;
 extern f32 random_velocity_force;
 extern f32 color_by_velocity_threshold;
 
+extern vec4 default_gui_text_color;
+
 extern bool post_processing;
 extern f64 frame_budget;
 

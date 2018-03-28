@@ -22,31 +22,22 @@
 #pragma once
 
 #include "athi_typedefs.h"
-
 #include "athi_settings.h"
-
-#include "Utility/console.h" // console
+#include "Utility/fixed_size_types.h" // u32, f32, etc.
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>  // glfwGetTime
 
-#include <unordered_map>
+#include <string> // string
+#include <glm/vec2.hpp> // glm::vec2
+#include <glm/vec3.hpp> // glm::vec3
+#include <glm/vec4.hpp> // glm::vec4
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#ifdef __APPLE__
-#include <sys/sysctl.h>
-#include <sys/types.h>
-#endif
-#if __linux__
-#include <linux/sysctl.h>
-#include <unistd.h>
-#endif
-
-#ifndef _WIN32
-#include <ctime>
-#endif
+using std::string;
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
+using std::vector;
 
 #include <cstring>
 #include <fstream>
@@ -76,17 +67,10 @@
 #define UNDL(x) "\x1B[4m" x RST
 
 // Random number functions
-f32 rand_f32(f32 min, f32 max) noexcept;
+f32  rand_f32(f32 min, f32 max) noexcept;
 vec2 rand_vec2(f32 min, f32 max) noexcept;
 vec3 rand_vec3(f32 min, f32 max) noexcept;
 vec4 rand_vec4(f32 min, f32 max) noexcept;
-
-
-// Returns the mouse position inside the window.
-vec2 get_mouse_pos() noexcept;
-// Returns the mouse position in viewspace.
-vec2 get_mouse_pos_viewspace() noexcept;
-
 
 // Returns the time in ns
 f64 get_time() noexcept;
@@ -102,17 +86,6 @@ static std::tuple<T,T> get_begin_and_end(s32 i, T container_size, s32 threads) n
   return std::tuple<T, T>{begin, end};
 }
 
-static bool file_exists(const std::string& filename)
-{
-    struct stat buf;
-    if (stat(filename.c_str(), &buf) != -1)
-    {
-        return true;
-    }
-    return false;
-}
-
-
 // Color functions
 vec4 hsv_to_rgb(s32 h, f32 s, f32 v, f32 a) noexcept;
 vec4 rgb_to_hsv(vec4 in) noexcept;
@@ -123,6 +96,7 @@ vec4 color_over_time(f64 time) noexcept;
 
 
 // File functions
+bool file_exists(const string& filename) noexcept;
 u64 get_file_time_stamp(const string& filename) noexcept;
 void read_file(const char *file, char **buffer) noexcept;
 string get_content_of_file(const string& file) noexcept;
@@ -134,7 +108,6 @@ string remove_quotes(const string& str) noexcept;
 string add_quotes(const string& str) noexcept;
 vector<string> split_string(const string& str, char delim) noexcept;
 string eat_chars(const string& str, vector<char> delims) noexcept;
-
 
 vec2 to_view_space(vec2 v) noexcept;
 

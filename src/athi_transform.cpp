@@ -24,16 +24,10 @@
 #include <glm/gtx/transform.hpp>    // glm::translate, glm::rotate, glm::scale
 #include <glm/gtx/quaternion.hpp>   // glm::quat, glm::toMat4
 
-glm::mat4 Transform::get_model() const noexcept
+mat4 Transform::get_model() const noexcept
 {
-    const glm::mat4 posMatrix   = glm::translate(pos);
-    const glm::mat4 scaleMatrix = glm::scale(scale);
-    const glm::mat4 rotMatrix   = glm::toMat4(glm::quat(rot));
+    const mat4 posMatrix   = glm::translate(pos);
+    const mat4 scaleMatrix = glm::scale(scale);
+    const mat4 rotMatrix   = glm::toMat4(glm::quat(rot));
     return posMatrix * rotMatrix * scaleMatrix;
-}
-
-// Free functions //
-glm::mat4 get_model_matrix(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) noexcept
-{
-  return glm::translate(position) * glm::toMat4(glm::quat(rotation)) * glm::scale(scale);
 }

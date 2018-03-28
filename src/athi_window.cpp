@@ -92,8 +92,8 @@ void print_video_modes() noexcept
   console->info("Video modes:");
   for (const auto &vm: video_modes)
   {
-    if (is_same_GLFWvidmode(vm, *current_video_mode)) console->info("  {}x{}({}hz {}{}{})", vm.width, vm.height, vm.refreshRate, vm.redBits, vm.greenBits, vm.blueBits);
-    else console->info("  {}x{}({}hz {}{}{})", vm.width, vm.height, vm.refreshRate, vm.redBits, vm.greenBits, vm.blueBits);
+    if (is_same_GLFWvidmode(vm, *current_video_mode)) console->info("\x1B[32m  {}x{}  {}hz R{}G{}B{}\x1B[0m", vm.width, vm.height, vm.refreshRate, vm.redBits, vm.greenBits, vm.blueBits);
+    else console->info("  {}x{}  {}hz R{}G{}B{}", vm.width, vm.height, vm.refreshRate, vm.redBits, vm.greenBits, vm.blueBits);
   }
 }
 

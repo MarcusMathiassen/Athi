@@ -134,6 +134,8 @@ f64 smoothed_physics_frametime;
 s32 physics_framerate;
 s32 physics_FPS_limit{0};
 
+vec4 default_gui_text_color{white};
+
 u16 monitor_refreshrate{60};
 
 bool app_is_running{true};

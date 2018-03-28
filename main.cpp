@@ -23,6 +23,7 @@
 #include "./Renderer/athi_circle.h"
 #include "./Renderer/athi_renderer.h"
 #include "./Renderer/athi_camera.h"
+#include "./src/athi_transform.h"
 #include "./src/athi_input.h"
 
 struct Rectangle: public Entity

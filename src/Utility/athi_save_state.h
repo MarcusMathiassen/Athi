@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../athi_settings.h" // console
+#include "console.h" // console
 #include "../athi_utility.h" // file_exists
 
 //#include <algorithm>

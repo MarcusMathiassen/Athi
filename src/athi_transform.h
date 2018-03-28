@@ -20,18 +20,19 @@
 
 #pragma once
 
-#include <glm/vec3.hpp>   // glm::vec3
+#include <glm/vec3.hpp> // glm::vec3
 #include <glm/mat4x4.hpp> // glm::mat4
+
+using glm::vec3;
+using glm::mat4;
 
 struct Transform
 {
-  glm::vec3 pos   {0, 0, 0};
-  glm::vec3 rot   {0, 0, 0};
-  glm::vec3 scale {1, 1, 1};
+  vec3 pos   {0, 0, 0};
+  vec3 rot   {0, 0, 0};
+  vec3 scale {1, 1, 1};
 
   // @Hot: this is called for every object drawn to the screen.
   // That means maybe a million calls just from particles alone.
-  glm::mat4 get_model() const noexcept;
+  mat4 get_model() const noexcept;
 };
-
-glm::mat4 get_model_matrix(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) noexcept;

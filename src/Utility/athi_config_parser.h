@@ -21,16 +21,28 @@
 
 #pragma once
 
-#include "../athi_typedefs.h"
-#include "../athi_utility.h"
-#include "../athi_utility.h" // file_exists, etc
+#include "fixed_size_types.h" // u64, s32, etc.
+#include "console.h" // console
+
+#include "../athi_utility.h"  // file_exists, etc
 #include "../athi_settings.h"
 
-#include <fstream> // ifstream
+#include <fstream> // std::ifstream
 #include <type_traits> // is_integral, is_float
 #include <cctype> // toupper
-#include <unordered_map> // unordered_map
+#include <unordered_map> // std::unordered_map
 
+#include <vector> // std::vector
+#include <string> // std::string
+#include <glm/vec2.hpp> // glm::vec2
+#include <glm/vec3.hpp> // glm::vec3
+#include <glm/vec4.hpp> // glm::vec4
+
+using std::string;
+using std::vector;
+using glm::vec2;
+using glm::vec3;
+using glm::vec4;
 
 // @Hack: the apple compiler doesnt have variant yet.
 #ifdef __APPLE__
@@ -64,9 +76,9 @@ static bool is_vec2(const string& str) noexcept;
 static bool is_vec3(const string& str) noexcept;
 static bool is_vec4(const string& str) noexcept;
 
-static string stringify_vec2(const vec2&v) noexcept;
-static string stringify_vec3(const vec3&v) noexcept;
-static string stringify_vec4(const vec4&v) noexcept;
+static string stringify_vec2(const glm::vec2&v) noexcept;
+static string stringify_vec3(const glm::vec3&v) noexcept;
+static string stringify_vec4(const glm::vec4&v) noexcept;
 
 template <class T>
 static void set_variable(T* var, const string& str);
@@ -77,7 +89,7 @@ static void refresh_variables() noexcept;
 
 
 static const string path = "../bin/config.ini";
-static std::unordered_map<string, variant<string, float, vec2, vec3, vec4>> variable_map;
+static std::unordered_map<string, variant<string, float, glm::vec2, glm::vec3, glm::vec4>> variable_map;
 static u64 last_write_time;
 
 static const string default_config =
@@ -126,6 +138,7 @@ static const string default_config =
 "# ---------------- Render options ----------------\n"
 "\n"
 "background_color                        : vec4(0.000001, 0.000001, 0.000001, 1.000000)\n"
+"default_gui_text_color                  : vec4(0.000000, 0.000000, 0.000000, 1.000000)\n"
 "vsync                                   : 1.000000\n"
 "\n"
 "post_processing                         : YES\n"
@@ -236,13 +249,12 @@ static const vector<string> available_vars = {
 {"framebuffer_width"},
 {"framebuffer_height"},
 {"cycle_particle_color"},
+{"default_gui_text_color"},
 };
 
 
 static bool starts_with(const string& str, const string& s) noexcept
 {
-    u32 indx = 0;
-
     string type;
     string has_val;
     for (u32 i = 0; i < str.length(); ++i)
@@ -284,7 +296,7 @@ static auto get_vec2(const string& str) noexcept
     }
 
     auto split = split_string(has_val, ',');
-	vec2 temp{0.0f, 0.0f};
+	glm::vec2 temp{0.0f, 0.0f};
     for (u32 i = 0; i < split.size(); ++i)
     {
         temp[i] = stof(split[i]);
@@ -310,7 +322,7 @@ static auto get_vec3(const string& str) noexcept
     }
 
     auto split = split_string(has_val, ',');
-	vec3 temp{0.0f, 0.0f, 0.0f};
+	glm::vec3 temp{0.0f, 0.0f, 0.0f};
     for (u32 i = 0; i < split.size(); ++i)
     {
         temp[i] = stof(split[i]);
@@ -337,7 +349,7 @@ static auto get_vec4(const string& str) noexcept
     }
 
     auto split = split_string(has_val, ',');
-    vec4 temp{ 0.0f, 0.0f, 0.0f, 0.0f };
+    glm::vec4 temp{ 0.0f, 0.0f, 0.0f, 0.0f };
     for (u32 i = 0; i < split.size(); ++i)
     {
         temp[i] = stof(split[i]);
@@ -422,9 +434,9 @@ static string get_value_as_string(const string& var, const string& val) noexcept
      // If has a ',' its a list of things
     if (string_has(val, ','))
     {
-        if      (is_vec2(val))   return stringify_vec2(get<vec2>(variable_map.at(var)));
-        else if (is_vec3(val))   return stringify_vec3(get<vec3>(variable_map.at(var)));
-        else if (is_vec4(val))   return stringify_vec4(get<vec4>(variable_map.at(var)));
+        if      (is_vec2(val))   return stringify_vec2(get<glm::vec2>(variable_map.at(var)));
+        else if (is_vec3(val))   return stringify_vec3(get<glm::vec3>(variable_map.at(var)));
+        else if (is_vec4(val))   return stringify_vec4(get<glm::vec4>(variable_map.at(var)));
     } else {
         if      (is_string(val)) return add_quotes(get<string>(variable_map.at(var)));
         else if (is_float(val))  return std::to_string(get<float>(variable_map.at(var)));
@@ -434,13 +446,13 @@ static string get_value_as_string(const string& var, const string& val) noexcept
     return string();
 }
 
-static bool is_vec2(const string& str) noexcept { return starts_with(str, "vec2"); }
-static bool is_vec3(const string& str) noexcept { return starts_with(str, "vec3"); }
-static bool is_vec4(const string& str) noexcept { return starts_with(str, "vec4"); }
+static bool is_vec2(const string& str) noexcept { return starts_with(str, "glm::vec2"); }
+static bool is_vec3(const string& str) noexcept { return starts_with(str, "glm::vec3"); }
+static bool is_vec4(const string& str) noexcept { return starts_with(str, "glm::vec4"); }
 
-static string stringify_vec2(const vec2&v) noexcept { return {"vec2(" + std::to_string(v.x) +", "+ std::to_string(v.y) + ")"}; }
-static string stringify_vec3(const vec3&v) noexcept { return {"vec3(" + std::to_string(v.x) +", "+ std::to_string(v.y) +", "+ std::to_string(v.z) + ")"}; }
-static string stringify_vec4(const vec4&v) noexcept { return {"vec4(" + std::to_string(v.x) +", "+ std::to_string(v.y) +", "+ std::to_string(v.z) +", "+ std::to_string(v.w) + ")"}; }
+static string stringify_vec2(const glm::vec2&v) noexcept { return {"glm::vec2(" + std::to_string(v.x) +", "+ std::to_string(v.y) + ")"}; }
+static string stringify_vec3(const glm::vec3&v) noexcept { return {"glm::vec3(" + std::to_string(v.x) +", "+ std::to_string(v.y) +", "+ std::to_string(v.z) + ")"}; }
+static string stringify_vec4(const glm::vec4&v) noexcept { return {"glm::vec4(" + std::to_string(v.x) +", "+ std::to_string(v.y) +", "+ std::to_string(v.z) +", "+ std::to_string(v.w) + ")"}; }
 
 template <class T>
 static void set_variable(T* var, const string& str)
@@ -628,6 +640,7 @@ static void init_variables() noexcept
     set_variable(&framebuffer_width, "framebuffer_width");
     set_variable(&framebuffer_height, "framebuffer_height");
     set_variable(&cycle_particle_color, "cycle_particle_color");
+    set_variable(&default_gui_text_color, "default_gui_text_color");
 
     console->warn("Config loaded");
 }
@@ -690,4 +703,5 @@ static void refresh_variables() noexcept
     variable_map["framebuffer_width"] = framebuffer_width;
     variable_map["framebuffer_height"] = framebuffer_height;
     variable_map["cycle_particle_color"] = cycle_particle_color;
+    variable_map["default_gui_text_color"] = default_gui_text_color;
 }

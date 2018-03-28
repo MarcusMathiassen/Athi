@@ -18,47 +18,46 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
 #include "athi_utility.h"
 
-#include "./Renderer/athi_camera.h"    // camera,
-#include "./Renderer/athi_renderer.h"  // Renderer
-#include "./Renderer/athi_shader.h"    // Shader
-#include "athi_transform.h"            // Transform
-#include "athi_input.h"            // athi_input_manager
+#include "athi_input.h" // athi_input_manager
 
 #include <algorithm>  // std::swap
-#include <mutex>  // std::mutex
 
 #ifdef _WIN32
-#include <sys/stat.h>
-#else
-// Not Windows? Assume unix-like.
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
+  #include <windows.h>
+  #include <sys/stat.h>
+  #include <ctime>
 #endif
 
-f32  rand_f32 (f32 min, f32 max) noexcept { return ((f32(rand()) / f32(RAND_MAX)) * (max - min)) + min; }
-vec2 rand_vec2(f32 min, f32 max) noexcept { return vec2(rand_f32(min, max), rand_f32(min, max)); }
-vec3 rand_vec3(f32 min, f32 max) noexcept { return vec3(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }
-vec4 rand_vec4(f32 min, f32 max) noexcept { return vec4(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max), rand_f32(min, max)); }
+#ifdef __APPLE__
+  #include <sys/sysctl.h>
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <unistd.h>
+#endif
 
-vec2 get_mouse_pos() noexcept
+#if __linux__
+  #include <linux/sysctl.h>
+  #include <unistd.h>
+#endif
+
+
+f32  rand_f32 (f32 min, f32 max) noexcept
 {
-  const auto mouse_pos_x = athi_input_manager.mouse.pos.x;
-  const auto mouse_pos_y = athi_input_manager.mouse.pos.y;
-  return vec2(mouse_pos_x, mouse_pos_y);
+  return ((f32(rand()) / f32(RAND_MAX)) * (max - min)) + min;
 }
-
-vec2 get_mouse_pos_viewspace() noexcept
+vec2 rand_vec2(f32 min, f32 max) noexcept
 {
-  auto mouse_pos_x = athi_input_manager.mouse.pos.x;
-  auto mouse_pos_y = athi_input_manager.mouse.pos.y;
-  mouse_pos_x = -1.0f + 2 * mouse_pos_x / screen_width;
-  mouse_pos_y = 1.0f - 2 * mouse_pos_y / screen_height;
-
-  return px_scale * vec2(mouse_pos_x, mouse_pos_y);
+  return vec2(rand_f32(min, max), rand_f32(min, max));
+}
+vec3 rand_vec3(f32 min, f32 max) noexcept
+{
+  return vec3(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max));
+}
+vec4 rand_vec4(f32 min, f32 max) noexcept
+{
+  return vec4(rand_f32(min, max), rand_f32(min, max), rand_f32(min, max), rand_f32(min, max));
 }
 
 f64 get_time() noexcept
@@ -215,6 +214,16 @@ vec4 get_universal_current_color()
   return vec4();
 }
 
+bool file_exists(const string& filename) noexcept
+{
+    struct stat buf;
+    if (stat(filename.c_str(), &buf) != -1)
+    {
+        return true;
+    }
+    return false;
+}
+
 void read_file(const char *file, char **buffer) noexcept
 {
   string buff, line;
@@ -333,7 +342,6 @@ bool string_has(const string& str, char delim)
 
 string remove_quotes(const string& str) noexcept
 {
-    int quote_count = 0;
     string new_str;
     for (auto c: str)
         if (c != '"') {
@@ -352,8 +360,8 @@ vector<string> split_string(const string& str, char delim) noexcept
 {
     vector<string> strings;
 
-    std::string::size_type pos = 0;
-    std::string::size_type prev = 0;
+    string::size_type pos = 0;
+    string::size_type prev = 0;
     while ((pos = str.find(delim, prev)) != std::string::npos)
     {
         strings.emplace_back(str.substr(prev, pos - prev));

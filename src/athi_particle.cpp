@@ -664,8 +664,6 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   const vec2 b_pos = b.pos;
   const f32 ar = a.radius;
   const f32 br = b.radius;
-  const f32 m1 = a.mass;
-  const f32 m2 = b.mass;
 
   const f32 collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
 

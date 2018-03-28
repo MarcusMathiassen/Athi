@@ -70,7 +70,6 @@ static bool button(
   if (char_count == 0) char_count = 4;
   float button_width = 17.9f * char_count;
   float button_height = 25.0f;
-  float stack_margin = button_height * 2.0f;
 
   bool mouse_inside = false;
   bool button_hold = false;
@@ -114,9 +113,7 @@ static void label(const string& text, const vec4& color)
 
   int char_count = static_cast<s32>(text.length());
   if (char_count == 0) char_count = 4;
-  float button_width = 17.9f * char_count;
   float button_height = 25.0f;
-  float stack_margin = button_height * 2.0f;
 
   immidiate_draw_text(my_font, text, button_pos.x, button_pos.y, 1.0f * button_height * 0.1/4.0, color);
 }
@@ -125,11 +122,11 @@ static void draw_custom_gui() noexcept
 {
   button_count = 0;
 
-  label("GPU: " + std::to_string(smoothed_render_frametime) + "ms", black);
-  label("CPU: " + std::to_string(smoothed_physics_frametime) + "ms", black);
+  label("GPU: " + std::to_string(smoothed_render_frametime) + "ms", default_gui_text_color);
+  label("CPU: " + std::to_string(smoothed_physics_frametime) + "ms", default_gui_text_color);
   label("FPS: " + std::to_string(framerate) + "(" + std::to_string(frametime) + "ms)", (framerate < 60) ? pastel_red : pastel_green);
-  label("Particles: " + std::to_string(particle_system.particle_count), black);
-  label("Resolution: " + std::to_string(framebuffer_width) + "x" + std::to_string(framebuffer_height), black);
+  label("Particles: " + std::to_string(particle_system.particle_count), default_gui_text_color);
+  label("Resolution: " + std::to_string(framebuffer_width) + "x" + std::to_string(framebuffer_height), default_gui_text_color);
 }
 
 static void custom_gui_init() noexcept
@@ -172,7 +169,6 @@ static void menu_debug() {
 
   ImGui::SliderFloat("gButtonWidth", &gButtonWidth,  0, 500);
   ImGui::SliderFloat("gButtonHeight", &gButtonHeight,  0, 500);
-
 
   ToggleButton("cycle_particle_color", &cycle_particle_color);
   ToggleButton("draw_rects", &draw_rects);
@@ -461,6 +457,9 @@ static void menu_settings() {
   if (ImGui::CollapsingHeader("color options")) {
     ImGui::Text("background color");
     ImGui::ColorPicker4("##Background", (float *)&background_color);
+
+    ImGui::Text("Text color");
+    ImGui::ColorPicker4("##default_gui_text_color", (float *)&default_gui_text_color);
   }
   ImGui::PopItemWidth();
   ImGui::End();
