@@ -20,8 +20,6 @@
 
 #include "athi_utility.h"
 
-#include "athi_input.h" // athi_input_manager
-
 #include <algorithm>  // std::swap
 
 #ifdef _WIN32
@@ -33,7 +31,7 @@
 #ifdef __APPLE__
   #include <sys/sysctl.h>
   #include <sys/types.h>
-  #include <sys/stat.h>
+  #include <sys/stat.h> // stat
   #include <unistd.h>
 #endif
 
@@ -42,6 +40,9 @@
   #include <unistd.h>
 #endif
 
+#include <cstring> // strcpy
+#include <fstream> // ifstream
+#include <sstream> // istreambuf_iterator
 
 f32  rand_f32 (f32 min, f32 max) noexcept
 {

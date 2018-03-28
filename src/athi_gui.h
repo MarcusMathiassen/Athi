@@ -23,6 +23,7 @@
 
 #include "athi_typedefs.h"
 
+#include "athi_transform.h"  // Transform
 #include "athi_particle.h" // particle_system
 #include "athi_settings.h" // has_random_velocity, etc.
 #include "./Renderer/athi_primitives.h" // draw_line, draw_rect, draw_circle

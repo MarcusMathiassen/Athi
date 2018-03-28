@@ -28,7 +28,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>  // glfwGetTime
 
-#include <string> // string
+#include <vector> // std::vector
+#include <string> // std::string
 #include <glm/vec2.hpp> // glm::vec2
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
@@ -37,11 +38,6 @@ using std::string;
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
-using std::vector;
-
-#include <cstring>
-#include <fstream>
-#include <sstream>
 
 #include <cstdlib>  // rand
 
@@ -106,8 +102,8 @@ string get_content_of_file(const string& file) noexcept;
 bool string_has(const string& str, char delim);
 string remove_quotes(const string& str) noexcept;
 string add_quotes(const string& str) noexcept;
-vector<string> split_string(const string& str, char delim) noexcept;
-string eat_chars(const string& str, vector<char> delims) noexcept;
+std::vector<string> split_string(const string& str, char delim) noexcept;
+string eat_chars(const string& str, std::vector<char> delims) noexcept;
 
 vec2 to_view_space(vec2 v) noexcept;
 

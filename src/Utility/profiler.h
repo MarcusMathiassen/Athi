@@ -21,14 +21,19 @@
 
 #pragma once
 
-#include "../athi_typedefs.h"
 #include "../athi_utility.h"    // get_time
 #include "athi_constant_globals.h" // DEBUG_MODE
 
+#include "fixed_size_types.h" // u32, s32, etc.
+#include <mutex> // std::mutex
+#include <vector> // std::vector
+#include <string> // std::string
+using std::string;
+
 extern std::mutex cpu_profiler_mutex;
 extern std::mutex gpu_profiler_mutex;
-extern vector<std::tuple<string, f64>> cpu_profiles;
-extern vector<std::tuple<string, f64>> gpu_profiles;
+extern std::vector<std::tuple<string, f64>> cpu_profiles;
+extern std::vector<std::tuple<string, f64>> gpu_profiles;
 
 class gpu_profile
 {

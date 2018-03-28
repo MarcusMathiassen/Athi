@@ -40,6 +40,9 @@
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
 
+#include <vector> // std::vector
+using std::vector;
+
 static s32 last_key;
 static s32 last_action;
 
@@ -148,7 +151,7 @@ s32 id1, id2;
 bool found{false};
 bool attach{false};
 static bool is_dragging{false};
-static vector<s32> mouse_attached_to;
+static std::vector<s32> mouse_attached_to;
 
 void drag_color_or_destroy_with_mouse()
 {
@@ -180,7 +183,7 @@ void drag_color_or_destroy_with_mouse()
   Particle p;
   p.pos = mouse_pos;
   p.radius = mouse_size;
-  vector<s32> particle_ids_in_circle;
+  std::vector<s32> particle_ids_in_circle;
 
   // Dont get all the ids if we're doing GravityWell
   if (mouse_option != MouseOption::GravityWell) {

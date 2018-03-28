@@ -24,14 +24,12 @@
 
 #include "athi_dispatch.h"  // Dispatch
 
-#include "athi_quadtree.h"  // Quadtree
+// #include "athi_quadtree.h"  // Quadtree
 #include "athi_uniformgrid.h"  // UniformGrid
 
 #include "./Renderer/athi_renderer.h"  // Renderer
-
-#include "athi_transform.h"  // Transform
-
 #include "./Renderer/athi_texture.h"  // texture
+#include "athi_quadtree.h"  // texture
 
 #include <mutex>  // mutex
 #include <functional>
@@ -45,6 +43,10 @@
 #include <vector>  // std::vector
 #include <glm/vec2.hpp>  // glm::vec2
 #include <glm/vec4.hpp>  // glm::vec4
+
+// Forward decl
+struct Transform;
+
 
 struct Particle
 {

@@ -34,12 +34,13 @@
 #include "athi_input.h" // update_inputs
 #include "./Renderer/athi_primitives.h" // draw_circle, draw_rects, draw_lines
 #include "athi_settings.h" // console, ThreadPoolSolution
-#include "athi_typedefs.h"
+
 #include "athi_utility.h" // profile, Smooth_Average
 #include "athi_window.h" // window
 #include "athi_dispatch.h" // dispatch
 
 #include "Utility/console.h" // console
+#include "Utility/fixed_size_types.h" // u32, s32, etc.
 
 #include <atomic> // atomic
 #include <mutex> // mutex

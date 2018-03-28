@@ -20,21 +20,17 @@
 
 #include "athi_particle.h"
 
-#include <algorithm>  // std::min_element, std::max_element
-
 #include "./Utility/athi_constant_globals.h" // kPI, kGravitationalConstant
 #include "./Utility/athi_save_state.h" // write_data, read_data
-
-#include "./Renderer/athi_line.h" // draw_line
 #include "./Renderer/athi_camera.h" // Camera
-
 #include "athi_settings.h"
-
 #include "Utility/console.h" // console
-
 #include "athi_utility.h" // read_file, get_begin_and_end
-
 #include "./Utility/profiler.h" // cpu_profile, gpu_profile
+
+#include "athi_transform.h"  // Transform
+
+#include <algorithm>  // std::min_element, std::max_element
 
 ParticleSystem particle_system;
 
@@ -629,9 +625,6 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
 
     a.torque = (cross(glm::normalize(r2), v1) / ar) * friction + b.torque * 0.1f;
     b.torque = (cross(glm::normalize(r1), v2) / br) * friction + a.torque * 0.1f;
-
-    // draw_line(a.pos, a.pos+r1, 1.0f, white);
-    // draw_line(b.pos, b.pos+r2, 1.0f, white);
   }
 
   // And we don't resolve collisions between circles moving away from eachother

@@ -21,9 +21,7 @@
 #include "athi_shader.h"
 
 #include "../athi_utility.h"  // read_file, get_file_time_stamp
-
 #include "opengl_utility.h"  //   check_gl_error();
-
 #include "../athi_resource.h" // resource_manager
 
 Shader::~Shader()
@@ -31,7 +29,7 @@ Shader::~Shader()
   glDeleteProgram(program); check_gl_error();
 }
 
-void Shader::validate_shader(const std::string& file, const char* type, GLuint shader) const noexcept
+void validate_shader(const string& file, const char* type, GLuint shader) noexcept
 {
   char infoLog[512] = {0};
   GLint success;
@@ -45,7 +43,7 @@ void Shader::validate_shader(const std::string& file, const char* type, GLuint s
   }
 }
 
-void Shader::validate_shader_program() const noexcept
+void validate_shader_program(const string& name, GLuint program) noexcept
 {
   char infoLog[512] = {0};
   s32 success;
@@ -58,9 +56,9 @@ void Shader::validate_shader_program() const noexcept
   }
 }
 
-GLuint Shader::create_shader(const std::string& file, shader_type type) const noexcept
+GLuint Shader::create_shader(const string& file, shader_type type) const noexcept
 {
-  std::vector<std::string> sources;
+  vector<string> sources;
   sources.reserve(1 + preambles_storage.size());
 
   sources.emplace_back("\n#version 410\n");
@@ -73,7 +71,7 @@ GLuint Shader::create_shader(const std::string& file, shader_type type) const no
   sources.emplace_back(get_content_of_file(file));
 
   // @Hack: this needs to be in a char* array for some reason
-  std::vector<const char*> charVec(sources.size(),nullptr);
+  vector<const char*> charVec(sources.size(),nullptr);
   for (size_t i = 0; i < sources.size(); ++i)
   {
       charVec[i]= sources[i].c_str();
@@ -130,7 +128,7 @@ void Shader::link() noexcept
 {
   glLinkProgram(program); check_gl_error();
   glValidateProgram(program); check_gl_error();
-  validate_shader_program(); check_gl_error();
+  validate_shader_program(name, program); check_gl_error();
 
   for (auto & [ file_handle, shader ] : shaders)
   {
@@ -159,8 +157,8 @@ void Shader::finish() noexcept
   // Read in all preambles
   for (const auto & file: preambles)
   {
-    std::string source = get_content_of_file(shader_folder_path + file);
-    preambles_storage.emplace_back(std::tuple<std::string, std::string>(shader_folder_path + file, source + "\n"));
+    string source = get_content_of_file(shader_folder_path + file);
+    preambles_storage.emplace_back(std::tuple<string, string>(shader_folder_path + file, source + "\n"));
     // if constexpr (DEBUG_MODE) console->info("Preamble loaded: {}", file);
   }
 
@@ -204,50 +202,50 @@ void Shader::finish() noexcept
   link();
 }
 
-void Shader::set_uniform(const std::string& name, GLfloat x, GLfloat y) const noexcept
+void Shader::set_uniform(const string& name, GLfloat x, GLfloat y) const noexcept
 {
   glUniform2f(uniforms_map.at(name), x, y); check_gl_error();
 }
 
-void Shader::set_uniform(const std::string& name, GLfloat x, GLfloat y, GLfloat z) const noexcept
+void Shader::set_uniform(const string& name, GLfloat x, GLfloat y, GLfloat z) const noexcept
 {
   glUniform3f(uniforms_map.at(name), x, y, z); check_gl_error();
 }
-void Shader::set_uniform(const std::string& name, const glm::vec2& v) const noexcept
+void Shader::set_uniform(const string& name, const vec2& v) const noexcept
 {
   glUniform2f(uniforms_map.at(name), v.x, v.y); check_gl_error();
 }
-void Shader::set_uniform(const std::string& name, const glm::vec3& v) const noexcept
+void Shader::set_uniform(const string& name, const vec3& v) const noexcept
 {
   glUniform3f(uniforms_map.at(name), v.x, v.y, v.z); check_gl_error();
 }
-void Shader::set_uniform(const std::string& name, const glm::vec4& v) const noexcept
+void Shader::set_uniform(const string& name, const vec4& v) const noexcept
 {
   glUniform4f(uniforms_map.at(name), v.x, v.y, v.z, v.w); check_gl_error();
 }
-void Shader::set_uniform(const std::string& name, const glm::mat4& m) const noexcept
+void Shader::set_uniform(const string& name, const mat4& m) const noexcept
 {
   glUniformMatrix4fv(uniforms_map.at(name), 1, GL_FALSE, &m[0][0]); check_gl_error();
 }
-void Shader::set_uniform(const std::string& name, const glm::mat3& m) const noexcept
+void Shader::set_uniform(const string& name, const mat3& m) const noexcept
 {
   glUniformMatrix3fv(uniforms_map.at(name), 1, GL_FALSE, &m[0][0]); check_gl_error();
 }
-void Shader::set_uniform(const std::string& name, GLfloat val) const noexcept
+void Shader::set_uniform(const string& name, GLfloat val) const noexcept
 {
   glUniform1f(uniforms_map.at(name), val); check_gl_error();
 }
-void Shader::set_uniform(const std::string& name, GLint val) const noexcept
+void Shader::set_uniform(const string& name, GLint val) const noexcept
 {
   glUniform1i(uniforms_map.at(name), val); check_gl_error();
 }
 
-void Shader::set_uniform(const std::string& name, GLuint val) const noexcept
+void Shader::set_uniform(const string& name, GLuint val) const noexcept
 {
   glUniform1i(uniforms_map.at(name), val); check_gl_error();
 }
 
-void Shader::set_uniform(const std::string& name, GLboolean val) const noexcept {
+void Shader::set_uniform(const string& name, GLboolean val) const noexcept {
   glUniform1i(uniforms_map.at(name), val); check_gl_error();
 }
 
