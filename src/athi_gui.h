@@ -102,29 +102,40 @@ static bool button(
   }
 
   // Draw text inside this rect
-  // draw_rounded_rect({button_pos.x, button_pos.y},  button_width, button_height, button_color, false);
-
-  immidiate_draw_text(my_font, button_text, button_pos.x, button_pos.y, 1.0f * button_height * 0.1/4.0, white);
+  immidiate_draw_rounded_rect({button_pos.x, button_pos.y}, button_width, button_height, button_color);
+  immidiate_draw_text(my_font, button_text, button_pos.x, button_pos.y, 1.0f * button_height * 0.1/4.0, black);
 
   return button_pressed;
+}
+
+static void label(const string& text, const vec4& color)
+{
+  vec2 button_pos{button_start_pos_x, 50.0f + gButtonHeight*2.0f*button_count++};
+
+  int char_count = static_cast<s32>(text.length());
+  if (char_count == 0) char_count = 4;
+  float button_width = 17.9f * char_count;
+  float button_height = 25.0f;
+  float stack_margin = button_height * 2.0f;
+
+  immidiate_draw_text(my_font, text, button_pos.x, button_pos.y, 1.0f * button_height * 0.1/4.0, color);
 }
 
 static void draw_custom_gui() noexcept
 {
   button_count = 0;
 
-  button("GPU: " + std::to_string(smoothed_render_frametime) + "ms");
-  button("CPU: " + std::to_string(smoothed_physics_frametime) + "ms");
-  button("FPS: " + std::to_string(framerate) + "(" + std::to_string(frametime) + "ms)", (framerate < 60) ? pastel_red : pastel_green);
-  button("Particles: " + std::to_string(particle_system.particle_count));
-  button("Resolution: " + std::to_string(framebuffer_width) + "x" + std::to_string(framebuffer_height));
+  label("GPU: " + std::to_string(smoothed_render_frametime) + "ms", black);
+  label("CPU: " + std::to_string(smoothed_physics_frametime) + "ms", black);
+  label("FPS: " + std::to_string(framerate) + "(" + std::to_string(frametime) + "ms)", (framerate < 60) ? pastel_red : pastel_green);
+  label("Particles: " + std::to_string(particle_system.particle_count), black);
+  label("Resolution: " + std::to_string(framebuffer_width) + "x" + std::to_string(framebuffer_height), black);
 }
 
 static void custom_gui_init() noexcept
 {
     my_font = load_font("Inconsolata-Regular.ttf", 20 * px_scale);
 }
-
 
 static void new_style();
 static void SetupImGuiStyle(bool bStyleDark_, float alpha_);

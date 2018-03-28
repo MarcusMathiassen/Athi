@@ -27,7 +27,7 @@ static constexpr bool use_textured_particles{false};   // Particles are rendered
 
 // Constants
 static constexpr f64 kPI = 3.14159265359;
-static constexpr f64 kGravitationalConstant = 6.67408e-11;
+static constexpr f64 kGravitationalConstant = 6.67408e-6;
 
 // Default colors
 static const vec4 debug_color(0, 1, 0.087, 1);

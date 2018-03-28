@@ -20,34 +20,7 @@
 
 #pragma once
 
-#include <GL/glew.h>
-
 #include "../athi_typedefs.h"
+#include "../dep/Universal/spdlog/spdlog.h" // Console logging
 
-// @Todo: These are not all the available enums, add more.
-enum texture_filter {
-  nearest = GL_NEAREST,
-  linear = GL_LINEAR,
-};
-
-struct Fbo {
-  u32 resolution[2];
-  texture_filter fiter;
-};
-
-struct FrameBuffer
-{
-  s32  width, height;
-  u32 fbo;
-  u32 texture;
-
-  FrameBuffer(u32 num_textures = 1, s32 width = 0, s32 height = 0);
-  ~FrameBuffer();
-  void resize(s32 width, s32 height) noexcept;
-  void set_texture(u32 tex) noexcept;
-  void bind() const noexcept;
-  void unbind() const noexcept;
-  void clear() const noexcept;
-};
-
-extern vector<FrameBuffer> framebuffers;
+extern std::shared_ptr<spdlog::logger> console;

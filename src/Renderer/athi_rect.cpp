@@ -96,7 +96,7 @@ void render_rects() noexcept
 
   {
     CommandBuffer cmd;
-    cmd.type = primitive::line_loop;
+    cmd.type = primitive::triangles;
     cmd.count = 6;
     cmd.primitive_count = static_cast<s32>(rect_buffer.size());
 
@@ -165,4 +165,34 @@ void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_holl
   rect.height = max.y - min.y;
 
   rect_buffer.emplace_back(rect);
+}
+
+void immidiate_draw_rounded_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow) noexcept
+{
+
+  //  o---o
+  //  |   |
+  //  |   |
+  //  o---o
+
+  // Circles
+  const float height = max.y - min.y;
+
+  const float circle_radius = height * 0.25f;
+
+  // Corners
+  draw_circle(vec2(min.x, max.y),  circle_radius, color, is_hollow); // Left top
+  draw_circle(min,                 circle_radius, color, is_hollow); // Left bottom
+  draw_circle(vec2(max.x, min.y),  circle_radius, color, is_hollow); // Right bottom
+  draw_circle(max,                 circle_radius, color, is_hollow); // Right top
+
+  // Body
+  draw_rect(vec2(min.x-circle_radius, min.y), vec2(max.x+circle_radius, max.y),  color, is_hollow);
+  draw_rect(vec2(min.x, min.y-circle_radius), vec2(max.x, max.y+circle_radius),  color, is_hollow);
+}
+
+// Wrapper
+void immidiate_draw_rounded_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, bool is_hollow) noexcept
+{
+  immidiate_draw_rounded_rect(min, {min.x+width, min.y+height}, color, is_hollow);
 }

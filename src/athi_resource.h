@@ -23,7 +23,8 @@
 
 #include "athi_typedefs.h"
 
-#include "athi_settings.h"      // console
+#include "Utility/console.h" // console
+
 #include <algorithm>            // find
 #include <unordered_map>        // unordered_map
 

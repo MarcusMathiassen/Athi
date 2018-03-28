@@ -136,7 +136,6 @@ s32 physics_FPS_limit{0};
 
 u16 monitor_refreshrate{60};
 
-std::shared_ptr<spdlog::logger> console;
 bool app_is_running{true};
 bool settings_changed{false};
 

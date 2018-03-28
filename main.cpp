@@ -40,6 +40,7 @@ struct Rectangle: public Entity
             renderer = new Renderer("Rectangle"); //&make_renderer("Rectangle");
 
             auto &shader = renderer->make_shader();
+
             shader.sources = {"argb_no_tex.vert", "argb_no_tex.frag"};
             shader.attribs = {"position"};
             shader.uniforms = {"transform", "color"};
@@ -68,7 +69,7 @@ struct Rectangle: public Entity
         }
     }
 
-    void update(float deltaTime) override
+    void update(float deltaTime) noexcept override
     {
         const auto current_time = get_time();
 
@@ -85,7 +86,7 @@ struct Rectangle: public Entity
         model = proj * temp.get_model();
     }
 
-    void draw() override
+    void draw() const noexcept override
     {
         renderer->bind();
 
@@ -143,7 +144,7 @@ struct Circle: public Entity
         }
     }
 
-    void update(float deltaTime) override
+    void update(float deltaTime) noexcept override
     {
         const auto current_time = get_time();
 
@@ -160,7 +161,7 @@ struct Circle: public Entity
         model = proj * temp.get_model();
     }
 
-    void draw() override
+    void draw() const noexcept override
     {
         renderer->bind();
 
@@ -182,9 +183,8 @@ int main()
     Athi_Core athi;
     athi.init();
 
-
-    // Rectangle rectangle;
-    // Circle circle;
+    Rectangle rectangle;
+    Circle circle;
 
     // athi.entity_manager.add_entity(&rectangle);
     // athi.entity_manager.add_entity(&circle);

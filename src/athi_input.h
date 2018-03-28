@@ -24,7 +24,8 @@
 #include "athi_window.h"    // open_profiler
 #include "./Renderer/athi_camera.h"    // camera
 #include "athi_particle.h"  // particle_system
-#include "athi_settings.h"  // console
+#include "athi_settings.h"
+#include "Utility/console.h" // console
 #include "./Utility/athi_config_parser.h"  // save_variables
 #include "./Renderer/athi_renderer.h"  // render_call
 

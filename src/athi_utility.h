@@ -25,6 +25,8 @@
 
 #include "athi_settings.h"
 
+#include "Utility/console.h" // console
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>  // glfwGetTime
 

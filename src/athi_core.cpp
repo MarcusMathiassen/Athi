@@ -38,6 +38,8 @@
 #include "athi_window.h" // window
 #include "athi_dispatch.h" // dispatch
 
+#include "Utility/console.h" // console
+
 #include <atomic> // atomic
 #include <mutex> // mutex
 #include <condition_variable> // condition_variable
@@ -65,7 +67,7 @@ static void setup_fullscreen_quad()
 {
   auto &shader = renderer.make_shader();
   shader.sources = {"athi_fullscreen_quad.vert", "athi_fullscreen_quad.frag"};
-  shader.uniforms = {"transform", "res", "tex", "dir"};
+  shader.uniforms = {"res", "tex", "dir"};
   shader.preambles = {"blurs.glsl"};
 
   constexpr u16 indices[6] = {0, 1, 2, 0, 2, 3};
@@ -89,13 +91,9 @@ static void draw_fullscreen_quad(u32 texture, const vec2 &dir)
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_2D, texture);
 
-  const auto proj = camera.get_ortho_projection();
-  mat4 trans = proj * Transform().get_model();
-
-  renderer.shader.set_uniform("transform", trans);
-  renderer.shader.set_uniform("res", framebuffer_width, framebuffer_height);
   renderer.shader.set_uniform("tex", 0);
   renderer.shader.set_uniform("dir", dir);
+  renderer.shader.set_uniform("res", framebuffer_width, framebuffer_height);
 
   renderer.draw(cmd);
 }
@@ -112,10 +110,6 @@ static void guassian_blur(int samples, int strength)
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_2D, framebuffers[0].texture);
 
-  const auto proj = camera.get_ortho_projection();
-  const auto trans = proj;
-
-  renderer.shader.set_uniform("transform", trans);
   renderer.shader.set_uniform("res", framebuffer_width, framebuffer_height);
   renderer.shader.set_uniform("tex", 0);
 
@@ -192,7 +186,7 @@ void Athi_Core::start()
 
   while (!glfwWindowShouldClose(window_context))
   {
-    const f64 time_start_frame = get_time();
+    const auto time_start_frame = get_time();
 
     //@Hack @Apple: GLFW 3.3.0 has a bug that ignores vsync when not visible
     if (glfwGetWindowAttrib(window_context, GLFW_VISIBLE))
@@ -240,7 +234,7 @@ void Athi_Core::start()
     }
 
     if (framerate_limit != 0) limit_FPS(framerate_limit, time_start_frame);
-    frametime = (glfwGetTime() - time_start_frame) * 1000.0;
+    frametime = (get_time() - time_start_frame) * 1000.0;
     framerate = static_cast<u32>(std::round(1000.0f / smoothed_frametime));
     smooth_frametime_avg.add_new_frametime(frametime);
   }
@@ -256,7 +250,7 @@ void Athi_Core::start()
 
 void Athi_Core::draw(GLFWwindow *window)
 {
-  const f64 time_start_frame = glfwGetTime();
+  const auto time_start_frame = get_time();
   glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
   check_gl_error();
 
@@ -314,7 +308,7 @@ void Athi_Core::draw(GLFWwindow *window)
     glfwSwapBuffers(window);
   }
 
-  render_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
+  render_frametime = (get_time() - time_start_frame) * 1000.0;
   render_framerate = static_cast<u32>(std::round(1000.0f / smoothed_render_frametime));
   smooth_render_rametime_avg.add_new_frametime(render_frametime);
 
@@ -322,7 +316,7 @@ void Athi_Core::draw(GLFWwindow *window)
 
 void Athi_Core::update(float dt)
 {
-  const f64 time_start_frame = glfwGetTime();
+  const auto time_start_frame = get_time();
 
   // Update entities
   entity_manager.update(dt);
@@ -337,13 +331,13 @@ void Athi_Core::update(float dt)
   }
 
   if (cycle_particle_color)
-    circle_color = color_over_time(glfwGetTime());
+    circle_color = color_over_time(get_time());
 
   // Update objects gpu data
   particle_system.update_data();
 
   // Update timers
-  physics_frametime = (glfwGetTime() - time_start_frame) * 1000.0;
+  physics_frametime = (get_time() - time_start_frame) * 1000.0;
   physics_framerate = static_cast<u32>(std::round(1000.0f / smoothed_physics_frametime));
   smooth_physics_rametime_avg.add_new_frametime(physics_frametime);
   timestep = dt;

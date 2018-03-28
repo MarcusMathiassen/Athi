@@ -20,7 +20,10 @@
 
 #pragma once
 
-#include "../athi_settings.h"
+#include "../athi_settings.h" //?
+
+#include "Utility/console.h" // console
+
 #include "../athi_typedefs.h"
 #include "opengl_utility.h"
 

@@ -25,7 +25,8 @@
 
 #include "./Renderer/athi_line.h" // draw_line
 #include "./Renderer/athi_camera.h" // Camera
-#include "athi_settings.h" // console
+#include "athi_settings.h"
+#include "Utility/console.h" // console
 #include "athi_dispatch.h" // dispatch
 #include "athi_utility.h" // read_file, get_begin_and_end
 #include "./Utility/profiler.h" // cpu_profile, gpu_profile
@@ -284,9 +285,8 @@ void ParticleSystem::gpu_buffer_update() noexcept
 
     if (!models.empty()) renderer.update_buffer("transforms", models);
     if (!colors.empty()) renderer.update_buffer("colors", colors);
-
     if constexpr (use_textured_particles)
-		  if (!radii.empty()) renderer.update_buffer("radius", radii);
+      if (!radii.empty()) renderer.update_buffer("radius", radii);
 }
 
 // @CPU
@@ -738,8 +738,8 @@ static void gravitational_force(Particle &a, const Particle &b)
   const f64 G = kGravitationalConstant;
   const f32 F = G * m1 * m2 / d * d;
 
-  a.vel.x += F * cos(angle);
-  a.vel.y += F * sin(angle);
+  a.acc.x += F * cos(angle);
+  a.acc.y += F * sin(angle);
 }
 
 void ParticleSystem::apply_n_body() noexcept {

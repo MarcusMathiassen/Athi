@@ -50,3 +50,6 @@ void draw_rounded_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool
 void draw_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow = false) noexcept;
 void draw_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, bool is_hollow = false) noexcept;
 void render_rects() noexcept;
+
+void immidiate_draw_rounded_rect(const vec2 &min, const vec2 &max, const vec4 &color, bool is_hollow = false) noexcept;
+void immidiate_draw_rounded_rect(const vec2 &min, f32 width, f32 height, const vec4 &color, bool is_hollow = false) noexcept;

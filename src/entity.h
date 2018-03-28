@@ -20,52 +20,45 @@
 
 #pragma once
 
-#include "athi_typedefs.h"
-#include "athi_transform.h" // Transform
-
+#include <glm/vec3.hpp> // glm::vec3
 #include <vector> // std::vector
-#include <bitset> // std::bitset
-#include <iostream> // std::bitset
 
 struct Entity
 {
-    size_t  id  {0};
-    vec3    position    {0, 0, 0};
-    vec3    rotation    {0, 0, 0};
-    vec3    scale       {1, 1, 1};
+    std::size_t  id  {0};
+
+    glm::vec3    position    {0, 0, 0};
+    glm::vec3    rotation    {0, 0, 0};
+    glm::vec3    scale       {1, 1, 1};
 
     virtual ~Entity() = default;
-    virtual void update(float) = 0;
-    virtual void draw() = 0;
+
+    virtual void update(float) noexcept = 0;
+    virtual void draw() const noexcept = 0;
 };
 
 struct EntityManager
 {
     std::vector<Entity*>      entities;
-    std::bitset<1'000'000>    alive_entities;
 
     void init() noexcept
     {
-        alive_entities.set();
+
     }
 
-    // @Hot
-    void update(f32 dt) noexcept
+    void update(float dt) noexcept
     {
-        for (size_t i = 0; i < entities.size(); ++i) {
-            if (alive_entities[i]) {
-                entities[i]->update(dt);
-            }
+        for (auto& entity: entities)
+        {
+            entity->update(dt);
         }
     }
 
-    // @Hot
-    void draw() noexcept
+    void draw() const noexcept
     {
-        for (size_t i = 0; i < entities.size(); ++i) {
-            if (alive_entities[i]) {
-               entities[i]->draw();
-            }
+        for (const auto& entity: entities)
+        {
+            entity->draw();
         }
     }
 

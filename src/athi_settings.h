@@ -28,9 +28,6 @@
 #include "imgui.h"
 #include <atomic>
 
-#include "../dep/Universal/spdlog/spdlog.h" // Console logging
-extern std::shared_ptr<spdlog::logger> console;
-
 extern string particle_texture;
 
 enum class TreeType { Quadtree, UniformGrid, None };
@@ -55,7 +52,6 @@ extern bool has_random_velocity;
 extern f32 random_velocity_force;
 extern f32 color_by_velocity_threshold;
 
-extern vector<FrameBuffer> framebuffers;
 extern bool post_processing;
 extern f64 frame_budget;
 
