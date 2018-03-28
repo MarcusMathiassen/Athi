@@ -20,22 +20,21 @@
 
 #include "athi_particle.h"
 
+#include <algorithm>  // std::min_element, std::max_element
+
 #include "./Utility/athi_constant_globals.h" // kPI, kGravitationalConstant
 #include "./Utility/athi_save_state.h" // write_data, read_data
 
 #include "./Renderer/athi_line.h" // draw_line
 #include "./Renderer/athi_camera.h" // Camera
+
 #include "athi_settings.h"
+
 #include "Utility/console.h" // console
-#include "athi_dispatch.h" // dispatch
+
 #include "athi_utility.h" // read_file, get_begin_and_end
+
 #include "./Utility/profiler.h" // cpu_profile, gpu_profile
-
-#include <algorithm>  // std::min_element, std::max_element
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/fast_square_root.hpp> // glm::fastDistance, glm::fastSqrt
-#include <glm/gtx/fast_trigonometry.hpp> // glm::fastSin, glm::fastCos
 
 ParticleSystem particle_system;
 
@@ -107,8 +106,8 @@ void ParticleSystem::init() noexcept {
   // Setup the particle vertices
   vector<vec2> positions(num_vertices_per_particle);
   for (s32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions[i] = {glm::fastCos(i * kPI * 2.0f / num_vertices_per_particle),
-                    glm::fastSin(i * kPI * 2.0f / num_vertices_per_particle)};
+    positions[i] = {cos(i * kPI * 2.0f / num_vertices_per_particle),
+                    sin(i * kPI * 2.0f / num_vertices_per_particle)};
   }
 
   if constexpr (!use_textured_particles) {
@@ -298,8 +297,8 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
   for (s32 i = 0; i < num_vertices_per_particle; ++i) {
     positions[i] =
     {
-      glm::fastCos(i * kPI * 2.0f / num_vertices_per_particle),
-      glm::fastSin(i * kPI * 2.0f / num_vertices_per_particle)
+      cos(i * kPI * 2.0f / num_vertices_per_particle),
+      sin(i * kPI * 2.0f / num_vertices_per_particle)
     };
   }
 
@@ -613,8 +612,8 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
     dy = b.pos.y - a.pos.y;
 
     const f32 collision_angle = atan2(dy, dx);
-    const f32 cos_angle = glm::fastCos(collision_angle);
-    const f32 sin_angle = glm::fastSin(collision_angle);
+    const f32 cos_angle = cos(collision_angle);
+    const f32 sin_angle = sin(collision_angle);
 
     const vec2 r1 = { collision_depth * 0.5f * cos_angle,  collision_depth * 0.5f *  sin_angle};
     const vec2 r2 = {-collision_depth * 0.5f * cos_angle, -collision_depth * 0.5f *  sin_angle};
@@ -677,8 +676,8 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
 
   // contact angle
   const f32 collision_angle = atan2(dy, dx);
-  const f32 cos_angle = glm::fastCos(collision_angle);
-  const f32 sin_angle = glm::fastSin(collision_angle);
+  const f32 cos_angle = cos(collision_angle);
+  const f32 sin_angle = sin(collision_angle);
 
   // @Same as above, just janky not working
   // const auto midpoint_x = (a_pos.x + b_pos.x) / 2.0f;
@@ -732,7 +731,7 @@ static void gravitational_force(Particle &a, const Particle &b)
 
   const f32 dx = x2 - x1;
   const f32 dy = y2 - y1;
-  const f32 d = glm::fastSqrt(dx * dx + dy * dy);
+  const f32 d = sqrt(dx * dx + dy * dy);
 
   const f32 angle = atan2(dy, dx);
   const f64 G = kGravitationalConstant;

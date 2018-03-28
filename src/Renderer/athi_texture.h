@@ -20,49 +20,21 @@
 
 #pragma once
 
-#include "../athi_typedefs.h"
+#include "../Utility/fixed_size_types.h" // u32, s32, etc.
 
-#include "../athi_settings.h" // console
+#include <string> // std::string
 
-#include "stb_image.h" // stbi_load, stbi_image_free
-
-#include <GL/glew.h>
-
-class Texture
+struct Texture
 {
-private:
   u32 id{0};
   u8* image_data;
+
   static constexpr const char* default_path{"../Resources/Textures/"};
 
-public:
-  f32 filtering{GL_LINEAR};
-
-  Texture(const std::string &file, f32 _filtering) : filtering(_filtering)
-  {
-    std::string file_name = default_path + file;
-    s32 width{0}, height{0}, num_comp{0};
-    image_data = stbi_load(file_name.c_str(), &width, &height, &num_comp, 4);
-    if (NULL == image_data)
-      console->info("Texture loading failed: {}", file);
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (s32)_filtering);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (s32)_filtering);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
-
-    stbi_image_free(image_data);
-
-    console->info("Texture loaded: {}", file);
-  }
+  f32 filtering;
 
   Texture() = default;
+  Texture(const std::string &file, f32 _filtering);
 
-  void bind(u32 unit) const
-  {
-    glActiveTexture(GL_TEXTURE0 + unit);
-    glBindTexture(GL_TEXTURE_2D, id);
-  }
+  void bind(u32 unit) const noexcept;
 };

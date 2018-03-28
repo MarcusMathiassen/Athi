@@ -18,20 +18,22 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#pragma once
+#include "athi_transform.h"
 
-#include <glm/vec3.hpp>   // glm::vec3
-#include <glm/mat4x4.hpp> // glm::mat4
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/transform.hpp>    // glm::translate, glm::rotate, glm::scale
+#include <glm/gtx/quaternion.hpp>   // glm::quat, glm::toMat4
 
-struct Transform
+glm::mat4 Transform::get_model() const noexcept
 {
-  glm::vec3 pos   {0, 0, 0};
-  glm::vec3 rot   {0, 0, 0};
-  glm::vec3 scale {1, 1, 1};
+    const glm::mat4 posMatrix   = glm::translate(pos);
+    const glm::mat4 scaleMatrix = glm::scale(scale);
+    const glm::mat4 rotMatrix   = glm::toMat4(glm::quat(rot));
+    return posMatrix * rotMatrix * scaleMatrix;
+}
 
-  // @Hot: this is called for every object drawn to the screen.
-  // That means maybe a million calls just from particles alone.
-  glm::mat4 get_model() const noexcept;
-};
-
-glm::mat4 get_model_matrix(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) noexcept;
+// Free functions //
+glm::mat4 get_model_matrix(const glm::vec3& position, const glm::vec3& rotation, const glm::vec3& scale) noexcept
+{
+  return glm::translate(position) * glm::toMat4(glm::quat(rotation)) * glm::scale(scale);
+}

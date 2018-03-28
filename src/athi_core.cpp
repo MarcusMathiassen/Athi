@@ -21,6 +21,7 @@
 #include "athi_core.h"
 
 #define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h" // stbi_load, stbi_image_free
 
 #include "./Utility/athi_save_state.h" // write_data, read_data
 #include "./Utility/athi_config_parser.h" // init_variables
