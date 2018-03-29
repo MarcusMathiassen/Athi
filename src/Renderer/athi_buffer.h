@@ -110,10 +110,9 @@ struct Buffer {
   }
 
   template <class T>
-  void update(const string& name, vector<T>& data) noexcept
+  void update(const string& name, const vector<T>& data) noexcept
   {
-    glBindVertexArray(vao);
-    check_gl_error();
+    glBindVertexArray(vao); check_gl_error();
 
     // error checking
     if constexpr (DEBUG_MODE) {
@@ -129,12 +128,10 @@ struct Buffer {
     glBindBuffer(vbo.type, vbo.handle);
     check_gl_error();
     if (data_size > vbo.data_size) {
-      glBufferData(vbo.type, data_size, &data[0], vbo.usage);
-      check_gl_error();
+      glBufferData(vbo.type, data_size, static_cast<const GLvoid*>(data.data()), vbo.usage); check_gl_error();
       vbo.data_size = data_size;
     } else {
-      glBufferSubData(vbo.type, 0, vbo.data_size, &data[0]);
-      check_gl_error();
+      glBufferSubData(vbo.type, 0, vbo.data_size, static_cast<const GLvoid*>(data.data())); check_gl_error();
     }
   }
 

@@ -21,8 +21,6 @@
 #include "athi_renderer.h"
 
 #include "../athi_utility.h"
-#include "../Utility/profiler.h" // cpu_profile, gpu_profile
-
 #include "../athi_settings.h" // console
 #include <mutex>
 
@@ -44,7 +42,7 @@ void render_clear() {
 void render() {
   if (command_buffer.empty())
     return;
-  gpu_profile p("render");
+
   std::unique_lock<std::mutex> lock(render_mutex);
 
   // Execute all stores callseq

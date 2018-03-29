@@ -26,7 +26,6 @@
 #include "athi_settings.h"
 #include "Utility/console.h" // console
 #include "athi_utility.h" // read_file, get_begin_and_end
-#include "./Utility/profiler.h" // cpu_profile, gpu_profile
 
 #include "athi_transform.h"  // Transform
 
@@ -43,7 +42,7 @@ void ParticleSystem::buffered_call(std::function<void()>&& f) noexcept
 void ParticleSystem::execute_buffered_calls() noexcept
 {
   if (buffered_call_buffer.empty()) return;
-  cpu_profile p("execute_buffered_calls");
+
   std::unique_lock<std::mutex> lock(buffered_call_mutex);
 
   // Execute all stores callseq
@@ -174,7 +173,7 @@ void ParticleSystem::init() noexcept {
 // @GPU:  Uses the renderer.
 void ParticleSystem::draw() noexcept {
   if (particles.empty()) return;
-  gpu_profile p("PS::draw");
+
 
   if constexpr (!use_textured_particles) {
     CommandBuffer cmd_buffer;
@@ -211,7 +210,7 @@ void ParticleSystem::update_data() noexcept
 
   if (particles.empty()) return;
 
-  cpu_profile p("PS::cpu_buffer_update");
+
 
   // Check if buffers need resizing
   if (particle_count > models.size()) {
@@ -274,7 +273,7 @@ void ParticleSystem::update_data() noexcept
 // @GPU
 void ParticleSystem::gpu_buffer_update() noexcept
 {
-    cpu_profile p("PS::gpu_buffer_update");
+
 
     // Update the gpu buffers incase of more particles..
 
@@ -360,7 +359,7 @@ void ParticleSystem::update_collisions() noexcept
 
 void ParticleSystem::draw_debug_nodes() noexcept {
   if (particles.empty()) return;
-  cpu_profile p("PS::draw_debug_nodes");
+
 
   if (draw_debug) {
 
@@ -425,38 +424,38 @@ void ParticleSystem::update(float dt) noexcept
           quadtree = Quadtree<Particle>({0.0f, 0.0f}, {framebuffer_width, framebuffer_height});
 
         {
-          cpu_profile p("Quadtree.input()");
+
           quadtree.input(particles);
         }
         {
-          cpu_profile p("Quadtree.get()");
+
           quadtree.get(tree_container);
         }
       } break;
       case Tree::UniformGrid: {
         {
-          cpu_profile p("uniformgrid.reset()");
+
           if (tree_optimized_size)
             uniformgrid.init(min, max, uniformgrid_parts);
           else
             uniformgrid.reset();
         }
         {
-          cpu_profile p("uniformgrid.input()");
+
           uniformgrid.input(particles);
         }
         {
-          cpu_profile p("uniformgrid.get()");
+
           uniformgrid.get(tree_container);
         }
       } break;
     }
 
     // Check for collisions and resolve if needed
-    cpu_profile p("PS::update_collisions()");
+
     for (s32 j = 0; j < physics_samples; ++j) {
         {
-        cpu_profile p("PS::particles.update()");
+
 
         // Update particles positions
         if (multithreaded_particle_update)
@@ -482,7 +481,7 @@ void ParticleSystem::update(float dt) noexcept
     }
   } else {
     {
-    cpu_profile p("PS::particles.update()");
+
 
     // Update particles positions
     if (multithreaded_particle_update)
@@ -1055,7 +1054,7 @@ void ParticleSystem::save_state() noexcept
   buffered_call([this]()
   {
       if (particles.empty()) return;
-      cpu_profile p("PS::save_state");
+
 
       write_data
       (
@@ -1074,7 +1073,7 @@ void ParticleSystem::load_state() noexcept
   erase_all();
   buffered_call([this]()
   {
-      cpu_profile p("PS::load_state");
+
 
       read_data(
         "../bin/data.dat",

@@ -29,7 +29,6 @@
 #include "../athi_utility.h"   // profile
 #include "../athi_transform.h" // Transform
 #include "../Utility/threadsafe_container.h" // ThreadSafe::vector
-#include "../Utility/profiler.h" // cpu_profile, gpu_profile
 
 static ThreadSafe::vector<Athi_Rect> rect_buffer;
 
@@ -61,7 +60,6 @@ void init_rect_renderer() noexcept
 void render_rects() noexcept
 {
   if (rect_buffer.empty()) return;
-  cpu_profile p("render_rects");
 
   if (models.size() < rect_buffer.size()) {
     models.resize(rect_buffer.size());
@@ -71,8 +69,6 @@ void render_rects() noexcept
   const auto proj = camera.get_ortho_projection();
   {
     rect_buffer.lock();
-    cpu_profile p("render_circles::update_buffers with new data");
-
     for (u32 i = 0; i < rect_buffer.size(); ++i)
     {
       auto &rect = rect_buffer[i];
@@ -89,7 +85,6 @@ void render_rects() noexcept
   }
 
   {
-    cpu_profile p("render_rects::update_gpu_buffers");
     renderer.update_buffer("transforms", models);
     renderer.update_buffer("colors", colors);
   }
@@ -100,7 +95,6 @@ void render_rects() noexcept
     cmd.count = 6;
     cmd.primitive_count = static_cast<s32>(rect_buffer.size());
 
-    cpu_profile p("render_rects::renderer.draw(cmd)");
     renderer.bind();
     renderer.draw(cmd);
   }

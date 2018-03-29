@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Renderer/athi_line.h" // draw_line
+#include "./Renderer/athi_line.h" // draw_line
+#include "./src/athi_utility.h" // get_time,
+#include "./src/entity.h" // Entity
 
 #include <vector> // std::vector
 #include <glm/vec2.hpp> // glm::vec2
@@ -8,14 +10,12 @@
 template <class T>
 struct Graph: public Entity
 {
-    double start_time {0.0};
-    double current_time {0.0};
+
+    double current_time{0.0};
     double last_time{0.0};
-
-
-    T current_value;
     // This is the thing we grab data from each update
     T* observer;
+    T current_value;
 
     int seconds_passed_since_last_update {0};
 
@@ -33,20 +33,21 @@ struct Graph: public Entity
     void update(float dt) noexcept override
     {
         current_time = get_time();
-        if (current_time - last_time == update_frequency)
-        {
-            last_time = current_time;
-            // Time to update.
-            current_value = *observer;
 
+        if (!observer) return;
+
+        if ((current_time - last_time) * update_frequency >= 1) {
+            last_time = current_time;
+            current_value = *observer;
         } else {
 
-            // Not yet there, wait more.
         }
     }
 
     void draw() const noexcept override
     {
-        draw_line({0,0}, {*observer, 0}, 1, {1,0,0,1});
+        if (!observer) return;
+        draw_line({5,5}, {*observer, 5}, 1, {1,0,0,1});
+        draw_line({5,10}, {current_value, 10}, 1, {0,0,0,1});
     }
 };

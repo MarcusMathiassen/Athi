@@ -68,8 +68,8 @@ if(WIN32)
   target_link_libraries(${PROJECT_NAME} freetype opencl glew glfw opengl32.lib user32.lib gdi32.lib kernel32.lib)
 
 elseif(APPLE)
-
-  set(CMAKE_CXX_FLAGS_DEBUG "-DNDEBUG -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
+  #DNDEBUG
+  set(CMAKE_CXX_FLAGS_DEBUG "-DNDEBUG -g -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
   message("-- Debug   flags: ${CMAKE_CXX_FLAGS_DEBUG}")

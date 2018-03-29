@@ -29,7 +29,6 @@
 #include "./Renderer/athi_text.h"// init_text_renderer
 #include "./Renderer/opengl_utility.h" // check_gl_error();
 #include "./Utility/athi_constant_globals.h" // os
-#include "./Utility/profiler.h" // cpu_profile, gpu_profiler
 #include "athi_gui.h" // gui_init, gui_render, gui_shutdown
 #include "athi_input.h" // update_inputs
 #include "./Renderer/athi_primitives.h" // draw_circle, draw_rects, draw_lines
@@ -206,9 +205,6 @@ void Athi_Core::start()
         std::unique_lock<std::mutex> lock(draw_mutex);
         can_draw_cond.wait(lock, []() { return ready_to_draw; });
 
-        cpu_profile::clear_profiles();
-        gpu_profile::clear_profiles();
-
         // Input
         update_inputs();
 
@@ -220,9 +216,6 @@ void Athi_Core::start()
       }
     // Single threaded engine
     } else {
-
-      cpu_profile::clear_profiles();
-      gpu_profile::clear_profiles();
 
       // Input
       update_inputs();
@@ -252,11 +245,9 @@ void Athi_Core::start()
 void Athi_Core::draw(GLFWwindow *window)
 {
   const auto time_start_frame = get_time();
-  glClearColor(background_color.r, background_color.g, background_color.b, background_color.a);
-  check_gl_error();
+  glClearColor(background_color.r, background_color.g, background_color.b, background_color.a); check_gl_error();
 
-  glClear(GL_COLOR_BUFFER_BIT);
-  check_gl_error();
+  glClear(GL_COLOR_BUFFER_BIT); check_gl_error();
 
   // Upload gpu buffers
   particle_system.gpu_buffer_update();
@@ -265,8 +256,6 @@ void Athi_Core::draw(GLFWwindow *window)
   //  Igpus have a hard time at higher resolutions.
   if (post_processing)
   {
-    gpu_profile p("post processing");
-
     framebuffers[0].clear();
     framebuffers[0].bind();
     //glDrawBuffer(GL_COLOR_ATTACHMENT0); check_gl_error();
@@ -304,7 +293,6 @@ void Athi_Core::draw(GLFWwindow *window)
   }
 
   {
-    gpu_profile p("glfwSwapBuffers");
     glfwSwapBuffers(window);
   }
 
@@ -326,7 +314,6 @@ void Athi_Core::update(float dt)
 
   if (use_gravitational_force)
   {
-    cpu_profile p("ParticleSystem::apply_n_body()");
     particle_system.apply_n_body();
   }
 

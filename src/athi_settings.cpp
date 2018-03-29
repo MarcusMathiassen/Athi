@@ -42,7 +42,7 @@ s32 blur_strength{2};
 vec4 acceleration_color_min{vec4(1,1,1,1)};
 vec4 acceleration_color_max{vec4(0.315f, 1.000f, 0.000f, 0.100f)};
 
-vec4 default_gui_text_color{black};
+vec4 text_color = black;
 vec4 background_color = vec4(1, 1, 1, 1);
 
 // --------------
@@ -119,20 +119,20 @@ s32 framebuffer_height{512};
 
 vec2 window_pos{512.0f/2.0f, 512.0f/2.0f};
 
-f64 frametime;
-f64 smoothed_frametime;
-s32 framerate;
+f64 frametime{0.0};
+f64 smoothed_frametime{0.0};
+s32 framerate{0};
 s32 framerate_limit{0};
 
-f64 render_frametime;
-f64 smoothed_render_frametime;
-s32 render_framerate;
+f64 render_frametime{0.0};
+f64 smoothed_render_frametime{0.0};
+s32 render_framerate{0};
 s32 render_framerate_limit{0};
 
-f64 timestep;
-f64 physics_frametime;
-f64 smoothed_physics_frametime;
-s32 physics_framerate;
+f64 timestep{0.0};
+f64 physics_frametime{0.0};
+f64 smoothed_physics_frametime{0.0};
+s32 physics_framerate{0};
 s32 physics_FPS_limit{0};
 
 u16 monitor_refreshrate{60};
@@ -140,8 +140,8 @@ u16 monitor_refreshrate{60};
 bool app_is_running{true};
 bool settings_changed{false};
 
-s32 cpu_cores;
-s32 cpu_threads;
+s32 cpu_cores{0};
+s32 cpu_threads{0};
 string cpu_brand;
 s32 variable_thread_count;
 std::atomic<s32> universal_color_picker{0};

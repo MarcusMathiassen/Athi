@@ -30,7 +30,6 @@
 #include "./Renderer/athi_camera.h" // camera
 #include "./Renderer/athi_text.h" // draw_text
 #include "athi_input.h" // mouse_pos
-#include "./Utility/profiler.h" // cpu_profile, gpu_profile
 #include "athi_resource.h" // resource_manager
 
 
@@ -39,8 +38,6 @@
 #include "../dep/Universal/imgui_impl_glfw_gl3.h"
 
 static bool open_settings = false;
-static bool open_gpu_profiler = false;
-static bool open_cpu_profiler = false;
 static bool open_debug_menu = false;
 static bool open_resource_viewer = false;
 
@@ -123,11 +120,11 @@ static void draw_custom_gui() noexcept
 {
   button_count = 0;
 
-  label("GPU: " + std::to_string(smoothed_render_frametime) + "ms", default_gui_text_color);
-  label("CPU: " + std::to_string(smoothed_physics_frametime) + "ms", default_gui_text_color);
+  label("GPU: " + std::to_string(smoothed_render_frametime) + "ms", text_color);
+  label("CPU: " + std::to_string(smoothed_physics_frametime) + "ms", text_color);
   label("FPS: " + std::to_string(framerate) + "(" + std::to_string(frametime) + "ms)", (framerate < 60) ? pastel_red : pastel_green);
-  label("Particles: " + std::to_string(particle_system.particle_count), default_gui_text_color);
-  label("Resolution: " + std::to_string(framebuffer_width) + "x" + std::to_string(framebuffer_height), default_gui_text_color);
+  label("Particles: " + std::to_string(particle_system.particle_count), text_color);
+  label("Resolution: " + std::to_string(framebuffer_width) + "x" + std::to_string(framebuffer_height), text_color);
 }
 
 static void custom_gui_init() noexcept
@@ -137,7 +134,6 @@ static void custom_gui_init() noexcept
 
 static void new_style();
 static void SetupImGuiStyle(bool bStyleDark_, float alpha_);
-static void menu_gpu_profiler();
 static void menu_settings();
 
 static void ToggleButton(const char* str_id, bool* v)
@@ -226,100 +222,6 @@ static void menu_resource_viewer()
   ImGui::End();
 }
 
-static void menu_cpu_profiler() {
-  cpu_profile p("menu_cpu_profiler");
-
-  ImGui::Begin("CPU profiler");
-
-  ImGui::Text("Frametime: %.3f", smoothed_physics_frametime);
-
-  ImGui::Columns(3, "mycolumns");
-  ImGui::Separator();
-  ImGui::Text("Function(s)");
-  ImGui::NextColumn();
-  ImGui::Text("Time (ms)");
-  ImGui::NextColumn();
-  ImGui::Text("%% of total");
-  ImGui::NextColumn();
-
-  ImGui::Separator();
-
-  const auto col = ImVec4(0.5f, 1.0f, 0.8f, 1.0f);
-
-  for (const auto &[id, time] : cpu_profiles) {
-    ImGui::PushStyleColor(ImGuiCol_Text, col);
-    ImGui::Text("%s", id.c_str());
-    ImGui::NextColumn();
-    ImGui::PopStyleColor();
-
-    ImGui::Text("%f", time);
-    ImGui::NextColumn();
-
-    auto perc = 100.0 * time / frametime;
-    // If % is over 50% color red
-    if (perc > 50) {
-      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.5f, 0.5f, 1.0f));
-      ImGui::Text("%.3f", perc);
-      ImGui::PopStyleColor();
-    } else {
-      ImGui::Text("%.3f", perc);
-    }
-    ImGui::NextColumn();
-  }
-
-  ImGui::Columns(1);
-  ImGui::Separator();
-
-  ImGui::End();
-}
-
-static void menu_gpu_profiler() {
-  cpu_profile p("menu_gpu_profiler");
-
-  ImGui::Begin("GPU profiler");
-
-  ImGui::Text("Frametime: %.3f", smoothed_render_frametime);
-
-  ImGui::Columns(3, "mycolumns");
-  ImGui::Separator();
-  ImGui::Text("Function(s)");
-  ImGui::NextColumn();
-  ImGui::Text("Time (ms)");
-  ImGui::NextColumn();
-  ImGui::Text("%% of total");
-  ImGui::NextColumn();
-
-  ImGui::Separator();
-
-  const auto col = ImVec4(0.5f, 1.0f, 0.8f, 1.0f);
-
-  for (const auto &[id, time] : gpu_profiles) {
-    ImGui::PushStyleColor(ImGuiCol_Text, col);
-    ImGui::Text("%s", id.c_str());
-    ImGui::NextColumn();
-    ImGui::PopStyleColor();
-
-    ImGui::Text("%f", time);
-    ImGui::NextColumn();
-
-    auto perc = 100.0 * time / frametime;
-    // If % is over 50% color red
-    if (perc > 50) {
-      ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.5f, 0.5f, 1.0f));
-      ImGui::Text("%.3f", perc);
-      ImGui::PopStyleColor();
-    } else {
-      ImGui::Text("%.3f", perc);
-    }
-    ImGui::NextColumn();
-  }
-
-  ImGui::Columns(1);
-  ImGui::Separator();
-
-  ImGui::End();
-}
-
 static void renderer_submenu()
 {
     ImGui::Checkbox("VSync", &vsync);
@@ -346,7 +248,7 @@ static void simulation_submenu()
 
 static int vertices_to_be_applied = 36;
 static void menu_settings() {
-  cpu_profile p("menu_settings");
+
 
   ImGui::Begin("Settings", NULL, ImGuiWindowFlags_AlwaysAutoResize);
   ImGui::PushItemWidth(150.0f);
@@ -460,14 +362,14 @@ static void menu_settings() {
     ImGui::ColorPicker4("##Background", (float *)&background_color);
 
     ImGui::Text("Text color");
-    ImGui::ColorPicker4("##default_gui_text_color", (float *)&default_gui_text_color);
+    ImGui::ColorPicker4("##default_gui_text_color", (float *)&text_color);
   }
   ImGui::PopItemWidth();
   ImGui::End();
 }
 
 void gui_render() {
-  cpu_profile p("gui_render");
+
 
   ImGui_ImplGlfwGL3_NewFrame();
 
@@ -476,8 +378,6 @@ void gui_render() {
       ImGui::MenuItem("Settings", NULL, &open_settings);
 
       if constexpr (DEBUG_MODE) {
-        ImGui::MenuItem("GPU profiler", NULL, &open_gpu_profiler);
-        ImGui::MenuItem("CPU profiler", NULL, &open_cpu_profiler);
         ImGui::MenuItem("Resource viewer", NULL, &open_resource_viewer);
         ImGui::MenuItem("debug", NULL, &open_debug_menu);
       }
@@ -538,8 +438,6 @@ void gui_render() {
   if (open_settings)
     menu_settings();
   if constexpr (DEBUG_MODE) {
-    if (open_cpu_profiler) menu_cpu_profiler();
-    if (open_gpu_profiler) menu_gpu_profiler();
     if (open_resource_viewer) menu_resource_viewer();
     if (open_debug_menu) menu_debug();
   }

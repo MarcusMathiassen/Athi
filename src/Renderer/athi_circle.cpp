@@ -26,7 +26,6 @@
 #include "athi_camera.h" // camera
 #include "../Utility/athi_constant_globals.h" // kPI
 #include "../Utility/threadsafe_container.h" // ThreadSafe::vector
-#include "../Utility/profiler.h" // cpu_profile, gpu_profile
 
 struct circle {
   vec2 pos{0.0f, 0.0f};
@@ -80,8 +79,6 @@ void render_circles() noexcept
 {
   if (circle_buffer.empty()) return;
 
-  cpu_profile p("render_circles::update buffers");
-
   circle_buffer.lock();
 
   if (models.size() < circle_buffer.size())
@@ -107,7 +104,6 @@ void render_circles() noexcept
   circle_buffer.unlock();
 
   {
-    gpu_profile p("render_circles::upload buffers");
     renderer.update_buffer("transform", models);
     renderer.update_buffer("color", colors);
   }
@@ -118,7 +114,6 @@ void render_circles() noexcept
     cmd.count = circle_vertices;
     cmd.primitive_count = static_cast<s32>(circle_buffer.size());
 
-    gpu_profile p("render_circles::draw");
     renderer.bind();
     renderer.draw(cmd);
   }

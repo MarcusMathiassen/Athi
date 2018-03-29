@@ -73,7 +73,7 @@ static const string default_config =
 "# ---------------- Render options ----------------\n"
 "\n"
 "background_color                        : vec4(0.000001, 0.000001, 0.000001, 1.000000)\n"
-"default_gui_text_color                  : vec4(0.000000, 0.000000, 0.000000, 1.000000)\n"
+"text_color                              : vec4(0.000000, 0.000000, 0.000000, 1.000000)\n"
 "vsync                                   : 1.000000\n"
 "\n"
 "post_processing                         : YES\n"
@@ -133,6 +133,7 @@ static const vector<string> available_vars = {
 {"acceleration_color_min"},
 {"air_resistance"},
 {"background_color"},
+{"text_color"},
 {"blur_strength"},
 {"circle_color"},
 {"circle_size"},
@@ -184,7 +185,6 @@ static const vector<string> available_vars = {
 {"framebuffer_width"},
 {"framebuffer_height"},
 {"cycle_particle_color"},
-{"default_gui_text_color"},
 };
 
 bool starts_with(const string& str, const string& s) noexcept
@@ -464,7 +464,6 @@ bool is_var(const string& var) noexcept
 
 void init_variables() noexcept
 {
-
     if (!file_exists(path)) {
         std::ofstream file(path);
         file << default_config;
@@ -508,6 +507,7 @@ void init_variables() noexcept
     set_variable(&acceleration_color_min, "acceleration_color_min");
     set_variable(&air_resistance, "air_resistance");
     set_variable(&background_color, "background_color");
+    set_variable(&text_color, "text_color");
     set_variable(&blur_strength, "blur_strength");
     set_variable(&circle_color, "circle_color");
     set_variable(&circle_size, "circle_size");
@@ -559,7 +559,6 @@ void init_variables() noexcept
     set_variable(&framebuffer_width, "framebuffer_width");
     set_variable(&framebuffer_height, "framebuffer_height");
     set_variable(&cycle_particle_color, "cycle_particle_color");
-    set_variable(&default_gui_text_color, "default_gui_text_color");
 
     console->warn("Config loaded");
 }
@@ -571,6 +570,7 @@ void refresh_variables() noexcept
     variable_map["acceleration_color_min"] = acceleration_color_min;
     variable_map["air_resistance"] = air_resistance;
     variable_map["background_color"] = background_color;
+    variable_map["text_color"] = text_color;
     variable_map["blur_strength"] = blur_strength;
     variable_map["circle_color"] = circle_color;
     variable_map["circle_size"] = circle_size;
@@ -622,5 +622,4 @@ void refresh_variables() noexcept
     variable_map["framebuffer_width"] = framebuffer_width;
     variable_map["framebuffer_height"] = framebuffer_height;
     variable_map["cycle_particle_color"] = cycle_particle_color;
-    variable_map["default_gui_text_color"] = default_gui_text_color;
 }

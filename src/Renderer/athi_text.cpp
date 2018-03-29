@@ -21,7 +21,6 @@
 #include "athi_text.h"
 #include "../Utility/threadsafe_container.h" // ThreadSafe
 #include "athi_camera.h" // cmaera
-#include "../Utility/profiler.h" // gpu_profile, cpu_profile
 #include "athi_renderer.h" // Renderer
 #include "../athi_settings.h" // console
 

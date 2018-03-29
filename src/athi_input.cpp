@@ -22,8 +22,6 @@
 #include "athi_input.h"
 
 #include "./Utility/athi_constant_globals.h"
-#include "./Utility/profiler.h" // cpu_profile, gpu_profile
-
 #include "./Renderer/athi_primitives.h" // draw_hollow_circle, draw_line
 #include "athi_utility.h"  // profile
 
@@ -235,12 +233,11 @@ void drag_color_or_destroy_with_mouse()
 }
 
 void update_inputs() {
-  cpu_profile p("update_inputs");
 
   auto mouse_pos = athi_input_manager.mouse.pos;
   auto context = glfwGetCurrentContext();
   {
-    cpu_profile p("drag_color_or_destroy_with_mouse");
+
     drag_color_or_destroy_with_mouse();
   }
 
