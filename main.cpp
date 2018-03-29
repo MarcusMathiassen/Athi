@@ -26,6 +26,8 @@
 #include "./src/athi_transform.h"
 #include "./src/athi_input.h"
 
+#include "./src/graph.h" // Graph
+
 struct Rectangle: public Entity
 {
     float radius{200.0f};
@@ -178,7 +180,6 @@ struct Circle: public Entity
 };
 Renderer* Circle::renderer;
 
-
 int main()
 {
     Athi_Core athi;
@@ -186,6 +187,11 @@ int main()
 
     Rectangle rectangle;
     Circle circle;
+
+    Graph<int> fps_graph;
+    fps_graph.observe(&framerate);
+
+    athi.entity_manager.add_entity(&fps_graph);
 
     // athi.entity_manager.add_entity(&rectangle);
     // athi.entity_manager.add_entity(&circle);

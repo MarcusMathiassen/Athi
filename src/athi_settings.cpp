@@ -42,7 +42,8 @@ s32 blur_strength{2};
 vec4 acceleration_color_min{vec4(1,1,1,1)};
 vec4 acceleration_color_max{vec4(0.315f, 1.000f, 0.000f, 0.100f)};
 
-vec4 background_color = vec4(0.480f, 0.487f, 1.000f, 1.000f);
+vec4 default_gui_text_color{black};
+vec4 background_color = vec4(1, 1, 1, 1);
 
 // --------------
 // Particle System
@@ -133,8 +134,6 @@ f64 physics_frametime;
 f64 smoothed_physics_frametime;
 s32 physics_framerate;
 s32 physics_FPS_limit{0};
-
-vec4 default_gui_text_color{white};
 
 u16 monitor_refreshrate{60};
 

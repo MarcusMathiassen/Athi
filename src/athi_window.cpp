@@ -196,11 +196,11 @@ void window_pos_callback(GLFWwindow* window, int xpos, int ypos)
 {
   window_pos.x = xpos;
   window_pos.y = ypos;
-  console->info("window pos: {}x{}", xpos, ypos);
+  // console->info("window pos: {}x{}", xpos, ypos);
 }
 
 void window_size_callback(GLFWwindow *window, s32 xpos, s32 ypos) {
-  console->info("window size: {}x{}", xpos, ypos);
+  // console->info("window size: {}x{}", xpos, ypos);
   screen_width = xpos;
   screen_height = ypos;
 }
@@ -211,29 +211,28 @@ void framebuffer_size_callback(GLFWwindow *window, s32 width, s32 height) {
   camera.update_projection(static_cast<float>(width), static_cast<float>(height));
   camera.update();
 
-  render_call([width, height](){
-    glViewport(0.0f, 0.0f, width, height);
+  render_call([width, height]()
+    {
+      glViewport(0.0f, 0.0f, width, height);
 
-    // @Hack: this doesnt look right
-    for (auto& framebuffer: framebuffers) {
-      framebuffer.resize(width, height);
-      check_gl_error();
+      // @Hack: this doesnt look right
+      for (auto& framebuffer: framebuffers) {
+        framebuffer.resize(width, height);
     }
   });
+
   // @Hack
   if (uniformgrid_parts != 4)
     uniformgrid_parts = 4;
   else
     uniformgrid_parts = 16;
 
-  s32 w, h;
-  glfwGetWindowSize(window, &w, &h);
-
   {
+    s32 w, h;
+    glfwGetWindowSize(window, &w, &h);
     float xx;
     glfwGetWindowContentScale(window, &xx, NULL);
     px_scale = xx;
+    // console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
   }
-
-  console->info("framebuffer: {}x{} | pixel scale: {}", width, height, px_scale);
 }

@@ -585,7 +585,6 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
 
   // Should the circles intersect. Seperate them. If not the next
   // calculated values will be off.
-
   separate(a, b);
 
   // A negative 'd' means the circles velocities are in opposite directions

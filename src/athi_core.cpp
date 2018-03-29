@@ -269,8 +269,7 @@ void Athi_Core::draw(GLFWwindow *window)
 
     framebuffers[0].clear();
     framebuffers[0].bind();
-    glDrawBuffer(GL_COLOR_ATTACHMENT0);
-    check_gl_error();
+    //glDrawBuffer(GL_COLOR_ATTACHMENT0); check_gl_error();
 
     // Draw all objects that needs blur
     particle_system.draw();

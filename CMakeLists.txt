@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.11)
 project(athi)
 
-#set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Release)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -104,6 +104,20 @@ elseif(APPLE)
   # INCLUDE DEPENDENCIES
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS)
 
+  set(Boost_USE_STATIC_LIBS OFF)
+  set(Boost_USE_MULTITHREADED ON)
+  set(Boost_USE_STATIC_RUNTIME OFF)
+  find_package(Boost 1.66.0 REQUIRED)
+
+  if(Boost_FOUND)
+      include_directories(${Boost_INCLUDE_DIRS})
+      #add_executable(progname file1.cxx file2.cxx)
+      target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+  endif()
+
+  add_library(freetype STATIC IMPORTED)
+  set_target_properties(freetype PROPERTIES IMPORTED_LOCATION /usr/local/lib/libfreetype.dylib)
+
   add_library(glew STATIC IMPORTED)
   set_target_properties(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GL/libGLEW.a)
 
@@ -111,12 +125,12 @@ elseif(APPLE)
   set_target_properties(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
 
   # LINK TO TARGET
-  target_link_libraries(${PROJECT_NAME} glew glfw "-lpthread -lfreetype -framework OpenGL -framework OpenCL -framework Cocoa -framework IOKIT -framework CoreVideo")
+  target_link_libraries(${PROJECT_NAME} freetype glew glfw "-lpthread -framework OpenGL -framework OpenCL -framework Cocoa -framework IOKIT -framework CoreVideo")
 
 else()
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-  set(CMAKE_CXX_FLAGS_DEBUG "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
+  set(CMAKE_CXX_FLAGS_DEBUG "-march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -std=c++1z -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
 
   # RESOURCE FILE LOCATION
