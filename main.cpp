@@ -33,11 +33,11 @@ int main()
     Athi_Core athi;
     athi.init();
 
-    // Graph<int> fps_graph;
-    // fps_graph.update_frequency = 60;
-    // fps_graph.observe(&framerate);
+    Graph<int> fps_graph;
+    fps_graph.update_frequency = 60;
+    fps_graph.observe(&framerate);
 
-    // athi.entity_manager.add_entity(&fps_graph);
+    athi.entity_manager.add_entity(&fps_graph);
 
     athi.start();
 }

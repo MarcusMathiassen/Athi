@@ -273,10 +273,7 @@ void ParticleSystem::update_data() noexcept
 // @GPU
 void ParticleSystem::gpu_buffer_update() noexcept
 {
-
-
     // Update the gpu buffers incase of more particles..
-
     if (!models.empty()) renderer.update_buffer("transforms", models);
     if (!colors.empty()) renderer.update_buffer("colors", colors);
     if constexpr (use_textured_particles)

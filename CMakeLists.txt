@@ -28,7 +28,7 @@ message("-- Generated with build type: ${CMAKE_BUILD_TYPE}")
 set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-if(WIN32)
+if(MSVC)
 
   set(CMAKE_GENERATOR "Visual Studio 15 2017 Win64")
 
@@ -68,9 +68,12 @@ if(WIN32)
   target_link_libraries(${PROJECT_NAME} freetype opencl glew glfw opengl32.lib user32.lib gdi32.lib kernel32.lib)
 
 elseif(APPLE)
-  #DNDEBUG
-  set(CMAKE_CXX_FLAGS_DEBUG "-DNDEBUG -g -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -Wall -Wextra -pedantic -Wno-unused-function -Wno-unused-parameter")
+
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-unused-function )
+
+  #DNDEBUG -fprofile-generate -fprofile-use
+  set(CMAKE_CXX_FLAGS_DEBUG "-O1 -DNDEBUG -g -fsanitize=address -fno-omit-frame-pointer")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
 
   message("-- Debug   flags: ${CMAKE_CXX_FLAGS_DEBUG}")
   message("-- Release flags: ${CMAKE_CXX_FLAGS_RELEASE}")
@@ -91,6 +94,9 @@ elseif(APPLE)
   )
 
   add_executable(${PROJECT_NAME} ${SOURCES} ${RESOURCE_FILES})
+
+  # Features required
+  target_compile_features(${PROJECT_NAME} PRIVATE cxx_lambda_init_captures)
 
   # BUNDLE OPTIONS
   set_target_properties(${PROJECT_NAME} PROPERTIES
