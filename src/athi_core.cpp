@@ -188,7 +188,7 @@ void Athi_Core::start()
   {
     const auto time_start_frame = get_time();
 
-    //@Hack @Apple: GLFW 3.3.0 has a bug that ignores vsync when not visible
+    //@Hack @Apple: GLFW 3.2.1 has a bug that ignores vsync when not visible
     if (glfwGetWindowAttrib(window_context, GLFW_VISIBLE))
     {
       glfwPollEvents();

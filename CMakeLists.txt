@@ -22,14 +22,13 @@ file(GLOB SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/dep/Universal/*.cpp
   )
 
-message("-- CXX ${CMAKE_CXX_COMPILER}")
+#message("-- CXX ${CMAKE_CXX_COMPILER}")
 message("-- Generated with build type: ${CMAKE_BUILD_TYPE}")
 
 set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 if(MSVC)
-
   set(CMAKE_GENERATOR "Visual Studio 15 2017 Win64")
 
   set(CMAKE_CXX_FLAGS_DEBUG " -DNDEBUG -Ox /MD -W2 /wd4530 /wd4005 /wd4996 /wd4244 /MP")
@@ -72,7 +71,7 @@ elseif(APPLE)
   add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-unused-function )
 
   #DNDEBUG -fprofile-generate -fprofile-use
-  set(CMAKE_CXX_FLAGS_DEBUG "-O1 -DNDEBUG -g -fsanitize=address -fno-omit-frame-pointer")
+  set(CMAKE_CXX_FLAGS_DEBUG "-DNDEBUG -g -fsanitize=address -fno-omit-frame-pointer")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
 
   message("-- Debug   flags: ${CMAKE_CXX_FLAGS_DEBUG}")
@@ -110,28 +109,61 @@ elseif(APPLE)
   # INCLUDE DEPENDENCIES
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS)
 
+  # Get Boost
   set(Boost_USE_STATIC_LIBS OFF)
   set(Boost_USE_MULTITHREADED ON)
   set(Boost_USE_STATIC_RUNTIME OFF)
-  find_package(Boost 1.66.0 REQUIRED)
-
-  if(Boost_FOUND)
-      include_directories(${Boost_INCLUDE_DIRS})
-      #add_executable(progname file1.cxx file2.cxx)
-      target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+  find_package(BOOST 1.66.0 REQUIRED)
+  if(BOOST_FOUND)
+      include_directories(${BOOST_INCLUDE_DIRS})
+      target_link_libraries(${PROJECT_NAME} ${BOOST_LIBRARIES})
   endif()
 
-  add_library(freetype STATIC IMPORTED)
-  set_target_properties(freetype PROPERTIES IMPORTED_LOCATION /usr/local/lib/libfreetype.dylib)
+  # Get Freetype
+  find_package(FREETYPE 2.9 REQUIRED)
+  if(FREETYPE_FOUND)
+      include_directories(${FREETYPE_INCLUDE_DIRS})
+      target_link_libraries(${PROJECT_NAME} ${FREETYPE_LIBRARIES})
+  endif()
 
-  add_library(glew STATIC IMPORTED)
-  set_target_properties(glew PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GL/libGLEW.a)
+  # Get GLEW
+  find_package(GLEW 2.1.0 REQUIRED)
+  if(GLEW_FOUND)
+      include_directories(${GLEW_INCLUDE_DIRS})
+      target_link_libraries(${PROJECT_NAME} ${GLEW_LIBRARIES})
+  endif()
 
-  add_library(glfw STATIC IMPORTED)
-  set_target_properties(glfw PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/dep/macOS/GLFW/libglfw3.a)
+  # Get GLFW
+  find_package(GLFW3 3.2.1 REQUIRED)
+  if (GLFW3_FOUND)
+      include_directories(${GLFW3_INCLUDE_DIR})
+      target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES})
+  endif()
+
+  # Get OpenGL
+  find_package(OPENGL REQUIRED)
+  if (OPENGL_FOUND)
+      include_directories(${OPENGL_INCLUDE_DIR})
+      target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
+  endif()
+
+  # Get OpenCL
+  find_package(OPENCL REQUIRED)
+  if (OPENCL_FOUND)
+      include_directories(${OPENCL_INCLUDE_DIR})
+      target_link_libraries(${PROJECT_NAME} ${OPENCL_LIBRARIES})
+  endif()
 
   # LINK TO TARGET
-  target_link_libraries(${PROJECT_NAME} freetype glew glfw "-lpthread -framework OpenGL -framework OpenCL -framework Cocoa -framework IOKIT -framework CoreVideo")
+  target_link_libraries(${PROJECT_NAME}
+    "-lglfw"
+    "-framework OpenGL"
+    "-framework OpenCL"
+    "-framework Cocoa"
+    "-framework IOKit"
+    "-framework CoreVideo"
+    "-framework Foundation"
+    )
 
 else()
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
