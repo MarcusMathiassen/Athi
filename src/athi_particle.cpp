@@ -298,18 +298,18 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
     renderer.update_buffer("positions", positions);
 }
 
-auto get_min_and_max_pos(const vector<Particle>& particles) {
-  float max_x = static_cast<float>(-INT_MAX);
-  float max_y = static_cast<float>(-INT_MAX);
-  float min_x = static_cast<float>(INT_MAX);
-  float min_y = static_cast<float>(INT_MAX);
-  for (auto &p: particles) {
-    max_x = (p.pos.x > max_x) ? p.pos.x : max_x;
-    max_y = (p.pos.y > max_y) ? p.pos.y : max_y;
-    min_x = (p.pos.x < min_x) ? p.pos.x : min_x;
-    min_y = (p.pos.y < min_y) ? p.pos.y : min_y;
+auto get_min_and_max_pos(const vector<Particle>& particles)
+{
+  vec2 max = {static_cast<float>(-INT_MAX), static_cast<float>(-INT_MAX)};
+  vec2 min = {static_cast<float>(INT_MAX),  static_cast<float>(INT_MAX)};
+  for (const auto &p: particles)
+  {
+    max.x = (p.pos.x > max.x) ? p.pos.x : max.x;
+    max.y = (p.pos.y > max.y) ? p.pos.y : max.y;
+    min.x = (p.pos.x < min.x) ? p.pos.x : min.x;
+    min.y = (p.pos.y < min.y) ? p.pos.y : min.y;
   }
-  return std::tuple<vec2, vec2>({min_x, min_y}, {max_x, max_y});
+  return std::tuple<vec2, vec2>(min, max);
 }
 
 void ParticleSystem::update_collisions() noexcept
@@ -1101,7 +1101,7 @@ static void gravity_well(Particle &a, const vec2 &point) {
   const f32 x2 = point.x;
   const f32 y2 = point.y;
   const f32 m1 = a.mass;
-  const f32 m2 = 1e11f;
+  const f32 m2 = 1e6f;
 
   const f32 dx = x2 - x1;
   const f32 dy = y2 - y1;

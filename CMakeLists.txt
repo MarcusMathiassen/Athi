@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.11)
 project(athi)
 
-set(CMAKE_BUILD_TYPE Debug)
-#set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -70,8 +70,8 @@ elseif(APPLE)
 
   add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-unused-function )
 
-  #DNDEBUG -fprofile-generate -fprofile-use
-  set(CMAKE_CXX_FLAGS_DEBUG "-DNDEBUG -g -fsanitize=address -fno-omit-frame-pointer")
+  #DNDEBUG -fprofile-generate -fprofile-use -fsanitize=address
+  set(CMAKE_CXX_FLAGS_DEBUG "-O1 -DNDEBUG -g")
   set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
 
   message("-- Debug   flags: ${CMAKE_CXX_FLAGS_DEBUG}")

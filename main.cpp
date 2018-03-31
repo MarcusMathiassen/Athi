@@ -28,6 +28,30 @@
 
 #include "./src/graph.h" // Graph
 
+
+/*
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    glBufferData(GL_ARRAY_BUFFER, vertices.size(), static_cast<const GLvoid*>(vertices.data()), GL_STATIC_DRAW);
+
+    const GLint position_loc = 0;
+    const GLint color_loc = 1;
+    const GLint uv_loc = 2;
+
+    glVertexAttribPointer(position_loc, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
+    glVertexAttribPointer(color_loc,    4, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 2 * sizeof(GLfloat));
+    glVertexAttribPointer(uv_loc,       2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 6 * sizeof(GLfloat));
+
+    glEnableVertexAttribArray(position_loc);
+    glEnableVertexAttribArray(color_loc);
+    glEnableVertexAttribArray(uv_loc);
+*/
+
+
 int main()
 {
     Athi_Core athi;
