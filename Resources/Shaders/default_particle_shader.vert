@@ -11,12 +11,7 @@ vertex;
 
 void main()
 {
-    vec2 p = (radius * vertices + position);
-    p.x = ((p.x-0.5) / (viewport_size.x*0.5))-1.0;
-    p.y = ((p.y-0.5) / (viewport_size.y*0.5))-1.0;
-
-    vec2 pos = p;
-
+    vec2 pos = ((radius * vertices + position) / viewport_size * 2.0) - 1.0;
     gl_Position = vec4(pos, 0, 1);
     vertex.color = color;
 }

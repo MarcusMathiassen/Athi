@@ -356,10 +356,10 @@ void ParticleSystem::update_collisions() noexcept
     case Tree::UniformGrid: {
       if (use_multithreading)
       {
-        // dispatch.parallel_for_each(tree_container, [this](size_t begin, size_t end)
-        // {
-        //   collision_quadtree(tree_container, begin, end);
-        // });
+        dispatch.parallel_for_each(tree_container, [this](size_t begin, size_t end)
+        {
+          collision_quadtree(tree_container, begin, end);
+        });
       }
       else {
         collision_quadtree(tree_container, 0, tree_container.size());
@@ -368,10 +368,10 @@ void ParticleSystem::update_collisions() noexcept
 
     case Tree::None: {
       if (use_multithreading) {
-        // dispatch.parallel_for_each(particles, [this](size_t begin, size_t end)
-        // {
-        //    collision_logNxN(particle_count, begin, end);
-        // });
+        dispatch.parallel_for_each(position, [this](size_t begin, size_t end)
+        {
+           collision_logNxN(particle_count, begin, end);
+        });
       }
       else {
           collision_logNxN(particle_count, 0, particle_count);
@@ -479,14 +479,14 @@ void ParticleSystem::update(float dt) noexcept
         // Update particles positions
         if (multithreaded_particle_update)
         {
-          // dispatch.parallel_for_each(position, [dt, this](size_t begin, size_t end)
-          // {
-          //   for (size_t i = begin; i < end; ++i)
-          //   {
-          //     velocity[i].y -= gravity * mass[i];
-          //     update_particles(begin, end, dt);
-          //   }
-          // });
+          dispatch.parallel_for_each(position, [dt, this](size_t begin, size_t end)
+          {
+            for (size_t i = begin; i < end; ++i)
+            {
+              velocity[i].y -= gravity * mass[i];
+              update_particles(begin, end, dt);
+            }
+          });
 
         }
         else
@@ -649,21 +649,8 @@ void ParticleSystem::separate(int a, int b) noexcept
   const f32 cos_angle = cos(collision_angle);
   const f32 sin_angle = sin(collision_angle);
 
-  // @Same as above, just janky not working
-  // const auto midpoint_x = (a_pos.x + b_pos.x) / 2.0f;
-  // const auto midpoint_y = (a_pos.y + b_pos.y) / 2.0f;
-
-  // TODO: could this be done using a normal vector and just inverting it?
-  // amount to move each ball
-
   glm::vec2 a_move = { -collision_depth * 0.5f * cos_angle,  -collision_depth * 0.5f * sin_angle};
   glm::vec2 b_move = {  collision_depth * 0.5f * cos_angle,   collision_depth * 0.5f * sin_angle};
-
-  // @Same as above, just janky not working
-  // const f32 a_move.x = midpoint_x + ar * (a_pos.x - b_pos.x) / collision_depth;
-  // const f32 a_move.y = midpoint_y + ar * (a_pos.y - b_pos.y) / collision_depth;
-  // const f32 b_move.x = midpoint_x + br * (b_pos.x - a_pos.x) / collision_depth;
-  // const f32 b_move.y = midpoint_y + br * (b_pos.y - a_pos.y) / collision_depth;
 
   // stores the position offsets
   glm::vec2 a_pos_move{0.0f};
