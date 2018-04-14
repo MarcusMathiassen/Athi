@@ -99,11 +99,7 @@ void ParticleSystem::init() noexcept {
   opencl_init();
 
   // Setup the particle vertices
-  vector<vec2> positions(num_vertices_per_particle);
-  for (s32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions[i] = {cos(i * kPI * 2.0f / num_vertices_per_particle),
-                    sin(i * kPI * 2.0f / num_vertices_per_particle)};
-  }
+  rebuild_vertices(num_vertices_per_particle);
 
   if constexpr (!use_textured_particles) {
 
@@ -112,25 +108,39 @@ void ParticleSystem::init() noexcept {
       "default_particle_shader.vert",
       "default_particle_shader.frag"
     };
-    shader.attribs = {"position", "color", "transform"};
+    shader.attribs = {"vertices", "position", "color", "radius"};
+    shader.uniforms = {"viewport_size"};
 
-    auto &vertex_buffer = renderer.make_buffer("positions");
-    vertex_buffer.data = &positions[0];
-    vertex_buffer.data_size = num_vertices_per_particle * sizeof(positions[0]);
+    auto &vertex_buffer = renderer.make_buffer("vertices");
+    vertex_buffer.data = &vertices[0];
+    vertex_buffer.data_size = num_vertices_per_particle * sizeof(glm::vec2);
     vertex_buffer.data_members = 2;
     vertex_buffer.type = buffer_type::array_buffer;
     vertex_buffer.usage = buffer_usage::static_draw;
 
-    auto &colors = renderer.make_buffer("colors");
-    colors.data_members = 4;
-    colors.divisor = 1;
+    auto &position_buffer = renderer.make_buffer("position");
+    position_buffer.data_size = sizeof(glm::vec2);
+    position_buffer.data_members = 2;
+    position_buffer.type = buffer_type::array_buffer;
+    position_buffer.usage = buffer_usage::dynamic_draw;
 
-    auto &transforms = renderer.make_buffer("transforms");
-    transforms.data_members = 4;
-    transforms.stride = sizeof(mat4);
-    transforms.pointer = sizeof(vec4);
-    transforms.divisor = 1;
-    transforms.is_matrix = true;
+    auto &color_buffer = renderer.make_buffer("color");
+    color_buffer.data_size = sizeof(glm::vec4);
+    color_buffer.data_members = 4;
+    color_buffer.type = buffer_type::array_buffer;
+    color_buffer.usage = buffer_usage::dynamic_draw;
+
+    auto &radius_buffer = renderer.make_buffer("radius");
+    radius_buffer.data_size = sizeof(float);
+    radius_buffer.data_members = 1;
+    radius_buffer.type = buffer_type::array_buffer;
+    radius_buffer.usage = buffer_usage::dynamic_draw;
+
+    auto &indices_buffer = renderer.make_buffer("indices");
+    indices_buffer.data = (void*)indices;
+    indices_buffer.data_size = sizeof(indices);
+    indices_buffer.type = buffer_type::element_array;
+
 
     renderer.finish();
 
@@ -171,17 +181,21 @@ void ParticleSystem::init() noexcept {
 // Passes the commandbuffer to the renderer
 // @Hot:  Called every frame.
 // @GPU:  Uses the renderer.
-void ParticleSystem::draw() noexcept {
+void ParticleSystem::draw() noexcept
+{
   if (particles.empty()) return;
-
 
   if constexpr (!use_textured_particles) {
     CommandBuffer cmd_buffer;
-    cmd_buffer.type = primitive::triangle_fan;
+    cmd_buffer.type = primitive::triangles;
     cmd_buffer.count = num_vertices_per_particle;
+    cmd_buffer.has_indices = true;
     cmd_buffer.primitive_count = particle_count;
 
     renderer.bind();
+
+    renderer.shader.set_uniform("viewport_size", glm::vec2(framebuffer_width, framebuffer_height));
+
     renderer.draw(cmd_buffer);
   } else {
 
@@ -210,17 +224,7 @@ void ParticleSystem::update_data() noexcept
 
   if (particles.empty()) return;
 
-
-
-  // Check if buffers need resizing
-  if (particle_count > models.size()) {
-    models.resize(particle_count);
-    if constexpr (use_textured_particles)
-      radii.resize(particle_count);
-  }
-
   {
-
     // Update the buffers with the new data.
     if (const auto proj = camera.get_ortho_projection(); multithreaded_particle_update && use_multithreading) {
       dispatch.parallel_for_each(particles, [this, proj](size_t begin, size_t end)
@@ -234,15 +238,6 @@ void ParticleSystem::update_data() noexcept
               colors[p.id] = color_by_acceleration(acceleration_color_min,
                                                    acceleration_color_max, pos_diff);
             }
-
-            // Update the transform
-            transforms[p.id].pos = {p.pos, 1.0f};
-            transforms[p.id].rot.z += p.torque;
-
-            models[p.id] = proj * transforms[p.id].get_model();
-
-            if constexpr (use_textured_particles)
-              radii[p.id] = p.radius;
           }
         });
     } else {
@@ -255,16 +250,6 @@ void ParticleSystem::update_data() noexcept
           colors[p.id] = color_by_acceleration(acceleration_color_min,
                                                acceleration_color_max, pos_diff);
         }
-
-        // Update the transform
-        transforms[p.id].pos = {p.pos, 1.0f};
-        transforms[p.id].rot.z += p.torque;
-
-        models[p.id] = proj * transforms[p.id].get_model();
-
-        if constexpr (use_textured_particles) {
-          radii[p.id] = p.radius;
-        }
       }
     }
   }
@@ -273,29 +258,45 @@ void ParticleSystem::update_data() noexcept
 // @GPU
 void ParticleSystem::gpu_buffer_update() noexcept
 {
-    // Update the gpu buffers incase of more particles..
-    if (!models.empty()) renderer.update_buffer("transforms", models);
-    if (!colors.empty()) renderer.update_buffer("colors", colors);
-    if constexpr (use_textured_particles)
-      if (!radii.empty()) renderer.update_buffer("radius", radii);
+  // Update the gpu buffers incase of more particles..
+  if (!position.empty())  { renderer.update_buffer("position",  position); }
+  if (!color.empty())     { renderer.update_buffer("color",     color); }
+  if (!radius.empty())    { renderer.update_buffer("radius",    radius); }
 }
 
 // @CPU
-void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept {
+void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept
+{
   num_vertices_per_particle = num_vertices;
 
-  // Setup the particle vertices
-  vector<vec2> positions(num_vertices_per_particle);
-  for (s32 i = 0; i < num_vertices_per_particle; ++i) {
-    positions[i] =
-    {
-      cos(i * kPI * 2.0f / num_vertices_per_particle),
-      sin(i * kPI * 2.0f / num_vertices_per_particle)
-    };
+  // We cant draw anything with less than 3 vertices so just return
+  if num_vertices < 3 { return }
+  
+  // Clear previous values
+  vertices.resize(num_vertices)
+  indices.resize(num_vertices * 3)
+  
+  // Add indices
+  for (int n = 0; n < num_vertices - 2; ++n)
+  {
+      indices[n] = 0;
+      indices[n+1] = n + 1;
+      indices[n+2] = n + 2;
   }
 
+  // Add vertices
+  for (int i = 0; i < num_vertices; ++i)
+  {
+    const auto cont = i * kPI * 2 / num_vertices;
+    const auto x = cos(cont)
+    vertices[i] = {cos(cont), sin(cont)};
+  }
+    
+  // Update the GPU buffers
   if constexpr (!use_textured_particles)
-    renderer.update_buffer("positions", positions);
+  {
+    renderer.update_buffer("vertices", vertices);
+  }
 }
 
 auto get_min_and_max_pos(const vector<Particle>& particles)
@@ -508,28 +509,23 @@ void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &co
 {
   buffered_call([this, pos, radius, color]()
   {
-    Particle p;
-    p.pos = pos;
-
+    glm::vec2 vel;
     if (has_random_velocity)
-      p.vel = rand_vec2(-random_velocity_force, random_velocity_force);
-
-    p.radius = radius;
-    p.mass = particle_density * kPI * radius * radius;
-
-    Transform t;
-    t.pos = {pos.x, pos.y, 0};
-    t.scale = {radius, radius, 0};
+      vel = rand_vec2(-random_velocity_force, random_velocity_force);
 
     {
       // @Hack
       if constexpr (multithreaded_engine)
         std::unique_lock<std::mutex> lck(particles_mutex);
+
+      position.emplace_back(pos);
+      velocity.emplace_back(vel);
+      color.emplace_back(color);
+      radius.emplace_back(radius);
+      mass.emplace_back(particle_density * kPI * radius * radius);
+
       p.id = particle_count;
-      particles.emplace_back(p);
       ++particle_count;
-      transforms.emplace_back(t);
-      colors.emplace_back(color);
     }
   });
 }
@@ -739,8 +735,8 @@ void ParticleSystem::apply_n_body() noexcept {
 void ParticleSystem::collision_logNxN(size_t total, size_t begin, size_t end) noexcept {
   for (size_t i = begin; i < end; ++i) {
     for (size_t j = 1 + i; j < total; ++j) {
-      if (collision_check(particles[i], particles[j])) {
-        collision_resolve(particles[i], particles[j]);
+      if (collision_check(i, j)) {
+        collision_resolve(i, j);
       }
     }
   }
@@ -751,8 +747,8 @@ void ParticleSystem::collision_quadtree(const vector<vector<s32>> &tree_containe
   for (size_t k = begin; k < end; ++k) {
     for (size_t i = 0; i < tree_container[k].size(); ++i) {
       for (size_t j = i + 1; j < tree_container[k].size(); ++j) {
-        if (collision_check(particles[tree_container[k][i]], particles[tree_container[k][j]])){
-          collision_resolve(particles[tree_container[k][i]], particles[tree_container[k][j]]);
+        if (collision_check(tree_container[k][i], tree_container[k][j])){
+          collision_resolve(tree_container[k][i], tree_container[k][j]);
         }
       }
     }
@@ -1025,11 +1021,15 @@ void ParticleSystem::opencl_naive() noexcept {
 }
 
 void ParticleSystem::remove_all_with_id(const vector<s32> &ids) noexcept {
-  for (const auto id : ids) {
-    particles.erase(particles.begin() + id);
-    transforms.erase(transforms.begin() + id);
-    colors.erase(colors.begin() + id);
+  for (const auto id : ids)
+  {
+    position.erase(position.begin() + id);
+    velocity.erase(velocity.begin() + id);
+    radius.erase(radius.begin() + id);
+    mass.erase(mass.begin() + id);
+    color.erase(color.begin() + id);
   }
+  particle_count = position.size()
 }
 
 void ParticleSystem::erase_all() noexcept {
@@ -1038,11 +1038,12 @@ void ParticleSystem::erase_all() noexcept {
     if constexpr (multithreaded_engine)
       std::unique_lock<std::mutex> lck(particles_mutex);
 
-   particle_count = 0;
-    particles.clear();
+    position.clear();
+    velocity.clear();
+    radius.clear();
     colors.clear();
-    transforms.clear();
-    models.clear();
+
+    particle_count = 0;
   });
 }
 

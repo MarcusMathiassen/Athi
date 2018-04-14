@@ -44,21 +44,13 @@
 #include <glm/vec2.hpp>  // glm::vec2
 #include <glm/vec4.hpp>  // glm::vec4
 
-// Forward decl
-struct Transform;
-
-
 struct Particle
 {
-  typedef glm::vec2 vec2;
-
   s32        id          {0};
-  vec2       pos         {0.0f, 0.0f};
-  vec2       vel         {0.0f, 0.0f};
-  vec2       acc         {0.0f, 0.0f};
+  glm::vec2  pos         {0.0f, 0.0f};
+  glm::vec2  vel         {0.0f, 0.0f};
   f32        mass        {0.0f};
   f32        radius      {0.0f};
-  f32        torque      {0.0f};
 
   void update(f32 dt) noexcept;
 };
@@ -68,15 +60,21 @@ struct ParticleSystem
   u32   particle_count    {0};
   f32   particle_density  {1.0f};
 
+  std::vector<glm::vec2>  vertices;
+  std::vector<u16>        indices;
+
+  // Particle Data
+  std::vector<glm::vec2>  position;
+  std::vector<glm::vec2>  velocity;
+  std::vector<f32>        radius;
+  std::vector<f32>        mass;
+  std::vector<glm::vec4>  color;
+
   // Data information
   size_t particles_vertices_size{0};
 
   std::mutex              particles_mutex;
-  std::vector<Particle>   particles;
-
-  std::vector<Transform>  transforms;
-  std::vector<glm::vec4>  colors;
-  std::vector<glm::mat4>  models;
+  //std::vector<Particle>   particles;
 
   std::vector<std::vector<s32>> tree_container;
 
