@@ -51,7 +51,6 @@
     glEnableVertexAttribArray(uv_loc);
 */
 
-
 int main()
 {
     Athi_Core athi;

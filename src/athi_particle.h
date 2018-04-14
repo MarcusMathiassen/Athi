@@ -49,6 +49,7 @@ struct Particle
   s32        id          {0};
   glm::vec2  pos         {0.0f, 0.0f};
   glm::vec2  vel         {0.0f, 0.0f};
+  glm::vec2  acc         {0.0f, 0.0f};
   f32        mass        {0.0f};
   f32        radius      {0.0f};
 
@@ -60,10 +61,12 @@ struct ParticleSystem
   u32   particle_count    {0};
   f32   particle_density  {1.0f};
 
+  std::vector<Particle>  particles;
   std::vector<glm::vec2>  vertices;
   std::vector<u16>        indices;
 
   // Particle Data
+  std::vector<s32>        id;
   std::vector<glm::vec2>  position;
   std::vector<glm::vec2>  velocity;
   std::vector<f32>        radius;
@@ -74,7 +77,6 @@ struct ParticleSystem
   size_t particles_vertices_size{0};
 
   std::mutex              particles_mutex;
-  //std::vector<Particle>   particles;
 
   std::vector<std::vector<s32>> tree_container;
 
@@ -83,7 +85,7 @@ struct ParticleSystem
 
   Dispatch    pool;
 
-  Quadtree<Particle>      quadtree;
+  Quadtree    quadtree;
   UniformGrid<Particle>   uniformgrid;
 
   // OPENCL
@@ -115,12 +117,13 @@ struct ParticleSystem
   void update_data() noexcept;
   void gpu_buffer_update() noexcept;
   void update_collisions() noexcept;
+  void update_particles(int begin, int end, f32 dt) noexcept;
   void opencl_naive() noexcept;
   void apply_n_body() noexcept;
   void threaded_buffer_update(size_t begin, size_t end) noexcept;
-  bool collision_check(const Particle &a, const Particle &b) const noexcept;
-  void collision_resolve(Particle &a, Particle &b) const noexcept;
-  void separate(Particle &a, Particle &b) const noexcept;
+  bool collision_check(int a, int b) const noexcept;
+  void collision_resolve(int a, int b) noexcept;
+  void separate(int a, int b) noexcept;
   void collision_logNxN(size_t total, size_t begin, size_t end) noexcept;
   void collision_quadtree(const std::vector<std::vector<s32>> &cont, size_t begin,
                           size_t end) noexcept;
@@ -130,6 +133,7 @@ struct ParticleSystem
   void remove_all_with_id(const std::vector<s32> &ids) noexcept;
   void erase_all() noexcept;
 
+  void gravitational_force(int a, int b) noexcept;
   void pull_towards_point(const glm::vec2& point) noexcept;
 
   std::mutex buffered_call_mutex;

@@ -337,7 +337,7 @@ static void menu_settings() {
     ImGui::SameLine();
     if (ImGui::SmallButton("Color: Apply to all")) {
       for (auto &p : particle_system.particles)
-        particle_system.colors[p.id] = circle_color;
+        particle_system.color[p.id] = circle_color;
     }
     ImGui::ColorPicker4("##particle", (float *)&circle_color);
 
@@ -353,7 +353,7 @@ static void menu_settings() {
     if (ImGui::SmallButton("Radius: Apply to all")) {
       for (auto &p : particle_system.particles) {
         p.radius = circle_size;
-        particle_system.transforms[p.id].scale = glm::vec3(circle_size, circle_size, 0);
+        // particle_system.transforms[p.id].scale = glm::vec3(circle_size, circle_size, 0);
       }
     }
   }

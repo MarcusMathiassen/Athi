@@ -29,22 +29,23 @@
 #include <vector> // std::vector
 #include <memory> // std::unique_ptr
 
-template <class T>
 class Quadtree
 {
 private:
   std::vector<int>   indices;
-  static T*     data;
 
-  std::unique_ptr<Quadtree<T>>  sw;
-  std::unique_ptr<Quadtree<T>>  se;
-  std::unique_ptr<Quadtree<T>>  nw;
-  std::unique_ptr<Quadtree<T>>  ne;
+  static glm::vec2*  position;
+  static float*      radius;
+
+  std::unique_ptr<Quadtree>  sw;
+  std::unique_ptr<Quadtree>  se;
+  std::unique_ptr<Quadtree>  nw;
+  std::unique_ptr<Quadtree>  ne;
 
   Rect  bounds;
   int   level {0};
 
-  constexpr void split() noexcept
+  void split() noexcept
   {
     const glm::vec2 min = bounds.min;
     const glm::vec2 max = bounds.max;
@@ -62,13 +63,13 @@ private:
     const Rect NW = Rect({x, y + h}, {x + w, y + height});
     const Rect NE = Rect({x + w, y + h}, {x + width, y + height});
 
-    sw = std::make_unique<Quadtree<T>>(level + 1, SW);
-    se = std::make_unique<Quadtree<T>>(level + 1, SE);
-    nw = std::make_unique<Quadtree<T>>(level + 1, NW);
-    ne = std::make_unique<Quadtree<T>>(level + 1, NE);
+    sw = std::make_unique<Quadtree>(level + 1, SW);
+    se = std::make_unique<Quadtree>(level + 1, SE);
+    nw = std::make_unique<Quadtree>(level + 1, NW);
+    ne = std::make_unique<Quadtree>(level + 1, NE);
   }
 
-  constexpr void insert(int id) noexcept
+  void insert(int id) noexcept
   {
     if (sw) {
       if (sw->contains(id)) sw->insert(id);
@@ -93,9 +94,9 @@ private:
     }
   }
 
-  constexpr bool contains(int id) const noexcept
+  bool contains(int id) const noexcept
   {
-    return bounds.contains(data[id].pos, data[id].radius);
+    return bounds.contains(position[id], radius[id]);
   }
 
 public:
@@ -105,12 +106,12 @@ public:
 
   Quadtree() = default;
 
-  constexpr Quadtree(int level, const Rect &bounds) noexcept : bounds(bounds), level(level)
+  Quadtree(int level, const Rect &bounds) noexcept : bounds(bounds), level(level)
   {
     indices.reserve(max_capacity);
   }
 
-  constexpr Quadtree(const glm::vec2 &min, const glm::vec2 &max) noexcept
+  Quadtree(const glm::vec2 &min, const glm::vec2 &max) noexcept
   {
     indices.reserve(max_capacity);
     bounds.color = glm::vec4(1,1,1,1);
@@ -118,35 +119,41 @@ public:
     bounds.max = max;
   }
 
-  constexpr void input(std::vector<T> &data_) noexcept
+  void set_data(std::vector<glm::vec2>& position, std::vector<float>& radius) noexcept
   {
-    data = &data_[0];
+    this->position = &position[0];
+    this->radius = &radius[0];
+  }
+
+  void input_range(int begin, int end) noexcept
+  {
     indices.reserve(max_capacity);
-    for (const auto &obj : data_) {
-      insert(obj.id);
+    for (int i = begin; i < end; ++i)
+    {
+      insert(i);
     }
   }
 
-  constexpr void color_neighbours(const T& p, const glm::vec4& color)
+  void color_neighbours(const glm::vec2& position, float radius, const glm::vec4& color)
   {
     if (sw) {
-      if (sw->bounds.contains(p.pos, p.radius)) sw->color_neighbours(p, color);
-      if (se->bounds.contains(p.pos, p.radius)) se->color_neighbours(p, color);
-      if (nw->bounds.contains(p.pos, p.radius)) nw->color_neighbours(p, color);
-      if (ne->bounds.contains(p.pos, p.radius)) ne->color_neighbours(p, color);
+      if (sw->bounds.contains(position, radius)) sw->color_neighbours(position, radius, color);
+      if (se->bounds.contains(position, radius)) se->color_neighbours(position, radius, color);
+      if (nw->bounds.contains(position, radius)) nw->color_neighbours(position, radius, color);
+      if (ne->bounds.contains(position, radius)) ne->color_neighbours(position, radius, color);
       return;
     }
 
     bounds.color = color;
   }
 
-  constexpr void get_neighbours(std::vector<std::vector<int>> &cont, const T& p) const noexcept
+  void get_neighbours(std::vector<std::vector<int>> &cont, const glm::vec2& position, float radius) const noexcept
   {
     if (sw) {
-      if (sw->bounds.contains(p.pos, p.radius)) sw->get_neighbours(cont, p);
-      if (se->bounds.contains(p.pos, p.radius)) se->get_neighbours(cont, p);
-      if (nw->bounds.contains(p.pos, p.radius)) nw->get_neighbours(cont, p);
-      if (ne->bounds.contains(p.pos, p.radius)) ne->get_neighbours(cont, p);
+      if (sw->bounds.contains(position, radius)) sw->get_neighbours(cont, position, radius);
+      if (se->bounds.contains(position, radius)) se->get_neighbours(cont, position, radius);
+      if (nw->bounds.contains(position, radius)) nw->get_neighbours(cont, position, radius);
+      if (ne->bounds.contains(position, radius)) ne->get_neighbours(cont, position, radius);
       return;
     }
 
@@ -155,7 +162,7 @@ public:
      }
   }
 
-  constexpr void get(std::vector<std::vector<int>> &cont) const noexcept
+  void get(std::vector<std::vector<int>> &cont) const noexcept
   {
     if (sw) {
       sw->get(cont);
@@ -188,7 +195,3 @@ public:
     }
   }
 };
-
-template <class T> T* Quadtree<T>::data;
-template <class T> int Quadtree<T>::max_depth;
-template <class T> int Quadtree<T>::max_capacity;

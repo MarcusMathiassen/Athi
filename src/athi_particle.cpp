@@ -55,32 +55,36 @@ void ParticleSystem::execute_buffered_calls() noexcept
   buffered_call_buffer.clear();
 }
 
-void Particle::update(f32 dt) noexcept {
-  // Update pos/vel/acc
-  vel.x += acc.x * dt * time_scale * air_resistance;
-  vel.y += acc.y * dt * time_scale * air_resistance;
-  pos.x += vel.x * dt * time_scale;
-  pos.y += vel.y * dt * time_scale;
-  acc = {0.0f, 0.0f};
-  torque *= 0.999f;
+void ParticleSystem::update_particles(int begin, int end, f32 dt) noexcept
+{
+  for (int i = begin; i < end; ++i)
+  {
+    position[i].x += velocity[i].x * dt * time_scale * air_resistance;
+    position[i].y += velocity[i].y * dt * time_scale * air_resistance;
 
-  if (border_collision) {
     // Border collision
-    if (pos.x < 0 + radius) {
-      pos.x = 0 + radius;
-      vel.x = -vel.x * collision_energy_loss;
-    }
-    if (pos.x > framebuffer_width - radius) {
-      pos.x = framebuffer_width - radius;
-      vel.x = -vel.x * collision_energy_loss;
-    }
-    if (pos.y < 0 + radius) {
-      pos.y = 0 + radius;
-      vel.y = -vel.y * collision_energy_loss;
-    }
-    if (pos.y > framebuffer_height - radius) {
-      pos.y = framebuffer_height - radius;
-      vel.y = -vel.y * collision_energy_loss;
+    if (border_collision)
+    {
+      if (position[i].x < 0 + radius[i])
+      {
+        position[i].x = 0 + radius[i];
+        velocity[i].x = -velocity[i].x * collision_energy_loss;
+      }
+      if (position[i].x > framebuffer_width - radius[i])
+      {
+        position[i].x = framebuffer_width - radius[i];
+        velocity[i].x = -velocity[i].x * collision_energy_loss;
+      }
+      if (position[i].y < 0 + radius[i])
+      {
+        position[i].y = 0 + radius[i];
+        velocity[i].y = -velocity[i].y * collision_energy_loss;
+      }
+      if (position[i].y > framebuffer_height - radius[i])
+      {
+        position[i].y = framebuffer_height - radius[i];
+        velocity[i].y = -velocity[i].y * collision_energy_loss;
+      }
     }
   }
 }
@@ -98,10 +102,27 @@ void ParticleSystem::init() noexcept {
   // OpenCL
   opencl_init();
 
-  // Setup the particle vertices
-  rebuild_vertices(num_vertices_per_particle);
 
   if constexpr (!use_textured_particles) {
+
+      // Clear previous values
+      vertices.resize(num_vertices_per_particle);
+      indices.resize(num_vertices_per_particle * 3);
+
+      // Add indices
+      for (int n = 0; n < num_vertices_per_particle - 2; ++n)
+      {
+          indices[n] = 0;
+          indices[n+1] = n + 1;
+          indices[n+2] = n + 2;
+      }
+
+      // Add vertices
+      for (int i = 0; i < num_vertices_per_particle; ++i)
+      {
+        const auto cont = i * kPI * 2 / num_vertices_per_particle;
+        vertices[i] = {cos(cont), sin(cont)};
+      }
 
     auto &shader = renderer.make_shader();
     shader.sources = {
@@ -113,36 +134,36 @@ void ParticleSystem::init() noexcept {
 
     auto &vertex_buffer = renderer.make_buffer("vertices");
     vertex_buffer.data = &vertices[0];
-    vertex_buffer.data_size = num_vertices_per_particle * sizeof(glm::vec2);
+    vertex_buffer.data_size = vertices.size() * sizeof(vertices[0]);
     vertex_buffer.data_members = 2;
     vertex_buffer.type = buffer_type::array_buffer;
     vertex_buffer.usage = buffer_usage::static_draw;
 
     auto &position_buffer = renderer.make_buffer("position");
-    position_buffer.data_size = sizeof(glm::vec2);
     position_buffer.data_members = 2;
     position_buffer.type = buffer_type::array_buffer;
     position_buffer.usage = buffer_usage::dynamic_draw;
+    position_buffer.divisor = 1;
 
     auto &color_buffer = renderer.make_buffer("color");
-    color_buffer.data_size = sizeof(glm::vec4);
     color_buffer.data_members = 4;
     color_buffer.type = buffer_type::array_buffer;
     color_buffer.usage = buffer_usage::dynamic_draw;
+    color_buffer.divisor = 1;
 
     auto &radius_buffer = renderer.make_buffer("radius");
-    radius_buffer.data_size = sizeof(float);
     radius_buffer.data_members = 1;
     radius_buffer.type = buffer_type::array_buffer;
     radius_buffer.usage = buffer_usage::dynamic_draw;
+    radius_buffer.divisor = 1;
 
-    auto &indices_buffer = renderer.make_buffer("indices");
-    indices_buffer.data = (void*)indices;
-    indices_buffer.data_size = sizeof(indices);
-    indices_buffer.type = buffer_type::element_array;
-
+    // auto &indices_buffer = renderer.make_buffer("indices");
+    // indices_buffer.data = &indices[0];
+    // indices_buffer.data_size = indices.size() * sizeof(indices[0]);
+    // indices_buffer.type = buffer_type::element_array;
 
     renderer.finish();
+
 
   } else {
 
@@ -183,13 +204,13 @@ void ParticleSystem::init() noexcept {
 // @GPU:  Uses the renderer.
 void ParticleSystem::draw() noexcept
 {
-  if (particles.empty()) return;
+  if (particle_count == 0) return;
 
   if constexpr (!use_textured_particles) {
     CommandBuffer cmd_buffer;
-    cmd_buffer.type = primitive::triangles;
+    cmd_buffer.type = primitive::triangle_fan;
     cmd_buffer.count = num_vertices_per_particle;
-    cmd_buffer.has_indices = true;
+    // cmd_buffer.has_indices = true;
     cmd_buffer.primitive_count = particle_count;
 
     renderer.bind();
@@ -222,34 +243,38 @@ void ParticleSystem::update_data() noexcept
   // If there are any buffered calls, execute them
   execute_buffered_calls();
 
-  if (particles.empty()) return;
+  if (particle_count == 0) return;
 
+  if (is_particles_colored_by_acc)
   {
     // Update the buffers with the new data.
-    if (const auto proj = camera.get_ortho_projection(); multithreaded_particle_update && use_multithreading) {
-      dispatch.parallel_for_each(particles, [this, proj](size_t begin, size_t end)
-      {
-       for (size_t i = begin; i < end; ++i)
-          {
-            auto &p = particles[i];
-            if (is_particles_colored_by_acc) {
-              const auto old = p.pos - p.vel;
-              const auto pos_diff = p.pos - old;
-              colors[p.id] = color_by_acceleration(acceleration_color_min,
-                                                   acceleration_color_max, pos_diff);
-            }
-          }
-        });
-    } else {
+    if (multithreaded_particle_update && use_multithreading)
+    {
+      // dispatch.parallel_for_each(position, [this, position, velocity, color](size_t begin, size_t end)
+      // {
+      //  for (size_t i = begin; i < end; ++i)
+      //     {
+      //       auto &p = position[i];
+      //       auto &v = velocity[i];
+
+      //       const auto old = p - v;
+      //       const auto pos_diff = p - old;
+      //       color[i] = color_by_acceleration(acceleration_color_min,
+      //                                        acceleration_color_max, pos_diff);
+      //     }
+      //   });
+    }
+    else
+    {
       for (size_t i = 0; i < particle_count; ++i)
       {
-        auto &p = particles[i];
-        if (is_particles_colored_by_acc) {
-          const auto old = p.pos - p.vel;
-          const auto pos_diff = p.pos - old;
-          colors[p.id] = color_by_acceleration(acceleration_color_min,
-                                               acceleration_color_max, pos_diff);
-        }
+        auto &p = position[i];
+        auto &v = velocity[i];
+
+        const auto old = p - v;
+        const auto pos_diff = p - old;
+        color[i] = color_by_acceleration(acceleration_color_min,
+                                         acceleration_color_max, pos_diff);
       }
     }
   }
@@ -270,12 +295,12 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept
   num_vertices_per_particle = num_vertices;
 
   // We cant draw anything with less than 3 vertices so just return
-  if num_vertices < 3 { return }
-  
+  if (num_vertices < 3) { return; }
+
   // Clear previous values
-  vertices.resize(num_vertices)
-  indices.resize(num_vertices * 3)
-  
+  vertices.resize(num_vertices);
+  indices.resize(num_vertices * 3);
+
   // Add indices
   for (int n = 0; n < num_vertices - 2; ++n)
   {
@@ -288,29 +313,29 @@ void ParticleSystem::rebuild_vertices(u32 num_vertices) noexcept
   for (int i = 0; i < num_vertices; ++i)
   {
     const auto cont = i * kPI * 2 / num_vertices;
-    const auto x = cos(cont)
     vertices[i] = {cos(cont), sin(cont)};
   }
-    
+
   // Update the GPU buffers
   if constexpr (!use_textured_particles)
   {
     renderer.update_buffer("vertices", vertices);
+    renderer.update_buffer("indices", indices);
   }
 }
 
-auto get_min_and_max_pos(const vector<Particle>& particles)
+auto get_min_and_max_pos(const vector<glm::vec2>& position)
 {
-  vec2 max = {static_cast<float>(-INT_MAX), static_cast<float>(-INT_MAX)};
-  vec2 min = {static_cast<float>(INT_MAX),  static_cast<float>(INT_MAX)};
-  for (const auto &p: particles)
+  glm::vec2 max = {static_cast<float>(-INT_MAX),  static_cast<float>(-INT_MAX)};
+  glm::vec2 min = {static_cast<float>( INT_MAX),  static_cast<float>( INT_MAX)};
+  for (const auto &p: position)
   {
-    max.x = (p.pos.x > max.x) ? p.pos.x : max.x;
-    max.y = (p.pos.y > max.y) ? p.pos.y : max.y;
-    min.x = (p.pos.x < min.x) ? p.pos.x : min.x;
-    min.y = (p.pos.y < min.y) ? p.pos.y : min.y;
+    max.x = (p.x > max.x) ? p.x : max.x;
+    max.y = (p.y > max.y) ? p.y : max.y;
+    min.x = (p.x < min.x) ? p.x : min.x;
+    min.y = (p.y < min.y) ? p.y : min.y;
   }
-  return std::tuple<vec2, vec2>(min, max);
+  return std::tuple<glm::vec2, glm::vec2>(min, max);
 }
 
 void ParticleSystem::update_collisions() noexcept
@@ -319,7 +344,7 @@ void ParticleSystem::update_collisions() noexcept
   comparisons = 0;
   resolutions = 0;
 
-  if (openCL_active && particles.size() >= 256) {
+  if (openCL_active && particle_count >= 256) {
     opencl_naive();
     return;
   }
@@ -331,10 +356,10 @@ void ParticleSystem::update_collisions() noexcept
     case Tree::UniformGrid: {
       if (use_multithreading)
       {
-        dispatch.parallel_for_each(tree_container, [this](size_t begin, size_t end)
-        {
-          collision_quadtree(tree_container, begin, end);
-        });
+        // dispatch.parallel_for_each(tree_container, [this](size_t begin, size_t end)
+        // {
+        //   collision_quadtree(tree_container, begin, end);
+        // });
       }
       else {
         collision_quadtree(tree_container, 0, tree_container.size());
@@ -343,10 +368,10 @@ void ParticleSystem::update_collisions() noexcept
 
     case Tree::None: {
       if (use_multithreading) {
-        dispatch.parallel_for_each(particles, [this](size_t begin, size_t end)
-        {
-           collision_logNxN(particle_count, begin, end);
-        });
+        // dispatch.parallel_for_each(particles, [this](size_t begin, size_t end)
+        // {
+        //    collision_logNxN(particle_count, begin, end);
+        // });
       }
       else {
           collision_logNxN(particle_count, 0, particle_count);
@@ -356,17 +381,17 @@ void ParticleSystem::update_collisions() noexcept
 }
 
 void ParticleSystem::draw_debug_nodes() noexcept {
-  if (particles.empty()) return;
+  if (particle_count == 0) return;
 
 
   if (draw_debug) {
 
     // draw the collision box
-    for (const auto& p: particles) {
+    for (int i = 0; i < particle_count; ++i) {
       draw_rect
       (
-        p.pos - p.radius, // min
-        p.pos + p.radius, // max
+        position[i] - radius[i], // min
+        position[i] + radius[i], // max
         debug_color,      // color
         true
       );
@@ -392,16 +417,16 @@ void ParticleSystem::update(float dt) noexcept
   // @Hack
   if constexpr (multithreaded_engine)
     std::unique_lock<std::mutex> lck(particles_mutex);
-  if (particles.empty()) return;
+
+  if (particle_count == 0) return;
 
 
   if (circle_collision)
   {
-
     // Get the optimal bounds for our tree
     vec2 min, max;
     if (tree_optimized_size) {
-      const auto[mi, ma] = get_min_and_max_pos(particles);
+      const auto[mi, ma] = get_min_and_max_pos(position);
       min = mi;
       max = ma;
     }
@@ -413,39 +438,36 @@ void ParticleSystem::update(float dt) noexcept
       case Tree::None: {} break;
       case Tree::Quadtree: {
 
-        Quadtree<Particle>::max_depth = quadtree_depth;
-        Quadtree<Particle>::max_capacity = quadtree_capacity;
+        Quadtree::max_depth = quadtree_depth;
+        Quadtree::max_capacity = quadtree_capacity;
 
         if (tree_optimized_size)
-          quadtree = Quadtree<Particle>(min, max);
+          quadtree = Quadtree(min, max);
         else
-          quadtree = Quadtree<Particle>({0.0f, 0.0f}, {framebuffer_width, framebuffer_height});
+          quadtree = Quadtree({0.0f, 0.0f}, {framebuffer_width, framebuffer_height});
 
         {
-
-          quadtree.input(particles);
-        }
-        {
-
+          quadtree.set_data(position, radius);
+          quadtree.input_range(0, particle_count);
           quadtree.get(tree_container);
         }
       } break;
       case Tree::UniformGrid: {
-        {
+        // {
 
-          if (tree_optimized_size)
-            uniformgrid.init(min, max, uniformgrid_parts);
-          else
-            uniformgrid.reset();
-        }
-        {
+        //   if (tree_optimized_size)
+        //     uniformgrid.init(min, max, uniformgrid_parts);
+        //   else
+        //     uniformgrid.reset();
+        // }
+        // {
 
-          uniformgrid.input(particles);
-        }
-        {
+        //   uniformgrid.input(particles);
+        // }
+        // {
 
-          uniformgrid.get(tree_container);
-        }
+        //   uniformgrid.get(tree_container);
+        // }
       } break;
     }
 
@@ -454,25 +476,26 @@ void ParticleSystem::update(float dt) noexcept
     for (s32 j = 0; j < physics_samples; ++j) {
         {
 
-
         // Update particles positions
         if (multithreaded_particle_update)
         {
-          dispatch.parallel_for_each(particles, [dt, this](size_t begin, size_t end)
-          {
-            for (size_t i = begin; i < end; ++i)
-            {
-              particles[i].acc.y -= (gravity * particles[i].mass) * dt;
-              particles[i].update(dt);
-            }
-          });
+          // dispatch.parallel_for_each(position, [dt, this](size_t begin, size_t end)
+          // {
+          //   for (size_t i = begin; i < end; ++i)
+          //   {
+          //     velocity[i].y -= gravity * mass[i];
+          //     update_particles(begin, end, dt);
+          //   }
+          // });
 
-        } else {
+        }
+        else
+        {
           for (size_t i = 0; i < particle_count; ++i)
           {
-            particles[i].acc.y -= (gravity * particles[i].mass) * dt;
-            particles[i].update(dt);
+            velocity[i].y -= gravity * mass[i];
           }
+          update_particles(0, particle_count, dt);
         }
       }
       update_collisions();
@@ -484,21 +507,21 @@ void ParticleSystem::update(float dt) noexcept
     // Update particles positions
     if (multithreaded_particle_update)
     {
-      dispatch.parallel_for_each(particles, [dt, this](size_t begin, size_t end)
-      {
-        for (size_t i = begin; i < end; ++i)
-        {
-          particles[i].acc.y -= (gravity * particles[i].mass) * dt;
-          particles[i].update(dt);
-        }
-      });
+      // dispatch.parallel_for_each(position, [dt, this](size_t begin, size_t end)
+      // {
+      //   for (size_t i = begin; i < end; ++i)
+      //   {
+      //     velocity[i].y -= gravity * mass[i];
+      //     update_particles(begin, end, dt);
+      //   }
+      // });
 
     } else {
       for (size_t i = 0; i < particle_count; ++i)
       {
-        particles[i].acc.y -= (gravity * particles[i].mass) * dt;
-        particles[i].update(dt);
+        velocity[i].y -= gravity * mass[i];
       }
+      update_particles(0, particle_count, dt);
     }
   }
   }
@@ -518,28 +541,28 @@ void ParticleSystem::add(const glm::vec2 &pos, float radius, const glm::vec4 &co
       if constexpr (multithreaded_engine)
         std::unique_lock<std::mutex> lck(particles_mutex);
 
+      id.emplace_back(particle_count);
       position.emplace_back(pos);
       velocity.emplace_back(vel);
-      color.emplace_back(color);
-      radius.emplace_back(radius);
+      this->radius.emplace_back(radius);
       mass.emplace_back(particle_density * kPI * radius * radius);
+      this->color.emplace_back(color);
 
-      p.id = particle_count;
       ++particle_count;
     }
   });
 }
 
 // @Hot
-bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const noexcept
+bool ParticleSystem::collision_check(int a, int b) const noexcept
 {
   // Local variables
-  const float ax = a.pos.x;
-  const float ay = a.pos.y;
-  const float bx = b.pos.x;
-  const float by = b.pos.y;
-  const float ar = a.radius;
-  const float br = b.radius;
+  const float ax = position[a].x;
+  const float ay = position[a].y;
+  const float bx = position[b].x;
+  const float by = position[b].y;
+  const float ar = radius[a];
+  const float br = radius[b];
 
   // square collision check
   if (ax - ar < bx + br &&
@@ -563,17 +586,17 @@ bool ParticleSystem::collision_check(const Particle &a, const Particle &b) const
 
 
 // Collisions response between two circles with varying radius and mass.
-void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
+void ParticleSystem::collision_resolve(int a, int b) noexcept
 {
   // Local variables
-  auto dx = b.pos.x - a.pos.x;
-  auto dy = b.pos.y - a.pos.y;
-  const auto vdx = b.vel.x - a.vel.x;
-  const auto vdy = b.vel.y - a.vel.y;
-  const auto a_vel = a.vel;
-  const auto b_vel = b.vel;
-  const auto m1 = a.mass;
-  const auto m2 = b.mass;
+  auto dx = position[b].x - position[a].x;
+  auto dy = position[b].y - position[a].y;
+  const auto vdx = velocity[b].x - velocity[a].x;
+  const auto vdy = velocity[b].y - velocity[a].y;
+  const auto a_vel = velocity[a];
+  const auto b_vel = velocity[b];
+  const auto m1 = mass[a];
+  const auto m2 = mass[b];
 
   // Should the circles intersect. Seperate them. If not the next
   // calculated values will be off.
@@ -581,42 +604,6 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
 
   // A negative 'd' means the circles velocities are in opposite directions
   const auto d = dx * vdx + dy * vdy;
-
-
-  // Rotation response
-  //
-  // w is the torque, r is the vector to the collision point from the center, v is the velocity vector
-  // ω = (cross(cp, v1) / r1 * friction + w2 * 0.1; r.x*v.y−r.y*v.x) / (r2x+r2y)
-  //
-  {
-    const f32 ar = a.radius;
-    const f32 br = b.radius;
-    const f32 collision_depth = glm::distance(b.pos, a.pos);
-
-    // contact angle
-
-    dx = b.pos.x - a.pos.x;
-    dy = b.pos.y - a.pos.y;
-
-    const f32 collision_angle = atan2(dy, dx);
-    const f32 cos_angle = cos(collision_angle);
-    const f32 sin_angle = sin(collision_angle);
-
-    const vec2 r1 = { collision_depth * 0.5f * cos_angle,  collision_depth * 0.5f *  sin_angle};
-    const vec2 r2 = {-collision_depth * 0.5f * cos_angle, -collision_depth * 0.5f *  sin_angle};
-    const vec2 v1 = a.vel;
-    const vec2 v2 = b.vel;
-
-    const auto cross = [](const vec2 & v1, const vec2 & v2)
-    {
-      return (v1.x*v2.y) - (v1.y*v2.x);
-    };
-
-    float friction = 0.1f;
-
-    a.torque = (cross(glm::normalize(r2), v1) / ar) * friction + b.torque * 0.1f;
-    b.torque = (cross(glm::normalize(r1), v2) / br) * friction + a.torque * 0.1f;
-  }
 
   // And we don't resolve collisions between circles moving away from eachother
   if (d < 1e-11f)
@@ -636,18 +623,19 @@ void ParticleSystem::collision_resolve(Particle &a, Particle &b) const noexcept
     const auto scal_norm_2_vec = tang * scal_tang_2;
 
     // Update velocities
-    a.vel = (scal_norm_1_vec + scal_norm_1_after_vec) * collision_energy_loss;
-    b.vel = (scal_norm_2_vec + scal_norm_2_after_vec) * collision_energy_loss;
+    velocity[a] = (scal_norm_1_vec + scal_norm_1_after_vec) * collision_energy_loss;
+    velocity[b] = (scal_norm_2_vec + scal_norm_2_after_vec) * collision_energy_loss;
   }
 }
 
 // Separates two intersecting circles.
-void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
+void ParticleSystem::separate(int a, int b) noexcept
+{
   // Local variables
-  const vec2 a_pos = a.pos;
-  const vec2 b_pos = b.pos;
-  const f32 ar = a.radius;
-  const f32 br = b.radius;
+  const glm::vec2 a_pos = position[a];
+  const glm::vec2 b_pos = position[b];
+  const f32 ar = radius[a];
+  const f32 br = radius[b];
 
   const f32 collision_depth = (ar + br) - glm::distance(b_pos, a_pos);
 
@@ -668,8 +656,8 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   // TODO: could this be done using a normal vector and just inverting it?
   // amount to move each ball
 
-  vec2 a_move = { -collision_depth * 0.5f * cos_angle,  -collision_depth * 0.5f * sin_angle};
-  vec2 b_move = {  collision_depth * 0.5f * cos_angle,   collision_depth * 0.5f * sin_angle};
+  glm::vec2 a_move = { -collision_depth * 0.5f * cos_angle,  -collision_depth * 0.5f * sin_angle};
+  glm::vec2 b_move = {  collision_depth * 0.5f * cos_angle,   collision_depth * 0.5f * sin_angle};
 
   // @Same as above, just janky not working
   // const f32 a_move.x = midpoint_x + ar * (a_pos.x - b_pos.x) / collision_depth;
@@ -678,8 +666,8 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
   // const f32 b_move.y = midpoint_y + br * (b_pos.y - a_pos.y) / collision_depth;
 
   // stores the position offsets
-  vec2 a_pos_move{0.0f};
-  vec2 b_pos_move{0.0f};
+  glm::vec2 a_pos_move{0.0f};
+  glm::vec2 b_pos_move{0.0f};
 
   // Make sure they dont moved beyond the border
   // This will become not needed when borders are
@@ -698,18 +686,18 @@ void ParticleSystem::separate(Particle &a, Particle &b) const noexcept {
     b_pos_move.y += b_move.y;
 
   // Update positions
-  a.pos += a_pos_move;
-  b.pos += b_pos_move;
+  position[a] += a_pos_move;
+  position[b] += b_pos_move;
 }
 
-static void gravitational_force(Particle &a, const Particle &b)
+void ParticleSystem::gravitational_force(int a, int b) noexcept
 {
-  const f32 x1 = a.pos.x;
-  const f32 y1 = a.pos.y;
-  const f32 x2 = b.pos.x;
-  const f32 y2 = b.pos.y;
-  const f32 m1 = a.mass;
-  const f32 m2 = b.mass;
+  const f32 x1 = position[a].x;
+  const f32 y1 = position[a].y;
+  const f32 x2 = position[b].x;
+  const f32 y2 = position[b].y;
+  const f32 m1 = mass[a];
+  const f32 m2 = mass[b];
 
   const f32 dx = x2 - x1;
   const f32 dy = y2 - y1;
@@ -719,14 +707,14 @@ static void gravitational_force(Particle &a, const Particle &b)
   const f64 G = kGravitationalConstant;
   const f32 F = G * m1 * m2 / d * d;
 
-  a.acc.x += F * cos(angle);
-  a.acc.y += F * sin(angle);
+  velocity[a].x += F * cos(angle);
+  velocity[a].y += F * sin(angle);
 }
 
 void ParticleSystem::apply_n_body() noexcept {
-  for (size_t i = 0; i < particles.size(); ++i) {
-    for (size_t j = 0; j < particles.size(); ++j) {
-      gravitational_force(particles[i], particles[j]);
+  for (size_t i = 0; i < particle_count; ++i) {
+    for (size_t j = 0; j < particle_count; ++j) {
+      gravitational_force(i, j);
     }
   }
 }
@@ -762,7 +750,7 @@ vector<s32> ParticleSystem::get_neighbours(const Particle& p) const noexcept
 
   switch (tree_type)
   {
-    case TreeType::Quadtree: {quadtree.get_neighbours(nodes, p);} break;
+    case TreeType::Quadtree: {quadtree.get_neighbours(nodes, p.pos, p.radius);} break;
     case TreeType::UniformGrid: {uniformgrid.get_neighbours(nodes, p);} break;
     case TreeType::None: { /* Do Nothing */ } break;
   }
@@ -825,25 +813,25 @@ vector<s32> ParticleSystem::get_particles_in_circle(const Particle &p) noexcept 
 
   vector<s32> ids;
 
-  // Using a tree
-  if (tree_type != TreeType::None && circle_collision)
-  {
-    vector<s32> potential_collisions;
-    potential_collisions = get_neighbours(p);
-	if (!potential_collisions.empty())
-    for (const auto &i : potential_collisions) {
-      if (collision_check(particles[i], p)) {
-        ids.emplace_back(i);
-      }
-    }
-  } else {
-    // Brute-force
-    for (const auto &i : particles) {
-      if (collision_check(i, p)) {
-        ids.emplace_back(i.id);
-      }
-    }
-  }
+ //  // Using a tree
+ //  if (tree_type != TreeType::None && circle_collision)
+ //  {
+ //    vector<s32> potential_collisions;
+ //    potential_collisions = get_neighbours(p);
+	// if (!potential_collisions.empty())
+ //    for (const auto &i : potential_collisions) {
+ //      if (collision_check(particles[i], p)) {
+ //        ids.emplace_back(i);
+ //      }
+ //    }
+ //  } else {
+ //    // Brute-force
+ //    for (const auto &i : particles) {
+ //      if (collision_check(i, p)) {
+ //        ids.emplace_back(i.id);
+ //      }
+ //    }
+ //  }
 
   return ids;
 }
@@ -925,111 +913,112 @@ void ParticleSystem::opencl_naive() noexcept {
   // Create the input and output arrays in device memory
   // for our calculation
   //
-  cl_mem input =
-      clCreateBuffer(context, CL_MEM_READ_ONLY,
-                     sizeof(Particle) * (particle_count), NULL, NULL);
-  cl_mem output =
-      clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-                     sizeof(Particle) * (particle_count), NULL, NULL);
-  if (!input || !output) {
-    console->error("Failed to allocate device memory!");
-    exit(1);
-  }
+  // cl_mem input =
+  //     clCreateBuffer(context, CL_MEM_READ_ONLY,
+  //                    sizeof(Particle) * (particle_count), NULL, NULL);
+  // cl_mem output =
+  //     clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+  //                    sizeof(Particle) * (particle_count), NULL, NULL);
+  // if (!input || !output) {
+  //   console->error("Failed to allocate device memory!");
+  //   exit(1);
+  // }
 
-  // Write our data set s32o the input array in device
-  // memory
-  err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0,
-                             sizeof(Particle) * particle_count, &particles[0],
-                             0, NULL, NULL);
+  // // Write our data set s32o the input array in device
+  // // memory
+  // err = clEnqueueWriteBuffer(commands, input, CL_TRUE, 0,
+  //                            sizeof(Particle) * particle_count, &particles[0],
+  //                            0, NULL, NULL);
 
-  if (err != CL_SUCCESS) console->error("Failed to write to source array!");
+  // if (err != CL_SUCCESS) console->error("Failed to write to source array!");
 
-  // Set the arguments to our compute kernel
-  err = 0;
-  err = clSetKernelArg(kernel, 0, sizeof(input), &input);
-  err |= clSetKernelArg(kernel, 1, sizeof(output), &output);
-  err |= clSetKernelArg(kernel, 2, sizeof(particle_count), &particle_count);
-  // err |= clSetKernelArg(kernel, 3, sizeof(cl_mem) * local, NULL);
-  if (err != CL_SUCCESS) {
-    console->error("[line {}] Failed to set kernel arguments! {}", __LINE__,
-                   err);
-    exit(1);
-  }
+  // // Set the arguments to our compute kernel
+  // err = 0;
+  // err = clSetKernelArg(kernel, 0, sizeof(input), &input);
+  // err |= clSetKernelArg(kernel, 1, sizeof(output), &output);
+  // err |= clSetKernelArg(kernel, 2, sizeof(particle_count), &particle_count);
+  // // err |= clSetKernelArg(kernel, 3, sizeof(cl_mem) * local, NULL);
+  // if (err != CL_SUCCESS) {
+  //   console->error("[line {}] Failed to set kernel arguments! {}", __LINE__,
+  //                  err);
+  //   exit(1);
+  // }
 
-  // Get the maximum work group size for executing the
-  // kernel on the device
-  err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE,
-                                 sizeof(local), &local, NULL);
-  if (err != CL_SUCCESS) {
-    console->error("[line {}] Failed to retrieve kernel work group info!{}",
-                   __LINE__, err);
-    exit(1);
-  }
+  // // Get the maximum work group size for executing the
+  // // kernel on the device
+  // err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE,
+  //                                sizeof(local), &local, NULL);
+  // if (err != CL_SUCCESS) {
+  //   console->error("[line {}] Failed to retrieve kernel work group info!{}",
+  //                  __LINE__, err);
+  //   exit(1);
+  // }
 
-  const auto leftovers = particle_count % local;
-  global_dim = particle_count - leftovers;  // 1D
-  // console->info("OpenCL particle_count: {}", particle_count);
-  // console->info("OpenCL local: {}", local);
-  // console->info("OpenCL global_dim: {}", global_dim);
-  // console->info("OpenCL leftovers run on CPU: {}", leftovers);
+  // const auto leftovers = particle_count % local;
+  // global_dim = particle_count - leftovers;  // 1D
+  // // console->info("OpenCL particle_count: {}", particle_count);
+  // // console->info("OpenCL local: {}", local);
+  // // console->info("OpenCL global_dim: {}", global_dim);
+  // // console->info("OpenCL leftovers run on CPU: {}", leftovers);
 
-  err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, &local,
-                               0, NULL, NULL);
-  // err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, NULL,
-  // 0, NULL, NULL);
-  if (err) {
-    console->error("[line {}] Failed to execute kernel! {}", __LINE__, err);
-    exit(1);
-  }
+  // err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, &local,
+  //                              0, NULL, NULL);
+  // // err = clEnqueueNDRangeKernel(commands, kernel, 1, NULL, &global_dim, NULL,
+  // // 0, NULL, NULL);
+  // if (err) {
+  //   console->error("[line {}] Failed to execute kernel! {}", __LINE__, err);
+  //   exit(1);
+  // }
 
-  // Wait for the command commands to get serviced before
-  // reading back results
-  err = clFinish(commands);
-  if (err != CL_SUCCESS) {
-    console->error("[line {}] clFinish! {}", __LINE__, err);
-    exit(1);
-  }
+  // // Wait for the command commands to get serviced before
+  // // reading back results
+  // err = clFinish(commands);
+  // if (err != CL_SUCCESS) {
+  //   console->error("[line {}] clFinish! {}", __LINE__, err);
+  //   exit(1);
+  // }
 
-  // Read back the results from the device to verify the
-  // output
-  err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0,
-                            sizeof(Particle) * particle_count, &particles[0], 0,
-                            NULL, NULL);
-  if (err != CL_SUCCESS) {
-    console->error("Failed to read output array! {}", err);
-    exit(1);
-  }
+  // // Read back the results from the device to verify the
+  // // output
+  // err = clEnqueueReadBuffer(commands, output, CL_TRUE, 0,
+  //                           sizeof(Particle) * particle_count, &particles[0], 0,
+  //                           NULL, NULL);
+  // if (err != CL_SUCCESS) {
+  //   console->error("Failed to read output array! {}", err);
+  //   exit(1);
+  // }
 
-  if (particle_count != particles.size()) {
-    console->error("Size of particle_count and particles.size() differ! {}!={}",
-                   particle_count, particles.size());
-  }
+  // if (particle_count != particles.size()) {
+  //   console->error("Size of particle_count and particles.size() differ! {}!={}",
+  //                  particle_count, particles.size());
+  // }
 
-  // Handle any leftover that werent checked
-  if (leftovers) {
-    const size_t total = leftovers;
-    if (use_multithreading) {
-      dispatch.parallel_for_each(particles, [this, total](size_t begin, size_t end)
-      {
-        collision_logNxN(total, begin, end);
-      });
-    }
-    else {
-        collision_logNxN(total, particle_count-total, particle_count);
-      }
-  }
+  // // Handle any leftover that werent checked
+  // if (leftovers) {
+  //   const size_t total = leftovers;
+  //   if (use_multithreading) {
+  //     // dispatch.parallel_for_each(particles, [this, total](size_t begin, size_t end)
+  //     // {
+  //     //   collision_logNxN(total, begin, end);
+  //     // });
+  //   }
+  //   else {
+  //       collision_logNxN(total, particle_count-total, particle_count);
+  //     }
+  // }
 }
 
 void ParticleSystem::remove_all_with_id(const vector<s32> &ids) noexcept {
   for (const auto id : ids)
   {
+    this->id.erase(this->id.begin() + id);
     position.erase(position.begin() + id);
     velocity.erase(velocity.begin() + id);
     radius.erase(radius.begin() + id);
-    mass.erase(mass.begin() + id);
     color.erase(color.begin() + id);
+    mass.erase(mass.begin() + id);
   }
-  particle_count = position.size()
+  particle_count = position.size();
 }
 
 void ParticleSystem::erase_all() noexcept {
@@ -1038,10 +1027,12 @@ void ParticleSystem::erase_all() noexcept {
     if constexpr (multithreaded_engine)
       std::unique_lock<std::mutex> lck(particles_mutex);
 
+    id.clear();
     position.clear();
     velocity.clear();
     radius.clear();
-    colors.clear();
+    color.clear();
+    mass.clear();
 
     particle_count = 0;
   });
@@ -1049,83 +1040,83 @@ void ParticleSystem::erase_all() noexcept {
 
 void ParticleSystem::save_state() noexcept
 {
-  buffered_call([this]()
-  {
-      if (particles.empty()) return;
+  // buffered_call([this]()
+  // {
+  //     if (particles.empty()) return;
 
 
-      write_data
-      (
-        "../bin/data.dat",
-          particles,
-          colors,
-          transforms
-      );
+  //     write_data
+  //     (
+  //       "../bin/data.dat",
+  //         particles,
+  //         colors,
+  //         transforms
+  //     );
 
-    console->warn("Particle state saved!");
-  });
+  //   console->warn("Particle state saved!");
+  // });
 }
 
 void ParticleSystem::load_state() noexcept
 {
-  erase_all();
-  buffered_call([this]()
-  {
+  // erase_all();
+  // buffered_call([this]()
+  // {
 
 
-      read_data(
-        "../bin/data.dat",
-          particles,
-          colors,
-          transforms);
+  //     read_data(
+  //       "../bin/data.dat",
+  //         particles,
+  //         colors,
+  //         transforms);
 
-      particle_count = static_cast<u32>(particles.size());
+  //     particle_count = static_cast<u32>(particles.size());
 
-      console->warn("Particle state loaded!");
-  });
+  //     console->warn("Particle state loaded!");
+  // });
 }
 
 void ParticleSystem::set_particles_color(vector<s32> ids, const vec4& color) noexcept
 {
-  buffered_call([this, ids, color]()
-  {
-    for (auto i: ids)
-    {
-      colors[i] = color;
-    }
-  });
+  // buffered_call([this, ids, color]()
+  // {
+  //   for (auto i: ids)
+  //   {
+  //     colors[i] = color;
+  //   }
+  // });
 }
 
 static void gravity_well(Particle &a, const vec2 &point) {
-  const f32 x1 = a.pos.x;
-  const f32 y1 = a.pos.y;
-  const f32 x2 = point.x;
-  const f32 y2 = point.y;
-  const f32 m1 = a.mass;
-  const f32 m2 = 1e6f;
+  // const f32 x1 = a.pos.x;
+  // const f32 y1 = a.pos.y;
+  // const f32 x2 = point.x;
+  // const f32 y2 = point.y;
+  // const f32 m1 = a.mass;
+  // const f32 m2 = 1e6f;
 
-  const f32 dx = x2 - x1;
-  const f32 dy = y2 - y1;
-  const f32 d = sqrt(dx * dx + dy * dy);
+  // const f32 dx = x2 - x1;
+  // const f32 dy = y2 - y1;
+  // const f32 d = sqrt(dx * dx + dy * dy);
 
-  const f32 angle = atan2(dy, dx);
-  const f64 G = kGravitationalConstant;
-  const f32 F = G * m1 * m2 / d * d;
+  // const f32 angle = atan2(dy, dx);
+  // const f64 G = kGravitationalConstant;
+  // const f32 F = G * m1 * m2 / d * d;
 
-  a.acc.x += F * cos(angle);
-  a.acc.y += F * sin(angle);
+  // a.acc.x += F * cos(angle);
+  // a.acc.y += F * sin(angle);
 }
 
 void ParticleSystem::pull_towards_point(const vec2& point) noexcept
 {
     buffered_call([this, point]()
     {
-      dispatch.parallel_for_each(particles, [this, point](size_t begin, size_t end)
-      {
-         for (size_t i = begin; i < end; ++i)
-          {
-            gravity_well(particles[i], point);
-          }
-      });
+      // dispatch.parallel_for_each(particles, [this, point](size_t begin, size_t end)
+      // {
+      //    for (size_t i = begin; i < end; ++i)
+      //     {
+      //       gravity_well(particles[i], point);
+      //     }
+      // });
     });
 }
