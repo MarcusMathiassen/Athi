@@ -250,19 +250,19 @@ void ParticleSystem::update_data() noexcept
     // Update the buffers with the new data.
     if (multithreaded_particle_update && use_multithreading)
     {
-      // dispatch.parallel_for_each(position, [this, position, velocity, color](size_t begin, size_t end)
-      // {
-      //  for (size_t i = begin; i < end; ++i)
-      //     {
-      //       auto &p = position[i];
-      //       auto &v = velocity[i];
+      dispatch.parallel_for_each(position, [this](size_t begin, size_t end)
+      {
+       for (size_t i = begin; i < end; ++i)
+          {
+            auto &p = position[i];
+            auto &v = velocity[i];
 
-      //       const auto old = p - v;
-      //       const auto pos_diff = p - old;
-      //       color[i] = color_by_acceleration(acceleration_color_min,
-      //                                        acceleration_color_max, pos_diff);
-      //     }
-      //   });
+            const auto old = p - v;
+            const auto pos_diff = p - old;
+            color[i] = color_by_acceleration(acceleration_color_min,
+                                             acceleration_color_max, pos_diff);
+          }
+        });
     }
     else
     {
@@ -421,109 +421,82 @@ void ParticleSystem::update(float dt) noexcept
   if (particle_count == 0) return;
 
 
-  if (circle_collision)
+  if (!circle_collision) return;
+
+  // Get the optimal bounds for our tree
+  vec2 min, max;
+  if (tree_optimized_size) {
+    const auto[mi, ma] = get_min_and_max_pos(position);
+    min = mi;
+    max = ma;
+  }
+
+  // Use a tree to partition the data
+  tree_container.clear();
+  switch (tree_type) {
+    using Tree = TreeType;
+    case Tree::None: {} break;
+    case Tree::Quadtree: {
+
+      Quadtree::max_depth = quadtree_depth;
+      Quadtree::max_capacity = quadtree_capacity;
+
+      if (tree_optimized_size)
+        quadtree = Quadtree(min, max);
+      else
+        quadtree = Quadtree({0.0f, 0.0f}, {framebuffer_width, framebuffer_height});
+
+      {
+        quadtree.set_data(position, radius);
+        quadtree.input_range(0, particle_count);
+        quadtree.get(tree_container);
+      }
+    } break;
+    case Tree::UniformGrid: {
+      // {
+
+      //   if (tree_optimized_size)
+      //     uniformgrid.init(min, max, uniformgrid_parts);
+      //   else
+      //     uniformgrid.reset();
+      // }
+      // {
+
+      //   uniformgrid.input(particles);
+      // }
+      // {
+
+      //   uniformgrid.get(tree_container);
+      // }
+    } break;
+  }
+
+  // Check for collisions and resolve if needed
+
+  for (s32 j = 0; j < physics_samples; ++j)
   {
-    // Get the optimal bounds for our tree
-    vec2 min, max;
-    if (tree_optimized_size) {
-      const auto[mi, ma] = get_min_and_max_pos(position);
-      min = mi;
-      max = ma;
-    }
-
-    // Use a tree to partition the data
-    tree_container.clear();
-    switch (tree_type) {
-      using Tree = TreeType;
-      case Tree::None: {} break;
-      case Tree::Quadtree: {
-
-        Quadtree::max_depth = quadtree_depth;
-        Quadtree::max_capacity = quadtree_capacity;
-
-        if (tree_optimized_size)
-          quadtree = Quadtree(min, max);
-        else
-          quadtree = Quadtree({0.0f, 0.0f}, {framebuffer_width, framebuffer_height});
-
+      // Update particles positions
+      if (multithreaded_particle_update)
+      {
+        dispatch.parallel_for_each(position, [dt, this](size_t begin, size_t end)
         {
-          quadtree.set_data(position, radius);
-          quadtree.input_range(0, particle_count);
-          quadtree.get(tree_container);
-        }
-      } break;
-      case Tree::UniformGrid: {
-        // {
-
-        //   if (tree_optimized_size)
-        //     uniformgrid.init(min, max, uniformgrid_parts);
-        //   else
-        //     uniformgrid.reset();
-        // }
-        // {
-
-        //   uniformgrid.input(particles);
-        // }
-        // {
-
-        //   uniformgrid.get(tree_container);
-        // }
-      } break;
-    }
-
-    // Check for collisions and resolve if needed
-
-    for (s32 j = 0; j < physics_samples; ++j) {
-        {
-
-        // Update particles positions
-        if (multithreaded_particle_update)
-        {
-          dispatch.parallel_for_each(position, [dt, this](size_t begin, size_t end)
+          for (size_t i = begin; i < end; ++i)
           {
-            for (size_t i = begin; i < end; ++i)
-            {
-              velocity[i].y -= gravity * mass[i];
-              update_particles(begin, end, dt);
-            }
-          });
+            velocity[i].y -= gravity * mass[i];
+            update_particles(begin, end, dt);
+          }
+        });
 
-        }
-        else
-        {
+      }
+      else
+      {
           for (size_t i = 0; i < particle_count; ++i)
           {
             velocity[i].y -= gravity * mass[i];
           }
           update_particles(0, particle_count, dt);
-        }
       }
-      update_collisions();
-    }
-  } else {
-    {
-
-
-    // Update particles positions
-    if (multithreaded_particle_update)
-    {
-      // dispatch.parallel_for_each(position, [dt, this](size_t begin, size_t end)
-      // {
-      //   for (size_t i = begin; i < end; ++i)
-      //   {
-      //     velocity[i].y -= gravity * mass[i];
-      //     update_particles(begin, end, dt);
-      //   }
-      // });
-
-    } else {
-      for (size_t i = 0; i < particle_count; ++i)
-      {
-        velocity[i].y -= gravity * mass[i];
-      }
-      update_particles(0, particle_count, dt);
-    }
-  }
+    update_collisions();
   }
 }
 
