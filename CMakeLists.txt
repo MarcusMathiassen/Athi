@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.15)
 project(athi)
 
 #set(CMAKE_BUILD_TYPE Debug)
@@ -134,10 +134,10 @@ elseif(APPLE)
   endif()
 
   # Get GLFW
-  find_package(GLFW3 3.2.1 REQUIRED)
-  if (GLFW3_FOUND)
-      include_directories(${GLFW3_INCLUDE_DIR})
-      target_link_libraries(${PROJECT_NAME} ${GLFW3_LIBRARIES})
+  find_package(glfw3 3.3 REQUIRED)
+  if (GLFW_FOUND)
+      include_directories(${GLFW_INCLUDE_DIR})
+      target_link_libraries(${PROJECT_NAME} ${GLFW_LIBRARIES})
   endif()
 
   # Get OpenGL
@@ -156,7 +156,7 @@ elseif(APPLE)
 
   # LINK TO TARGET
   target_link_libraries(${PROJECT_NAME}
-    "-lglfw"
+    glfw
     "-framework OpenGL"
     "-framework OpenCL"
     "-framework Cocoa"
